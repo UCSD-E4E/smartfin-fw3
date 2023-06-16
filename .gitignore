@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Particle outputs
+src/smartfin-fw3.cpp
+target/
+*.bin
+*.elf
+*.hex
+*.lst
+*.map
