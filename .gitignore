@@ -1,41 +1,85 @@
-# Prerequisites
-*.d
+# Created by https://www.toptal.com/developers/gitignore/api/particle,windows,linux,macos
+# Edit at https://www.toptal.com/developers/gitignore?templates=particle,windows,linux,macos
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+### Linux ###
+*~
 
-# Precompiled Headers
-*.gch
-*.pch
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# KDE directory preferences
+.directory
 
-# Fortran module files
-*.mod
-*.smod
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
 
-# Executables
-*.exe
-*.out
-*.app
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
 
-# Particle outputs
-src/smartfin-fw3.cpp
-target/
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+### macOS Patch ###
+# iCloud generated files
+*.icloud
+
+### Particle ###
+# Compiled output #
+
+###################
+
 *.bin
-*.elf
-*.hex
-*.lst
-*.map
+
+### Windows ###
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# End of https://www.toptal.com/developers/gitignore/api/particle,windows,linux,macos
