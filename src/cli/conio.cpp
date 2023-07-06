@@ -1,8 +1,19 @@
+/**
+ * conio.cpp
+ * 
+ * Particle serial input and output for command line use
+ * 
+*/
+
+
 #include "conio.hpp"
 
 #include "Particle.h"
 
 #include <cstdio>
+
+char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
+
 
 
 extern "C"
@@ -23,7 +34,7 @@ extern "C"
         return Serial.read();
     }
 
-    // Write character on screen
+    // Write character
     int putch(int ch)
     {
         char outputBuf[2] = {(char)ch, 0};
@@ -32,7 +43,15 @@ extern "C"
         return ch;
     }
     
-
-
-
+    // Print char array to terminal
+    int SF_OSAL_printf(const char* fmt, ...)
+    {
+        va_list vargs;
+        int nBytes = 0;
+        va_start(vargs, fmt);
+        nBytes = vsnprintf(SF_OSAL_printfBuffer, SF_OSAL_PRINTF_BUFLEN, fmt, vargs);
+        va_end(vargs);
+        Serial.write(SF_OSAL_printfBuffer);
+        return nBytes;
+    }
 }

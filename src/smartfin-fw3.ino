@@ -7,6 +7,8 @@
 #include "Particle.h"
 #include "states.hpp"
 #include "task.hpp"
+#include "product.hpp"
+#include "cli/cli.hpp"
 
 
 // Statemachine for handeling task-switching
@@ -16,19 +18,20 @@ typedef struct StateMachine_
   Task* task;
 }StateMachine_t;
 
-// static CLI cliTask; // TODO
+static CLI cliTask;
 
 
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 
 {
-  // {STATE_CLI, &cliTask}, // TODO
+  {STATE_CLI, &cliTask},
   {STATE_NULL, NULL}
 };
 
 static STATES_e currentState;
 
 static StateMachine_t* findState(STATES_e state);
+static void initalizeTaskObjects(void);
 void mainThread(void* args);
 
 // setup() runs once, when the device is first turned on.
@@ -39,6 +42,8 @@ void setup() {
 
     // Put initialization like pinMode and begin functions here.
     Serial.begin(9500);
+
+    initalizeTaskObjects();
 }
 
 // loop() runs over and over again, as quickly as it can execute.
@@ -65,6 +70,11 @@ void mainThread(void* args) {
     // exit state
     pState->task->exit();
   }
+}
+
+static void initalizeTaskObjects(void) 
+{
+  currentState = STATE_CLI;
 }
 
 static StateMachine_t* findState(STATES_e state)
