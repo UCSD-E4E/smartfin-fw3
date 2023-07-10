@@ -101,6 +101,7 @@ void loop() {
     mainThread(NULL);
 }
 
+
 void mainThread(void* args) {
   StateMachine_t* pState;
   // Starting main thread
