@@ -1,6 +1,7 @@
 #include "systemCommands.hpp"
 #include "../conio.hpp"
 #include "Particle.h"
+#include "../flog.hpp"
 
 
 void CMD_displayMenu(void) {
@@ -9,14 +10,18 @@ void CMD_displayMenu(void) {
                    "");
 }
 
-static int CLI_connect(void)
+void CLI_connect(void)
 {
     Particle.connect();
     waitFor(Particle.connected, 300000);
-    return 1;
 }
-static int CLI_disconnect(void)
+
+void CLI_disconnect(void)
 {
     Particle.disconnect();
-    return 1;
+}
+
+void CLI_displayFLOG(void)
+{
+    FLOG_DisplayLog();
 }

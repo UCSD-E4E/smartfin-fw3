@@ -11,6 +11,7 @@ const CLI_menu_t CLI_menu[] =
     {"menu", "display Menu", &CMD_displayMenu},
     {"disconnect", "disconnect particle", &CLI_disconnect},
     {"connect", "connect particle", &CLI_connect},
+    {"showerrors", "show flog errors", &CLI_displayFLOG},
     {NULL,NULL,NULL}
 };
 
