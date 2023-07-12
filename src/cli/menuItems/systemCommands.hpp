@@ -4,4 +4,6 @@
 void CMD_displayMenu(void);
 void CLI_connect(void);
 void CLI_disconnect(void);
+void CLI_displayFLOG(void);
+
 #endif

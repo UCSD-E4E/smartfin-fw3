@@ -10,16 +10,19 @@
  * Date:
  */
 #include "Particle.h"
-#include "states.hpp"
-#include "task.hpp"
-#include "product.hpp"
+// #include "states.hpp"
+// #include "task.hpp"
+// #include "product.hpp"
 #include "cli/cli.hpp"
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
 
+// int counter = 0;
 
 // Statemachine for handeling task-switching
 void setup();
 void loop();
-#line 15 "/home/emily-thorpe/E4E/smartfin-fw3/src/smartfin-fw3.ino"
+#line 18 "/home/emily-thorpe/E4E/smartfin-fw3/src/smartfin-fw3.ino"
 typedef struct StateMachine_
 {
   STATES_e state;
@@ -27,6 +30,9 @@ typedef struct StateMachine_
 }StateMachine_t;
 
 static CLI cliTask;
+
+static retained uint32_t RESET_GOOD;
+static retained uint32_t nRESET_GOOD;
 
 
 // Holds the list of states and coresponding tasks
@@ -44,18 +50,24 @@ void mainThread(void* args);
 
 // setup() runs once, when the device is first turned on.
 void setup() {
+    Serial.begin(9600);
+
     currentState = STATE_NULL;
 
-    // TODO: add flog error protection here
 
-    // Put initialization like pinMode and begin functions here.
-    Serial.begin(9500);
+    FLOG_Initialize();
+    FLOG_AddError(FLOG_SYS_START, 0); 
 
     initalizeTaskObjects();
 }
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
+    SF_OSAL_printf("OSAL: Test");
+    // SF_OSAL_printf("Counter", counter++);
+    // Serial.print("test-serial");
+    // Serial.print("Serial: Test");
+    // FLOG_DisplayLog();
     mainThread(NULL);
 }
 
@@ -64,6 +76,7 @@ void mainThread(void* args) {
   // Starting main thread
   while(1) 
   {
+    SF_OSAL_printf("Starting state");
     pState = findState(currentState);
     if(NULL == pState)
     {
@@ -74,11 +87,14 @@ void mainThread(void* args) {
 
     // running state
     currentState = pState->task->run();
+    SF_OSAL_printf("Current State: ", currentState);
 
     // exit state
     pState->task->exit();
   }
 }
+
+
 
 static void initalizeTaskObjects(void) 
 {
@@ -95,6 +111,6 @@ static StateMachine_t* findState(STATES_e state)
       return pStates;
     }
   }
-  // FLOG_AddError(FLOG_SYS_UNKNOWNSTATE, state);
+  SF_OSAL_printf("State not found!");
   return NULL;
 }
