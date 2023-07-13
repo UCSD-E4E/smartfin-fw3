@@ -30,13 +30,11 @@ void CLI::init(void)
 
 STATES_e CLI::run(void)
 {
-    // uint32_t lastKeyPressTime;
     CLI_menu_t *cmd;
     char* userInput = new char[100];
+    userInput[0] = 0;
 
-    // lastKeyPressTime = millis();
-
-    SF_OSAL_printf(">");
+    SF_OSAL_printf("\n>");
 
     while (1) 
     {
@@ -69,32 +67,35 @@ STATES_e CLI::run(void)
                         break;
                     case '\r':
                     case '\n':
-                        userInput[i] = ch;
-                        ++i;
+                        userInput[i++] = 0;
                         finishedTyping = true;
                         break;
                     default:
                         putch(ch);
+                        userInput[i++] = ch;
                         break;
                 }
             } else{
-                break;
+                continue;
             }
         }
 
-        if(userInput != NULL) 
+        if(strlen(userInput) != 0) 
         {
             cmd = CLI_findCommand(userInput);
             if(!cmd) 
             {
-                SF_OSAL_printf("Unknown command\n");
+                putch(userInput[0]);
+                SF_OSAL_printf("Unknown command\n\n");
+                SF_OSAL_printf(">");
             } else {
                 cmd->fn();
-                SF_OSAL_printf(">");
+                SF_OSAL_printf("\n>");
             }
         }
         
         userInput = new char[100];
+        userInput[0] = 0;
         i = 0;
     }
 

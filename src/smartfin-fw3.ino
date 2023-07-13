@@ -20,6 +20,8 @@ typedef struct StateMachine_
   Task* task;
 }StateMachine_t;
 
+static CLI cliTask;
+
 
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 
@@ -28,7 +30,6 @@ static StateMachine_t stateMachine[] =
   {STATE_NULL, NULL}
 };
 
-static CLI cliTask;
 static STATES_e currentState;
 
 static StateMachine_t* findState(STATES_e state);
@@ -45,6 +46,8 @@ void setup() {
     
     FLOG_Initialize();
     FLOG_AddError(FLOG_SYS_START, 0); 
+    time32_t bootTime = Time.now();
+    SF_OSAL_printf("Boot time: ", bootTime);
 
     initalizeTaskObjects();
 }
@@ -55,12 +58,15 @@ void loop() {
 }
 
 void mainThread(void* args) {
+
+    time32_t currentTime = Time.now();
+    SF_OSAL_printf("\nCurrent time: ", currentTime);
     StateMachine_t* pState;
     // Starting main thread
 
-    SF_OSAL_printf("Starting state \n");
+    SF_OSAL_printf("\nStarting state");
     pState = findState(currentState);
-    SF_OSAL_printf("Current state: ");
+    SF_OSAL_printf("\nCurrent state: ");
     printState(currentState);
 
 
