@@ -12,5 +12,8 @@
     "C_Cpp.default.cppStandard": "c++17",
     "C_Cpp.default.cStandard": "c17",
     "C_Cpp.default.intelliSenseMode": "windows-gcc-arm",
-    "C_Cpp.intelliSenseEngine": "Tag Parser"
+    "C_Cpp.intelliSenseEngine": "Tag Parser",
+    "C_Cpp.default.browse.path": [
+        "~\\.particle\\toolchains\\deviceOS\\5.3.0\\user\\inc"
+    ]
 }
