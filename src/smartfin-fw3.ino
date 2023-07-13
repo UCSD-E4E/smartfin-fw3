@@ -47,7 +47,7 @@ void setup() {
     FLOG_Initialize();
     FLOG_AddError(FLOG_SYS_START, 0); 
     time32_t bootTime = Time.now();
-    SF_OSAL_printf("Boot time: ", bootTime);
+    // SF_OSAL_printf("Boot time: ", bootTime);
 
     initalizeTaskObjects();
 }
@@ -60,7 +60,7 @@ void loop() {
 void mainThread(void* args) {
 
     time32_t currentTime = Time.now();
-    SF_OSAL_printf("\nCurrent time: ", currentTime);
+    // SF_OSAL_printf("\nCurrent time: ", currentTime);
     StateMachine_t* pState;
     // Starting main thread
 
