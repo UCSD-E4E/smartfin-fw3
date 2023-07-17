@@ -1,5 +1,39 @@
-# Created by https://www.toptal.com/developers/gitignore/api/particle,windows,linux,macos
-# Edit at https://www.toptal.com/developers/gitignordoxye?templates=particle,windows,linux,macos
+# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows,particle,c++
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,windows,particle,c++
+
+### C++ ###
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
 
 ### Linux ###
 *~
@@ -82,5 +116,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/particle,windows,linux,macos
+# End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows,particle,c++
 docs/
+smartfin-fw3.cpp
+target/
