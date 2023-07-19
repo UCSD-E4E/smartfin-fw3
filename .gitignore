@@ -89,5 +89,3 @@ target/
 
 src/smartfin-fw3.cpp
 *.bin
-.vscode/
-.vscode/settings.json
