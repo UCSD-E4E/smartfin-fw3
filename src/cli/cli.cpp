@@ -3,6 +3,7 @@
 #include "Particle.h"
 #include "conio.hpp"
 #include "menuItems/systemCommands.hpp"
+#include "menuItems/debugCommands.hpp"
 #include "cliDebug.hpp"
 
 #include <fstream>
@@ -29,6 +30,7 @@ void CLI::init(void)
     }
 }
 
+
 STATES_e CLI::run(void)
 {
     CLI_menu_t *cmd;
@@ -40,64 +42,28 @@ STATES_e CLI::run(void)
     while (1) 
     {
         //TODO: check for input timeout
-        char ch;
-        int i = 0;
+        
 
 
-        bool finishedTyping = false;
-        // Loop through user input until they finish typing their command
-        while (!finishedTyping) 
-        {
-            if(kbhit()) 
-            {
-                ch = getch();
-
-                if(i > 99) {
-                    // too long of a command
-                    SF_OSAL_printf("\n\nCommand too long");
-
-                    break;
-                }
-
-                switch(ch) 
-                {
-                    case '\b':
-                        i--;
-                        SF_OSAL_printf("\b \b");
-                        userInput[i] = '\0';
-                        break;
-                    case '\r':
-                    case '\n':
-                        userInput[i++] = 0;
-                        finishedTyping = true;
-                        break;
-                    default:
-                        putch(ch);
-                        userInput[i++] = ch;
-                        break;
-                }
-            } else{
-                continue;
-            }
-        }
+        userInput = getUserInput(userInput);
 
         if(strlen(userInput) != 0) 
         {
+            SF_OSAL_printf("\r\n");
             cmd = CLI_findCommand(userInput);
             if(!cmd) 
             {
                 putch(userInput[0]);
-                SF_OSAL_printf("Unknown command\n\n");
+                SF_OSAL_printf("Unknown command\n");
                 SF_OSAL_printf(">");
             } else {
                 cmd->fn();
-                SF_OSAL_printf("\n>");
+                SF_OSAL_printf(">");
             }
         }
         
         userInput = new char[100];
         userInput[0] = 0;
-        i = 0;
     }
 
     delete[] userInput;

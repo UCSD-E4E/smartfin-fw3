@@ -15,6 +15,7 @@ extern "C"
     int putch(int ch);
     int getline(char* buffer, int buflen);
     int SF_OSAL_printf(const char* fmt, ...);
+    char* getUserInput(char* userInput);
 #ifdef __cplusplus
 }
 #endif

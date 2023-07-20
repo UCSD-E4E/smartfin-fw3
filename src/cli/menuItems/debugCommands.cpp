@@ -17,20 +17,17 @@ and whatever GPS function
 #include "Particle.h"
 #include "../flog.hpp"
 
-int CLI_restart(void)
+void CLI_restart(void)
 {
     System.reset();
-    return 1;
 }
 
-int CLI_displayFLOG(void)
+void CLI_displayFLOG(void)
 {
     FLOG_DisplayLog();
-    return 1;
 }
 
-int CLI_clearFLOG(void)
+void CLI_clearFLOG(void)
 {
     FLOG_ClearLog();
-    return 1;
 }

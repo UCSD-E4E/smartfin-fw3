@@ -6,7 +6,9 @@
 
 void CMD_displayMenu(void) {
     SF_OSAL_printf("CLI Menu\n menu - display system menu\n"
-                   "connect - connect particle board , DISCONNECT to disconnect "
+                   "connect - connect particle board\n"
+                   "disconnect - disconnect particle board\n"
+                   "debug - enter debug mode\n"
                    "");
 }
 
