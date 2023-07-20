@@ -16,8 +16,8 @@
 // Statemachine for handeling task-switching
 typedef struct StateMachine_
 {
-  STATES_e state;
-  Task* task;
+    STATES_e state;
+    Task* task;
 }StateMachine_t;
 
 static CLI cliTask;
@@ -26,8 +26,8 @@ static CLI cliTask;
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 
 {
-  {STATE_CLI, &cliTask},
-  {STATE_NULL, NULL}
+    {STATE_CLI, &cliTask},
+    {STATE_NULL, NULL}
 };
 
 static STATES_e currentState;
@@ -39,7 +39,7 @@ void printState(STATES_e state);
 
 // setup() runs once, when the device is first turned on.
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(SF_SERIAL_SPEED);
 
     currentState = STATE_CLI;
 
@@ -86,21 +86,21 @@ void mainThread(void* args) {
 
 static void initalizeTaskObjects(void) 
 {
-  currentState = STATE_CLI;
+    currentState = STATE_CLI;
 }
 
 static StateMachine_t* findState(STATES_e state)
 {
-  StateMachine_t* pStates;
-  for(pStates = stateMachine; pStates->task; pStates++)
-  {
-    if(pStates->state == state)
+    StateMachine_t* pStates;
+    for(pStates = stateMachine; pStates->task; pStates++)
     {
-      return pStates;
+      if(pStates->state == state)
+      {
+        return pStates;
+      }
     }
-  }
-  SF_OSAL_printf("State not found!");
-  return NULL;
+    SF_OSAL_printf("State not found!");
+    return NULL;
 }
 
 

@@ -1,8 +1,9 @@
 /**
- * conio.cpp
- * 
- * Particle serial input and output for command line use
- * 
+* Project smartfin-fw3
+* @file conio.hpp
+* Description: Particle serial input and output for command line use
+* @author @emilybthorpe
+* @date Jul 20 2023
 */
 
 
@@ -11,6 +12,7 @@
 #include "Particle.h"
 
 #include <cstdio>
+#include "stdarg.h"
 
 char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
 
@@ -37,8 +39,6 @@ extern "C"
     // Write character
     int putch(int ch)
     {
-        char outputBuf[2] = {(char)ch, 0};
-        // Serial.print(outputBuf);
         Serial.print((char) ch);
         return ch;
     }

@@ -6,17 +6,30 @@
 
 typedef const struct CLI_menu_
 {
-    char* cmd;
+    const char* cmd;
     const char *const fnName; // menu function name
     void (*fn)(void); // linked menu function
 } CLI_menu_t;
 
-class CLI : public Task {
+class CLI : public Task 
+{
     public:
-    void init(void);
-    STATES_e run(void);
-    void exit(void);
-    CLI_menu_t* CLI_findCommand(char *cmd);
+        /** Initialization function for CLI task
+        */
+        void init(void);
+        /** CLI main 'thread', run repeatadly during task
+         * Manages user input and runs commands
+         * @return next state 
+        */
+        STATES_e run(void);
+        /** Exit function for CLI task
+        */
+        void exit(void);
+        /** Finds the corresponding command (the function to run) from the command name
+         * @param cmd string command to find 
+         * @return command function if found, nullptr otherwise
+        */
+        CLI_menu_t* CLI_findCommand(const char *cmd);
 };
 
 
