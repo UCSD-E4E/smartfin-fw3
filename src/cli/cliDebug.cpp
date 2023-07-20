@@ -23,11 +23,8 @@ const CLI_debugMenu_t CLI_debugMenu[] =
     {"1", "Display Fault Log", &CLI_displayFLOG},
     {"2", "Clear Fault Log", &CLI_clearFLOG},
     {"3", "Restart System", &CLI_restart},
-    {"0", NULL, NULL}
+    {NULL, NULL, NULL}
 };
-
-
-
 
 void CLI_doDebugMode(void)
 {
@@ -40,6 +37,10 @@ void CLI_doDebugMode(void)
 
         CLI_debugMenu_t *cmd;
         userInput = getUserInput(userInput);
+        if(strcmp("0", userInput) == 0) // Exiting debug mode
+        {
+            break;
+        }
         SF_OSAL_printf("Entered command: %s\n", userInput);
 
         if(strlen(userInput) != 0) 
@@ -73,23 +74,6 @@ CLI_debugMenu_t const* CLI_findCommand(char *cmd)
     }
     return NULL;
 }
-
-
-// int CLI_executeDebugMenu(const char cmd) 
-// {
-//     int i;
-//     for(i = 0; CLI_debugMenu[i -1].fn; i++) 
-//     {
-//         if(CLI_debugMenu[i -1].cmd == cmd)
-//         {
-//             SF_OSAL_printf("Executing %s\n", CLI_debugMenu[i-1].fnName);
-//             CLI_debugMenu[i-1].fn();
-//             return 1;
-//         }
-//     }
-//     SF_OSAL_printf("Command not found\n");
-//     return 0;
-// }
 
 void CLI_displayDebugMenu(void) {
     int i;
