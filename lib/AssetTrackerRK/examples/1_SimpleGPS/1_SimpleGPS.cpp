@@ -1,17 +1,19 @@
+
 #include "Particle.h"
 
-#include "gpsCommands.hpp"
-#include "../lib/AssetTrackerRK/src/AssetTrackerRK.h"
-// #include "../../lib/AssetTrackerRK/src/TinyGPS++.h"
-#include "../lib/AssetTrackerRK/src/TinyGPS++.h"
-#include "../conio.hpp"
+#include "AssetTrackerRK.h" // only used for AssetTracker::antennaExternal
 
-
+// Port of TinyGPS for the Particle AssetTracker
+// https://github.com/mikalhart/TinyGPSPlus
+#include "TinyGPS++.h"
 
 SYSTEM_THREAD(ENABLED);
 
- // forward declaration
+/*
+   This sample sketch demonstrates the normal use of a TinyGPS++ (TinyGPSPlus) object directly.
+ */
 
+void displayInfo(); // forward declaration
 
 const unsigned long PUBLISH_PERIOD = 120000;
 const unsigned long SERIAL_PERIOD = 5000;
@@ -24,27 +26,31 @@ unsigned long lastPublish = 0;
 unsigned long startFix = 0;
 bool gettingFix = false;
 
-
-void CLI_GPS() 
+void setup()
 {
-    setupGPS();
-    bool run = true;
-    while (Serial1.available() > 0 && run) 
-    {
-        if (gps.encode(Serial1.read())) 
-        {
-			displayInfo();
-		}
-    }
-}
+	Serial.begin(9600);
 
-void setupGPS() 
-{
-    Serial1.begin(9600);
+	// The GPS module on the AssetTracker is connected to Serial1 and D6
+	Serial1.begin(9600);
+
+	// Settings D6 LOW powers up the GPS module
     pinMode(D6, OUTPUT);
     digitalWrite(D6, LOW);
     startFix = millis();
     gettingFix = true;
+
+    // If using an external antenna, uncomment this block
+    // { AssetTracker t; t.antennaExternal(); }
+}
+
+void loop()
+{
+	while (Serial1.available() > 0) {
+		if (gps.encode(Serial1.read())) {
+			displayInfo();
+		}
+	}
+
 }
 
 void displayInfo()
@@ -79,5 +85,3 @@ void displayInfo()
 	}
 
 }
-
-

@@ -9,6 +9,7 @@ void CMD_displayMenu(void) {
                    "connect - connect particle board\n"
                    "disconnect - disconnect particle board\n"
                    "debug - enter debug mode\n"
+                   "gps - display gps \n"
                    "");
 }
 

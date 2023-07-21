@@ -4,6 +4,7 @@
 #include "conio.hpp"
 #include "menuItems/systemCommands.hpp"
 #include "menuItems/debugCommands.hpp"
+#include "menuItems/gpsCommands.hpp"
 #include "cliDebug.hpp"
 
 #include <fstream>
@@ -14,6 +15,7 @@ const CLI_menu_t CLI_menu[] =
     {"disconnect", "disconnect particle", &CLI_disconnect},
     {"connect", "connect particle", &CLI_connect},
     {"debug", "debug mode", &CLI_doDebugMode},
+    {"gps", "display gps", &CLI_GPS},
     {NULL,NULL,NULL}
 };
 
