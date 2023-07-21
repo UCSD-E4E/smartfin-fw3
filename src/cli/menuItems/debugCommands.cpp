@@ -1,21 +1,17 @@
-/*
-Debug commands:
-
-Todo: 
-
-clearFlog - clear fault log
-
-displayFlog - display fault log
-
-restart - restart the system
-
-and whatever GPS function
-
+/**
+ * Project smartfin-fw3
+ * Description: Debug CLI commands
+ * @file debugCommands.cpp
+ * @author @emilybthorpe
+ * @date Jul 20 2023 
+ * 
 */
 #include "debugCommands.hpp"
 #include "../conio.hpp"
-#include "Particle.h"
 #include "../flog.hpp"
+
+#include "Particle.h"
+
 
 void CLI_restart(void)
 {

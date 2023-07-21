@@ -1,3 +1,12 @@
+/**
+ * Project smartfin-fw3
+ * Description: Manages debug commands for CLI
+ * @file cliDebug.cpp
+ * @author @emilybthorpe
+ * @date Jul 20 2023 
+ * 
+*/
+
 #include "Particle.h"
 
 #include "conio.hpp"
@@ -16,7 +25,6 @@ typedef const struct CLI_debugMenu_
     void (*fn)(void);
 } CLI_debugMenu_t;
 
-CLI_debugMenu_t const* CLI_findCommand(char *cmd);
 
 const CLI_debugMenu_t CLI_debugMenu[] = 
 {
