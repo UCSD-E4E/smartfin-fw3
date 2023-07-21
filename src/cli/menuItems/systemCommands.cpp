@@ -1,3 +1,11 @@
+/**
+* Project smartfin-fw3
+* @file systemCommands.cpp
+* Description: System commands for CI
+* @author @emilybthorpe
+* @date Jul 20 2023
+*/
+
 #include "systemCommands.hpp"
 #include "../conio.hpp"
 #include "Particle.h"
