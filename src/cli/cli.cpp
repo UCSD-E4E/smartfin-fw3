@@ -30,7 +30,7 @@ const CLI_menu_t CLI_menu[] =
 
 static STATES_e CLI_nextState;
 
-char *userInput[SF_CLI_MAX_CMD_LEN];
+char userInput[SF_CLI_MAX_CMD_LEN];
 
 void CLI::init(void) 
 {
@@ -83,7 +83,7 @@ STATES_e CLI::run(void)
                     case '\b':
                         i--;
                         SF_OSAL_printf("\b \b");
-                        userInput[i] = &backspace;
+                        userInput[i] = backspace;
                         break;
                     case '\r':
                     case '\n':
@@ -92,7 +92,7 @@ STATES_e CLI::run(void)
                         break;
                     default:
                         putch(ch);
-                        userInput[i++] = &ch;
+                        userInput[i++] = ch;
                         break;
                 }
             } 
@@ -105,10 +105,10 @@ STATES_e CLI::run(void)
         
         if(userInput[0] != 0) //If there is a command
         {
-            cmd = CLI_findCommand(*userInput);
+            cmd = CLI_findCommand(userInput);
             if(!cmd) 
             {
-                putch(*userInput[0]);
+                putch(userInput[0]);
                 SF_OSAL_printf("Unknown command" __NL__);
                 SF_OSAL_printf(">");
             } 
