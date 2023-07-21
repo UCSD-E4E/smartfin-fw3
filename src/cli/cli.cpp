@@ -30,7 +30,7 @@ const CLI_menu_t CLI_menu[] =
 
 static STATES_e CLI_nextState;
 
-char* userInput[SF_CLI_MAX_CMD_LEN];
+char *userInput[SF_CLI_MAX_CMD_LEN];
 
 void CLI::init(void) 
 {
@@ -59,6 +59,7 @@ STATES_e CLI::run(void)
         //TODO: check for input timeout
         char ch;
         int i = 0;
+        char backspace = '\0';
 
 
         bool finishedTyping = false;
@@ -82,7 +83,7 @@ STATES_e CLI::run(void)
                     case '\b':
                         i--;
                         SF_OSAL_printf("\b \b");
-                        userInput[i] = '\0';
+                        userInput[i] = &backspace;
                         break;
                     case '\r':
                     case '\n':
