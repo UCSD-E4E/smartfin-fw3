@@ -30,6 +30,7 @@ extern "C"
      * @return int 1 if sucssesful 
      */
     int SF_OSAL_printf(const char* fmt, ...);
+    char* getUserInput(char* userInput);
 #ifdef __cplusplus
 }
 #endif

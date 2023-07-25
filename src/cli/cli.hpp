@@ -6,7 +6,7 @@
 
 typedef const struct CLI_menu_
 {
-    const char* cmd;
+    const int cmd;
     const char *const fnName; // menu function name
     void (*fn)(void); // linked menu function
 } CLI_menu_t;

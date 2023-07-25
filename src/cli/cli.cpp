@@ -10,22 +10,31 @@
 
 #include "conio.hpp"
 #include "menuItems/systemCommands.hpp"
+#include "menuItems/debugCommands.hpp"
+
 #include "states.hpp"
 #include "product.hpp"
 #include "consts.hpp"
 
 #include "Particle.h"
 
+#include "cliDebug.hpp"
+
+
 #include <fstream>
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+
+void CMD_displayMenu(void);
+
 
 const CLI_menu_t CLI_menu[] =
 {
-    {"menu", "display Menu", &CMD_displayMenu},
-    {"disconnect", "disconnect particle", &CLI_disconnect},
-    {"connect", "connect particle", &CLI_connect},
-    {"showerrors", "show flog errors", &CLI_displayFLOG},
-    {NULL,NULL,NULL}
+    {0, "display Menu", &CMD_displayMenu},
+    {1, "disconnect particle", &CLI_disconnect},
+    {2, "connect particle", &CLI_connect},
+    {3, "show flog errors", &CLI_displayFLOG},
+    {4, "test printf", &CLI_testPrintf},
+    {NULL,NULL,nullptr}
 };
 
 static STATES_e CLI_nextState;
@@ -43,6 +52,7 @@ void CLI::init(void)
     }
 }
 
+
 STATES_e CLI::run(void)
 {
     CLI_menu_t *cmd;
@@ -57,54 +67,15 @@ STATES_e CLI::run(void)
     {
         memset(userInput, 0, SF_CLI_MAX_CMD_LEN);
         //TODO: check for input timeout
-        char ch;
-        int i = 0;
-        char backspace = '\0';
+        
 
 
-        bool finishedTyping = false;
-        // Loop through user input until they finish typing their command
-        while (!finishedTyping) 
-        {
-            if(kbhit()) 
-            {
-                ch = getch();
-
-                if(i > 99) 
-                {
-                    // too long of a command
-                    SF_OSAL_printf(__NL__ "Command too long");
-
-                    break;
-                }
-
-                switch(ch) 
-                {
-                    case '\b':
-                        i--;
-                        SF_OSAL_printf("\b \b");
-                        userInput[i] = backspace;
-                        break;
-                    case '\r':
-                    case '\n':
-                        userInput[i++] = 0;
-                        finishedTyping = true;
-                        break;
-                    default:
-                        putch(ch);
-                        userInput[i++] = ch;
-                        break;
-                }
-            } 
-            else
-            {
-                continue;
-            }
-        }
+        getUserInput(userInput);
 
         
         if(userInput[0] != 0) //If there is a command
         {
+            SF_OSAL_printf("\r\n");
             cmd = CLI_findCommand(userInput);
             if(!cmd) 
             {
@@ -118,8 +89,6 @@ STATES_e CLI::run(void)
                 SF_OSAL_printf(__NL__">");
             }
         }
-        
-        i = 0;
     }
 
 
@@ -134,13 +103,23 @@ void CLI::exit()
 CLI_menu_t const* CLI::CLI_findCommand(const char *cmd)
 {
     CLI_menu_t const* pCmd;
+    int cmd_value = atoi(cmd);
 
-    for (pCmd = CLI_menu; pCmd->cmd; pCmd++)
+    for (pCmd = CLI_menu; pCmd->fn; pCmd++)
     {
-        if (strcmp(pCmd->cmd, cmd) == 0)
+        if (cmd_value == pCmd->cmd)
         {
             return pCmd;
         }
     }
     return nullptr;
+}
+
+void CMD_displayMenu(void)
+{
+    CLI_menu_t const* pCmd;
+    for(pCmd = CLI_menu; pCmd->fn; pCmd++)
+    {
+        SF_OSAL_printf("%6d: %s" __NL__, pCmd->cmd, pCmd->fnName);
+    }
 }
