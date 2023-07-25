@@ -11,7 +11,10 @@
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "consts.hpp"
 
+SYSTEM_MODE(MANUAL);
+SYSTEM_THREAD(ENABLED);
 
 // Statemachine for handeling task-switching
 typedef struct StateMachine_
@@ -47,7 +50,7 @@ void setup() {
     FLOG_Initialize();
     FLOG_AddError(FLOG_SYS_START, 0); 
     time32_t bootTime = Time.now();
-    // SF_OSAL_printf("Boot time: ", bootTime);
+    SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
 
     initalizeTaskObjects();
 }
@@ -59,8 +62,6 @@ void loop() {
 
 void mainThread(void* args) {
 
-    time32_t currentTime = Time.now();
-    // SF_OSAL_printf("\nCurrent time: ", currentTime);
     StateMachine_t* pState;
     // Starting main thread
 
