@@ -31,7 +31,7 @@ extern "C"
     // Get pressed key
     int getch(void)
     {
-        while(Serial.available() == 0)
+        while (Serial.available() == 0)
         {
             delay(1);
         }
@@ -50,9 +50,9 @@ extern "C"
         int i = 0;
         char userInput;
 
-        while(i < buflen)
+        while (i < buflen)
         {
-            if(kbhit())
+            if (kbhit())
             {
                 userInput = getch();
                 switch(userInput)

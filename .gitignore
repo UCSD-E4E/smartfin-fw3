@@ -123,3 +123,6 @@ target/
 
 src/smartfin-fw3.cpp
 *.bin
+docs/
+src/cli/cli.cpp
+nul

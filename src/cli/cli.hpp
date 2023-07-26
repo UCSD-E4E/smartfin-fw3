@@ -3,14 +3,33 @@
 
 #include "task.hpp"
 
-
+/**
+ * @brief CLI Menu Entry
+ * 
+ */
 typedef const struct CLI_menu_
 {
+    /**
+     * @brief Command ID
+     * 
+     */
     const int cmd;
-    const char *const fnName; // menu function name
-    void (*fn)(void); // linked menu function
+    /**
+     * @brief Command Description/Name
+     * 
+     */
+    const char *const fnName;
+    /**
+     * @brief Command function
+     * 
+     */
+    void (*fn)(void);
 } CLI_menu_t;
 
+/**
+ * @brief CLI Task
+ * 
+ */
 class CLI : public Task 
 {
     public:

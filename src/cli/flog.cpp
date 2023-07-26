@@ -62,7 +62,7 @@ const FLOG_Message_t FLOG_Message[] = {
 
 void FLOG_Initialize(void)
 {
-    if(flogData.nNumEntries != ~flogData.numEntries)
+    if (flogData.nNumEntries != ~flogData.numEntries)
     {
         FLOG_ClearLog();
     }
@@ -71,7 +71,7 @@ void FLOG_AddError(FLOG_CODE_e errorCode, uint16_t parameter)
 {
     FLOG_Entry_t* pEntry;
 
-    if(!FLOG_IsInitialized())
+    if (!FLOG_IsInitialized())
     {
         FLOG_Initialize();
     }
@@ -87,20 +87,20 @@ void FLOG_AddError(FLOG_CODE_e errorCode, uint16_t parameter)
 void FLOG_DisplayLog(void)
 {
     uint32_t i;
-    if(!FLOG_IsInitialized())
+    if (!FLOG_IsInitialized())
     {
         SF_OSAL_printf("Fault Log not initialized!\n");
         return;
     }
 
     i = 0;
-    if(flogData.numEntries > FLOG_NUM_ENTRIES)
+    if (flogData.numEntries > FLOG_NUM_ENTRIES)
     {
         SF_OSAL_printf("Fault Log overrun!\n");
         i = flogData.numEntries - FLOG_NUM_ENTRIES;
     }
 
-    for(; i < flogData.numEntries; i++)
+    for (; i < flogData.numEntries; i++)
     {
         SF_OSAL_printf("%8d %32s, parameter: 0x%04X\n", 
             flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms, 
@@ -118,9 +118,9 @@ void FLOG_ClearLog(void)
 static const char* FLOG_FindMessage(FLOG_CODE_e code)
 {
     const FLOG_Message_t* pEntry;
-    for(pEntry = FLOG_Message; pEntry->code; pEntry++)
+    for (pEntry = FLOG_Message; pEntry->code; pEntry++)
     {
-        if(pEntry->code == code)
+        if (pEntry->code == code)
         {
             return pEntry->message;
         }

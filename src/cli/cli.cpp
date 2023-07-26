@@ -8,34 +8,34 @@
 
 #include "cli.hpp"
 
+#include "cliDebug.hpp"
 #include "conio.hpp"
+#include "consts.hpp"
+#include "menu.hpp"
 #include "menuItems/systemCommands.hpp"
 #include "menuItems/debugCommands.hpp"
-
 #include "states.hpp"
+#include "util.hpp"
 #include "product.hpp"
-#include "consts.hpp"
 
 #include "Particle.h"
-
-#include "cliDebug.hpp"
-
 
 #include <fstream>
 #include <bits/stdc++.h>
 
-void CMD_displayMenu(void);
+void CLI_displayMenu(void);
+void CLI_hexdump(void);
 
-
-const CLI_menu_t CLI_menu[] =
+const Menu_t CLI_menu[] =
 {
-    {0, "display Menu", &CMD_displayMenu},
-    {1, "disconnect particle", &CLI_disconnect},
-    {2, "connect particle", &CLI_connect},
-    {3, "show flog errors", &CLI_displayFLOG},
-    {4, "test printf", &CLI_testPrintf},
-    {5, "debug menu,", &CLI_doDebugMode},
-    {NULL,NULL,nullptr}
+    {1, "display Menu", &CLI_displayMenu},
+    {2, "disconnect particle", &CLI_disconnect},
+    {3, "connect particle", &CLI_connect},
+    {4, "show flog errors", &CLI_displayFLOG},
+    {5, "test printf", &CLI_testPrintf},
+    {6, "debug menu", &CLI_doDebugMode},
+    {7, "hexdump", &CLI_hexdump},
+    {0, nullptr, nullptr}
 };
 
 static STATES_e CLI_nextState;
@@ -47,7 +47,7 @@ void CLI::init(void)
     CLI_nextState = STATE_CLI;
 
     // While there is an avaliable character typed, get it
-    while(kbhit())
+    while (kbhit())
     {
         getch();
     }
@@ -56,7 +56,7 @@ void CLI::init(void)
 
 STATES_e CLI::run(void)
 {
-    CLI_menu_t *cmd;
+    Menu_t *cmd;
     
     userInput[0] = 0;
 
@@ -70,13 +70,14 @@ STATES_e CLI::run(void)
 
         getline(userInput, SF_CLI_MAX_CMD_LEN);
 
-        if(strlen(userInput) != 0) //If there is a command
+        if (strlen(userInput) != 0) //If there is a command
         {
             SF_OSAL_printf("\r\n");
-            cmd = CLI_findCommand(userInput);
-            if(!cmd) 
+            cmd = MNU_findCommand(userInput, CLI_menu);
+            if (!cmd) 
             {
                 SF_OSAL_printf("Unknown command" __NL__);
+                MNU_displayMenu(CLI_menu);
                 SF_OSAL_printf(">");
             } 
             else 
@@ -96,26 +97,22 @@ void CLI::exit()
     return;
 }
 
-CLI_menu_t const* CLI::CLI_findCommand(const char *cmd)
+void CLI_displayMenu(void)
 {
-    CLI_menu_t const* pCmd;
-    int cmd_value = atoi(cmd);
-
-    for (pCmd = CLI_menu; pCmd->fn; pCmd++)
-    {
-        if (cmd_value == pCmd->cmd)
-        {
-            return pCmd;
-        }
-    }
-    return nullptr;
+    MNU_displayMenu(CLI_menu);
 }
 
-void CMD_displayMenu(void)
+void CLI_hexdump(void)
 {
-    CLI_menu_t const* pCmd;
-    for(pCmd = CLI_menu; pCmd->fn; pCmd++)
-    {
-        SF_OSAL_printf("%6d: %s" __NL__, pCmd->cmd, pCmd->fnName);
-    }
+    char input_buffer[SF_CLI_MAX_CMD_LEN];
+    char* pEndTok;
+    const void* pBuffer;
+    size_t buffer_length;
+    SF_OSAL_printf("Starting address: 0x");
+    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    pBuffer = (const void*)strtol(input_buffer, &pEndTok, 16);
+    SF_OSAL_printf("Length: ");
+    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    buffer_length = (size_t) strtol(input_buffer, &pEndTok, 10);
+    hexDump(pBuffer, buffer_length);
 }
