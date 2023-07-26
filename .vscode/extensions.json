@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "ms-vscode.cpptools",
-        "particle.particle-vscode-core"
+        "particle.particle-vscode-core",
+        "cschlosser.doxdocgen"
     ]
 }
