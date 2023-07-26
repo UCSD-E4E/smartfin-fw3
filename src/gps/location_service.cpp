@@ -22,6 +22,8 @@
 #include "location_service.h"
 #include "EdgePlatform.h"
 
+#include "cli/conio.hpp"
+
 using namespace spark;
 using namespace particle;
 using namespace std::placeholders;
@@ -80,6 +82,7 @@ int LocationService::begin(const LocationServiceConfiguration& config) {
 
     // Assign the GNSS hardware variant
     setModuleType();
+
 
     if( GnssModuleType::GNSS_UBLOX == gnssType_ )
     {
@@ -273,6 +276,9 @@ int LocationService::stop() {
 int LocationService::getLocation(LocationPoint& point) {
     point.type = LocationType::DEVICE;
     point.sources.append(LocationSource::GNSS);
+
+    point.locked = (ubloxGps_->getLock()) ? 1 : 0;
+    SF_OSAL_printf("Getting location");
 
     if( GnssModuleType::GNSS_UBLOX == gnssType_ )
     {

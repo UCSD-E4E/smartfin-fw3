@@ -2,7 +2,7 @@
 //       THIS IS A GENERATED FILE - DO NOT EDIT       //
 /******************************************************/
 
-#line 1 "/home/emily-thorpe/E4E/smartfin-fw3/src/smartfin-fw3.ino"
+#line 1 "c:/Users/e4e/workspace/smartfin-fw3/src/smartfin-fw3.ino"
 /*
  * Project smartfin-fw3
  * Description: 
@@ -23,7 +23,7 @@
 void setup();
 void loop();
 static void printState(STATES_e state);
-#line 18 "/home/emily-thorpe/E4E/smartfin-fw3/src/smartfin-fw3.ino"
+#line 18 "c:/Users/e4e/workspace/smartfin-fw3/src/smartfin-fw3.ino"
 typedef struct StateMachine_
 {
   STATES_e state;
@@ -58,7 +58,8 @@ void setup() {
     FLOG_AddError(FLOG_SYS_START, 0); 
     time32_t bootTime = Time.now();
     // SF_OSAL_printf("Boot time: ", bootTime);
-    LocationServiceConfiguration config = new LocationServiceConfiguration();
+
+    LocationServiceConfiguration config = create_location_service_config();
     LocationService::instance().begin(config);
     LocationService::instance().start();
 

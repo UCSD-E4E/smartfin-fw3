@@ -38,6 +38,6 @@ void displayInfo(LocationPoint point)
 					point.verticalAccuracy);
 	SF_OSAL_printf("Satellites in use %d", point.satsInUse);
 	SF_OSAL_printf("Satellites in view", point.satsInView);
-
+	SF_OSAL_printf("Locked: %d", point.locked);
 }
 
