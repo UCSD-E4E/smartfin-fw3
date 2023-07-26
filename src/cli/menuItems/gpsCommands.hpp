@@ -2,9 +2,6 @@
 #define __GPSCMD_HPP__
 
 
-#include "ubloxGPS.h"
-#include "quecGNSS.h"
-
 /**
  * @brief Display info from GPS
  * 

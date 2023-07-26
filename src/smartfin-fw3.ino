@@ -11,6 +11,7 @@
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "gps/location_service.h"
 
 
 // Statemachine for handeling task-switching
@@ -48,6 +49,10 @@ void setup() {
     FLOG_AddError(FLOG_SYS_START, 0); 
     time32_t bootTime = Time.now();
     // SF_OSAL_printf("Boot time: ", bootTime);
+    LocationServiceConfiguration config = new LocationServiceConfiguration();
+    LocationService::instance().begin(config);
+    LocationService::instance().start();
+
 
     initalizeTaskObjects();
 }
