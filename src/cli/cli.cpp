@@ -35,7 +35,7 @@ const CLI_menu_t CLI_menu[] =
     {3, "show flog errors", &CLI_displayFLOG},
     {4, "test printf", &CLI_testPrintf},
     {5, "debug menu,", &CLI_doDebugMode},
-    {NULL,NULL,nullptr}
+    {0, nullptr, nullptr}
 };
 
 static STATES_e CLI_nextState;
