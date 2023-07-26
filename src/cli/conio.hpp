@@ -10,17 +10,24 @@
 extern "C"
 {
 #endif
-    /// @brief Get character from serial
-    /// @param  void
-    /// @return void
+    /**
+     * @brief Gets character from serial
+     * 
+     * @return int key thats pressed
+     */
     int getch(void);
-    /// @brief Check if key is pressed
-    /// @param void
-    /// @return 1 if pressed, 0 otherwise
+    /**
+     * @brief Checks if key is pressed
+     * 
+     * @return int whether key is pressed
+     */
     int kbhit(void);
-    /// @brief Pushes character to serial
-    /// @param ch character to display
-    /// @return void
+    /**
+     * @brief Pushes character to serial
+     * 
+     * @param ch character to push
+     * @return int Sucsess value
+     */
     int putch(int ch);
     /**
      * @brief Printf equivilent

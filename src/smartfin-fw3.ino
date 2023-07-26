@@ -5,13 +5,15 @@
  * Date:
  */
 #include "Particle.h"
+
 #include "states.hpp"
 #include "task.hpp"
 #include "product.hpp"
+#include "consts.hpp"
+
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "consts.hpp"
 
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
@@ -65,14 +67,14 @@ void mainThread(void* args) {
     StateMachine_t* pState;
     // Starting main thread
 
-    SF_OSAL_printf("\nStarting state");
+    SF_OSAL_printf(__NL__ "Starting state");
     pState = findState(currentState);
-    SF_OSAL_printf("\nCurrent state: ");
+    SF_OSAL_printf(__NL__ "Current state: ");
     printState(currentState);
 
 
     if(pState == NULL) {
-        SF_OSAL_printf("State is null!");
+        SF_OSAL_printf(__NL__ "State is null!");
         return;
     }
 

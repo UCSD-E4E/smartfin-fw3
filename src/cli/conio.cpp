@@ -14,7 +14,6 @@
 
 
 #include <cstdio>
-#include "stdarg.h"
 #include "../product.hpp"
 
 char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
