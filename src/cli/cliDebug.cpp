@@ -1,24 +1,29 @@
-#include "Particle.h"
+/**
+ * @file cliDebug.cpp
+ * @author Emily Thorpe (ethorpe@macalster.edu)
+ * @brief 
+ * @version 0.1
+ * @date 2023-07-26
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
+#include "cliDebug.hpp"
 
 #include "conio.hpp"
-#include  <cstdlib>
-#include <cstdio>
-#include <cmath>
 #include "cli.hpp"
 #include "menuItems/debugCommands.hpp"
 #include "util.hpp"
-#include "cliDebug.hpp"
+#include "menu.hpp"
 
-typedef const struct CLI_debugMenu_
-{
-    int cmd;
-    const char *const fnName;
-    void (*fn)(void);
-} CLI_debugMenu_t;
+#include "Particle.h"
 
-CLI_debugMenu_t const* CLI_findCommand(int cmd);
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
 
-const CLI_debugMenu_t CLI_debugMenu[] = 
+const Menu_t CLI_debugMenu[] = 
 {
     {1, "Display Fault Log", &CLI_displayFLOG},
     {2, "Clear Fault Log", &CLI_clearFLOG},
@@ -33,9 +38,9 @@ void CLI_doDebugMode(void)
     int CLI_debugRun = 1;
     while (CLI_debugRun)
     {
-        CLI_displayDebugMenu();
+        MNU_displayMenu(CLI_debugMenu);
 
-        CLI_debugMenu_t *cmd;
+        Menu_t *cmd;
         userInput = getUserInput(userInput);
         if (atoi(userInput) == 0) // Exiting debug mode
         {
@@ -43,7 +48,7 @@ void CLI_doDebugMode(void)
         }
 
         SF_OSAL_printf("\r\n");
-        cmd = CLI_findCommand(atoi(userInput));
+        cmd = MNU_findCommand(userInput, CLI_debugMenu);
         if (!cmd) 
         {
             putch(userInput[0]);
@@ -54,29 +59,5 @@ void CLI_doDebugMode(void)
             SF_OSAL_printf(">");
         }
     }
-    return;
-}
-
-CLI_debugMenu_t const* CLI_findCommand(int cmd)
-{
-    CLI_debugMenu_t const* pCmd;
-
-    for (pCmd = CLI_debugMenu; pCmd->cmd; pCmd++)
-    {
-        if (pCmd->cmd == cmd)
-        {
-            return pCmd;
-        }
-    }
-    return NULL;
-}
-
-void CLI_displayDebugMenu(void) {
-    int i;
-    for (i = 1; CLI_debugMenu[i - 1].fn; i++)
-    {
-        SF_OSAL_printf("%3d %s\n", i, CLI_debugMenu[i-1].fnName);
-    }
-    SF_OSAL_printf("0 Exit\n");
     return;
 }

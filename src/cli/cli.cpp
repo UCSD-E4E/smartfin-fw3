@@ -11,6 +11,7 @@
 #include "cliDebug.hpp"
 #include "conio.hpp"
 #include "consts.hpp"
+#include "menu.hpp"
 #include "menuItems/systemCommands.hpp"
 #include "menuItems/debugCommands.hpp"
 #include "states.hpp"
@@ -21,12 +22,12 @@
 #include <fstream>
 #include <bits/stdc++.h>
 
-void CMD_displayMenu(void);
+void CLI_displayMenu(void);
 
 
-const CLI_menu_t CLI_menu[] =
+const Menu_t CLI_menu[] =
 {
-    {0, "display Menu", &CMD_displayMenu},
+    {0, "display Menu", &CLI_displayMenu},
     {1, "disconnect particle", &CLI_disconnect},
     {2, "connect particle", &CLI_connect},
     {3, "show flog errors", &CLI_displayFLOG},
@@ -53,7 +54,7 @@ void CLI::init(void)
 
 STATES_e CLI::run(void)
 {
-    CLI_menu_t *cmd;
+    Menu_t *cmd;
     
     userInput[0] = 0;
 
@@ -70,7 +71,7 @@ STATES_e CLI::run(void)
         if (strlen(userInput) != 0) //If there is a command
         {
             SF_OSAL_printf("\r\n");
-            cmd = CLI_findCommand(userInput);
+            cmd = MNU_findCommand(userInput, CLI_menu);
             if (!cmd) 
             {
                 SF_OSAL_printf("Unknown command" __NL__);
@@ -93,26 +94,7 @@ void CLI::exit()
     return;
 }
 
-CLI_menu_t const* CLI::CLI_findCommand(const char *cmd)
+void CLI_displayMenu(void)
 {
-    CLI_menu_t const* pCmd;
-    int cmd_value = atoi(cmd);
-
-    for (pCmd = CLI_menu; pCmd->fn; pCmd++)
-    {
-        if (cmd_value == pCmd->cmd)
-        {
-            return pCmd;
-        }
-    }
-    return nullptr;
-}
-
-void CMD_displayMenu(void)
-{
-    CLI_menu_t const* pCmd;
-    for (pCmd = CLI_menu; pCmd->fn; pCmd++)
-    {
-        SF_OSAL_printf("%6d: %s" __NL__, pCmd->cmd, pCmd->fnName);
-    }
+    MNU_displayMenu(CLI_menu);
 }
