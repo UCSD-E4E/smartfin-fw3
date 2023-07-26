@@ -87,39 +87,6 @@ extern "C"
 
         return userInput;
     }
-
-    int getline(char* buffer, int buflen)
-    {
-        int i = 0;
-        char userInput;
-
-        while(i < buflen)
-        {
-            if(kbhit())
-            {
-                userInput = getch();
-                switch(userInput)
-                {
-                    case '\b':
-                        i--;
-                        putch('\b');
-                        putch(' ');
-                        putch('\b');
-                        break;
-                    default:
-                        buffer[i++] = userInput;
-                        putch(userInput);
-                        break;
-                    case '\r':
-                        buffer[i++] = 0;
-                        putch('\r');
-                        putch('\n');
-                        return i;
-                }
-            }
-        }
-        return i;
-    }
     
     // Print char array to terminal
     int SF_OSAL_printf(const char* fmt, ...) {
