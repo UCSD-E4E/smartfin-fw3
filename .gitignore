@@ -116,12 +116,13 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows,particle,c++
-smartfin-fw3.cpp
-target/5.3.0/tracker/smartfin-fw3.bin.crc_block
-target/5.3.0/tracker/smartfin-fw3.bin.no_crc
-target/5.3.0/tracker/smartfin-fw3.map
-target/5.3.0/tracker/smartfin-fw3.dfu
-target/5.3.0/tracker/smartfin-fw3.elf
-target/5.3.0/tracker/smartfin-fw3.hex
-target/5.3.0/tracker/smartfin-fw3.lst
+# End of https://www.toptal.com/developers/gitignore/api/particle,windows,linux,macos
+
+
+target/
+
+src/smartfin-fw3.cpp
+*.bin
+docs/
+src/cli/cli.cpp
+nul
