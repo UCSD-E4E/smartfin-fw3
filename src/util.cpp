@@ -1,6 +1,18 @@
-#include "Particle.h"
+/**
+ * @file util.cpp
+ * @author Emily Thorpe (ethorpe@macalster.edu)
+ * @brief 
+ * @version 0.1
+ * @date 2023-07-26
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "util.hpp"
+
 #include "cli/conio.hpp"
+
+#include "Particle.h"
 
 void hexDump(const void *memoryLocation, int buflen) 
 {
