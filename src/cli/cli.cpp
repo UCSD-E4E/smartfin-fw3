@@ -8,18 +8,15 @@
 
 #include "cli.hpp"
 
+#include "cliDebug.hpp"
 #include "conio.hpp"
+#include "consts.hpp"
 #include "menuItems/systemCommands.hpp"
 #include "menuItems/debugCommands.hpp"
-
 #include "states.hpp"
 #include "product.hpp"
-#include "consts.hpp"
 
 #include "Particle.h"
-
-#include "cliDebug.hpp"
-
 
 #include <fstream>
 #include <bits/stdc++.h>
