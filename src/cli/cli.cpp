@@ -34,6 +34,7 @@ const CLI_menu_t CLI_menu[] =
     {2, "connect particle", &CLI_connect},
     {3, "show flog errors", &CLI_displayFLOG},
     {4, "test printf", &CLI_testPrintf},
+    {5, "debug menu,", &CLI_doDebugMode},
     {NULL,NULL,nullptr}
 };
 
