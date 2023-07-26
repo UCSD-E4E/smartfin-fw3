@@ -15,6 +15,7 @@
 #include "menuItems/systemCommands.hpp"
 #include "menuItems/debugCommands.hpp"
 #include "states.hpp"
+#include "util.hpp"
 #include "product.hpp"
 
 #include "Particle.h"
@@ -23,7 +24,7 @@
 #include <bits/stdc++.h>
 
 void CLI_displayMenu(void);
-
+void CLI_hexdump(void);
 
 const Menu_t CLI_menu[] =
 {
@@ -32,7 +33,8 @@ const Menu_t CLI_menu[] =
     {3, "connect particle", &CLI_connect},
     {4, "show flog errors", &CLI_displayFLOG},
     {5, "test printf", &CLI_testPrintf},
-    {6, "debug menu,", &CLI_doDebugMode},
+    {6, "debug menu", &CLI_doDebugMode},
+    {7, "hexdump", &CLI_hexdump},
     {0, nullptr, nullptr}
 };
 
@@ -75,6 +77,7 @@ STATES_e CLI::run(void)
             if (!cmd) 
             {
                 SF_OSAL_printf("Unknown command" __NL__);
+                MNU_displayMenu(CLI_menu);
                 SF_OSAL_printf(">");
             } 
             else 
@@ -97,4 +100,19 @@ void CLI::exit()
 void CLI_displayMenu(void)
 {
     MNU_displayMenu(CLI_menu);
+}
+
+void CLI_hexdump(void)
+{
+    char input_buffer[SF_CLI_MAX_CMD_LEN];
+    char* pEndTok;
+    const void* pBuffer;
+    size_t buffer_length;
+    SF_OSAL_printf("Starting address: 0x");
+    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    pBuffer = (const void*)strtol(input_buffer, &pEndTok, 16);
+    SF_OSAL_printf("Length: ");
+    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    buffer_length = (size_t) strtol(input_buffer, &pEndTok, 10);
+    hexDump(pBuffer, buffer_length);
 }
