@@ -6,6 +6,7 @@
 #include <cmath>
 #include "cli.hpp"
 #include "menuItems/debugCommands.hpp"
+#include "product.hpp"
 #include "util.hpp"
 #include "cliDebug.hpp"
 
@@ -28,7 +29,7 @@ const CLI_debugMenu_t CLI_debugMenu[] =
 
 void CLI_doDebugMode(void)
 {
-    char* userInput = new char[100];
+    char* userInput = new char[SF_CLI_MAX_CMD_LEN];
 
     int CLI_debugRun = 1;
     while(CLI_debugRun)
@@ -36,7 +37,7 @@ void CLI_doDebugMode(void)
         CLI_displayDebugMenu();
 
         CLI_debugMenu_t *cmd;
-        userInput = getUserInput(userInput);
+        getline(userInput, SF_CLI_MAX_CMD_LEN);
         if(atoi(userInput) == 0) // Exiting debug mode
         {
             break;

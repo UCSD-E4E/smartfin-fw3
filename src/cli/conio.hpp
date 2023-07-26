@@ -38,12 +38,12 @@ extern "C"
      */
     int SF_OSAL_printf(const char* fmt, ...);
     /**
-     * @brief Get user input line
-     * 
-     * @param userInput Char array
-     * @return char* Char array of user input
+     * @brief Gets user input lin
+     * @param buffer buffer to write too
+     * @param buflen length of buffer
      */
-    char* getUserInput(char* userInput);
+    int getline(char* buffer, int buflen);
+
 #ifdef __cplusplus
 }
 #endif

@@ -68,7 +68,7 @@ STATES_e CLI::run(void)
     {
         memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
 
-        getUserInput(userInput);
+        getline(userInput, SF_CLI_MAX_CMD_LEN);
 
         if(strlen(userInput) != 0) //If there is a command
         {
