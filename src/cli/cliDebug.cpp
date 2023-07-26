@@ -31,20 +31,20 @@ void CLI_doDebugMode(void)
     char* userInput = new char[100];
 
     int CLI_debugRun = 1;
-    while(CLI_debugRun)
+    while (CLI_debugRun)
     {
         CLI_displayDebugMenu();
 
         CLI_debugMenu_t *cmd;
         userInput = getUserInput(userInput);
-        if(atoi(userInput) == 0) // Exiting debug mode
+        if (atoi(userInput) == 0) // Exiting debug mode
         {
             break;
         }
 
         SF_OSAL_printf("\r\n");
         cmd = CLI_findCommand(atoi(userInput));
-        if(!cmd) 
+        if (!cmd) 
         {
             putch(userInput[0]);
             SF_OSAL_printf("Unknown command\n");
@@ -73,7 +73,7 @@ CLI_debugMenu_t const* CLI_findCommand(int cmd)
 
 void CLI_displayDebugMenu(void) {
     int i;
-    for(i = 1; CLI_debugMenu[i - 1].fn; i++)
+    for (i = 1; CLI_debugMenu[i - 1].fn; i++)
     {
         SF_OSAL_printf("%3d %s\n", i, CLI_debugMenu[i-1].fnName);
     }

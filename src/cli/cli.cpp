@@ -44,7 +44,7 @@ void CLI::init(void)
     CLI_nextState = STATE_CLI;
 
     // While there is an avaliable character typed, get it
-    while(kbhit())
+    while (kbhit())
     {
         getch();
     }
@@ -71,11 +71,11 @@ STATES_e CLI::run(void)
         getUserInput(userInput);
 
         
-        if(userInput[0] != 0) //If there is a command
+        if (userInput[0] != 0) //If there is a command
         {
             SF_OSAL_printf("\r\n");
             cmd = CLI_findCommand(userInput);
-            if(!cmd) 
+            if (!cmd) 
             {
                 putch(userInput[0]);
                 SF_OSAL_printf("Unknown command" __NL__);
@@ -116,7 +116,7 @@ CLI_menu_t const* CLI::CLI_findCommand(const char *cmd)
 void CMD_displayMenu(void)
 {
     CLI_menu_t const* pCmd;
-    for(pCmd = CLI_menu; pCmd->fn; pCmd++)
+    for (pCmd = CLI_menu; pCmd->fn; pCmd++)
     {
         SF_OSAL_printf("%6d: %s" __NL__, pCmd->cmd, pCmd->fnName);
     }

@@ -32,7 +32,7 @@ extern "C"
     // Get pressed key
     int getch(void)
     {
-        while(Serial.available() == 0)
+        while (Serial.available() == 0)
         {
             delay(1);
         }
@@ -53,11 +53,11 @@ extern "C"
         // Loop through user input until they finish typing their command
         while (!finishedTyping) 
         {
-            if(kbhit()) 
+            if (kbhit()) 
             {
                 ch = getch();
 
-                if(i > SF_CLI_MAX_CMD_LEN - 1) {
+                if (i > SF_CLI_MAX_CMD_LEN - 1) {
                     // too long of a command
                     SF_OSAL_printf("\n\nCommand too long");
 
@@ -94,9 +94,9 @@ extern "C"
         int i = 0;
         char userInput;
 
-        while(i < buflen)
+        while (i < buflen)
         {
-            if(kbhit())
+            if (kbhit())
             {
                 userInput = getch();
                 switch(userInput)

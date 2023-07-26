@@ -71,7 +71,7 @@ void mainThread(void* args) {
     printState(currentState);
 
 
-    if(pState == NULL) {
+    if (pState == NULL) {
         SF_OSAL_printf("State is null!");
         return;
     }
@@ -93,9 +93,9 @@ static void initalizeTaskObjects(void)
 static StateMachine_t* findState(STATES_e state)
 {
     StateMachine_t* pStates;
-    for(pStates = stateMachine; pStates->task; pStates++)
+    for (pStates = stateMachine; pStates->task; pStates++)
     {
-      if(pStates->state == state)
+      if (pStates->state == state)
       {
         return pStates;
       }
