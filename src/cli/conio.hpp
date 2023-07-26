@@ -38,6 +38,7 @@ extern "C"
      */
     int SF_OSAL_printf(const char* fmt, ...);
     char* getUserInput(char* userInput);
+    int getline(char* buffer, int buflen);
 #ifdef __cplusplus
 }
 #endif
