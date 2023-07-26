@@ -27,12 +27,12 @@ void CLI_displayMenu(void);
 
 const Menu_t CLI_menu[] =
 {
-    {0, "display Menu", &CLI_displayMenu},
-    {1, "disconnect particle", &CLI_disconnect},
-    {2, "connect particle", &CLI_connect},
-    {3, "show flog errors", &CLI_displayFLOG},
-    {4, "test printf", &CLI_testPrintf},
-    {5, "debug menu,", &CLI_doDebugMode},
+    {1, "display Menu", &CLI_displayMenu},
+    {2, "disconnect particle", &CLI_disconnect},
+    {3, "connect particle", &CLI_connect},
+    {4, "show flog errors", &CLI_displayFLOG},
+    {5, "test printf", &CLI_testPrintf},
+    {6, "debug menu,", &CLI_doDebugMode},
     {0, nullptr, nullptr}
 };
 

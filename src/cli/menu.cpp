@@ -2,18 +2,17 @@
 
 const Menu_t* MNU_findCommand(const char* input, const Menu_t* pMenu)
 {
-    Menu_t* pCmd;
     int cmd_value = atoi(input);
 
     if (cmd_value == 0)
     {
         return nullptr;
     }
-    for (pCmd = pMenu; pCmd->cmd; pCmd++)
+    for (; pMenu->cmd; pMenu++)
     {
-        if (cmd_value == pCmd->cmd)
+        if (cmd_value == pMenu->cmd)
         {
-            return pCmd;
+            return pMenu;
         }
     }
     return nullptr;
