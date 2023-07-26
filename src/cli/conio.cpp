@@ -45,49 +45,6 @@ extern "C"
         return ch;
     }
 
-    char* getUserInput(char* userInput) {
-        bool finishedTyping = false;
-        char ch;
-        int i = 0;
-        // Loop through user input until they finish typing their command
-        while (!finishedTyping) 
-        {
-            if (kbhit()) 
-            {
-                ch = getch();
-
-                if (i > SF_CLI_MAX_CMD_LEN - 1) {
-                    // too long of a command
-                    SF_OSAL_printf("\n\nCommand too long");
-
-                    break;
-                }
-
-                switch(ch) 
-                {
-                    case '\b':
-                        i--;
-                        SF_OSAL_printf("\b \b");
-                        userInput[i] = '\0';
-                        break;
-                    case '\r':
-                    case '\n':
-                        userInput[i++] = 0;
-                        finishedTyping = true;
-                        break;
-                    default:
-                        putch(ch);
-                        userInput[i++] = ch;
-                        break;
-                }
-            } else{
-                continue;
-            }
-        }
-
-        return userInput;
-    }
-
     int getline(char* buffer, int buflen)
     {
         int i = 0;
