@@ -59,7 +59,7 @@
         "numeric": "cpp",
         "semaphore": "cpp"
     },
-    "particle.firmwareVersion": "4.1.0",
+    "particle.firmwareVersion": "5.4.1",
     "particle.targetPlatform": "tracker",
     "particle.targetDevice": "SmartFin-DevBoard-2",
     "cmake.configureOnOpen": false,
