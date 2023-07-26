@@ -63,21 +63,16 @@ STATES_e CLI::run(void)
 
     while (1) 
     {
-        memset(userInput, 0, SF_CLI_MAX_CMD_LEN);
-        //TODO: check for input timeout
-        
-
+        memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
 
         getUserInput(userInput);
 
-        
-        if (userInput[0] != 0) //If there is a command
+        if (strlen(userInput) != 0) //If there is a command
         {
             SF_OSAL_printf("\r\n");
             cmd = CLI_findCommand(userInput);
             if (!cmd) 
             {
-                putch(userInput[0]);
                 SF_OSAL_printf("Unknown command" __NL__);
                 SF_OSAL_printf(">");
             } 
