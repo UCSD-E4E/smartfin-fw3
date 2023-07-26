@@ -49,7 +49,8 @@ void setup() {
     FLOG_AddError(FLOG_SYS_START, 0); 
     time32_t bootTime = Time.now();
     // SF_OSAL_printf("Boot time: ", bootTime);
-    LocationServiceConfiguration config = new LocationServiceConfiguration();
+
+    LocationServiceConfiguration config = create_location_service_config();
     LocationService::instance().begin(config);
     LocationService::instance().start();
 

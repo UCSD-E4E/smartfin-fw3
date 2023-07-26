@@ -1,17 +1,13 @@
 #ifndef __GPSCMD_HPP__
 #define __GPSCMD_HPP__
 
+#include "gps/location_service.h"
 
 /**
  * @brief Display info from GPS
  * 
  */
-void displayInfo();
-/**
- * @brief Setup GPS serial
- * 
- */
-void setupGPS();
+void displayInfo(LocationPoint point);
 /**
  * @brief GPS command, displays data to serial repeatibly
  * 

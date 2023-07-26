@@ -3,7 +3,7 @@
 #include "gpsCommands.hpp"
 #include "../conio.hpp"
 
-#include "../gps/location_service.h"
+#include "gps/location_service.h"
 
 
 void CLI_GPS() 
@@ -20,8 +20,8 @@ void CLI_GPS()
 			}
 		}
 
-		LocationService::instance().getLocation(&point);
-		SF_OSAL_printf("Location: ")
+		LocationService::instance().getLocation(point);
+		displayInfo(point);
 	}
 }
 

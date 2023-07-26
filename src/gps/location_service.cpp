@@ -55,6 +55,25 @@ void LocationService::setModuleType(void)
     }
 }
 
+
+LocationServiceConfiguration create_location_service_config() {
+    LocationServiceConfiguration config;
+    config.enableFastLock(LOCATION_CONFIG_ENABLE_FAST_LOCK);
+    config.enableUDR(LOCATION_CONFIG_ENABLE_UDR);
+    config.udrModel(LOCATION_CONFIG_UDR_DYNAMIC_MODEL);
+    config.imuYaw(LOCATION_CONFIG_IMU_ORIENTATION_YAW);
+    config.imuPitch(LOCATION_CONFIG_IMU_ORIENTATION_PITCH);
+    config.imuRoll(LOCATION_CONFIG_IMU_ORIENTATION_ROLL);
+    config.enableIMUAutoAlignment(LOCATION_CONFIG_ENABLE_AUTO_IMU_ALIGNMENT);
+    config.imuToVRPX(0);
+    config.imuToVRPY(0);
+    config.imuToVRPZ(0);
+    config.enableHotStartOnWake(LOCATION_CONFIG_ENABLE_HOT_START_ON_WAKE);
+    config.enableAssistNowAutonomous(LOCATION_CONFIG_ENABLE_ASSISTNOW_AUTONOMOUS);
+
+    return config;
+}
+
 int LocationService::begin(const LocationServiceConfiguration& config) {
 
     int ret = SYSTEM_ERROR_NONE;
