@@ -1,7 +1,7 @@
 #ifndef __GPSCMD_HPP__
 #define __GPSCMD_HPP__
+#include "../lib/gps-tracker/location_service.h"
 
-#include "gps/location_service.h"
 
 /**
  * @brief Display info from GPS
