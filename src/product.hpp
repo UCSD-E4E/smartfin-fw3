@@ -235,6 +235,8 @@
 #define UBLOX_CS_PIN 53
 #define UBLOX_PWR_EN_PIN 41
 #define UBLOX_RESETN_PIN 44
+#define UBLOX_SPI_INTERFACE                   (SPI1)
+
 
 
 #endif

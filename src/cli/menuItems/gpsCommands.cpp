@@ -5,9 +5,13 @@
 
 #include "gps/location_service.h"
 
-
 void CLI_GPS() 
 {
+	LocationServiceConfiguration config = create_location_service_config();
+	LocationService::instance().setModuleType();
+    LocationService::instance().begin(config);
+    LocationService::instance().start();
+	LocationService::instance().setFastLock(true);
     LocationPoint point = {};
 	bool run = true;
 	while(run) {
@@ -21,6 +25,7 @@ void CLI_GPS()
 		}
 
 		LocationService::instance().getLocation(point);
+		// SF_OSAL_printf("Status: %d", LocationService::instance().getStatus());
 		displayInfo(point);
 	}
 }
