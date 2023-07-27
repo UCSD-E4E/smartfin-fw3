@@ -10,12 +10,41 @@
 extern "C"
 {
 #endif
+    /**
+     * @brief Gets character from serial
+     * 
+     * @return int key thats pressed
+     */
     int getch(void);
+    /**
+     * @brief Checks if key is pressed
+     * 
+     * @return int whether key is pressed
+     */
     int kbhit(void);
+    /**
+     * @brief Pushes character to serial
+     * 
+     * @param ch character to push
+     * @return int Sucsess value
+     */
     int putch(int ch);
-    int getline(char* buffer, int buflen);
+    /**
+     * @brief Printf equivilent
+     * 
+     * @param fmt initial text
+     * @param ... values to push
+     * @return int 1 if sucssesful 
+     */
     int SF_OSAL_printf(const char* fmt, ...);
-    char* getUserInput(char* userInput);
+
+    /**
+     * @brief Gets user input lin
+     * @param buffer buffer to write too
+     * @param buflen length of buffer
+     */
+    int getline(char* buffer, int buflen);
+
 #ifdef __cplusplus
 }
 #endif

@@ -237,6 +237,8 @@
 #define UBLOX_RESETN_PIN 44
 #define UBLOX_SPI_INTERFACE                   (SPI1)
 
+#define SF_SERIAL_SPEED 9600
 
+#define SF_CLI_MAX_CMD_LEN 100
 
 #endif

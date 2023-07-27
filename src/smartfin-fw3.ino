@@ -5,20 +5,25 @@
  * Date:
  */
 #include "Particle.h"
+
 #include "states.hpp"
 #include "task.hpp"
 #include "product.hpp"
+#include "consts.hpp"
+
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "gps/location_service.h"
 
+SYSTEM_MODE(MANUAL);
+SYSTEM_THREAD(ENABLED);
 
 // Statemachine for handeling task-switching
 typedef struct StateMachine_
 {
-  STATES_e state;
-  Task* task;
+    STATES_e state;
+    Task* task;
 }StateMachine_t;
 
 static CLI cliTask;
@@ -27,8 +32,8 @@ static CLI cliTask;
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 
 {
-  {STATE_CLI, &cliTask},
-  {STATE_NULL, NULL}
+    {STATE_CLI, &cliTask},
+    {STATE_NULL, NULL}
 };
 
 static STATES_e currentState;
@@ -40,7 +45,7 @@ void printState(STATES_e state);
 
 // setup() runs once, when the device is first turned on.
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(SF_SERIAL_SPEED);
 
     currentState = STATE_CLI;
 
@@ -48,8 +53,7 @@ void setup() {
     FLOG_Initialize();
     FLOG_AddError(FLOG_SYS_START, 0); 
     time32_t bootTime = Time.now();
-    // SF_OSAL_printf("Boot time: ", bootTime)
-
+    SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
 
     initalizeTaskObjects();
 }
@@ -61,19 +65,17 @@ void loop() {
 
 void mainThread(void* args) {
 
-    time32_t currentTime = Time.now();
-    // SF_OSAL_printf("\nCurrent time: ", currentTime);
     StateMachine_t* pState;
     // Starting main thread
 
-    SF_OSAL_printf("\nStarting state");
+    SF_OSAL_printf(__NL__ "Starting state");
     pState = findState(currentState);
-    SF_OSAL_printf("\nCurrent state: ");
+    SF_OSAL_printf(__NL__ "Current state: ");
     printState(currentState);
 
 
-    if(pState == NULL) {
-        SF_OSAL_printf("State is null!");
+    if (pState == NULL) {
+        SF_OSAL_printf(__NL__ "State is null!");
         return;
     }
 
@@ -88,21 +90,21 @@ void mainThread(void* args) {
 
 static void initalizeTaskObjects(void) 
 {
-  currentState = STATE_CLI;
+    currentState = STATE_CLI;
 }
 
 static StateMachine_t* findState(STATES_e state)
 {
-  StateMachine_t* pStates;
-  for(pStates = stateMachine; pStates->task; pStates++)
-  {
-    if(pStates->state == state)
+    StateMachine_t* pStates;
+    for (pStates = stateMachine; pStates->task; pStates++)
     {
-      return pStates;
+      if (pStates->state == state)
+      {
+        return pStates;
+      }
     }
-  }
-  SF_OSAL_printf("State not found!");
-  return NULL;
+    SF_OSAL_printf("State not found!");
+    return NULL;
 }
 
 

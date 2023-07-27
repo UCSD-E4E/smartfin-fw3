@@ -1,86 +1,64 @@
-#include "Particle.h"
+/**
+ * @file cliDebug.cpp
+ * @author Emily Thorpe (ethorpe@macalster.edu)
+ * @brief 
+ * @version 0.1
+ * @date 2023-07-26
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
-#include "conio.hpp"
-#include  <cstdlib>
-#include <cstdio>
-#include <cmath>
-#include "cli.hpp"
-#include "menuItems/debugCommands.hpp"
-#include "util.hpp"
 #include "cliDebug.hpp"
 
-typedef const struct CLI_debugMenu_
-{
-    char* cmd;
-    const char *const fnName;
-    void (*fn)(void);
-} CLI_debugMenu_t;
+#include "conio.hpp"
+#include "cli.hpp"
+#include "menuItems/debugCommands.hpp"
+#include "product.hpp"
+#include "util.hpp"
+#include "menu.hpp"
 
-CLI_debugMenu_t const* CLI_findCommand(char *cmd);
+#include "Particle.h"
 
-const CLI_debugMenu_t CLI_debugMenu[] = 
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
+
+const Menu_t CLI_debugMenu[] = 
 {
-    {"1", "Display Fault Log", &CLI_displayFLOG},
-    {"2", "Clear Fault Log", &CLI_clearFLOG},
-    {"3", "Restart System", &CLI_restart},
-    {NULL, NULL, NULL}
+    {1, "Display Fault Log", &CLI_displayFLOG},
+    {2, "Clear Fault Log", &CLI_clearFLOG},
+    {3, "Restart System", &CLI_restart},
+    {0, NULL, NULL}
 };
 
 void CLI_doDebugMode(void)
 {
-    char* userInput = new char[100];
+    char* userInput = new char[SF_CLI_MAX_CMD_LEN];
 
     int CLI_debugRun = 1;
-    while(CLI_debugRun)
+    while (CLI_debugRun)
     {
-        CLI_displayDebugMenu();
+        MNU_displayMenu(CLI_debugMenu);
 
-        CLI_debugMenu_t *cmd;
-        userInput = getUserInput(userInput);
-        if(strcmp("0", userInput) == 0) // Exiting debug mode
+        Menu_t *cmd;
+        getline(userInput, SF_CLI_MAX_CMD_LEN);
+        if (atoi(userInput) == 0) // Exiting debug mode
         {
             break;
         }
-        SF_OSAL_printf("Entered command: %s\n", userInput);
 
-        if(strlen(userInput) != 0) 
+        SF_OSAL_printf("\r\n");
+        cmd = MNU_findCommand(userInput, CLI_debugMenu);
+        if (!cmd) 
         {
-            SF_OSAL_printf("\r\n");
-            cmd = CLI_findCommand(userInput);
-            if(!cmd) 
-            {
-                putch(userInput[0]);
-                SF_OSAL_printf("Unknown command\n");
-                SF_OSAL_printf(">");
-            } else {
-                cmd->fn();
-                SF_OSAL_printf(">");
-            }
+            putch(userInput[0]);
+            SF_OSAL_printf("Unknown command\n");
+            SF_OSAL_printf(">");
+        } else {
+            cmd->fn();
+            SF_OSAL_printf(">");
         }
     }
-    return;
-}
-
-CLI_debugMenu_t const* CLI_findCommand(char *cmd)
-{
-    CLI_debugMenu_t const* pCmd;
-
-    for (pCmd = CLI_debugMenu; pCmd->cmd; pCmd++)
-    {
-        if (strcmp(pCmd->cmd, cmd) == 0)
-        {
-            return pCmd;
-        }
-    }
-    return NULL;
-}
-
-void CLI_displayDebugMenu(void) {
-    int i;
-    for(i = 1; CLI_debugMenu[i - 1].fn; i++)
-    {
-        SF_OSAL_printf("%3d %s\n", i, CLI_debugMenu[i-1].fnName);
-    }
-    SF_OSAL_printf("0 Exit\n");
     return;
 }
