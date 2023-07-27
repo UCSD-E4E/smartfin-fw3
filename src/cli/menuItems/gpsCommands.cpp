@@ -1,19 +1,9 @@
-/**
- * Project smartfin-fw3
- * Description: GPS CLI commands
- * @file gpsCommands.cpp
- * @author @emilybthorpe
- * @date Jul 27 2023 
- * 
-*/
-
 #include "Particle.h"
 
 #include "gpsCommands.hpp"
 #include "../conio.hpp"
-#include "../../consts.hpp"
 
-#include "../lib/gps-tracker/location_service.h"
+#include "gps/location_service.h"
 
 void CLI_GPS() 
 {
@@ -43,16 +33,16 @@ void CLI_GPS()
 
 void displayInfo(LocationPoint point)
 {
-	SF_OSAL_printf(__NL__ "Latitude %f", point.latitude);
-	SF_OSAL_printf(__NL__ "Longitude %f", point.longitude);
-	SF_OSAL_printf(__NL__ "Altitude %f", point.altitude);
-	SF_OSAL_printf(__NL__ "Speed %f", point.speed);
-	SF_OSAL_printf(__NL__ "Heading %f", point.heading);
-	SF_OSAL_printf(__NL__ "Accuracy (horizontal / vertical) (%f/%f)", 
+	SF_OSAL_printf("Latitude %f", point.latitude);
+	SF_OSAL_printf("Longitude %f", point.longitude);
+	SF_OSAL_printf("Altitude %f", point.altitude);
+	SF_OSAL_printf("Speed %f", point.speed);
+	SF_OSAL_printf("Heading %f", point.heading);
+	SF_OSAL_printf("Accuracy (horizontal / vertical) (%f/%f)", 
 					point.horizontalAccuracy, 
 					point.verticalAccuracy);
-	SF_OSAL_printf(__NL__ "Satellites in use %d", point.satsInUse);
-	SF_OSAL_printf(__NL__ "Satellites in view", point.satsInView);
-	SF_OSAL_printf(__NL__ "Locked: %d", point.locked);
+	SF_OSAL_printf("Satellites in use %d", point.satsInUse);
+	SF_OSAL_printf("Satellites in view", point.satsInView);
+	SF_OSAL_printf("Locked: %d", point.locked);
 }
 
