@@ -51,5 +51,6 @@ class CLI : public Task
         CLI_menu_t* CLI_findCommand(const char *cmd);
 };
 
+extern STATES_e CLI_nextState;
 
 #endif

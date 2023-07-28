@@ -15,4 +15,10 @@ void CLI_disconnect(void);
 */
 void CLI_displayFLOG(void);
 
+/**
+ * @brief Enter sleep mode
+ * 
+ */
+void CLI_doSleep(void);
+
 #endif

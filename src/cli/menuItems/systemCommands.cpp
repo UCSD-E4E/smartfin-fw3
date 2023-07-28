@@ -10,6 +10,8 @@
 #include "systemCommands.hpp"
 #include "../conio.hpp"
 #include "../flog.hpp"
+#include "../../states.hpp"
+#include "../cli.hpp"
 
 #include "Particle.h"
 
@@ -22,3 +24,10 @@ void CLI_disconnect(void)
 {
     Particle.disconnect();
 }
+
+void CLI_doSleep(void)
+{
+    SF_OSAL_printf("Next state is sleep\n");
+    CLI_nextState = STATE_DEEP_SLEEP;
+}
+

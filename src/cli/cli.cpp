@@ -40,12 +40,13 @@ const Menu_t CLI_menu[] =
     {6, "debug menu", &CLI_doDebugMode},
     {7, "hexdump", &CLI_hexdump},
     {8, "gps", &CLI_GPS},
+    {9, "sleep", &CLI_doSleep},
     {0, nullptr, nullptr}
 };
 
-static STATES_e CLI_nextState;
-
 char userInput[SF_CLI_MAX_CMD_LEN];
+
+STATES_e CLI_nextState;
 
 void CLI::init(void) 
 {
@@ -65,15 +66,27 @@ void CLI::init(void)
 STATES_e CLI::run(void)
 {
     Menu_t *cmd;
+    uint32_t lastKeyPressTime;
+
     
     userInput[0] = 0;
 
     SF_OSAL_printf(__NL__ ">");
 
-  
+    lastKeyPressTime = millis();  
 
     while (1) 
     {
+        if(millis() >= lastKeyPressTime + CLI_NO_INPUT_TIMEOUT_MS) 
+        {
+            CLI_nextState = STATE_CHARGE;
+        }
+
+        if(!pSystemDesc->flags->hasCharger)
+        {
+            return STATE_DEEP_SLEEP;
+        }
+
         memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
 
         getline(userInput, SF_CLI_MAX_CMD_LEN);
@@ -86,7 +99,7 @@ STATES_e CLI::run(void)
             {
                 SF_OSAL_printf("Unknown command" __NL__);
                 MNU_displayMenu(CLI_menu);
-                SF_OSAL_printf(">");
+                SF_OSAL_printf(__NL__">");
             } 
             else 
             {
