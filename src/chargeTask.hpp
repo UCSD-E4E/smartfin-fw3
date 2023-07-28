@@ -14,6 +14,10 @@
 
 class ChargeTask : public Task{
     public:
+    /**
+     * @brief initialize charge task
+     * Sets LEDs
+    */
     void init(void);
     STATES_e run(void);
     void exit(void);

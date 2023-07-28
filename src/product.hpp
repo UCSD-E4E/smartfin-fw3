@@ -7,7 +7,7 @@
 /**
  * USB Power Detection Pin TODO
  */
-#define SF_USB_PWR_DETECT_PIN   RX
+#define SF_USB_PWR_DETECT_PIN   49
 /**
  * Battery Charging Status Pin 
  */
