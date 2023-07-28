@@ -132,7 +132,7 @@
 /**
  * The default state that the Smartfin comes up in
  */
-#define SF_DEFAULT_STATE   STATE_CLI
+#define SF_DEFAULT_STATE   STATE_CHARGE
 
 /**
  * The CLI RGB LED Color

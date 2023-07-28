@@ -2,6 +2,8 @@
 #define __SYSTEM_HPP__
 
 #include "gps/location_service.h"
+#include "sys/NVRAM.hpp"
+
 
 
 typedef volatile struct SystemFlags_
@@ -16,8 +18,12 @@ typedef struct SystemDesc_
 {
     const char* deviceID;
     LocationService* pLocService;
+    NVRAM* pNvram;
     const SystemFlags_t* flags;
 }SystemDesc_t;
+
+extern SystemDesc_t* pSystemDesc;
+
 
 /**
  * @brief Initialization function for GPS 
@@ -31,5 +37,11 @@ static int SYS_initGPS();
  * @return int 
  */
 int SYS_initSys(void);
+/**
+ * @brief Initializes NVRAM 
+ * 
+ * @return int sucsess
+ */
+static int SYS_initNVRAM(void);
 
 #endif

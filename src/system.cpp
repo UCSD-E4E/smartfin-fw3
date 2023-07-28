@@ -20,6 +20,8 @@ int SYS_initSys(void)
     strncpy(SYS_deviceID, System.deviceID(), 31);
 
     SYS_initGPS();
+    SYS_initNVRAM();
+
     return 1;
 }
 
@@ -33,5 +35,14 @@ static int SYS_initGPS()
 	LocationService::instance().setFastLock(true);
     systemDesc.pLocService = &LocationService::instance();
     
+    return 1;
+}
+
+static int SYS_initNVRAM(void)
+{
+    NVRAM& nvram = NVRAM::getInstance();
+
+    systemDesc.pNvram = &nvram;
+
     return 1;
 }

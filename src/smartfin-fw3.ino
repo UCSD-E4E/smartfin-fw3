@@ -17,6 +17,8 @@
 #include "cli/flog.hpp"
 #include "gps/location_service.h"
 
+#include "sleepTask.hpp"
+
 
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
@@ -94,7 +96,22 @@ void mainThread(void* args) {
 
 static void initalizeTaskObjects(void) 
 {
-    currentState = STATE_CLI;
+    currentState = SF_DEFAULT_STATE;
+
+    SleepTask::loadBootBehavior();
+
+    bool no_upload_flag;
+    pSystemDesc->pNvram->get(NVRAM::NO_UPLOAD_FLAG, no_upload_flag);
+
+    switch(SleepTask::getBootBehavior())
+    {
+        default:
+        case SleepTask::BOOT_BEHAVIOR_NORMAL:
+              currentState = SF_DEFAULT_STATE;
+            break;
+    }
+
+    FLOG_AddError(FLOG_SYS_STARTSTATE, (uint16_t) currentState);
 }
 
 static StateMachine_t* findState(STATES_e state)
@@ -118,6 +135,12 @@ static void printState(STATES_e state)
   {
     case STATE_CLI:
     SF_OSAL_printf("STATE_CLI");
+    break;
+    case STATE_CHARGE:
+    SF_OSAL_printf("STATE_CHARGE");
+    break;
+    case STATE_DEEP_SLEEP:
+    SF_OSAL_printf("STATE_DEEP_SLEEP");
     break;
     default:
     SF_OSAL_printf("UNKNOWN");
