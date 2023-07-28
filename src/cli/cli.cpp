@@ -20,6 +20,8 @@
 #include "util.hpp"
 #include "product.hpp"
 
+#include "../system.hpp"
+
 #include "Particle.h"
 
 #include <fstream>
@@ -48,6 +50,9 @@ char userInput[SF_CLI_MAX_CMD_LEN];
 void CLI::init(void) 
 {
     CLI_nextState = STATE_CLI;
+
+    pSystemDesc->pChargerCheck->start();
+
 
     // While there is an avaliable character typed, get it
     while (kbhit())
@@ -97,7 +102,7 @@ STATES_e CLI::run(void)
 
 void CLI::exit() 
 {
-    return;
+    pSystemDesc->pChargerCheck->stop();
 }
 
 void CLI_displayMenu(void)

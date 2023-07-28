@@ -5,50 +5,23 @@
  * Pin Definitions
  *****************************************************************************/
 /**
- * USB Power Detection Pin
+ * USB Power Detection Pin TODO
  */
 #define SF_USB_PWR_DETECT_PIN   RX
 /**
- * Water Detect Enable Pin
+ * Battery Charging Status Pin 
  */
-#define WATER_DETECT_EN_PIN   B4
-/**
- * Water Detect Pin
- */
-#define WATER_DETECT_PIN      B5
-/**
- * @brief Manufacturing Water Detect Pin
- * 
- */
-#define WATER_MFG_TEST_EN     A3
-/**
- * Battery Charging Status Pin
- */
-#define STAT_PIN              A5
+#define STAT_PIN              50
 /**
  * Pin for the Battery Status LED
  */
-#define STAT_LED_PIN          A4
-/**
- * Pin for the Water Detect State LED
- */
-#define LED_PIN               C2
+#define STAT_LED_PIN          40
 /**
  * @brief Wakeup Pin
  * 
  */
-#define WKP_PIN               WKP
-/**
- * @brief GPS Power Enable pin
- * 
- */
-#define GPS_PWR_EN_PIN        B2
+#define WKP_PIN               38
 
-/**
- * @brief Accelerometer/Gyroscope Interrupt Pin
- * 
- */
-#define MPU_INT_PIN             B3
 
 /*******************************************************************************
  * Peripheral Configurations
@@ -84,41 +57,9 @@
  * @brief hardware revision
  * 
  */
-#define HARDWARE_REV 2
-/**
- * @brief enable ICM20648 motion sensor support
- * 
- */
-#define ICM20648_ENABLED (HARDWARE_REV==2)
+#define HARDWARE_REV 3
 
-/**
- * @brief ICM20648 Address
- * 
- */
-#define SF_ICM20648_ADDR    (0x68 << 1)
 
-/**
- * @brief AK09916 Address
- * 
- */
-#define SF_AK09916_ADDR (0x0C << 1)
-
-/**
- * window sizes are how many water detect samples are looked at in a moving 
- * average to determine if we are in or out of the water.  Generally a sample
- * happens 1/second
- */
-#define WATER_DETECT_SURF_SESSION_INIT_WINDOW   40
-/**
- * Max size of the window/how large the FIFO array is
- */
-#define WATER_DETECT_ARRAY_SIZE 200
-/**
- * @brief How long to stay in surf session init while waiting to get into water
- * before going to sleep
- * 
- */
-#define SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS 300000
 
 /*******************************************************************************
  * System Configuration
