@@ -18,7 +18,7 @@
 #include "gps/location_service.h"
 
 #include "sleepTask.hpp"
-
+#include "chargeTask.hpp"
 
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
@@ -31,12 +31,15 @@ typedef struct StateMachine_
 }StateMachine_t;
 
 static CLI cliTask;
-
+static ChargeTask chargeTask;
+static SleepTask sleepTask;
 
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 
 {
     {STATE_CLI, &cliTask},
+    {STATE_DEEP_SLEEP, &sleepTask},
+    {STATE_CHARGE, &chargeTask},
     {STATE_NULL, NULL}
 };
 
@@ -62,6 +65,8 @@ void setup() {
     SYS_initSys();
 
     initalizeTaskObjects();
+
+    currentState = STATE_CHARGE;
 }
 
 // loop() runs over and over again, as quickly as it can execute.
@@ -74,15 +79,12 @@ void mainThread(void* args) {
     StateMachine_t* pState;
     // Starting main thread
 
-    SF_OSAL_printf(__NL__ "Starting state");
     pState = findState(currentState);
-    SF_OSAL_printf(__NL__ "Current state: ");
+    SF_OSAL_printf(__NL__ "Starting state: ");
     printState(currentState);
 
-
     if (pState == NULL) {
-        SF_OSAL_printf(__NL__ "State is null!");
-        return;
+        pState = findState(SF_DEFAULT_STATE);
     }
 
     pState->task->init();
