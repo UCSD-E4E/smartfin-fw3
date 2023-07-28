@@ -10,11 +10,13 @@
 #include "task.hpp"
 #include "product.hpp"
 #include "consts.hpp"
+#include "system.hpp"
 
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "gps/location_service.h"
+
 
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
@@ -54,6 +56,8 @@ void setup() {
     FLOG_AddError(FLOG_SYS_START, 0); 
     time32_t bootTime = Time.now();
     SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
+
+    SYS_initSys();
 
     initalizeTaskObjects();
 }

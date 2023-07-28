@@ -7,11 +7,6 @@
 
 void CLI_GPS() 
 {
-	LocationServiceConfiguration config = create_location_service_config();
-	LocationService::instance().setModuleType();
-    LocationService::instance().begin(config);
-    LocationService::instance().start();
-	LocationService::instance().setFastLock(true);
     LocationPoint point = {};
 	bool run = true;
 	while(run) {
