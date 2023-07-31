@@ -9,6 +9,7 @@
 #include "debugCommands.hpp"
 #include "../conio.hpp"
 #include "../flog.hpp"
+#include "../../system.hpp"
 
 #include "Particle.h"
 #include "../../consts.hpp"
@@ -55,4 +56,29 @@ void CLI_testPrintf(void)
     SF_OSAL_printf("Precision HEX: %4X" __NL__, 123);
     SF_OSAL_printf("Zero Prepend Precision HEX: %04X" __NL__, 123);
 
+}
+
+void CLI_monitorTempSensor(void) 
+{
+    float temp;
+
+    if(!pSystemDesc->pTempSensor->init())
+    {
+        SF_OSAL_printf("Temp Fail\n");
+    }
+
+
+    while(!kbhit()) 
+    {
+        temp = pSystemDesc->pTempSensor->getTemp();
+        SF_OSAL_printf("Temperature Reading: %f" __NL__, temp);
+    }
+
+    SF_OSAL_printf(__NL__);
+    while(kbhit())
+    {
+        getch();
+    }
+
+    pSystemDesc->pTempSensor->stop();
 }

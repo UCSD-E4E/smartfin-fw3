@@ -20,6 +20,10 @@ void CLI_clearFLOG(void);
  * 
  */
 void CLI_testPrintf(void);
-
+/**
+ * @brief Monitors temperature sensor
+ * 
+ */
+void CLI_monitorTempSensor(void);
 
 #endif

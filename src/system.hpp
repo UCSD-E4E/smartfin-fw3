@@ -4,6 +4,8 @@
 #include "gps/location_service.h"
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
+#include "temperature/tmpSensor.h"
+
 
 #define SYS_CHARGER_MIN_CHARGING_MS 5000
 #define SYS_CHARGER_MIN_CHARGED_MS 30000
@@ -26,6 +28,7 @@ typedef struct SystemDesc_
     Timer* pChargerCheck;
     NVRAM* pNvram;
     SFLed* pBatteryLED;
+    tmpSensor* pTempSensor;
     const SystemFlags_t* flags;
 }SystemDesc_t;
 
@@ -61,6 +64,11 @@ static int SYS_initTasks(void);
  * 
  */
 static void SYS_chargerTask(void);
+/**
+ * @brief Initializes temperature sensor
+ * 
+ */
+static int SYS_initTempSensor(void);
 
 
 

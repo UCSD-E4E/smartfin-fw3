@@ -1,8 +1,12 @@
 #include "system.hpp"
 
 #include "gps/location_service.h"
-#include "Particle.h"
 #include "product.hpp"
+#include "temperature/tmpSensor.h"
+#include "temperature/max31725.h"
+
+#include "Particle.h"
+
 
 
 char SYS_deviceID[32];
@@ -12,6 +16,9 @@ SystemFlags_t systemFlags;
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
+I2C i2cBus;
+MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
+tmpSensor tempSensor(max31725);
 
 
 int SYS_initSys(void)
@@ -27,6 +34,7 @@ int SYS_initSys(void)
 
     SYS_initTasks();
     SYS_initGPS();
+    SYS_initTempSensor();
     SYS_initNVRAM();
 
     return 1;
@@ -43,6 +51,13 @@ static int SYS_initTasks(void)
     return 1;
 }
 
+
+static int SYS_initTempSensor(void)
+{
+    systemDesc.pTempSensor = &tempSensor;
+
+    return 1;
+}
 
 static void SYS_chargerTask(void)
 {
