@@ -18,7 +18,7 @@
 #include "gps/location_service.h"
 
 #include "sleepTask.hpp"
-
+#include "chargeTask.hpp"
 
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
@@ -31,12 +31,15 @@ typedef struct StateMachine_
 }StateMachine_t;
 
 static CLI cliTask;
-
+static ChargeTask chargeTask;
+static SleepTask sleepTask;
 
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 
 {
     {STATE_CLI, &cliTask},
+    {STATE_DEEP_SLEEP, &sleepTask},
+    {STATE_CHARGE, &chargeTask},
     {STATE_NULL, NULL}
 };
 
@@ -58,6 +61,8 @@ void setup() {
     FLOG_AddError(FLOG_SYS_START, 0); 
     time32_t bootTime = Time.now();
     SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
+
+    FLOG_AddError(FLOG_RESET_REASON, System.resetReason());
 
     SYS_initSys();
 
