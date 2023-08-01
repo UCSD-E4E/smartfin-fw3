@@ -15,10 +15,15 @@ void SleepTask::init(void)
     this->ledStatus.setPeriod(SLEEP_RGB_LED_PERIOD);
     this->ledStatus.setPriority(SLEEP_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
+
+    SF_OSAL_printf("Reading power detect pin");
+
     if(digitalRead(SF_USB_PWR_DETECT_PIN))
     {
         return;
     }
+    SF_OSAL_printf("no power");
+
 
     if(pSystemDesc->flags->batteryLow)
     {
