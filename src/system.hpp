@@ -20,12 +20,6 @@ typedef struct SystemDesc_
 }SystemDesc_t;
 
 /**
- * @brief Initialization function for GPS 
- * Ublox gps, handled by @file gps/location_service.cpp
- * @return int sucsess
- */
-static int SYS_initGPS();
-/**
  * @brief Initializes all system components
  * 
  * @return int 

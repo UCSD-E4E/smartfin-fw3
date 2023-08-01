@@ -11,6 +11,9 @@ SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
 
+static int SYS_initGPS();
+
+
 int SYS_initSys(void)
 {
     memset(pSystemDesc, 0, sizeof(SystemDesc_t));
@@ -24,7 +27,11 @@ int SYS_initSys(void)
     return 1;
 }
 
-
+/**
+ * @brief Initialization function for GPS 
+ * Ublox gps, handled by @file gps/location_service.cpp
+ * @return int sucsess
+ */
 static int SYS_initGPS() 
 {
     LocationServiceConfiguration config = create_location_service_config();
@@ -33,14 +40,14 @@ static int SYS_initGPS()
     {
         SF_OSAL_printf("GPS Initialization Failed" __NL__);
         SF_OSAL_printf("Check pin map and reboot" __NL__);
-        return;
+        return -1;
     }
 
     if(LocationService::instance().start() != 0)
     {
         SF_OSAL_printf("GPS Start Failed" __NL__);
         SF_OSAL_printf("Please check GPS and reboot" __NL__);
-        return;
+        return -1;
     }
     LocationService::instance().setFastLock(true);
 
