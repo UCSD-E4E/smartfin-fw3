@@ -1,8 +1,13 @@
 #include "system.hpp"
 
-#include "gps/location_service.h"
-#include "Particle.h"
+
 #include "product.hpp"
+
+#include "gps/location_service.h"
+
+#include "Particle.h"
+
+
 
 
 char SYS_deviceID[32];
@@ -11,6 +16,7 @@ SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
+ICM20648 SF_imu(SF_ICM20648_ADDR);
 
 
 
@@ -28,6 +34,7 @@ int SYS_initSys(void)
     SYS_initTasks();
     SYS_initGPS();
     SYS_initNVRAM();
+    SYS_initIMU();
 
     return 1;
 }
@@ -41,6 +48,11 @@ static int SYS_initTasks(void)
 
     systemDesc.pChargerCheck = &chargerTimer;
     return 1;
+}
+
+static int SYS_initIMU(void)
+{
+    systemDesc.pIMU = &SF_imu;
 }
 
 

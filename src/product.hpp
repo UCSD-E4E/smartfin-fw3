@@ -5,7 +5,7 @@
  * Pin Definitions
  *****************************************************************************/
 /**
- * USB Power Detection Pin TODO
+ * USB Power Detection Pin 
  */
 #define SF_USB_PWR_DETECT_PIN   RX
 /**
@@ -21,6 +21,13 @@
  * 
  */
 #define WKP_PIN               38
+
+/**
+ * @brief ICM20648 Address TODO
+ * 
+ */
+#define SF_ICM20648_ADDR    (0x68 << 1)
+
 
 
 /*******************************************************************************

@@ -56,3 +56,41 @@ void CLI_testPrintf(void)
     SF_OSAL_printf("Zero Prepend Precision HEX: %04X" __NL__, 123);
 
 }
+
+
+void CLI_monitorIMU(void)
+{
+    float accelData[3];
+    float gyroData[3];
+    int16_t magData[3];
+
+    if(!pSystemDesc->pIMU->open())
+    {
+        SF_OSAL_printf("IMU Fail\n");
+    }
+
+    while(run) {
+		if(kbhit()) 
+		{
+			char ch = getch();
+			if(ch == 113) // if q is pressed
+			{
+				run = false;
+			}
+		}
+
+		pSystemDesc->pCompass->read(magData, magData + 1, magData + 2);
+
+        pSystemDesc->pIMU->get_accelerometer(accelData, accelData + 1, accelData + 2);
+
+        pSystemDesc->pIMU->get_gyroscope(gyroData, gyroData + 1, gyroData + 2);
+
+        SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
+        SF_OSAL_printf("Gyroscope %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
+        SF_OSAL_printf("Magnetometer: \t%8d\t%8d\t%8d\t" __NL__, magData[0], magData[1], magData[2]);
+	}
+
+    SF_OSAL_printf(__NL__);
+
+    pSystemDesc->pIMU->close();
+}
