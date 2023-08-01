@@ -17,6 +17,7 @@
 
 void CLI_connect(void)
 {
+    Particle.connect();
     waitFor(Particle.connected, 300000);
 }
 
