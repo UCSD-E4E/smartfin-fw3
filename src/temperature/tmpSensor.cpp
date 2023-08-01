@@ -2,6 +2,8 @@
 #include "max31725.h"
 #include "max31725_cpp.h"
 #include <stdint.h>
+#include "../cli/conio.hpp"
+#include "../consts.hpp"
 
 tmpSensor::tmpSensor(MAX31725 &sensor):
 m_sensor(sensor)
@@ -10,8 +12,10 @@ m_sensor(sensor)
 
 bool tmpSensor::init()
 {
-    m_sensor.write_cfg_reg(MAX31725_CFG_CONTINUOUS);
-    return true;
+    SF_OSAL_printf("Telling max to start" __NL__);
+    int sucsess = m_sensor.write_cfg_reg(MAX31725_CFG_CONTINUOUS);
+    SF_OSAL_printf("Max start sucsess: %d" __NL__, sucsess);
+    return sucsess;
 }
 
 bool tmpSensor::stop()

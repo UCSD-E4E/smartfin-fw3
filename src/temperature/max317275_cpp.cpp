@@ -33,6 +33,8 @@
 #include "max31725.h"
 #include "max31725_cpp.h"
 #include "mbed.h" 
+#include "../cli/conio.hpp"
+#include "../consts.hpp"
 // #include "USBSerial.h"
 
 #if PARTICLE_IO
@@ -74,11 +76,11 @@ int MAX31725::read_cfg_reg(uint8_t *value)
             *value = data[0];
             return MAX31725_NO_ERROR;
         } else {
-            printf(
+            SF_OSAL_printf(
                 "%s: failed to read data: ret: %ld\r\n", __func__, ret);
             }
     } else {                
-        printf("%s: failed to write to Register Select: ret: %ld\r\n",
+        SF_OSAL_printf("%s: failed to write to Register Select: ret: %ld\r\n",
             __func__, ret);
     }
     return MAX31725_ERROR;
@@ -104,15 +106,15 @@ int MAX31725::read_reg16(int16_t *value, char reg)
                 *value = tmp.swrd;
                 return MAX31725_NO_ERROR;
             } else {
-                printf(
+                SF_OSAL_printf(
                     "%s: failed to read data: ret: %ld\r\n", __func__, ret);
             }
         } else {                
-            printf("%s: failed to write to Register Select: ret: %ld\r\n",
+            SF_OSAL_printf("%s: failed to write to Register Select: ret: %ld\r\n",
                 __func__, ret);
         }
     } else {
-        printf("%s: register address is not correct: register: %d\r\n",
+        SF_OSAL_printf("%s: register address is not correct: register: %d\r\n",
                 __func__, reg);
     }                
     return MAX31725_ERROR;
@@ -133,7 +135,7 @@ float MAX31725::read_reg_as_temperature(uint8_t reg)
 
         return temperature;
     } else {
-        printf("%s: register is invalid, %d r\n", __func__, reg);
+        SF_OSAL_printf("%s: register is invalid, %d r\n", __func__, reg);
         return 0;
     }
 }
@@ -154,11 +156,11 @@ int MAX31725::write_reg16(int16_t value, char reg)
         if (ret == 0) {
             return MAX31725_NO_ERROR;
         } else {
-            printf("%s: I2C write error %ld\r\n",__func__, ret);
+            SF_OSAL_printf("%s: I2C write error %ld\r\n",__func__, ret);
             return MAX31725_ERROR;
         }
     } else {
-        printf("%s: register value invalid %x\r\n",__func__, reg);
+        SF_OSAL_printf("%s: register value invalid %x\r\n",__func__, reg);
         return MAX31725_ERROR;
     }
 }
@@ -172,7 +174,11 @@ int MAX31725::write_cfg_reg(uint8_t cfg)
 
     cmd[0] = MAX31725_REG_CONFIGURATION;
     cmd[1] = cfg;
+    SF_OSAL_printf("Telling max to start" __NL__);
+    SF_OSAL_printf("Address to write: %d", m_write_address);
     ret = m_i2c.write(m_write_address, cmd, 2, false);
+    SF_OSAL_printf("Telling max to start" __NL__);
+
     if (ret == 0) {
         max31725_extended_format = 0;
         if (cfg & MAX31725_CFG_EXTENDED_FORMAT)
@@ -180,7 +186,7 @@ int MAX31725::write_cfg_reg(uint8_t cfg)
 
         return MAX31725_NO_ERROR;
     } else {
-        printf("%s: I2C write error %ld\r\n",__func__, ret);
+        SF_OSAL_printf("%s: I2C write error %ld\r\n",__func__, ret);
         return MAX31725_ERROR;
     }
 }
