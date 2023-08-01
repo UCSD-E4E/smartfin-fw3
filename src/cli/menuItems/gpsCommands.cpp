@@ -4,7 +4,7 @@
 #include "../conio.hpp"
 #include "../../consts.hpp"
 
-#include "gps/location_service.h"
+#include "location_service.h"
 
 void CLI_GPS() 
 {
@@ -30,15 +30,15 @@ void CLI_GPS()
 void displayInfo(LocationPoint point)
 {
 	SF_OSAL_printf("Latitude %f" __NL__ , point.latitude);
-	SF_OSAL_printf("Longitude %f"__NL__, point.longitude);
-	SF_OSAL_printf("Altitude %f"__NL__, point.altitude);
-	SF_OSAL_printf("Speed %f"__NL__, point.speed);
-	SF_OSAL_printf("Heading %f"__NL__, point.heading);
-	SF_OSAL_printf("Accuracy (horizontal / vertical) (%f/%f)"__NL__, 
+	SF_OSAL_printf("Longitude %f" __NL__, point.longitude);
+	SF_OSAL_printf("Altitude %f" __NL__, point.altitude);
+	SF_OSAL_printf("Speed %f" __NL__, point.speed);
+	SF_OSAL_printf("Heading %f" __NL__, point.heading);
+	SF_OSAL_printf("Accuracy (horizontal / vertical) (%f/%f)" __NL__, 
 					point.horizontalAccuracy, 
 					point.verticalAccuracy);
-	SF_OSAL_printf("Satellites in use %d"__NL__, point.satsInUse);
-	SF_OSAL_printf("Satellites in view"__NL__, point.satsInView);
-	SF_OSAL_printf("Locked: %d"__NL__, point.locked);
+	SF_OSAL_printf("Satellites in use %d" __NL__, point.satsInUse);
+	SF_OSAL_printf("Satellites in view" __NL__, point.satsInView);
+	SF_OSAL_printf("Locked: %d" __NL__, point.locked);
 }
 

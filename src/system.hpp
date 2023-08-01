@@ -1,7 +1,7 @@
 #ifndef __SYSTEM_HPP__
 #define __SYSTEM_HPP__
 
-#include "gps/location_service.h"
+#include "location_service.h"
 
 
 typedef volatile struct SystemFlags_

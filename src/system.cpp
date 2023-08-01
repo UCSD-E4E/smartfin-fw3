@@ -1,6 +1,6 @@
 #include "system.hpp"
 
-#include "gps/location_service.h"
+#include "location_service.h"
 #include "Particle.h"
 #include "cli/conio.hpp"
 #include "consts.hpp"
