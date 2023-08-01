@@ -8,8 +8,8 @@
 */
 
 #include "systemCommands.hpp"
-#include "../conio.hpp"
-#include "../flog.hpp"
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
 
 #include "Particle.h"
 
