@@ -15,8 +15,6 @@
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "gps/location_service.h"
-
 
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);

@@ -2,7 +2,8 @@
 
 #include "gps/location_service.h"
 #include "Particle.h"
-
+#include "cli/conio.hpp"
+#include "consts.hpp"
 
 char SYS_deviceID[32];
 
@@ -27,10 +28,22 @@ int SYS_initSys(void)
 static int SYS_initGPS() 
 {
     LocationServiceConfiguration config = create_location_service_config();
-	LocationService::instance().setModuleType();
-    LocationService::instance().begin(config);
-    LocationService::instance().start();
-	LocationService::instance().setFastLock(true);
+    LocationService::instance().setModuleType();
+    if(LocationService::instance().begin(config) != 0)
+    {
+        SF_OSAL_printf("GPS Initialization Failed" __NL__);
+        SF_OSAL_printf("Check pin map and reboot" __NL__);
+        return;
+    }
+
+    if(LocationService::instance().start() != 0)
+    {
+        SF_OSAL_printf("GPS Start Failed" __NL__);
+        SF_OSAL_printf("Please check GPS and reboot" __NL__);
+        return;
+    }
+    LocationService::instance().setFastLock(true);
+
     systemDesc.pLocService = &LocationService::instance();
     
     return 1;

@@ -8,9 +8,10 @@
 
 void CLI_GPS() 
 {
-    LocationPoint point = {};
+	LocationPoint point = {};
 	bool run = true;
-	while(run) {
+	while(run) 
+	{
 		if(kbhit()) 
 		{
 			char ch = getch();
