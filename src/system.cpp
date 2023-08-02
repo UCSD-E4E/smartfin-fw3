@@ -1,9 +1,11 @@
 #include "system.hpp"
 
-#include "gps/location_service.h"
+#include "location_service.h"
 #include "Particle.h"
 #include "product.hpp"
 
+#include "cli/conio.hpp"
+#include "consts.hpp"
 
 char SYS_deviceID[32];
 
@@ -12,6 +14,9 @@ SystemFlags_t systemFlags;
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
+
+
+static int SYS_initGPS();
 
 
 int SYS_initSys(void)
@@ -91,13 +96,30 @@ static void SYS_chargerTask(void)
 }
 
 
+/**
+ * @brief Initialization function for GPS 
+ * Ublox gps, handled by @file gps/location_service.cpp
+ * @return int sucsess
+ */
 static int SYS_initGPS() 
 {
     LocationServiceConfiguration config = create_location_service_config();
-	LocationService::instance().setModuleType();
-    LocationService::instance().begin(config);
-    LocationService::instance().start();
-	LocationService::instance().setFastLock(true);
+    LocationService::instance().setModuleType();
+    if(LocationService::instance().begin(config) != 0)
+    {
+        SF_OSAL_printf("GPS Initialization Failed" __NL__);
+        SF_OSAL_printf("Check pin map and reboot" __NL__);
+        return -1;
+    }
+
+    if(LocationService::instance().start() != 0)
+    {
+        SF_OSAL_printf("GPS Start Failed" __NL__);
+        SF_OSAL_printf("Please check GPS and reboot" __NL__);
+        return -1;
+    }
+    LocationService::instance().setFastLock(true);
+
     systemDesc.pLocService = &LocationService::instance();
     
     return 1;

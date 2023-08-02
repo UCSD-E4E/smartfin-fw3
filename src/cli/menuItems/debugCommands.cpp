@@ -7,11 +7,11 @@
  * 
 */
 #include "debugCommands.hpp"
-#include "../conio.hpp"
-#include "../flog.hpp"
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
 
 #include "Particle.h"
-#include "../../consts.hpp"
+#include "consts.hpp"
 
 
 void CLI_restart(void)
