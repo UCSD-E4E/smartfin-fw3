@@ -232,26 +232,6 @@
 
 #define SF_UPLOAD_ENCODING SF_UPLOAD_BASE64URL
 
-/**
- * @brief Ublox Board Pin
- * 
- */
-#define UBLOX_CS_PIN 53
-/**
- * @brief Ublox GPS power on pin
- * 
- */
-#define UBLOX_PWR_EN_PIN 41
-/**
- * @brief Ublox GPS reset pin
- * 
- */
-#define UBLOX_RESETN_PIN 44
-/**
- * @brief Ublox SPI interface
- * 
- */
-#define UBLOX_SPI_INTERFACE                   (SPI1)
 
 #define SF_SERIAL_SPEED 9600
 
