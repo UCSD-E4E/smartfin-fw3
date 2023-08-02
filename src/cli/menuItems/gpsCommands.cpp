@@ -9,15 +9,16 @@
 void CLI_GPS() 
 {
     LocationPoint point = {};
-    bool run = true;
-    while(run) 
+    char ch;
+    
+    while(1) 
     {
         if(kbhit()) 
         {
-            char ch = getch();
-            if(ch == 113) // if q is pressed
+            ch = getch();
+            if('ch' == q)
             {
-                run = false;
+                break
             }
         }
 
