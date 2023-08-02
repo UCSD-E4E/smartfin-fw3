@@ -53,6 +53,7 @@ static int SYS_initTasks(void)
 static int SYS_initIMU(void)
 {
     systemDesc.pIMU = &SF_imu;
+    return 1;
 }
 
 
