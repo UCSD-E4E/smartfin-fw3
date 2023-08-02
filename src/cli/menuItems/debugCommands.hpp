@@ -20,6 +20,9 @@ void CLI_clearFLOG(void);
  * 
  */
 void CLI_testPrintf(void);
-
+/**
+ * @brief Monitor IMU (gyro and cellerular )
+*/
+void CLI_monitorIMU(void);
 
 #endif

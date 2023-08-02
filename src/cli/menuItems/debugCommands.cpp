@@ -64,22 +64,24 @@ void CLI_monitorIMU(void)
     float accelData[3];
     float gyroData[3];
 
+    char ch;
+
     if(!pSystemDesc->pIMU->open())
     {
         SF_OSAL_printf("IMU Fail\n");
     }
 
-    bool run = true;
-    while(run) {
+    while(1)
+    {
 		if(kbhit()) 
 		{
-			char ch = getch();
-			if(ch == 113) // if q is pressed
+			ch = getch();
+
+			if('q' == ch) 
 			{
-				run = false;
+                break;
 			}
 		}
-
 
         pSystemDesc->pIMU->get_accelerometer(accelData, accelData + 1, accelData + 2);
 
@@ -87,6 +89,7 @@ void CLI_monitorIMU(void)
 
         SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
         SF_OSAL_printf("Gyroscope %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
+        delay(500);
 	}
 
     SF_OSAL_printf(__NL__);

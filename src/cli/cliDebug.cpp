@@ -24,11 +24,14 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include "cli/menuItems/debugCommands.hpp"
+
 const Menu_t CLI_debugMenu[] = 
 {
     {1, "Display Fault Log", &CLI_displayFLOG},
     {2, "Clear Fault Log", &CLI_clearFLOG},
     {3, "Restart System", &CLI_restart},
+    {4, "Monitor IMU", &CLI_monitorIMU},
     {0, NULL, NULL}
 };
 
