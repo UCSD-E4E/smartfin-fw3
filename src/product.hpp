@@ -7,7 +7,7 @@
 /**
  * USB Power Detection Pin
  */
-#define SF_USB_PWR_DETECT_PIN   RX
+#define SF_USB_PWR_DETECT_PIN   45
 /**
  * Water Detect Enable Pin
  */
