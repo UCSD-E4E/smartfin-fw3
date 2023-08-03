@@ -34,8 +34,7 @@
 */
 #ifndef MAX31725_CPP_H
 #define MAX31725_CPP_H
-#include "mbed.h"
-
+#include "i2c/mbed.h"
 
 /**
  * @brief Digital thermometer, thermostat, temperature sensor.

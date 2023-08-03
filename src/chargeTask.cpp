@@ -22,13 +22,8 @@ void ChargeTask::init(void)
 
 STATES_e ChargeTask::run(void)
 {
-    const SleepTask::BOOT_BEHAVIOR_e bootBehavior = SleepTask::getBootBehavior();
     while(1)
     {
-        // if(pSystemDesc->pWaterSensor->getCurrentReading())
-        // {
-        //     return STATE_SESSION_INIT;
-        // }
 
         if(kbhit())
         {
@@ -43,16 +38,7 @@ STATES_e ChargeTask::run(void)
         //makes sure we don't go into upload mode in 3g off booting
         bool no_upload_flag;
         pSystemDesc->pNvram->get(NVRAM::NO_UPLOAD_FLAG, no_upload_flag);
-        // if (no_upload_flag) {  
-        // }
-        // else if(bootBehavior == SleepTask::BOOT_BEHAVIOR_UPLOAD_REATTEMPT)
-        // {
-        //     if(millis() - this->startTime >= SF_UPLOAD_REATTEMPT_DELAY_SEC * MSEC_PER_SEC)
-        //     {
-        //         return STATE_UPLOAD;
-        //     }
-        // }
-
+        
         os_thread_yield();
     }
 }
