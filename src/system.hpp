@@ -26,6 +26,14 @@ typedef struct SystemDesc_
  */
 int SYS_initSys(void);
 
+/**
+ * @brief Create a location service config object with defaults
+ * 
+ * @return LocationServiceConfiguration 
+ */
+LocationServiceConfiguration create_location_service_config();
+
+
 extern SystemDesc_t* pSystemDesc;
 
 #endif
