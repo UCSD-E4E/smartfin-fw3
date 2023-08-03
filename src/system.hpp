@@ -59,4 +59,7 @@ static void SYS_chargerTask(void);
 
 
 
+
+extern SystemDesc_t* pSystemDesc;
+
 #endif

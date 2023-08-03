@@ -5,6 +5,7 @@
 #include "product.hpp"
 
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
 #include "consts.hpp"
 
 char SYS_deviceID[32];
@@ -16,8 +17,8 @@ static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
 
 
-static int SYS_initGPS();
-
+static int SYS_initGPS(void);
+static LocationServiceConfiguration create_location_service_config();
 
 int SYS_initSys(void)
 {
@@ -26,7 +27,7 @@ int SYS_initSys(void)
     systemDesc.flags = &systemFlags;
 
     memset(SYS_deviceID, 0, 32);
-    strncpy(SYS_deviceID, System.deviceID(), 31);
+    strncpy(SYS_deviceID, System.deviceID().c_str(), 31);
 
     
 
@@ -99,9 +100,9 @@ static void SYS_chargerTask(void)
 /**
  * @brief Initialization function for GPS 
  * Ublox gps, handled by @file gps/location_service.cpp
- * @return int sucsess
+ * @return int 1 on success, otherwise 0
  */
-static int SYS_initGPS() 
+static int SYS_initGPS(void) 
 {
     LocationServiceConfiguration config = create_location_service_config();
     LocationService::instance().setModuleType();
@@ -109,14 +110,18 @@ static int SYS_initGPS()
     {
         SF_OSAL_printf("GPS Initialization Failed" __NL__);
         SF_OSAL_printf("Check pin map and reboot" __NL__);
-        return -1;
+
+        FLOG_AddError(FLOG_GPS_INIT_FAIL, 0);
+        return 0;
     }
 
     if(LocationService::instance().start() != 0)
     {
         SF_OSAL_printf("GPS Start Failed" __NL__);
         SF_OSAL_printf("Please check GPS and reboot" __NL__);
-        return -1;
+
+        FLOG_AddError(FLOG_GPS_START_FAIL, 0);
+        return 0;
     }
     LocationService::instance().setFastLock(true);
 
@@ -132,4 +137,27 @@ static int SYS_initNVRAM(void)
     systemDesc.pNvram = &nvram;
 
     return 1;
+}
+
+/**
+ * @brief Create a location service config object with defaults
+ * 
+ * @return LocationServiceConfiguration 
+ */
+static LocationServiceConfiguration create_location_service_config() {
+    LocationServiceConfiguration config;
+    config.enableFastLock(LOCATION_CONFIG_ENABLE_FAST_LOCK);
+    config.enableUDR(LOCATION_CONFIG_ENABLE_UDR);
+    config.udrModel(LOCATION_CONFIG_UDR_DYNAMIC_MODEL);
+    config.imuYaw(LOCATION_CONFIG_IMU_ORIENTATION_YAW);
+    config.imuPitch(LOCATION_CONFIG_IMU_ORIENTATION_PITCH);
+    config.imuRoll(LOCATION_CONFIG_IMU_ORIENTATION_ROLL);
+    config.enableIMUAutoAlignment(LOCATION_CONFIG_ENABLE_AUTO_IMU_ALIGNMENT);
+    config.imuToVRPX(0);
+    config.imuToVRPY(0);
+    config.imuToVRPZ(0);
+    config.enableHotStartOnWake(LOCATION_CONFIG_ENABLE_HOT_START_ON_WAKE);
+    config.enableAssistNowAutonomous(LOCATION_CONFIG_ENABLE_ASSISTNOW_AUTONOMOUS);
+
+    return config;
 }

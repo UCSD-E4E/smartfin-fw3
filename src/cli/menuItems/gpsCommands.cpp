@@ -8,37 +8,46 @@
 
 void CLI_GPS() 
 {
-    LocationPoint point = {};
-    bool run = true;
-    while(run) 
+    LocationPoint point;
+    LocationService& instance= LocationService::instance();
+    char ch;
+    int row = 0;
+    for (row = 0; ; row++)
     {
         if(kbhit()) 
         {
-            char ch = getch();
-            if(ch == 113) // if q is pressed
+            ch = getch();
+            if('q' == ch)
             {
-                run = false;
+                break;
             }
         }
-
-        LocationService::instance().getLocation(point);
-        displayInfo(point);
+        if (row % CLI_SCREEN_HEIGHT == 0)
+        {
+            SF_OSAL_printf("%11s %11s %6s %4s %6s %4s %4s %9s %9s %1s" __NL__,
+                        "Latitude",
+                        "Longitude",
+                        "Alt",
+                        "Spd",
+                        "Hdg",
+                        "HDOP",
+                        "VDOP",
+                        "Sats Used",
+                        "Sats View",
+                        "Locked");
+        }
+        instance.getLocation(point);
+        SF_OSAL_printf("%11.6f %11.6f %6.3f %4.2f %6.3f %4.2f %4.2f %9d %9d %6d" __NL__, 
+                        point.latitude,
+                        point.longitude,
+                        point.altitude,
+                        point.speed,
+                        point.heading,
+                        point.horizontalAccuracy,
+                        point.verticalAccuracy,
+                        point.satsInUse,
+                        point.satsInView,
+                        point.locked
+                        );
     }
 }
-
-
-void displayInfo(LocationPoint point)
-{
-    SF_OSAL_printf("Latitude %f" __NL__ , point.latitude);
-    SF_OSAL_printf("Longitude %f" __NL__, point.longitude);
-    SF_OSAL_printf("Altitude %f" __NL__, point.altitude);
-    SF_OSAL_printf("Speed %f" __NL__, point.speed);
-    SF_OSAL_printf("Heading %f" __NL__, point.heading);
-    SF_OSAL_printf("Accuracy (horizontal / vertical) (%f/%f)" __NL__, 
-                    point.horizontalAccuracy, 
-                    point.verticalAccuracy);
-    SF_OSAL_printf("Satellites in use %d" __NL__, point.satsInUse);
-    SF_OSAL_printf("Satellites in view" __NL__, point.satsInView);
-    SF_OSAL_printf("Locked: %d" __NL__, point.locked);
-}
-
