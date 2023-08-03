@@ -12,8 +12,8 @@ SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
 
-static int SYS_initGPS();
-
+static int SYS_initGPS(void);
+static LocationServiceConfiguration create_location_service_config();
 
 int SYS_initSys(void)
 {
@@ -31,9 +31,9 @@ int SYS_initSys(void)
 /**
  * @brief Initialization function for GPS 
  * Ublox gps, handled by @file gps/location_service.cpp
- * @return int sucsess
+ * @return int 1 on success, otherwise 0
  */
-static int SYS_initGPS() 
+static int SYS_initGPS(void) 
 {
     LocationServiceConfiguration config = create_location_service_config();
     LocationService::instance().setModuleType();
@@ -61,7 +61,12 @@ static int SYS_initGPS()
     return 1;
 }
 
-LocationServiceConfiguration create_location_service_config() {
+/**
+ * @brief Create a location service config object with defaults
+ * 
+ * @return LocationServiceConfiguration 
+ */
+static LocationServiceConfiguration create_location_service_config() {
     LocationServiceConfiguration config;
     config.enableFastLock(LOCATION_CONFIG_ENABLE_FAST_LOCK);
     config.enableUDR(LOCATION_CONFIG_ENABLE_UDR);
