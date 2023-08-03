@@ -8,15 +8,18 @@
 */
 
 #include "systemCommands.hpp"
-#include "../conio.hpp"
-#include "../flog.hpp"
-#include "../../states.hpp"
-#include "../cli.hpp"
+
+
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
+
+#include "states.hpp"
 
 #include "Particle.h"
 
 void CLI_connect(void)
 {
+    Particle.connect();
     waitFor(Particle.connected, 300000);
 }
 
