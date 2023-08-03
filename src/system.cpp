@@ -18,6 +18,9 @@ static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
 
 static int SYS_initGPS(void);
+static int SYS_initNVRAM(void);
+static int SYS_initTasks(void);
+
 static LocationServiceConfiguration create_location_service_config();
 
 int SYS_initSys(void)
@@ -50,7 +53,7 @@ static int SYS_initTasks(void)
 }
 
 
-static void SYS_chargerTask(void)
+void SYS_chargerTask(void)
 {
     bool isCharging = ~digitalRead(STAT_PIN);
     systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);

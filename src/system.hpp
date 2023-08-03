@@ -40,22 +40,10 @@ extern SystemDesc_t* pSystemDesc;
  */
 int SYS_initSys(void);
 /**
- * @brief Initializes NVRAM 
- * 
- * @return int sucsess
- */
-static int SYS_initNVRAM(void);
-/**
- * @brief Initialize system tasks (charging and sleep)
- * 
- * @return int 
- */
-static int SYS_initTasks(void);
-/**
  * @brief Charging task
  * 
  */
-static void SYS_chargerTask(void);
+void SYS_chargerTask(void);
 
 
 
