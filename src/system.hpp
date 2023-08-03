@@ -39,11 +39,6 @@ extern SystemDesc_t* pSystemDesc;
  * @return int 
  */
 int SYS_initSys(void);
-/**
- * @brief Charging task
- * 
- */
-void SYS_chargerTask(void);
 
 
 
