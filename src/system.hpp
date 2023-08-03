@@ -36,40 +36,11 @@ extern SystemDesc_t* pSystemDesc;
 
 
 /**
- * @brief Initialization function for GPS 
- * Ublox gps, handled by @file gps/location_service.cpp
- * @return int sucsess
- */
-static int SYS_initGPS();
-/**
  * @brief Initializes all system components
  * 
  * @return int 
  */
 int SYS_initSys(void);
-/**
- * @brief Initializes NVRAM 
- * 
- * @return int sucsess
- */
-static int SYS_initNVRAM(void);
-/**
- * @brief Initialize system tasks (charging and sleep)
- * 
- * @return int 
- */
-static int SYS_initTasks(void);
-/**
- * @brief Charging task
- * 
- */
-static void SYS_chargerTask(void);
-/**
- * @brief Initializes temperature sensor
- * 
- */
-static int SYS_initTempSensor(void);
-
 
 
 #endif

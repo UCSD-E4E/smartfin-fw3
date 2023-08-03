@@ -14,6 +14,14 @@ char SYS_deviceID[32];
 SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
+
+static int SYS_initNVRAM(void);
+static int SYS_initTasks(void);
+static void SYS_chargerTask(void);
+static int SYS_initGPS();
+static int SYS_initTempSensor(void);
+
+
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
 I2C i2cBus;

@@ -51,6 +51,7 @@ void SleepTask::init(void)
                 SF_OSAL_printf("Waking up in %ld seconds...ZZZzzzzz\n", SF_UPLOAD_REATTEMPT_DELAY_SEC);
                 System.sleep(SLEEP_MODE_SOFTPOWEROFF, SF_UPLOAD_REATTEMPT_DELAY_SEC);
             }
+            break;
         default:
             digitalWrite(WKP, LOW);
             SystemSleepConfiguration config;
