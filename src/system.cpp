@@ -3,6 +3,7 @@
 #include "location_service.h"
 #include "Particle.h"
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
 #include "consts.hpp"
 
 char SYS_deviceID[32];
@@ -21,7 +22,7 @@ int SYS_initSys(void)
     systemDesc.flags = &systemFlags;
 
     memset(SYS_deviceID, 0, 32);
-    strncpy(SYS_deviceID, System.deviceID(), 31);
+    strncpy(SYS_deviceID, System.deviceID().c_str(), 31);
 
     SYS_initGPS();
     return 1;
@@ -40,14 +41,18 @@ static int SYS_initGPS()
     {
         SF_OSAL_printf("GPS Initialization Failed" __NL__);
         SF_OSAL_printf("Check pin map and reboot" __NL__);
-        return -1;
+
+        FLOG_AddError(FLOG_GPS_INIT_FAIL, 0);
+        return 0;
     }
 
     if(LocationService::instance().start() != 0)
     {
         SF_OSAL_printf("GPS Start Failed" __NL__);
         SF_OSAL_printf("Please check GPS and reboot" __NL__);
-        return -1;
+
+        FLOG_AddError(FLOG_GPS_START_FAIL, 0);
+        return 0;
     }
     LocationService::instance().setFastLock(true);
 
