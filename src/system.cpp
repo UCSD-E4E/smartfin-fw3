@@ -1,12 +1,12 @@
 #include "system.hpp"
 
-#include "location_service.h"
-#include "Particle.h"
-#include "product.hpp"
-
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "product.hpp"
+
+#include "location_service.h"
+#include "Particle.h"
 
 char SYS_deviceID[32];
 
@@ -15,8 +15,9 @@ SystemFlags_t systemFlags;
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
-
-
+static void SYS_chargerTask(void);
+static int SYS_initTasks(void);
+static int SYS_initNVRAM(void);
 static int SYS_initGPS(void);
 static LocationServiceConfiguration create_location_service_config();
 
@@ -38,6 +39,11 @@ int SYS_initSys(void)
     return 1;
 }
 
+/**
+ * @brief Initialize system tasks (charging and sleep)
+ * 
+ * @return int 
+ */
 static int SYS_initTasks(void)
 {
     pinMode(STAT_PIN, INPUT);
@@ -50,6 +56,10 @@ static int SYS_initTasks(void)
 }
 
 
+/**
+ * @brief Charging task
+ * 
+ */
 static void SYS_chargerTask(void)
 {
     bool isCharging = ~digitalRead(STAT_PIN);
@@ -130,6 +140,11 @@ static int SYS_initGPS(void)
     return 1;
 }
 
+/**
+ * @brief Initializes NVRAM 
+ * 
+ * @return int sucsess
+ */
 static int SYS_initNVRAM(void)
 {
     NVRAM& nvram = NVRAM::getInstance();
