@@ -19,6 +19,9 @@ static void SYS_chargerTask(void);
 static int SYS_initTasks(void);
 static int SYS_initNVRAM(void);
 static int SYS_initGPS(void);
+static int SYS_initNVRAM(void);
+static int SYS_initTasks(void);
+
 static LocationServiceConfiguration create_location_service_config();
 
 int SYS_initSys(void)
