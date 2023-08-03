@@ -26,4 +26,6 @@ typedef struct SystemDesc_
  */
 int SYS_initSys(void);
 
+extern SystemDesc_t* pSystemDesc;
+
 #endif
