@@ -1638,15 +1638,3 @@ void ICM20648::irq_handler(void)
 {
 
 }
-
-#if ICM20648_ENABLED
-void ICM20648::get_accel_raw_data(uint8_t *data)
-{
-    memcpy(data, m_accelRawData, sizeof(m_accelRawData));
-}
-
-void ICM20648::get_gyro_raw_data(uint8_t *data)
-{
-    memcpy(data, m_gyroRawData, sizeof(m_gyroRawData));
-}
-#endif
