@@ -16,9 +16,9 @@ void CLI_GPS()
         if(kbhit()) 
         {
             ch = getch();
-            if('ch' == q)
+            if('q' == ch)
             {
-                break
+                break;
             }
         }
 
