@@ -14,7 +14,7 @@
 
 
 #include <cstdio>
-#include "../product.hpp"
+#include "product.hpp"
 
 char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
 

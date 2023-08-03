@@ -1,0 +1,85 @@
+#include "system.hpp"
+
+#include "location_service.h"
+#include "Particle.h"
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
+#include "consts.hpp"
+
+char SYS_deviceID[32];
+
+SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
+SystemFlags_t systemFlags;
+
+
+static int SYS_initGPS(void);
+static LocationServiceConfiguration create_location_service_config();
+
+int SYS_initSys(void)
+{
+    memset(pSystemDesc, 0, sizeof(SystemDesc_t));
+    systemDesc.deviceID = SYS_deviceID;
+    systemDesc.flags = &systemFlags;
+
+    memset(SYS_deviceID, 0, 32);
+    strncpy(SYS_deviceID, System.deviceID().c_str(), 31);
+
+    SYS_initGPS();
+    return 1;
+}
+
+/**
+ * @brief Initialization function for GPS 
+ * Ublox gps, handled by @file gps/location_service.cpp
+ * @return int 1 on success, otherwise 0
+ */
+static int SYS_initGPS(void) 
+{
+    LocationServiceConfiguration config = create_location_service_config();
+    LocationService::instance().setModuleType();
+    if(LocationService::instance().begin(config) != 0)
+    {
+        SF_OSAL_printf("GPS Initialization Failed" __NL__);
+        SF_OSAL_printf("Check pin map and reboot" __NL__);
+
+        FLOG_AddError(FLOG_GPS_INIT_FAIL, 0);
+        return 0;
+    }
+
+    if(LocationService::instance().start() != 0)
+    {
+        SF_OSAL_printf("GPS Start Failed" __NL__);
+        SF_OSAL_printf("Please check GPS and reboot" __NL__);
+
+        FLOG_AddError(FLOG_GPS_START_FAIL, 0);
+        return 0;
+    }
+    LocationService::instance().setFastLock(true);
+
+    systemDesc.pLocService = &LocationService::instance();
+    
+    return 1;
+}
+
+/**
+ * @brief Create a location service config object with defaults
+ * 
+ * @return LocationServiceConfiguration 
+ */
+static LocationServiceConfiguration create_location_service_config() {
+    LocationServiceConfiguration config;
+    config.enableFastLock(LOCATION_CONFIG_ENABLE_FAST_LOCK);
+    config.enableUDR(LOCATION_CONFIG_ENABLE_UDR);
+    config.udrModel(LOCATION_CONFIG_UDR_DYNAMIC_MODEL);
+    config.imuYaw(LOCATION_CONFIG_IMU_ORIENTATION_YAW);
+    config.imuPitch(LOCATION_CONFIG_IMU_ORIENTATION_PITCH);
+    config.imuRoll(LOCATION_CONFIG_IMU_ORIENTATION_ROLL);
+    config.enableIMUAutoAlignment(LOCATION_CONFIG_ENABLE_AUTO_IMU_ALIGNMENT);
+    config.imuToVRPX(0);
+    config.imuToVRPY(0);
+    config.imuToVRPZ(0);
+    config.enableHotStartOnWake(LOCATION_CONFIG_ENABLE_HOT_START_ON_WAKE);
+    config.enableAssistNowAutonomous(LOCATION_CONFIG_ENABLE_ASSISTNOW_AUTONOMOUS);
+
+    return config;
+}

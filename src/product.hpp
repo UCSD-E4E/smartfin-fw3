@@ -7,7 +7,7 @@
 /**
  * USB Power Detection Pin
  */
-#define SF_USB_PWR_DETECT_PIN   RX
+#define SF_USB_PWR_DETECT_PIN   45
 /**
  * Water Detect Enable Pin
  */
@@ -231,6 +231,7 @@
 #define SF_UPLOAD_BASE64URL 3
 
 #define SF_UPLOAD_ENCODING SF_UPLOAD_BASE64URL
+
 
 #define SF_SERIAL_SPEED 9600
 

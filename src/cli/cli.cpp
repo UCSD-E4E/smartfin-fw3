@@ -14,6 +14,8 @@
 #include "menu.hpp"
 #include "menuItems/systemCommands.hpp"
 #include "menuItems/debugCommands.hpp"
+#include "menuItems/gpsCommands.hpp"
+#include "cliDebug.hpp"
 #include "states.hpp"
 #include "util.hpp"
 #include "product.hpp"
@@ -35,6 +37,7 @@ const Menu_t CLI_menu[] =
     {5, "test printf", &CLI_testPrintf},
     {6, "debug menu", &CLI_doDebugMode},
     {7, "hexdump", &CLI_hexdump},
+    {8, "gps", &CLI_GPS},
     {0, nullptr, nullptr}
 };
 
