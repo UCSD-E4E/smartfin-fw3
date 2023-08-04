@@ -65,27 +65,29 @@ void CLI_testPrintf(void)
 void CLI_monitorTempSensor(void) 
 {
     float temp;
+    char ch;
 
     SF_OSAL_printf("starting temp sensor");
 
     if(pSystemDesc->pTempSensor->init() != 0)
     {
         SF_OSAL_printf("Temp Fail\n");
+        FLOG_AddError(FLOG_TEMP_FAIL, 0);
     }
 
     SF_OSAL_printf("Started");
 
-    bool run = true;
-	while(run) 
+	while(1) 
     {
 		if(kbhit()) 
 		{
-			char ch = getch();
-			if(ch == 113) // if q is pressed
+			ch = getch();
+			if('q' == ch) 
 			{
-				run = false;
+				break;
 			}
 		}
+        
         temp = pSystemDesc->pTempSensor->getTemp();
         SF_OSAL_printf("Temperature Reading: %f" __NL__, temp);
     }

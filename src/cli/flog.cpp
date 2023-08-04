@@ -72,6 +72,7 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_RESET_REASON, "Reset Reason"},
     {FLOG_GPS_INIT_FAIL, "GPS Init Fail"},
     {FLOG_GPS_START_FAIL, "GPS Start Fail"},
+    {FLOG_TEMP_FAIL, "Temp Start Fail"},
     {FLOG_NULL, NULL}
 };
 

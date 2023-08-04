@@ -105,8 +105,7 @@ int MAX31725::read_reg16(int16_t *value, char reg)
                 *value = tmp.swrd;
                 return MAX31725_NO_ERROR;
             } else {
-                SF_OSAL_printf(
-                    "%s: failed to read data: ret: %ld\r\n", __func__, ret);
+                SF_OSAL_printf("%s: failed to read data: ret: %ld\r\n", __func__, ret);
             }
         } else {                
             SF_OSAL_printf("%s: failed to write to Register Select: ret: %ld\r\n",
@@ -155,6 +154,7 @@ int MAX31725::write_reg16(int16_t value, char reg)
         if (ret == 0) {
             return MAX31725_NO_ERROR;
         } else {
+            SF_OSAL_printf("Write error" __NL__);
             SF_OSAL_printf("%s: I2C write error %ld\r\n",__func__, ret);
             return MAX31725_ERROR;
         }
@@ -173,10 +173,7 @@ int MAX31725::write_cfg_reg(uint8_t cfg)
 
     cmd[0] = MAX31725_REG_CONFIGURATION;
     cmd[1] = cfg;
-    SF_OSAL_printf("Telling max to start" __NL__);
-    SF_OSAL_printf("Address to write: %d", m_write_address);
     ret = m_i2c.write(m_write_address, cmd, 2, false);
-    SF_OSAL_printf("Telling max to start" __NL__);
 
     if (ret == 0) {
         max31725_extended_format = 0;

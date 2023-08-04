@@ -26,9 +26,7 @@ m_sensor(sensor)
 
 bool tmpSensor::init()
 {
-    SF_OSAL_printf("Telling max to start" __NL__);
     int sucsess = m_sensor.write_cfg_reg(MAX31725_CFG_CONTINUOUS);
-    SF_OSAL_printf("Max start sucsess: %d" __NL__, sucsess);
     return sucsess;
 }
 
