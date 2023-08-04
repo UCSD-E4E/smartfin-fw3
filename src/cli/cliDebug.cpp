@@ -41,6 +41,12 @@ void CLI_doDebugMode(void)
     int CLI_debugRun = 1;
     while (CLI_debugRun)
     {
+
+        if(CLI_nextState != STATE_CLI)
+        {
+            break;
+        }
+
         MNU_displayMenu(CLI_debugMenu);
 
         Menu_t *cmd;
