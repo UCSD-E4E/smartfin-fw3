@@ -34,6 +34,8 @@ typedef enum FLOG_CODE_
     FLOG_UPL_BATT_LOW     =0x0602,
     FLOG_UPL_FOLDER_COUNT =0x0603,
     FLOG_UPL_CONNECT_FAIL =0x0604,
+    FLOG_GPS_INIT_FAIL    =0x0605,
+    FLOG_GPS_START_FAIL   =0x0606
 }FLOG_CODE_e;
 
 void FLOG_Initialize(void);

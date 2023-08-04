@@ -75,6 +75,8 @@ STATES_e CLI::run(void)
 
     lastKeyPressTime = millis();  
 
+    CLI_nextState = STATE_CLI;
+
     while (1) 
     {
         if(millis() >= lastKeyPressTime + CLI_NO_INPUT_TIMEOUT_MS) 
@@ -84,7 +86,12 @@ STATES_e CLI::run(void)
 
         if(!pSystemDesc->flags->hasCharger)
         {
-            return STATE_DEEP_SLEEP;
+            CLI_nextState = STATE_DEEP_SLEEP;
+        }
+
+        if(CLI_nextState != STATE_CLI)
+        {
+            break;
         }
 
         memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
@@ -109,7 +116,7 @@ STATES_e CLI::run(void)
         }
     }
 
-
+    SF_OSAL_printf("Next State: %d", CLI_nextState);
     return CLI_nextState;
 }
 

@@ -7,7 +7,7 @@
 /**
  * USB Power Detection Pin TODO
  */
-#define SF_USB_PWR_DETECT_PIN   RX
+#define SF_USB_PWR_DETECT_PIN   45
 /**
  * Battery Charging Status Pin 
  */
@@ -173,10 +173,6 @@
 
 #define SF_UPLOAD_ENCODING SF_UPLOAD_BASE64URL
 
-#define UBLOX_CS_PIN 53
-#define UBLOX_PWR_EN_PIN 41
-#define UBLOX_RESETN_PIN 44
-#define UBLOX_SPI_INTERFACE                   (SPI1)
 
 #define SF_SERIAL_SPEED 9600
 

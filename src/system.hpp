@@ -1,9 +1,10 @@
 #ifndef __SYSTEM_HPP__
 #define __SYSTEM_HPP__
 
-#include "gps/location_service.h"
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
+
+#include "location_service.h"
 
 #define SYS_CHARGER_MIN_CHARGING_MS 5000
 #define SYS_CHARGER_MIN_CHARGED_MS 30000
@@ -32,7 +33,6 @@ typedef struct SystemDesc_
 extern SystemDesc_t* pSystemDesc;
 
 
-
 /**
  * @brief Initializes all system components
  * 
@@ -40,5 +40,8 @@ extern SystemDesc_t* pSystemDesc;
  */
 int SYS_initSys(void);
 
+
+
+extern SystemDesc_t* pSystemDesc;
 
 #endif

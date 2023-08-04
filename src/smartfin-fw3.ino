@@ -15,7 +15,6 @@
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "gps/location_service.h"
 
 #include "sleepTask.hpp"
 #include "chargeTask.hpp"
@@ -35,7 +34,6 @@ static CLI cliTask;
 static ChargeTask chargeTask;
 static SleepTask sleepTask;
 static DataUpload uploadTask;
-
 
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 

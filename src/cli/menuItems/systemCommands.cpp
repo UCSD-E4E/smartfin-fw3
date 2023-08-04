@@ -28,7 +28,6 @@ void CLI_disconnect(void)
 
 void CLI_doSleep(void)
 {
-    SF_OSAL_printf("Next state is sleep\n");
     CLI_nextState = STATE_DEEP_SLEEP;
 }
 
