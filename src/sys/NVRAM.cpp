@@ -1,3 +1,13 @@
+/**
+ * @file NVRAM.cpp
+ * @author 
+ * @brief Manages onboard NonVolitaile RAM
+ * @version 0.1
+ * @date 2023-08-03
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "NVRAM.hpp"
 
 #include <cstddef>

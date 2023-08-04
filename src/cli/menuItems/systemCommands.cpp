@@ -8,10 +8,12 @@
 */
 
 #include "systemCommands.hpp"
-#include "../conio.hpp"
-#include "../flog.hpp"
-#include "../../states.hpp"
-#include "../cli.hpp"
+
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
+#include "cli/cli.hpp"
+
+#include "states.hpp"
 
 #include "Particle.h"
 

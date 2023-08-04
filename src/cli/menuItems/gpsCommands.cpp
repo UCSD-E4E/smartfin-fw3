@@ -1,9 +1,19 @@
-#include "Particle.h"
+/**
+ * @file gpsCommands.cpp
+ * @author @emilybthorpe
+ * @brief CLI commands for interacting with onboard GNSS
+ * @version 0.1
+ * @date 2023-08-03
+ * 
+ * 
+ */
 
 #include "gpsCommands.hpp"
-#include "../conio.hpp"
-
 #include "gps/location_service.h"
+
+#include "cli/conio.hpp"
+
+#include "Particle.h"
 
 void CLI_GPS() 
 {
@@ -20,7 +30,6 @@ void CLI_GPS()
 		}
 
 		LocationService::instance().getLocation(point);
-		// SF_OSAL_printf("Status: %d", LocationService::instance().getStatus());
 		displayInfo(point);
 	}
 }

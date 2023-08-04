@@ -1,3 +1,13 @@
+/**
+ * @file led.cpp
+ * @brief Manages onboard LED
+ * @version 0.1
+ * @date 2023-08-03
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #include "led.hpp"
 
 #include "Particle.h"

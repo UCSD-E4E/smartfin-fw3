@@ -1,8 +1,9 @@
-#include "Particle.h"
 #include "i2c.h"
 #include <stdint.h>
 #include <Wire.h>
-#include "../cli/conio.hpp"
+#include "cli/conio.hpp"
+
+#include "Particle.h"
 
 // Map MBED I2C class to the Particle IO Device OS I2C class.
 

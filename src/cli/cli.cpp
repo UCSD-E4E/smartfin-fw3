@@ -9,23 +9,25 @@
 #include "cli.hpp"
 
 #include "cliDebug.hpp"
+
 #include "conio.hpp"
 #include "consts.hpp"
 #include "menu.hpp"
+
 #include "menuItems/systemCommands.hpp"
 #include "menuItems/debugCommands.hpp"
 #include "menuItems/gpsCommands.hpp"
-#include "cliDebug.hpp"
+
 #include "states.hpp"
 #include "util.hpp"
 #include "product.hpp"
 
-#include "../system.hpp"
-
-#include "Particle.h"
+#include "system.hpp"
 
 #include <fstream>
 #include <bits/stdc++.h>
+
+#include "Particle.h"
 
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
@@ -54,7 +56,6 @@ void CLI::init(void)
 
     pSystemDesc->pChargerCheck->start();
 
-
     // While there is an avaliable character typed, get it
     while (kbhit())
     {
@@ -68,12 +69,10 @@ STATES_e CLI::run(void)
     Menu_t *cmd;
     uint32_t lastKeyPressTime;
 
-    
     userInput[0] = 0;
-
-    SF_OSAL_printf(__NL__ ">");
-
     lastKeyPressTime = millis();  
+
+    SF_OSAL_printf(__NL__ ">");\
 
     while (1) 
     {
@@ -91,24 +90,27 @@ STATES_e CLI::run(void)
 
         getline(userInput, SF_CLI_MAX_CMD_LEN);
 
-        if (strlen(userInput) != 0) //If there is a command
+        if(strlen(userInput) == 0)
         {
-            SF_OSAL_printf("\r\n");
-            cmd = MNU_findCommand(userInput, CLI_menu);
-            if (!cmd) 
-            {
-                SF_OSAL_printf("Unknown command" __NL__);
-                MNU_displayMenu(CLI_menu);
-                SF_OSAL_printf(__NL__">");
-            } 
-            else 
-            {
-                cmd->fn();
-                SF_OSAL_printf(__NL__">");
-            }
+            continue; //No command, keep waiting
         }
-    }
 
+        //Proccess Command
+        SF_OSAL_printf("\r\n");
+        cmd = MNU_findCommand(userInput, CLI_menu);
+
+        if (!cmd) 
+        {
+            SF_OSAL_printf("Unknown command" __NL__);
+            MNU_displayMenu(CLI_menu);
+        } 
+        else 
+        {
+            cmd->fn();
+        }
+        
+        SF_OSAL_printf(__NL__ ">");
+    }
 
     return CLI_nextState;
 }

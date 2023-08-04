@@ -7,12 +7,15 @@
  * 
 */
 #include "debugCommands.hpp"
-#include "../conio.hpp"
-#include "../flog.hpp"
-#include "../../system.hpp"
+
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
+
+#include "system.hpp"
+#include "consts.hpp"
+
 
 #include "Particle.h"
-#include "../../consts.hpp"
 
 
 void CLI_restart(void)
@@ -85,6 +88,7 @@ void CLI_monitorTempSensor(void)
         temp = pSystemDesc->pTempSensor->getTemp();
         SF_OSAL_printf("Temperature Reading: %f" __NL__, temp);
     }
+
     SF_OSAL_printf(__NL__);
     pSystemDesc->pTempSensor->stop();
 }

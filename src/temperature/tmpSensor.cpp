@@ -1,9 +1,23 @@
+/**
+ * @file tmpSensor.cpp
+ * @author @emilybthorpe
+ * @brief Manages Temperature Sensor
+ * @version 0.1
+ * @date 2023-08-03
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #include "tmpSensor.h"
+
 #include "max31725.h"
 #include "max31725_cpp.h"
+
+#include "cli/conio.hpp"
+#include "consts.hpp"
+
 #include <stdint.h>
-#include "../cli/conio.hpp"
-#include "../consts.hpp"
 
 tmpSensor::tmpSensor(MAX31725 &sensor):
 m_sensor(sensor)
