@@ -30,6 +30,9 @@
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
 
+
+static void CLI_setState(void);
+
 const Menu_t CLI_menu[] =
 {
     {1, "display Menu", &CLI_displayMenu},
@@ -41,6 +44,7 @@ const Menu_t CLI_menu[] =
     {7, "hexdump", &CLI_hexdump},
     {8, "gps", &CLI_GPS},
     {9, "sleep", &CLI_doSleep},
+    {100, "Set State", &CLI_setState},
     {0, nullptr, nullptr}
 };
 
@@ -143,4 +147,27 @@ void CLI_hexdump(void)
     getline(input_buffer, SF_CLI_MAX_CMD_LEN);
     buffer_length = (size_t) strtol(input_buffer, &pEndTok, 10);
     hexDump(pBuffer, buffer_length);
+}
+
+static void CLI_setState(void)
+{
+    char input_buffer[SF_CLI_MAX_CMD_LEN];
+    char* pEndTok;
+    STATES_e nextState;
+    
+    for (int i = 1; i < STATE_N_STATES; i++)
+    {
+        SF_OSAL_printf("%3d: %s" __NL__, i, STATES_NAME_TAB[i]);
+    }
+    SF_OSAL_printf("Enter state to change to: ");
+    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    nextState = (STATES_e) strtol(input_buffer, &pEndTok, 10);
+    if (nextState == 0)
+    {
+        SF_OSAL_printf("Invalid state" __NL__);
+        return;
+    }
+    CLI_nextState = nextState;
+    SF_OSAL_printf("Switching to %s" __NL__, STATES_NAME_TAB[nextState]);
+    return;
 }
