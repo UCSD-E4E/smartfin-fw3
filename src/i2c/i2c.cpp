@@ -26,7 +26,6 @@ int I2C::read(uint8_t address, char *data, int length, bool repeated)
         data[idx] = (uint8_t)Wire.read();
     }
     Wire.endTransmission(repeated == false);
-    SF_OSAL_printf("Data%.4s\n", data);
     
     return idx == length ? I2C_NO_ERROR : I2C_ERROR;
 }
