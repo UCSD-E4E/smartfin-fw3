@@ -118,12 +118,17 @@ static void initalizeTaskObjects(void)
 static StateMachine_t* findState(STATES_e state)
 {
     StateMachine_t* pStates;
+    // SF_OSAL_printf("Searching for %d" __NL__, state);
     for (pStates = stateMachine; pStates->task; pStates++)
     {
-      if (pStates->state == state)
-      {
+        // SF_OSAL_printf("Checking index %d, state: %d, task: 0x%08x" __NL__,
+        //                pStates - stateMachine,
+        //                pStates->state,
+        //                pStates->task);
+        if (pStates->state == state)
+        {
         return pStates;
-      }
+        }
     }
     SF_OSAL_printf("State not found!");
     return NULL;
@@ -132,19 +137,12 @@ static StateMachine_t* findState(STATES_e state)
 
 static void printState(STATES_e state)
 {
-  switch(state)
-  {
-    case STATE_CLI:
-    SF_OSAL_printf("STATE_CLI");
-    break;
-    case STATE_CHARGE:
-    SF_OSAL_printf("STATE_CHARGE");
-    break;
-    case STATE_DEEP_SLEEP:
-    SF_OSAL_printf("STATE_DEEP_SLEEP");
-    break;
-    default:
-    SF_OSAL_printf("UNKNOWN");
-    break;
-  }
+    const char* pStateName;
+    if (state >= STATE_N_STATES)
+    {
+        // Illegal state value
+        return;
+    }
+    pStateName = STATES_NAME_TAB[state];
+    SF_OSAL_printf("%s" __NL__, pStateName);
 }
