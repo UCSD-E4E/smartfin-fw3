@@ -158,8 +158,6 @@ struct LocationStatus {
 #define LOCATION_CONFIG_ENABLE_ASSISTNOW_AUTONOMOUS (true)
 #endif
 
-
-
 /**
  * @brief LocationServiceConfiguration class to configure the tracker device in application
  *
@@ -712,6 +710,3 @@ private:
     bool enableHotStartOnWake_;
     GnssModuleType gnssType_;
 };
-
-
-LocationServiceConfiguration create_location_service_config();

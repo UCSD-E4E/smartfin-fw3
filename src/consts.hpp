@@ -3,4 +3,6 @@
 
 #define __NL__ "\n"
 
+#define CLI_SCREEN_HEIGHT 24
+#define CLI_SCREEN_WIDTH 80
 #endif
