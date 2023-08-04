@@ -7,7 +7,7 @@
 #include "base85.h"
 #include "base64.h"
 #include "sleepTask.hpp"
-#include "flog.hpp"
+#include "cli/flog.hpp"
 
 void DataUpload::init(void)
 {
@@ -37,8 +37,8 @@ STATES_e DataUpload::run(void)
     nBytesToSend = DATA_UPLOAD_MAX_UPLOAD_LEN;
     SF_OSAL_printf("Got %u bytes to upload\n", nBytesToSend);
 
-    dataPublishBuffer = "HI!!";
-    publishName = "Test Publish";
+    strncpy(dataPublishBuffer, "Hi!", DATA_UPLOAD_MAX_UPLOAD_LEN);
+    strncpy(publishName, "Test Publish", DU_PUBLISH_ID_NAME_LEN + 1);
 
     if(!Particle.connected())
     {
@@ -46,16 +46,13 @@ STATES_e DataUpload::run(void)
         return STATE_CLI;
     }
 
-    if(!Particle.publish(publishName, dataPublishBuffer", PRIVATE | WITH_ACK))
+    if(!Particle.publish(publishName, dataPublishBuffer, PRIVATE | WITH_ACK))
     {
         SF_OSAL_printf("Failed to upload data!\n");
-        continue;
     }
 
     SF_OSAL_printf("Uploaded record %s\n", dataPublishBuffer);
     Particle.process();
-    lastSendTime = millis();
-
 
     return STATE_CLI;
 }
