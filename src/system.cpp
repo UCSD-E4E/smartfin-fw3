@@ -13,7 +13,6 @@ char SYS_deviceID[32];
 SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
-static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
 static void SYS_chargerTask(void);
 static int SYS_initTasks(void);
@@ -21,8 +20,10 @@ static int SYS_initNVRAM(void);
 static int SYS_initGPS(void);
 static int SYS_initNVRAM(void);
 static int SYS_initTasks(void);
+static LocationServiceConfiguration create_location_service_config(void);
 
-static LocationServiceConfiguration create_location_service_config();
+static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
+
 
 int SYS_initSys(void)
 {
