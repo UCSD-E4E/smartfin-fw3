@@ -2,7 +2,7 @@
 
 #include "Particle.h"
 #include "system.hpp"
-#include "conio.hpp"
+#include "cli/conio.hpp"
 #include "product.hpp"
 #include "base85.h"
 #include "base64.h"
@@ -21,11 +21,24 @@ void DataUpload::init(void)
 
 STATES_e DataUpload::run(void)
 {
+    char dataPublishBuffer[DATA_UPLOAD_MAX_UPLOAD_LEN];
+    char publishName[DU_PUBLISH_ID_NAME_LEN + 1];
+    int nBytesToEncode;
+    size_t nBytesToSend;
+
+
     if(!this->initSuccess)
     {
         SF_OSAL_printf("Failed to init\n");
         return STATE_DEEP_SLEEP;
     }
+
+    memset(dataPublishBuffer, 0,DATA_UPLOAD_MAX_UPLOAD_LEN);
+    nBytesToSend = DATA_UPLOAD_MAX_UPLOAD_LEN;
+    SF_OSAL_printf("Got %u bytes to upload\n", nBytesToSend);
+
+    dataPublishBuffer = "HI!!";
+    publishName = "Test Publish";
 
     if(!Particle.connected())
     {
@@ -33,7 +46,7 @@ STATES_e DataUpload::run(void)
         return STATE_CLI;
     }
 
-    if(!Particle.publish("Test Publish", "Hi!!!", PRIVATE | WITH_ACK))
+    if(!Particle.publish(publishName, dataPublishBuffer", PRIVATE | WITH_ACK))
     {
         SF_OSAL_printf("Failed to upload data!\n");
         continue;

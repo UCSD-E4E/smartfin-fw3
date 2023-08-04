@@ -19,6 +19,7 @@
 
 #include "sleepTask.hpp"
 #include "chargeTask.hpp"
+#include "cellular/dataUpload.hpp"
 
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
@@ -33,6 +34,8 @@ typedef struct StateMachine_
 static CLI cliTask;
 static ChargeTask chargeTask;
 static SleepTask sleepTask;
+static DataUpload uploadTask;
+
 
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 
@@ -40,6 +43,7 @@ static StateMachine_t stateMachine[] =
     {STATE_CLI, &cliTask},
     {STATE_DEEP_SLEEP, &sleepTask},
     {STATE_CHARGE, &chargeTask},
+    {STATE_UPLOAD, &uploadTask},
     {STATE_NULL, NULL}
 };
 

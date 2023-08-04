@@ -8,10 +8,10 @@
 */
 
 #include "systemCommands.hpp"
-#include "../conio.hpp"
-#include "../flog.hpp"
-#include "../../states.hpp"
-#include "../cli.hpp"
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
+#include "states.hpp"
+#include "cli/cli.hpp"
 
 #include "Particle.h"
 
@@ -30,5 +30,10 @@ void CLI_doSleep(void)
 {
     SF_OSAL_printf("Next state is sleep\n");
     CLI_nextState = STATE_DEEP_SLEEP;
+}
+
+void CLI_doUpload(void)
+{
+    CLI_nextState = STATE_UPLOAD;
 }
 
