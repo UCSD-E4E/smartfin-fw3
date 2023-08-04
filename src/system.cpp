@@ -180,3 +180,15 @@ static LocationServiceConfiguration create_location_service_config() {
 
     return config;
 }
+
+void SYS_displaySys(void)
+{
+    SF_OSAL_printf("Device ID: %s" __NL__, pSystemDesc->deviceID);
+    SF_OSAL_printf("Location Service: 0x%08x" __NL__, pSystemDesc->pLocService);
+    SF_OSAL_printf("Charger Check Timer: 0x%08x" __NL__, pSystemDesc->pChargerCheck);
+    SF_OSAL_printf("NVRAM: 0x%08x" __NL__, pSystemDesc->pNvram);
+    SF_OSAL_printf("Battery LED: 0x%08x" __NL__, pSystemDesc->pBatteryLED);
+    SF_OSAL_printf("Battery Low Flag: %d" __NL__, pSystemDesc->flags->batteryLow);
+    SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
+    SF_OSAL_printf("In Water Flag: %d" __NL__, pSystemDesc->flags->inWater);
+}

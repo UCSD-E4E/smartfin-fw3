@@ -32,6 +32,7 @@ void CLI_hexdump(void);
 
 
 static void CLI_setState(void);
+static void CLI_displaySystemState(void);
 
 const Menu_t CLI_menu[] =
 {
@@ -45,6 +46,7 @@ const Menu_t CLI_menu[] =
     {8, "gps", &CLI_GPS},
     {9, "sleep", &CLI_doSleep},
     {100, "Set State", &CLI_setState},
+    {101, "Display System State", &CLI_displaySystemState},
     {0, nullptr, nullptr}
 };
 
@@ -170,4 +172,9 @@ static void CLI_setState(void)
     CLI_nextState = nextState;
     SF_OSAL_printf("Switching to %s" __NL__, STATES_NAME_TAB[nextState]);
     return;
+}
+
+static void CLI_displaySystemState(void)
+{
+    SYS_displaySys();
 }
