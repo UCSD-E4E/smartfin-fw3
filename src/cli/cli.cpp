@@ -41,6 +41,7 @@ const Menu_t CLI_menu[] =
     {7, "hexdump", &CLI_hexdump},
     {8, "gps", &CLI_GPS},
     {9, "sleep", &CLI_doSleep},
+    {10, "upload", &CLI_doUpload},
     {0, nullptr, nullptr}
 };
 

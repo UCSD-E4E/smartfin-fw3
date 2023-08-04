@@ -21,4 +21,6 @@ void CLI_displayFLOG(void);
  */
 void CLI_doSleep(void);
 
+void CLI_doUpload(void);
+
 #endif
