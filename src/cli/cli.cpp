@@ -33,6 +33,7 @@ void CLI_hexdump(void);
 
 static void CLI_setState(void);
 static void CLI_displaySystemState(void);
+static void CLI_displayNVRAM(void);
 
 const Menu_t CLI_menu[] =
 {
@@ -47,6 +48,7 @@ const Menu_t CLI_menu[] =
     {9, "sleep", &CLI_doSleep},
     {100, "Set State", &CLI_setState},
     {101, "Display System State", &CLI_displaySystemState},
+    {102, "Display NVRAM", &CLI_displayNVRAM},
     {0, nullptr, nullptr}
 };
 
@@ -177,4 +179,10 @@ static void CLI_setState(void)
 static void CLI_displaySystemState(void)
 {
     SYS_displaySys();
+}
+
+static void CLI_displayNVRAM(void)
+{
+    NVRAM& instance = NVRAM::getInstance();
+    instance.displayNVRAM();
 }

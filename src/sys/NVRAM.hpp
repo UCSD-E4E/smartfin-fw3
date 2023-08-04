@@ -85,6 +85,7 @@ class NVRAM
         return 1;
     }
 
+    void displayNVRAM(void);
 
     private:
     const nvramTableEntry_t* getTableEntry(DATA_ID_e);
