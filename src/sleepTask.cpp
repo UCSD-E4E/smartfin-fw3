@@ -4,6 +4,7 @@
 #include "product.hpp"
 #include "system.hpp"
 #include "cli/conio.hpp"
+#include "consts.hpp"
 
 SleepTask::BOOT_BEHAVIOR_e SleepTask::bootBehavior;
 
@@ -17,6 +18,7 @@ void SleepTask::init(void)
     this->ledStatus.setActive();
     if(digitalRead(SF_USB_PWR_DETECT_PIN))
     {
+        SF_OSAL_printf("USB detected, returning!" __NL__);
         return;
     }
 
@@ -56,12 +58,14 @@ void SleepTask::init(void)
             break;
     }
     //safety
+    SF_OSAL_printf("System going down!" __NL__);
     System.reset();
 }
 
 STATES_e SleepTask::run(void)
 {
-    return STATE_NULL;
+    SF_OSAL_printf("We're supposed to be asleep! Resetting state machine..." __NL__);
+    return SF_DEFAULT_STATE;
 }
 
 void SleepTask::exit(void)
