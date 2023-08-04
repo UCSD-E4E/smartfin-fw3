@@ -21,6 +21,20 @@
  * 
  */
 #define WKP_PIN               38
+/**
+ * Water Detect Enable Pin
+ */
+#define WATER_DETECT_EN_PIN   57
+/**
+ * Water Detect Pin
+ */
+#define WATER_DETECT_PIN      39
+/**
+ * @brief Manufacturing Water Detect Pin
+ * 
+ */
+#define WATER_MFG_TEST_EN     58
+
 
 
 /*******************************************************************************
@@ -32,6 +46,12 @@
  */
 #define SF_FLASH_SIZE_MB    4
 
+/**
+ * window sizes are how many water detect samples are looked at in a moving 
+ * average to determine if we are in or out of the water.  Generally a sample
+ * happens 1/second
+ */
+#define WATER_DETECT_SURF_SESSION_INIT_WINDOW   40
 /**
  * Charging voltage (mV)
  */
@@ -104,6 +124,10 @@
  */
 #define SF_CELL_SIGNAL_TIMEOUT_MS 300000
 
+/**
+ * Max size of the window/how large the FIFO array is
+ */
+#define WATER_DETECT_ARRAY_SIZE 200
 
 
 /**

@@ -29,6 +29,8 @@ const Menu_t CLI_debugMenu[] =
     {1, "Display Fault Log", &CLI_displayFLOG},
     {2, "Clear Fault Log", &CLI_clearFLOG},
     {3, "Restart System", &CLI_restart},
+    {4, "MFG Test", &CLI_doMfgTest},
+    {5, "Wet/Dry Monitor", &CLI_monitorWetDry},
     {0, NULL, NULL}
 };
 

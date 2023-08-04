@@ -21,5 +21,8 @@ void CLI_clearFLOG(void);
  */
 void CLI_testPrintf(void);
 
+void CLI_monitorWetDry(void);
+
+void CLI_doMfgTest(void);
 
 #endif

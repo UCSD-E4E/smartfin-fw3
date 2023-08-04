@@ -17,9 +17,15 @@ static void SYS_chargerTask(void);
 static int SYS_initGPS(void);
 static int SYS_initNVRAM(void);
 static int SYS_initTasks(void);
+static int SYS_initWaterSensor(void);
 
+static void SYS_waterTask(void);
+
+static Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
+static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN, 
+    WATER_DETECT_SURF_SESSION_INIT_WINDOW, WATER_DETECT_ARRAY_SIZE);
 
 static LocationServiceConfiguration create_location_service_config();
 
@@ -37,6 +43,7 @@ int SYS_initSys(void)
     SYS_initTasks();
     SYS_initGPS();
     SYS_initNVRAM();
+    SYS_initWaterSensor();
 
     return 1;
 }
@@ -49,6 +56,19 @@ static int SYS_initTasks(void)
     systemFlags.batteryLow = false;
 
     systemDesc.pChargerCheck = &chargerTimer;
+    systemDesc.pWaterCheck = &waterTimer;
+    waterTimer.start();
+
+    return 1;
+}
+
+static int SYS_initWaterSensor(void)
+{
+    pinMode(WATER_DETECT_EN_PIN, OUTPUT);
+    pinMode(WATER_DETECT_PIN, INPUT);
+    pinMode(WATER_MFG_TEST_EN, OUTPUT);
+    digitalWrite(WATER_MFG_TEST_EN, LOW);
+    systemDesc.pWaterSensor = &waterSensor;
     return 1;
 }
 
@@ -96,6 +116,19 @@ void SYS_chargerTask(void)
         chargedTimestamp = 0;
         systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
         systemDesc.pChargerCheck->stopFromISR();
+    }
+}
+
+static void SYS_waterTask(void)
+{
+    systemDesc.pWaterSensor->update();
+    if(systemDesc.pWaterSensor->getLastReading())
+    {
+        systemDesc.pWaterLED->setState(SFLed::SFLED_STATE_ON);
+    }
+    else
+    {
+        systemDesc.pWaterLED->setState(SFLed::SFLED_STATE_OFF);
     }
 }
 

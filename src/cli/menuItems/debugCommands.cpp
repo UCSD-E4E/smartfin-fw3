@@ -9,9 +9,13 @@
 #include "debugCommands.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "cli/cli.hpp"
+#include "states.hpp"
 
 #include "Particle.h"
 #include "consts.hpp"
+
+#include "system.hpp"
 
 
 void CLI_restart(void)
@@ -55,4 +59,34 @@ void CLI_testPrintf(void)
     SF_OSAL_printf("Precision HEX: %4X" __NL__, 123);
     SF_OSAL_printf("Zero Prepend Precision HEX: %04X" __NL__, 123);
 
+}
+
+void CLI_monitorWetDry(void)
+{
+    uint8_t waterDetect;
+    char ch;
+
+    while(1)
+    {
+		if(kbhit()) 
+		{
+			ch = getch();
+
+			if('q' == ch) 
+			{
+                break;
+			}
+		}
+
+        waterDetect = pSystemDesc->pWaterSensor->getLastReading();
+
+        SF_OSAL_printf("Water Reading: %d", waterDetect);
+
+        delay(500);
+    }
+}
+
+void CLI_doMfgTest(void)
+{
+    CLI_nextState = STATE_MFG_TEST;
 }
