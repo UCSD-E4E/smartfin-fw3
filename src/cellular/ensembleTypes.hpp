@@ -1,7 +1,13 @@
 #ifndef __ENSEMBLE_TYPES_HPP__
 #define __ENSEMBLE_TYPES_HPP__
+
 #include "Particle.h"
 #include <cstdint>
+
+/**
+ * @brief Ensemble Data Types
+ * 
+ */
 typedef enum EnsembleID_
 {
     ENS_TEMP = 0x01,
@@ -39,12 +45,24 @@ typedef struct Ensemble07_data_
     uint16_t batteryVoltage;
 }Ensemble07_data_t;
 
+/**
+ * @brief Ensemble 08 - Temp and Time
+ * 
+ */
 typedef struct Ensemble08_data_
 {
     int16_t rawTemp;
     uint32_t timestamp;
 }Ensemble08_data_t;
 
+/**
+ * @brief Ensemble 10:
+ * 
+ * Temperature
+ * Acceleration (x,y,z)
+ * Angular Velocity (x,y,z)
+ * Magnetic Field (x,y,z)
+ */
 typedef struct Ensemble10_data_
 {
     int16_t rawTemp;
@@ -53,6 +71,15 @@ typedef struct Ensemble10_data_
     int16_t rawMagField[3];
 }Ensemble10_data_t;
 
+/**
+ * @brief Ensemble 11:
+ * 
+ * Temperature
+ * Acceleration (x,y,z)
+ * Angular Velocity (x,y,z)
+ * Magnetic Field (x,y,z)
+ * location (x,y)
+ */
 typedef struct Ensemble11_data_
 {
     int16_t rawTemp;
