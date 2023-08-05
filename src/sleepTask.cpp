@@ -114,3 +114,21 @@ void SleepTask::setBootBehavior(SleepTask::BOOT_BEHAVIOR_e behavior)
     pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, SleepTask::bootBehavior);
     pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, true);
 }
+
+const char* SleepTask::strBootBehavior(BOOT_BEHAVIOR_e behavior)
+{
+    switch (behavior)
+    {
+        case BOOT_BEHAVIOR_NORMAL:
+            return "Normal";
+        case BOOT_BEHAVIOR_TMP_CAL_START:
+            return "Temp Cal Start";
+        case BOOT_BEHAVIOR_TMP_CAL_CONTINUE:
+            return "Temp Cal Continue";
+        case BOOT_BEHAVIOR_TMP_CAL_END:
+            return "Temp cal End";
+        case BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
+            return "Upload Reattempt";
+    }
+    return nullptr;
+}
