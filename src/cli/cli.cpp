@@ -19,8 +19,8 @@
 #include "states.hpp"
 #include "util.hpp"
 #include "product.hpp"
-
-#include "../system.hpp"
+#include "sleepTask.hpp"
+#include "system.hpp"
 
 #include "Particle.h"
 
@@ -34,6 +34,8 @@ void CLI_hexdump(void);
 static void CLI_setState(void);
 static void CLI_displaySystemState(void);
 static void CLI_displayNVRAM(void);
+static void CLI_sleepSetSleepBehavior(void);
+static void CLI_sleepGetSleepBehavior(void);
 
 const Menu_t CLI_menu[] =
 {
@@ -49,6 +51,8 @@ const Menu_t CLI_menu[] =
     {100, "Set State", &CLI_setState},
     {101, "Display System State", &CLI_displaySystemState},
     {102, "Display NVRAM", &CLI_displayNVRAM},
+    {200, "Sleep - Set Sleep Behavior", &CLI_sleepSetSleepBehavior},
+    {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior},
     {0, nullptr, nullptr}
 };
 
@@ -185,4 +189,21 @@ static void CLI_displayNVRAM(void)
 {
     NVRAM& instance = NVRAM::getInstance();
     instance.displayNVRAM();
+}
+
+static void CLI_sleepSetSleepBehavior(void)
+{
+    char input_buffer[SF_CLI_MAX_CMD_LEN];
+    char* pEndTok;
+    SleepTask::BOOT_BEHAVIOR_e boot_behavior;
+    SF_OSAL_printf("Boot Behavior Code: ");
+    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    boot_behavior = (SleepTask::BOOT_BEHAVIOR_e) strtol(input_buffer, &pEndTok, 10);
+    SleepTask::setBootBehavior(boot_behavior);
+}
+
+static void CLI_sleepGetSleepBehavior(void)
+{
+    SleepTask::BOOT_BEHAVIOR_e boot_behavior =  SleepTask::getBootBehavior();
+    SF_OSAL_printf("Boot Behavior: %s" __NL__, SleepTask::strBootBehavior(boot_behavior));
 }
