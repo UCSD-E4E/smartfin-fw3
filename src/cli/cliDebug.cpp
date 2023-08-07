@@ -19,11 +19,13 @@
 #include "menu.hpp"
 
 #include "system.hpp"
+
 #include "Particle.h"
 
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
+
 
 const Menu_t CLI_debugMenu[] = 
 {
@@ -31,6 +33,8 @@ const Menu_t CLI_debugMenu[] =
     {2, "Clear Fault Log", &CLI_clearFLOG},
     {3, "Restart System", &CLI_restart},
     {4, "reinitialize system", &SYS_initSys},
+    {5, "create test file", &CLI_createTestFile},
+    {6, "test has data", &CLI_testHasData},
     {0, NULL, NULL}
 };
 

@@ -21,5 +21,7 @@ void CLI_clearFLOG(void);
  */
 void CLI_testPrintf(void);
 
+void CLI_createTestFile(void);
 
+void CLI_testHasData(void);
 #endif

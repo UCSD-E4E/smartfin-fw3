@@ -121,21 +121,11 @@ static int SYS_initFS(void)
 
     // systemDesc.pFileSystem = &DP_fs;
 
-    // dataRecorder.init();
-    // systemDesc.pRecorder = &dataRecorder;
+    dataRecorder.init();
+    systemDesc.pRecorder = &dataRecorder;
 
     // EXAMPLE
-    int fd = open("/FileSystemTest/test1.txt", O_RDWR | O_CREAT | O_TRUNC);
-    if (fd != -1) {
-    for(int ii = 0; ii < 100; ii++) {
-        String msg = String::format("testing %d\n", ii);
-        SF_OSAL_printf("Creating file with msg %s", msg);
-
-        int i = write(fd, msg.c_str(), msg.length());
-        SF_OSAL_printf("Sucsess: %d", i);
-    }
-        close(fd);
-    }
+    
 
     return 1;
 }

@@ -65,6 +65,8 @@
  * System Configuration
  ******************************************************************************/
 
+#define RIDE_DATA_DIR "ridedata"
+
 /**
  * how long to stay in CLI mode if there are no key presses at all
  */

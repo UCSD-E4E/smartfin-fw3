@@ -9,9 +9,12 @@
 #include "debugCommands.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include <fcntl.h>
 
 #include "Particle.h"
 #include "consts.hpp"
+#include "cellular/recorder.hpp"
+#include "system.hpp"
 
 
 void CLI_restart(void)
@@ -27,6 +30,29 @@ void CLI_displayFLOG(void)
 void CLI_clearFLOG(void)
 {
     FLOG_ClearLog();
+}
+
+void CLI_testHasData(void)
+{
+    int hasData = pSystemDesc->pRecorder->hasData();
+    SF_OSAL_printf("Has data: %d", hasData);
+}
+
+void CLI_createTestFile(void)
+{
+    int fd = open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
+    SF_OSAL_printf("Error: %d", errno);
+    SF_OSAL_printf("fd sucsess %d", fd);
+    if (fd != -1) {
+        for(int ii = 0; ii < 100; ii++) {
+            String msg = String::format("testing %d\n", ii);
+            SF_OSAL_printf("Creating file with msg %s", msg);
+
+            int i = write(fd, msg.c_str(), msg.length());
+            SF_OSAL_printf("Sucsess: %d", i);
+        }
+        close(fd);
+    }
 }
 
 void CLI_testPrintf(void)

@@ -3,6 +3,11 @@
 #include "system.hpp"
 #include "deploy.hpp"
 #include "cli/conio.hpp"
+#include <fcntl.h>
+#include <dirent.h>
+#include "product.hpp"
+
+
 
 #define REC_DEBUG
 static int REC_getNumFiles(void);
@@ -25,21 +30,20 @@ int Recorder::init(void)
  */
 int Recorder::hasData(void)
 {
-    spiffs_DIR dir;
-    spiffs_dirent dirEntry;
-    if (!pSystemDesc->pFileSystem->opendir("", &dir))
+    DIR* directory = opendir("");
+    if (directory == 0)
     {
         return 0;
-    }
-    while (pSystemDesc->pFileSystem->readdir(&dir, &dirEntry))
+    } 
+    while (readdir(directory) != NULL)
     {
-        if(dirEntry.name[0] != '.' && dirEntry.name[0] != '_')
+        if(readdir(directory)->d_name[0] != '.' && readdir(directory)->d_name[0] != '_')
         {
-            pSystemDesc->pFileSystem->closedir(&dir);
+            closedir(directory);
             return 1;
         }
     }
-    pSystemDesc->pFileSystem->closedir(&dir);
+    closedir(directory);
     return 0;
 }
 
