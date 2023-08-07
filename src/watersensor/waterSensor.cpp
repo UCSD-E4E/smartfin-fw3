@@ -47,18 +47,6 @@ uint8_t WaterSensor::takeReading()
     // subtract last value in the window from the rolling sum
     array_sum -= water_detect_array[waterDetectArrayLocation(array_location, (-1 * moving_window_size))];
 
-    // PJB edited next few lines (to water_detect_array) to prevent fin from thinking it's wet when powered by USB
-    // This chunk can be altered by adding a diode to WATER input
-    // replace value w/ new value
-
-    // PJB: add logic to determine why WKP was triggered (WATER or VUSB)
-    // default to zero, unless USB_PWR_DETECT_PIN is zero (unplugged) and water_detect_pin is 1 (wet)
-    // if (USB_PWR_DETECT_PIN == 0)
-    // {
-    //   temp_wet_binary = digitalRead(water_detect_pin);
-    // }
-    // water_detect_array[array_location] = temp_wet_binary;
-
     digitalWrite(water_detect_en_pin, LOW);
     delayMicroseconds(WATER_DETECT_EN_TIME_US);
     water_detect_array[array_location] = digitalRead(water_detect_pin); // comment out if using above logic block
@@ -136,14 +124,6 @@ void WaterSensor::forceState(uint8_t water_detect_state)
 // gets the current reading of the sensor (not the overall status w/ hystersis)
 uint8_t WaterSensor::getCurrentReading()
 {
-    // PJB: add logic to determine why WKP was triggered (WATER or VUSB)
-    // default to zero, unless USB_PWR_DETECT_PIN is zero (unplugged) and water_detect_pin is 1 (wet)
-    // uint8_t temp_wet_binary = 0;
-    // if (USB_PWR_DETECT_PIN == 0)
-    // {
-    //   temp_wet_binary = digitalRead(water_detect_pin);
-    // }
-    // return temp_wet_binary;
     uint8_t temp_8;
 
     digitalWrite(water_detect_en_pin, LOW);
