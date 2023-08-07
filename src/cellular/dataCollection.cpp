@@ -112,16 +112,10 @@ void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
     ensData.data.ens11.location[0] = N_TO_B_ENDIAN_4(pData->location[0] / pDeployment->measurementsToAccumulate);
     ensData.data.ens11.location[1] = N_TO_B_ENDIAN_4(pData->location[1] / pDeployment->measurementsToAccumulate);
 
-    if(pData->hasGPS / pDeployment->measurementsToAccumulate)
-    {
-        ensData.header.ensembleType = ENS_TEMP_IMU_GPS;
-        pSystemDesc->pRecorder->putBytes(&ensData, sizeof(EnsembleHeader_t) + sizeof(Ensemble11_data_t));
-    }
-    else
-    {
-        ensData.header.ensembleType = ENS_TEMP_IMU;
-        pSystemDesc->pRecorder->putBytes(&ensData, sizeof(EnsembleHeader_t) + sizeof(Ensemble10_data_t));
-    }
+
+    ensData.header.ensembleType = ENS_TEMP_IMU;
+    pSystemDesc->pRecorder->putBytes(&ensData, sizeof(EnsembleHeader_t) + sizeof(Ensemble10_data_t));
+
     
     memset(pData, 0, sizeof(Ensemble10_eventData_t));
 
