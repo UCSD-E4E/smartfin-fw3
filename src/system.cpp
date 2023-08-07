@@ -13,10 +13,17 @@ char SYS_deviceID[32];
 SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
+
+static SpiFlashMacronix DP_spiFlash(SPI1, D5);
+SpiffsParticle DP_fs(DP_spiFlash);
+Recorder dataRecorder;
+
+
 static void SYS_chargerTask(void);
 static int SYS_initGPS(void);
 static int SYS_initNVRAM(void);
 static int SYS_initTasks(void);
+static int SYS_initFS();
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
@@ -37,6 +44,7 @@ int SYS_initSys(void)
     SYS_initTasks();
     SYS_initGPS();
     SYS_initNVRAM();
+    SYS_initFS();
 
     return 1;
 }
@@ -99,6 +107,23 @@ void SYS_chargerTask(void)
     }
 }
 
+
+/**
+ * @brief Initialize file system
+ * 
+ * @return int 
+ */
+static int SYS_initFS(void)
+{
+    DP_spiFlash.begin();
+    DP_fs.withPhysicalAddr(SF_FLASH_SIZE_MB * 1024 * 1024);
+    DP_fs.mount();
+    systemDesc.pFileSystem = &DP_fs;
+
+    dataRecorder.init();
+    systemDesc.pRecorder = &dataRecorder;
+    return 1;
+}
 
 /**
  * @brief Initialization function for GPS 

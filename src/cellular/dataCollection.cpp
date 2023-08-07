@@ -3,6 +3,8 @@
 #include "system.hpp"
 #include "cli/flog.hpp"
 #include "util.hpp"
+#include "scheduler.hpp"
+
 
 #include "Particle.h"
 
@@ -18,40 +20,13 @@ typedef struct Ensemble10_eventData_
     uint32_t accumulateCount;
 }Ensemble10_eventData_t;
 
-static void enableSensors()
-{
-    // TODO - wait until sensor code is merged to main
-    // initialize sensors
-    // if(!pSystemDesc->pIMU->open())
-    // {
-    //     SF_OSAL_printf("IMU Fail\n");
-    //     FLOG_AddError(FLOG_)
-    // }
-    // if(!pSystemDesc->pCompass->open())
-    // {
-    //     SF_OSAL_printf("Mag Fail\n");
-    // }
-    // if(!pSystemDesc->pTempSensor->init())
-    // {
-    //     SF_OSAL_printf("Temp Fail\n");
-    // }
-
-}
-
-static void disableSensors()
-{
-    // TODO - wait until sensor code is merged to main
-}
 
 void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
 {
     int32_t lat, lng;
     float temp;
     uint8_t water;
-    int32_t lat, lng;
-    float accelData[3];
-    float gyroData[3];
-    int16_t magData[3];
+    
     bool hasGPS = false;
     Ensemble10_eventData_t* pData = (Ensemble10_eventData_t*)pDeployment->pData;
 
@@ -97,9 +72,10 @@ void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
     // Test values:
     temp = 23.0;
     water = 1;
-    gyroData = {1, 1, 1};
-    accelData = {0,0,0};
-    magData = {-1,-1,-1};
+    float accelData[3] = {1, 1, 1};
+    float gyroData[3]  = {0,0,0};
+    int16_t magData[3] = {-1,-1,-1};
+
     lat = 13;
     lng = 23;
     hasGPS = true;
