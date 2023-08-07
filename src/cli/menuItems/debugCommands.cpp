@@ -38,6 +38,12 @@ void CLI_testHasData(void)
     SF_OSAL_printf("Has data: %d", hasData);
 }
 
+void CLI_testGetNumFiles(void)
+{
+    int numFiles = pSystemDesc->pRecorder->getNumFiles();
+    SF_OSAL_printf("Number of Files: %d", numFiles);
+}
+
 void CLI_createTestFile(void)
 {
     int fd = open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);

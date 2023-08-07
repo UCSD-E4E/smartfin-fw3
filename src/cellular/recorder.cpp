@@ -65,20 +65,19 @@ static int REC_dirTreeSkipped = 0;
 
 static int REC_getNumFiles(void)
 {
-    spiffs_DIR dir;
-    spiffs_dirent dirEntry;
     int i = 0;
 
-    if (!pSystemDesc->pFileSystem->opendir("", &dir))
+    DIR* directory = opendir("");
+    if (directory == 0)
     {
         return -1;
-    }
+    } 
 
-    while (pSystemDesc->pFileSystem->readdir(&dir, &dirEntry))
+    while (readdir(directory) != NULL)
     {
         i++;
     }
-    pSystemDesc->pFileSystem->closedir(&dir);
+    closedir(directory);
     return i;
 }
 
@@ -371,10 +370,6 @@ void Recorder::getSessionName(char *pFileName)
 
 int Recorder::putBytes(const void *pData, size_t nBytes)
 {
-    if (NULL == this->pSession)
-    {
-        return 0;
-    }
     if (nBytes > (REC_MAX_PACKET_SIZE - this->dataIdx))
     {
         // data will not fit, flush and clear

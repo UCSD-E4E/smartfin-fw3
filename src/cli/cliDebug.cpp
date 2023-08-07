@@ -35,6 +35,7 @@ const Menu_t CLI_debugMenu[] =
     {4, "reinitialize system", &SYS_initSys},
     {5, "create test file", &CLI_createTestFile},
     {6, "test has data", &CLI_testHasData},
+    {7, "test num files", &CLI_testGetNumFiles},
     {0, NULL, NULL}
 };
 
