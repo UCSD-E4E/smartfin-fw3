@@ -7,6 +7,8 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "SPI.h"
+#include <fcntl.h>
+
 #include "consts.hpp"
 
 char SYS_deviceID[32];
@@ -112,15 +114,29 @@ void SYS_chargerTask(void)
  */
 static int SYS_initFS(void)
 {
-    DP_spiFlash.begin();
-    DP_fs.withPhysicalAddr(SF_FLASH_SIZE_MB * 1024 * 1024);
-    SF_OSAL_printf("Device ID : %s", DP_spiFlash.jedecIdRead());
-    FLOG_AddError(FLOG_SYS_MOUNT_FAIL, DP_fs.mountAndFormatIfNecessary());
+    // DP_spiFlash.begin();
+    // DP_fs.withPhysicalAddr(SF_FLASH_SIZE_MB * 1024 * 1024);
+    // SF_OSAL_printf("Device ID : %s", DP_spiFlash.jedecIdRead());
+    // FLOG_AddError(FLOG_SYS_MOUNT_FAIL, DP_fs.mountAndFormatIfNecessary());
 
-    systemDesc.pFileSystem = &DP_fs;
+    // systemDesc.pFileSystem = &DP_fs;
 
-    dataRecorder.init();
-    systemDesc.pRecorder = &dataRecorder;
+    // dataRecorder.init();
+    // systemDesc.pRecorder = &dataRecorder;
+
+    // EXAMPLE
+    int fd = open("/FileSystemTest/test1.txt", O_RDWR | O_CREAT | O_TRUNC);
+    if (fd != -1) {
+    for(int ii = 0; ii < 100; ii++) {
+        String msg = String::format("testing %d\n", ii);
+        SF_OSAL_printf("Creating file with msg %s", msg);
+
+        int i = write(fd, msg.c_str(), msg.length());
+        SF_OSAL_printf("Sucsess: %d", i);
+    }
+        close(fd);
+    }
+
     return 1;
 }
 

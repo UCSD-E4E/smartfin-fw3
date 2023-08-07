@@ -49,12 +49,11 @@ char userInput[SF_CLI_MAX_CMD_LEN];
 
 STATES_e CLI_nextState;
 
-void CLI::init(void) 
+void CLI::init(void)
 {
     CLI_nextState = STATE_CLI;
 
     pSystemDesc->pChargerCheck->start();
-
 
     // While there is an avaliable character typed, get it
     while (kbhit())
@@ -62,7 +61,6 @@ void CLI::init(void)
         getch();
     }
 }
-
 
 STATES_e CLI::run(void)
 {
