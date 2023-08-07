@@ -18,6 +18,7 @@
 #include "util.hpp"
 #include "menu.hpp"
 
+#include "system.hpp"
 #include "Particle.h"
 
 #include <cmath>
@@ -29,6 +30,7 @@ const Menu_t CLI_debugMenu[] =
     {1, "Display Fault Log", &CLI_displayFLOG},
     {2, "Clear Fault Log", &CLI_clearFLOG},
     {3, "Restart System", &CLI_restart},
+    {4, "reinitialize system", &SYS_initSys},
     {0, NULL, NULL}
 };
 

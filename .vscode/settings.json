@@ -56,7 +56,13 @@
         "variant": "cpp",
         "numeric": "cpp",
         "semaphore": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "deque": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "unordered_set": "cpp",
+        "span": "cpp",
+        "valarray": "cpp"
     },
     "particle.firmwareVersion": "5.3.0",
     "particle.targetPlatform": "tracker",

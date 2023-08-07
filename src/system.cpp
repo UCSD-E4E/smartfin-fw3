@@ -6,6 +6,7 @@
 
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "SPI.h"
 #include "consts.hpp"
 
 char SYS_deviceID[32];
@@ -14,7 +15,7 @@ SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
 
-static SpiFlashMacronix DP_spiFlash(SPI1, D5);
+static SpiFlashMacronix DP_spiFlash(SPI, 38);
 SpiffsParticle DP_fs(DP_spiFlash);
 Recorder dataRecorder;
 
@@ -30,7 +31,7 @@ static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
 static LocationServiceConfiguration create_location_service_config();
 
-int SYS_initSys(void)
+void SYS_initSys(void)
 {
     memset(pSystemDesc, 0, sizeof(SystemDesc_t));
     systemDesc.deviceID = SYS_deviceID;
@@ -39,14 +40,10 @@ int SYS_initSys(void)
     memset(SYS_deviceID, 0, 32);
     strncpy(SYS_deviceID, System.deviceID().c_str(), 31);
 
-    
-
     SYS_initTasks();
     SYS_initGPS();
     SYS_initNVRAM();
     SYS_initFS();
-
-    return 1;
 }
 
 static int SYS_initTasks(void)
@@ -117,7 +114,9 @@ static int SYS_initFS(void)
 {
     DP_spiFlash.begin();
     DP_fs.withPhysicalAddr(SF_FLASH_SIZE_MB * 1024 * 1024);
-    DP_fs.mount();
+    SF_OSAL_printf("Device ID : %s", DP_spiFlash.jedecIdRead());
+    FLOG_AddError(FLOG_SYS_MOUNT_FAIL, DP_fs.mountAndFormatIfNecessary());
+
     systemDesc.pFileSystem = &DP_fs;
 
     dataRecorder.init();

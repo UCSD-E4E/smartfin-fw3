@@ -9,6 +9,7 @@
 
 
 #include "SpiffsParticleRK.h"
+#include "cli/conio.hpp"
 
 static Logger log("app.spiffs");
 
@@ -83,15 +84,15 @@ void SpiffsParticle::unmount() {
 
 s32_t SpiffsParticle::mountAndFormatIfNecessary(spiffs_check_callback callback) {
 	s32_t res = mount(NULL);
-	log.info("mount res=%ld", res);
+	SF_OSAL_printf("mount res=%ld", res);
 
 	if (res == SPIFFS_ERR_NOT_A_FS) {
 		res = format();
-		log.info("format res=%ld", res);
+		SF_OSAL_printf("format res=%ld", res);
 
 		if (res == SPIFFS_OK) {
 			res = mount(NULL);
-			log.info("mount after format res=%ld", res);
+			SF_OSAL_printf("mount after format res=%ld", res);
 		}
 	}
 	return res;

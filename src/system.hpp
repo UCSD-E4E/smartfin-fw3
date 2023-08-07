@@ -42,7 +42,7 @@ extern SystemDesc_t* pSystemDesc;
  * 
  * @return int 
  */
-int SYS_initSys(void);
+void SYS_initSys(void);
 
 
 
