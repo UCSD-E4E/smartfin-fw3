@@ -2,6 +2,7 @@
 #include "product.hpp"
 #include "system.hpp"
 #include "cli/flog.hpp"
+#include "cli/conio.hpp"
 #include "util.hpp"
 #include "scheduler.hpp"
 
@@ -25,6 +26,16 @@ static Ensemble10_eventData_t ensemble10Data;
 
 void SS_ensemble10Func()
 {
+    char integer_string[64];
+    int integer = Time.now();
+
+    char other_string[64] = "Session: "; 
+    sprintf(integer_string, "%d", integer);
+
+    strcat(other_string, integer_string); 
+    pSystemDesc->pRecorder->setSessionName(other_string);
+
+
     int32_t lat, lng;
     float temp;
     uint8_t water;
@@ -116,9 +127,9 @@ void SS_ensemble10Func()
 
 
     ensData.header.ensembleType = ENS_TEMP_IMU;
-    pSystemDesc->pRecorder->putBytes(&ensData, sizeof(EnsembleHeader_t) + sizeof(Ensemble10_data_t));
-
+    int x = pSystemDesc->pRecorder->putBytes(&ensData, sizeof(EnsembleHeader_t) + sizeof(Ensemble10_data_t));
+    SF_OSAL_printf("Sucsess %d", x);
     
     memset(pData, 0, sizeof(Ensemble10_eventData_t));
-
+    SF_OSAL_printf("Finished setting up data");
 }

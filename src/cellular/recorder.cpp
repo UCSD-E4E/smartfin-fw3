@@ -172,6 +172,7 @@ int Recorder::openLastSession(Deployment &session, char* pName)
 #ifdef REC_DEBUG
                 SF_OSAL_printf("REC::GLP open %s success\n", REC_dirTree[fileIdx].filename);
                 SF_OSAL_printf("Length: %d\n", session.getLength());
+                SF_OSAL_printf("Filename %s\n", REC_dirTree[fileIdx].filename);
 
 #endif
             }
@@ -326,8 +327,8 @@ int Recorder::closeSession(void)
     {
         this->dataBuffer[this->dataIdx] = 0;
     }
-    this->pSession->write(this->dataBuffer, REC_MAX_PACKET_SIZE);
-
+    int x = this->pSession->write(this->dataBuffer, REC_MAX_PACKET_SIZE);
+    SF_OSAL_printf("Bytes written %d", x);
     this->pSession->close();
     this->getSessionName(fileName);
     rename("__temp", fileName);

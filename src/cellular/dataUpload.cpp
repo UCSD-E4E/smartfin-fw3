@@ -34,20 +34,6 @@ STATES_e DataUpload::run(void)
         return STATE_DEEP_SLEEP;
     }
 
-    memset(dataPublishBuffer, 0,DATA_UPLOAD_MAX_UPLOAD_LEN);
-    nBytesToSend = DATA_UPLOAD_MAX_UPLOAD_LEN;
-    SF_OSAL_printf("Got %u bytes to upload\n", nBytesToSend);
-
-    // strncpy(dataPublishBuffer, "Hi!", DATA_UPLOAD_MAX_UPLOAD_LEN);
-    // strncpy(publishName, "Test Publish", DU_PUBLISH_ID_NAME_LEN + 1);
-
-    if(!Particle.connected())
-    {
-        // we're not connected!  abort
-        return STATE_CLI;
-    }
-
-    // have something to publish, grab and encode.
     memset(dataEncodeBuffer, 0, DATA_UPLOAD_MAX_BLOCK_LEN);
     nBytesToEncode = pSystemDesc->pRecorder->getLastPacket(dataEncodeBuffer, DATA_UPLOAD_MAX_BLOCK_LEN, publishName, DU_PUBLISH_ID_NAME_LEN);
     if(-1 == nBytesToEncode)
@@ -63,11 +49,20 @@ STATES_e DataUpload::run(void)
     }
     SF_OSAL_printf("Got %d bytes to encode\n", nBytesToEncode);
 
-    memset(dataPublishBuffer, 0, DATA_UPLOAD_MAX_UPLOAD_LEN);
+    memset(dataPublishBuffer, 0,DATA_UPLOAD_MAX_UPLOAD_LEN);
     nBytesToSend = DATA_UPLOAD_MAX_UPLOAD_LEN;
     urlsafe_b64_encode(dataEncodeBuffer, nBytesToEncode, dataPublishBuffer, &nBytesToSend);
 
     SF_OSAL_printf("Got %u bytes to upload\n", nBytesToSend);
+
+    // strncpy(dataPublishBuffer, "Hi!", DATA_UPLOAD_MAX_UPLOAD_LEN);
+    // strncpy(publishName, "Test Publish", DU_PUBLISH_ID_NAME_LEN + 1);
+
+    if(!Particle.connected())
+    {
+        // we're not connected!  abort
+        return STATE_CLI;
+    }
 
     if(!Particle.publish(publishName, dataPublishBuffer, PRIVATE | WITH_ACK))
     {

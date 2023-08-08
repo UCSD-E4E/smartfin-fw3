@@ -13,6 +13,7 @@
 #include "states.hpp"
 #include "cli/cli.hpp"
 #include "cellular/dataCollection.hpp"
+#include "system.hpp"
 
 #include "Particle.h"
 
@@ -34,7 +35,9 @@ void CLI_doSleep(void)
 
 void CLI_doUpload(void)
 {
+    pSystemDesc->pRecorder->openSession(NULL);
     SS_ensemble10Func();
+    pSystemDesc->pRecorder->closeSession();
     CLI_nextState = STATE_UPLOAD;
 }
 
