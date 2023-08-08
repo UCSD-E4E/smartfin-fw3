@@ -4,7 +4,6 @@
 #include "task.hpp"
 #include "Particle.h"
 #include "product.hpp"
-#include <SpiffsParticleRK.h>
 
 
 /**
@@ -61,7 +60,6 @@ class DataUpload : public Task{
     void exit(void);
 
     private:
-    spiffs_DIR dir;
     int initSuccess;
     system_tick_t lastConnectTime;
     STATES_e exitState(void);

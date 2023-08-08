@@ -67,6 +67,8 @@
 
 #define RIDE_DATA_DIR "ridedata"
 
+#define LITTLEFS_OBJ_NAME_LEN 31
+
 /**
  * how long to stay in CLI mode if there are no key presses at all
  */

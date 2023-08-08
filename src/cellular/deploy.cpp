@@ -1,7 +1,7 @@
 #include "deploy.hpp"
 
 #include "Particle.h"
-#include "SpiffsParticleRK.h"
+#include <fcntl.h>
 #include "system.hpp"
 
 Deployment& Deployment::getInstance(void)
@@ -19,25 +19,25 @@ Deployment& Deployment::getInstance(void)
  */
 int Deployment::open(const char* const name, Deployment::State_e state)
 {
-    if(this->currentFile.isValid())
+    if(this->currentFile == 0)
     {
-        pSystemDesc->pFileSystem->close(this->currentFile);
+        ::close(this->currentFile);
     }
     switch(state)
     {
         case Deployment::READ:
-            this->currentFile = pSystemDesc->pFileSystem->openFile(name, SPIFFS_O_RDONLY);
+            this->currentFile = ::open(name, O_RDONLY);
             break;
         case Deployment::WRITE:
-            this->currentFile = pSystemDesc->pFileSystem->openFile(name, SPIFFS_O_WRONLY | SPIFFS_O_CREAT);
+            this->currentFile = ::open(name, O_WRONLY |O_CREAT);
             break;
         case Deployment::RDWR:
-            this->currentFile = pSystemDesc->pFileSystem->openFile(name, SPIFFS_O_RDWR);
+            this->currentFile = ::open(name, O_RDWR);
             break;
         default:
             return 0;
     }
-    if(!this->currentFile.isValid())
+    if(currentFile == 0)
     {
         return 0;
     }
@@ -51,12 +51,11 @@ int Deployment::open(const char* const name, Deployment::State_e state)
 int Deployment::write(void* pData, size_t nBytes)
 {
     size_t bytesWritten = 0;
-    if(!this->currentFile.isValid() || currentState != Deployment::WRITE)
+    if(currentFile == 0 || currentState != Deployment::WRITE)
     {
         return 0;
     }
-    bytesWritten = this->currentFile.write((uint8_t*) pData, nBytes);
-    this->currentFile.flush();
+    bytesWritten = ::write(currentFile, (uint8_t*) pData, nBytes);
     return bytesWritten;
 }
 
@@ -64,7 +63,7 @@ int Deployment::read(void* pData, size_t nBytes)
 {
     size_t bytesRead = 0;
     
-    if(!this->currentFile.isValid())
+    if(currentFile == 0)
     {
         return 0;
     }
@@ -72,7 +71,7 @@ int Deployment::read(void* pData, size_t nBytes)
     {
         return 0;
     }
-    bytesRead = this->currentFile.readBytes((char*) pData, nBytes);
+    bytesRead = ::read(this->currentFile, (char*) pData, nBytes);
     return bytesRead;
 }
 
@@ -83,60 +82,59 @@ int Deployment::read(void* pData, size_t nBytes)
  */
 int Deployment::close(void)
 {
-    if(!this->currentFile.isValid())
+    if(currentFile == 0)
     {
         return 1;
     }
-    this->currentFile.flush();
-    this->currentFile.close();
+    ::close(this->currentFile);
     return 1;
 }
 
 int Deployment::seek(size_t loc)
 {
-    if(!this->currentFile.isValid())
+    if(this->currentFile == 0)
     {
         return 0;
     }
-    this->currentFile.lseek(loc, SPIFFS_SEEK_SET);
+    lseek(this->currentFile, loc, SEEK_SET);
     return 1;
 }
 size_t Deployment::getLength(void)
 {
-    if(!this->currentFile.isValid())
+    if(this->currentFile == 0)
     {
         SF_OSAL_printf("DEP::getLength: invalid file!\n");
         return 0;
     }
-    return this->currentFile.length();
+    struct stat* buf;
+    fstat(this->currentFile, buf);
+    return buf->st_size;
 }
 
 int Deployment::remove(void)
 {
-    if(!this->currentFile.isValid())
+    if(this->currentFile == 0)
     {
         return 0;
     }
-    if(!this->currentFile.remove())
+    if(::ftruncate(this->currentFile, 0) == 0)
     {
         return 0;
     }
-    this->currentFile.flush();
-    this->currentFile.close();
+    ::close(this->currentFile);
     return 1;
 }
 
 int Deployment::truncate(size_t nBytes)
 {
-    if(!this->currentFile.isValid())
+    if(this->currentFile == 0)
     {
         return 0;
     }
     // Don't need to check truncation length because SpiFFS handles that for us
-    if(!currentFile.truncate(nBytes))
+    if(ftruncate(this->currentFile, 0) == 0)
     {
         return 0;
     }
-    this->currentFile.flush();
     return 1;
 }

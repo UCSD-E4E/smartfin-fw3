@@ -2,7 +2,6 @@
 #define __DEPLOY_HPP__
 
 #include <cstddef>
-#include "SpiffsParticleRK.h"
 
 class Deployment
 {
@@ -29,7 +28,7 @@ class Deployment
     Deployment(){}
     Deployment(Deployment const&);
     void operator=(Deployment const&);
-    SpiffsParticleFile currentFile;
+    int currentFile;
     State_e currentState;
 };
 

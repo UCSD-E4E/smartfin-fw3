@@ -3,7 +3,6 @@
 
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
-#include "SpiffsParticleRK.h"
 #include "cellular/recorder.hpp"
 
 #include "location_service.h"
@@ -26,7 +25,6 @@ typedef struct SystemDesc_
 {
     const char* deviceID;
     LocationService* pLocService;
-    SpiffsParticle* pFileSystem;
     Recorder* pRecorder;
     Timer* pChargerCheck;
     NVRAM* pNvram;

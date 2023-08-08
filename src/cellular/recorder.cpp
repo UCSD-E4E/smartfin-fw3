@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include "product.hpp"
+#include <dirent.h>
+#include <sys/stat.h>
 
 
 
@@ -55,7 +57,7 @@ int Recorder::getNumFiles(void)
 
 typedef struct REC_dirTree_
 {
-    char filename[SPIFFS_OBJ_NAME_LEN];
+    char filename[LITTLEFS_OBJ_NAME_LEN];
     uint8_t initialized;
 } REC_dirTree_t;
 
@@ -70,6 +72,7 @@ static int REC_getNumFiles(void)
     DIR* directory = opendir("");
     if (directory == 0)
     {
+        closedir(directory);
         return -1;
     } 
 
@@ -96,8 +99,6 @@ static int REC_initializeTree(void)
 {
     int nFiles = REC_getNumFiles();
     int skipFiles = 0;
-    spiffs_DIR dir;
-    spiffs_dirent dirEntry;
     int i = 0;
 
     memset(REC_dirTree, 0, sizeof(REC_dirTree_t) * REC_DIR_TREE_SIZE);
@@ -108,27 +109,31 @@ static int REC_initializeTree(void)
         REC_dirTreeSkipped = 1;
     }
 
-    if (!pSystemDesc->pFileSystem->opendir("", &dir))
+    DIR* directory = opendir("");
+    if (directory == 0)
     {
-        SF_OSAL_printf("Failed to open directory\n");
+        SF_OSAL_printf("Failed to open directory");
         return 1;
-    }
+    } 
+    
     for (i = 0; i < skipFiles; i++)
     {
-        if (!pSystemDesc->pFileSystem->readdir(&dir, &dirEntry))
+        if(readdir(directory) != NULL)
         {
             SF_OSAL_printf("Failed to skip initial files\n");
             return 1;
         }
     }
 
-    for (i = 0; pSystemDesc->pFileSystem->readdir(&dir, &dirEntry) && i < 
-        REC_DIR_TREE_SIZE; i++)
+    dirent* entry;
+    
+    for (i = 0; i < REC_DIR_TREE_SIZE; i++)
     {
-        strcpy(REC_dirTree[i].filename, (char *)dirEntry.name);
+        entry = readdir(directory);
+        strcpy(REC_dirTree[i].filename, entry->d_name);
         REC_dirTree[i].initialized = 1;
     }
-    pSystemDesc->pFileSystem->closedir(&dir);
+    closedir(directory);
     REC_dirTreeInitialized = 1;
     SF_OSAL_printf("Tree Initialized\n");
     return 0;
@@ -205,7 +210,7 @@ int Recorder::getLastPacket(void *pBuffer, size_t bufferLen, char *pName, size_t
     Deployment &session = Deployment::getInstance();
     int newLength;
     int bytesRead;
-    char name[SPIFFS_OBJ_NAME_LEN];
+    char name[LITTLEFS_OBJ_NAME_LEN];
 
     if (this->openLastSession(session, name))
     {
@@ -231,8 +236,6 @@ int Recorder::getLastPacket(void *pBuffer, size_t bufferLen, char *pName, size_t
  */
 int Recorder::popLastPacket(size_t len)
 {
-    spiffs_DIR dir;
-    spiffs_dirent dirEntry;
     int i = 0;
     Deployment &session = Deployment::getInstance();
     int newLength;
@@ -310,7 +313,7 @@ int Recorder::openSession(const char *const sessionName)
 int Recorder::closeSession(void)
 {
     char fileName[REC_SESSION_NAME_MAX_LEN + 1];
-    spiffs_stat stat;
+    struct stat* statBuf;
 
     if (NULL == this->pSession)
     {
@@ -327,11 +330,11 @@ int Recorder::closeSession(void)
 
     this->pSession->close();
     this->getSessionName(fileName);
-    pSystemDesc->pFileSystem->rename("__temp", fileName);
+    rename("__temp", fileName);
 #ifdef REC_DEBUG
     SF_OSAL_printf("Saving as %s\n", fileName);
-    pSystemDesc->pFileSystem->stat(fileName, &stat);
-    SF_OSAL_printf("Saved %u bytes\n", stat.size);
+    stat(fileName, statBuf);
+    SF_OSAL_printf("Saved %u bytes\n", statBuf->st_size);
 #endif
     memset(this->dataBuffer, 0, REC_MEMORY_BUFFER_SIZE);
     this->dataIdx = 0;
@@ -342,7 +345,7 @@ void Recorder::getSessionName(char *pFileName)
 {
     uint32_t i;
     char tempFileName[REC_SESSION_NAME_MAX_LEN + 1];
-    SpiffsParticleFile fh;
+    int fh;
 
     if (this->currentSessionName[0])
     {
@@ -352,15 +355,15 @@ void Recorder::getSessionName(char *pFileName)
     for (i = 0; i < 100; i++)
     {
         snprintf(tempFileName, REC_SESSION_NAME_MAX_LEN, "000000_temp_%02lu", i);
-        fh = pSystemDesc->pFileSystem->openFile(tempFileName, SPIFFS_O_RDONLY);
-        if (fh.isValid())
+        fh = open(tempFileName, O_RDONLY);
+        if (fh != 0)
         {
-            fh.close();
+            close(fh);
             continue;
         }
         else
         {
-            fh.close();
+            close(fh);
             break;
         }
     }

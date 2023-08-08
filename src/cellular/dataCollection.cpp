@@ -20,15 +20,17 @@ typedef struct Ensemble10_eventData_
     uint32_t accumulateCount;
 }Ensemble10_eventData_t;
 
+static Ensemble10_eventData_t ensemble10Data;
 
-void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
+
+void SS_ensemble10Func()
 {
     int32_t lat, lng;
     float temp;
     uint8_t water;
     
     bool hasGPS = false;
-    Ensemble10_eventData_t* pData = (Ensemble10_eventData_t*)pDeployment->pData;
+    Ensemble10_eventData_t* pData = &ensemble10Data;
 
     #pragma pack(push, 1)
     struct
@@ -97,20 +99,20 @@ void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
     pData->hasGPS += hasGPS ? 1 : 0;
     pData->accumulateCount++;
 
-    ensData.header.elapsedTime_ds = Ens_getStartTime(pDeployment->startTime);
-    SF_OSAL_printf("Ensemble timestamp: %d\n", ensData.header.elapsedTime_ds);
+    // ensData.header.elapsedTime_ds = Ens_getStartTime(pDeployment->startTime);
+    // SF_OSAL_printf("Ensemble timestamp: %d\n", ensData.header.elapsedTime_ds);
     ensData.data.ens10.rawTemp = N_TO_B_ENDIAN_2(temp / 0.0078125);
-    ensData.data.ens10.rawAcceleration[0] = N_TO_B_ENDIAN_2(pData->acc[0] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens10.rawAcceleration[1] = N_TO_B_ENDIAN_2(pData->acc[1] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens10.rawAcceleration[2] = N_TO_B_ENDIAN_2(pData->acc[2] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens10.rawAngularVel[0] = N_TO_B_ENDIAN_2(pData->ang[0] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens10.rawAngularVel[1] = N_TO_B_ENDIAN_2(pData->ang[1] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens10.rawAngularVel[2] = N_TO_B_ENDIAN_2(pData->ang[2] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens10.rawMagField[0] = N_TO_B_ENDIAN_2(pData->mag[0] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens10.rawMagField[1] = N_TO_B_ENDIAN_2(pData->mag[1] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens10.rawMagField[2] = N_TO_B_ENDIAN_2(pData->mag[2] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens11.location[0] = N_TO_B_ENDIAN_4(pData->location[0] / pDeployment->measurementsToAccumulate);
-    ensData.data.ens11.location[1] = N_TO_B_ENDIAN_4(pData->location[1] / pDeployment->measurementsToAccumulate);
+    ensData.data.ens10.rawAcceleration[0] = N_TO_B_ENDIAN_2(pData->acc[0])  ;
+    ensData.data.ens10.rawAcceleration[1] = N_TO_B_ENDIAN_2(pData->acc[1])  ;
+    ensData.data.ens10.rawAcceleration[2] = N_TO_B_ENDIAN_2(pData->acc[2])  ;
+    ensData.data.ens10.rawAngularVel[0] = N_TO_B_ENDIAN_2(pData->ang[0])  ;
+    ensData.data.ens10.rawAngularVel[1] = N_TO_B_ENDIAN_2(pData->ang[1])  ;
+    ensData.data.ens10.rawAngularVel[2] = N_TO_B_ENDIAN_2(pData->ang[2])  ;
+    ensData.data.ens10.rawMagField[0] = N_TO_B_ENDIAN_2(pData->mag[0])  ;
+    ensData.data.ens10.rawMagField[1] = N_TO_B_ENDIAN_2(pData->mag[1])  ;
+    ensData.data.ens10.rawMagField[2] = N_TO_B_ENDIAN_2(pData->mag[2])  ;
+    ensData.data.ens11.location[0] = N_TO_B_ENDIAN_4(pData->location[0])  ;
+    ensData.data.ens11.location[1] = N_TO_B_ENDIAN_4(pData->location[1])  ;
 
 
     ensData.header.ensembleType = ENS_TEMP_IMU;

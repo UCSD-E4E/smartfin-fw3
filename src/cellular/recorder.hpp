@@ -1,7 +1,6 @@
 #ifndef __RECORDER_HPP__
 #define __RECORDER_HPP__
 
-#include "SpiffsParticleRK.h"
 #include <stddef.h>
 #include "deploy.hpp"
 #include "cli/conio.hpp"

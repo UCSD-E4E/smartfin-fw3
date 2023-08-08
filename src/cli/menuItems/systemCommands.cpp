@@ -12,6 +12,7 @@
 #include "cli/flog.hpp"
 #include "states.hpp"
 #include "cli/cli.hpp"
+#include "cellular/dataCollection.hpp"
 
 #include "Particle.h"
 
@@ -33,6 +34,7 @@ void CLI_doSleep(void)
 
 void CLI_doUpload(void)
 {
+    SS_ensemble10Func();
     CLI_nextState = STATE_UPLOAD;
 }
 

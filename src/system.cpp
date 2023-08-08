@@ -17,8 +17,6 @@ SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
 
-static SpiFlashMacronix DP_spiFlash(SPI, 38);
-SpiffsParticle DP_fs(DP_spiFlash);
 Recorder dataRecorder;
 
 
