@@ -14,7 +14,7 @@ jobs:
         uses: particle-iot/compile-action@v1
         with:
           particle-platform-name: 'tracker'
-
+          device-os-version: '5.3.0'
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
