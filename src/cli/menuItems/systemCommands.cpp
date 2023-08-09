@@ -10,6 +10,8 @@
 #include "systemCommands.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "system.hpp"
+#include "vers.hpp"
 
 #include "Particle.h"
 
@@ -23,3 +25,10 @@ void CLI_disconnect(void)
 {
     Particle.disconnect();
 }
+
+void CLI_self_identify(void) 
+{
+    SF_OSAL_printf("Smartfin ID: %s\n", pSystemDesc->deviceID);
+    VERS_printBanner();
+}
+
