@@ -9,6 +9,7 @@
 #include "sleepTask.hpp"
 #include "cli/flog.hpp"
 
+
 void DataUpload::init(void)
 {
     SF_OSAL_printf("Entering SYSTEM_STATE_DATA_UPLOAD\n");
@@ -21,6 +22,7 @@ void DataUpload::init(void)
 
 STATES_e DataUpload::run(void)
 {
+    Particle.connect();
     uint8_t dataEncodeBuffer[DATA_UPLOAD_MAX_BLOCK_LEN];
     char dataPublishBuffer[DATA_UPLOAD_MAX_UPLOAD_LEN];
     char publishName[DU_PUBLISH_ID_NAME_LEN + 1];
@@ -61,16 +63,23 @@ STATES_e DataUpload::run(void)
     if(!Particle.connected())
     {
         // we're not connected!  abort
+        SF_OSAL_printf("not connected :(");
         return STATE_CLI;
     }
 
-    if(!Particle.publish(publishName, dataPublishBuffer, PRIVATE | WITH_ACK))
+    SF_OSAL_printf("Data: %s", dataPublishBuffer);
+
+    bool sucsess = Particle.publish(publishName, dataPublishBuffer);
+    if(!sucsess)
     {
         SF_OSAL_printf("Failed to upload data!\n");
     }
+    Particle.publish("test1", "test2");
 
     SF_OSAL_printf("Uploaded record %s\n", dataPublishBuffer);
     Particle.process();
+
+    pSystemDesc->pRecorder->popLastPacket(nBytesToEncode);
 
     return STATE_CLI;
 }

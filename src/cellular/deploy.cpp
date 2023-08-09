@@ -10,6 +10,8 @@ Deployment& Deployment::getInstance(void)
     return DP_instance;
 }
 
+const char* filename;
+
 /**
  * @brief Opens a new deployment with the given name in the specified state
  * 
@@ -23,6 +25,9 @@ int Deployment::open(const char* const name, Deployment::State_e state)
     {
         ::close(this->currentFile);
     }
+    SF_OSAL_printf("opening!");
+
+    filename = name;
     switch(state)
     {
         case Deployment::READ:
@@ -99,16 +104,20 @@ int Deployment::seek(size_t loc)
     lseek(this->currentFile, loc, SEEK_SET);
     return 1;
 }
-size_t Deployment::getLength(void)
+
+int Deployment::getLength(void)
 {
     if(this->currentFile == 0)
     {
         SF_OSAL_printf("DEP::getLength: invalid file!\n");
         return 0;
     }
-    struct stat* buf;
-    fstat(this->currentFile, buf);
-    return buf->st_size;
+    struct stat* sbuf;
+    fstat(currentFile, sbuf);
+
+    SF_OSAL_printf("File length: %ld \n", sbuf->st_size );
+    
+    return (int) sbuf->st_size;
 }
 
 int Deployment::remove(void)

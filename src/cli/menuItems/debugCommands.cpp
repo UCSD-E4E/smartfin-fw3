@@ -10,6 +10,8 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include <fcntl.h>
+#include <dirent.h>
+
 
 #include "Particle.h"
 #include "consts.hpp"
@@ -58,6 +60,20 @@ void CLI_createTestFile(void)
             SF_OSAL_printf("Sucsess: %d", i);
         }
         close(fd);
+    }
+}
+
+void CLI_wipeFileSystem(void)
+{
+    DIR* directory = opendir("");
+    if (directory == 0)
+    {
+        closedir(directory);
+    } 
+
+    while (readdir(directory) != NULL)
+    {
+        unlink(readdir(directory)->d_name);
     }
 }
 

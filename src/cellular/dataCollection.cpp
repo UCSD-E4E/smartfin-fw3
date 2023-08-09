@@ -26,16 +26,6 @@ static Ensemble10_eventData_t ensemble10Data;
 
 void SS_ensemble10Func()
 {
-    char integer_string[64];
-    int integer = Time.now();
-
-    char other_string[64] = "Session: "; 
-    sprintf(integer_string, "%d", integer);
-
-    strcat(other_string, integer_string); 
-    pSystemDesc->pRecorder->setSessionName(other_string);
-
-
     int32_t lat, lng;
     float temp;
     uint8_t water;

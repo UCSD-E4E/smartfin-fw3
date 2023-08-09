@@ -19,7 +19,7 @@ class Deployment
     int write(void* pData, size_t nBytes);
     int read(void* pData, size_t nBytes);
     int seek(size_t loc);
-    size_t getLength(void);
+    int getLength(void);
     int close(void);
     int remove(void);
     int truncate(size_t nBytes);

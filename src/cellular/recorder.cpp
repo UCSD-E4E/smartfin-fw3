@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include "product.hpp"
+#include "cli/menuItems/debugCommands.hpp"
 #include <dirent.h>
 #include <sys/stat.h>
 
@@ -121,6 +122,7 @@ static int REC_initializeTree(void)
         if(readdir(directory) != NULL)
         {
             SF_OSAL_printf("Failed to skip initial files\n");
+            CLI_wipeFileSystem();
             return 1;
         }
     }
@@ -142,6 +144,7 @@ static int REC_initializeTree(void)
 int Recorder::openLastSession(Deployment &session, char* pName)
 {
     int fileIdx;
+    int length;
 
     if (REC_initializeTree())
     {
@@ -155,6 +158,7 @@ int Recorder::openLastSession(Deployment &session, char* pName)
     }
 
     fileIdx = REC_DIR_TREE_SIZE - 1;
+    // fileIdx = 0;
     do
     {
         if (REC_dirTree[fileIdx].initialized && REC_dirTree[fileIdx].filename[0] != '.')
@@ -172,12 +176,20 @@ int Recorder::openLastSession(Deployment &session, char* pName)
 #ifdef REC_DEBUG
                 SF_OSAL_printf("REC::GLP open %s success\n", REC_dirTree[fileIdx].filename);
                 SF_OSAL_printf("Length: %d\n", session.getLength());
+                // char* buf[1000];
+                int file = open(REC_dirTree[fileIdx].filename, O_RDWR);
+                struct stat* sbuf;
+                fstat(file, sbuf);
+
+                // int bytesRead = read(file, buf, );
+
+                length = sbuf->st_size;
                 SF_OSAL_printf("Filename %s\n", REC_dirTree[fileIdx].filename);
 
 #endif
             }
 
-            if (session.getLength() == 0)
+            if (length == 0)
             {
                 SF_OSAL_printf("No bytes, removing\n");
                 session.remove();

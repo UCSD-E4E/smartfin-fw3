@@ -35,7 +35,16 @@ void CLI_doSleep(void)
 
 void CLI_doUpload(void)
 {
+    char integer_string[64];
+    int integer = Time.now();
+
+    char other_string[64] = "Session: "; 
+    sprintf(integer_string, "%d", integer);
+
+    strcat(other_string, integer_string); 
     pSystemDesc->pRecorder->openSession(NULL);
+    pSystemDesc->pRecorder->setSessionName(other_string);
+
     SS_ensemble10Func();
     pSystemDesc->pRecorder->closeSession();
     CLI_nextState = STATE_UPLOAD;

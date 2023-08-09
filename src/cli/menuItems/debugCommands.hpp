@@ -32,4 +32,9 @@ void CLI_testGetNumFiles(void);
  * @brief tests if data exists
 */
 void CLI_testHasData(void);
+/**
+ * @brief Delete all files
+*/
+void CLI_wipeFileSystem(void);
+
 #endif
