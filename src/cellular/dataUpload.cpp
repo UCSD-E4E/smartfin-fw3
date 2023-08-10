@@ -74,8 +74,6 @@ STATES_e DataUpload::run(void)
         SF_OSAL_printf("Failed to upload data!\n");
     }
 
-    Particle.publish("test1", "test2");
-
     SF_OSAL_printf("Uploaded record %s\n", dataPublishBuffer);
     Particle.process();
 

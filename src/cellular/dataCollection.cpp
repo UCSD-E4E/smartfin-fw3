@@ -43,7 +43,7 @@ void SS_ensemble10Func()
     }ensData;
     #pragma pack(pop)
 
-
+    // TODO: after merging of sensors, get data from here instead of dummy data
     // Obtain measurements    
     // temp = pSystemDesc->pTempSensor->getTemp();
     // water = pSystemDesc->pWaterSensor->getCurrentReading();
