@@ -24,11 +24,15 @@
 
 #include "Particle.h"
 
+
 #include <fstream>
 #include <bits/stdc++.h>
 
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
+
+static LEDStatus CLI_ledStatus;
+
 
 const Menu_t CLI_menu[] =
 {
