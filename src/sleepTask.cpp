@@ -5,11 +5,13 @@
 #include "system.hpp"
 #include "cli/conio.hpp"
 
+#include "consts.hpp"
+
 SleepTask::BOOT_BEHAVIOR_e SleepTask::bootBehavior;
 
 void SleepTask::init(void)
 {
-    SF_OSAL_printf("Entering SYSTEM_STATE_DEEP_SLEEP\n");
+    SF_OSAL_printf("Entering SYSTEM_STATE_DEEP_SLEEP" __NL__);
     this->ledStatus.setColor(SLEEP_RGB_LED_COLOR);
     this->ledStatus.setPattern(SLEEP_RGB_LED_PATTERN);
     this->ledStatus.setPeriod(SLEEP_RGB_LED_PERIOD);
@@ -36,7 +38,7 @@ void SleepTask::init(void)
     switch(SleepTask::bootBehavior)
     {
         case BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
-            SF_OSAL_printf("REUPLOAD\n\n\n");
+            SF_OSAL_printf("REUPLOAD" __NL__);
             if(digitalRead(WKP_PIN) == HIGH)
             {
                 System.sleep(SLEEP_MODE_SOFTPOWEROFF);
@@ -44,7 +46,7 @@ void SleepTask::init(void)
             }
             else
             {
-                SF_OSAL_printf("Waking up in %ld seconds...ZZZzzzzz\n", SF_UPLOAD_REATTEMPT_DELAY_SEC);
+                SF_OSAL_printf("Waking up in %ld seconds...ZZZzzzzz" __NL__, SF_UPLOAD_REATTEMPT_DELAY_SEC);
                 System.sleep(SLEEP_MODE_SOFTPOWEROFF, SF_UPLOAD_REATTEMPT_DELAY_SEC);
                 break;
             }
@@ -88,7 +90,7 @@ void SleepTask::loadBootBehavior(void)
         bootValid = 0;
         if(!pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, bootValid))
         {
-            SF_OSAL_printf("Failed to clear boot flag\n");
+            SF_OSAL_printf("Failed to clear boot flag" __NL__);
             return;
         }
     }

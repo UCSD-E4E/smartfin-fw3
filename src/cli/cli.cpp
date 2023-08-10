@@ -20,7 +20,7 @@
 #include "util.hpp"
 #include "product.hpp"
 
-#include "../system.hpp"
+#include "system.hpp"
 
 #include "Particle.h"
 
@@ -51,6 +51,12 @@ STATES_e CLI_nextState;
 void CLI::init(void) 
 {
     CLI_nextState = STATE_CLI;
+
+    CLI_ledStatus.setColor(CLI_RGB_LED_COLOR);
+    CLI_ledStatus.setPattern(CLI_RGB_LED_PATTERN);
+    CLI_ledStatus.setPeriod(CLI_RGB_LED_PERIOD);
+    CLI_ledStatus.setPriority(CLI_RGB_LED_PRIORITY);
+    CLI_ledStatus.setActive();
 
     pSystemDesc->pChargerCheck->start();
 
