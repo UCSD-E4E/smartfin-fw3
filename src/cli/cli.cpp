@@ -85,6 +85,7 @@ STATES_e CLI::run(void)
 
     lastKeyPressTime = millis();  
 
+
     CLI_nextState = STATE_CLI;
 
     while (1) 

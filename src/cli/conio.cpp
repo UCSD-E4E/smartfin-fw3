@@ -49,9 +49,19 @@ extern "C"
     {
         int i = 0;
         char userInput;
+        uint32_t lastKeyPressTime;
+
+        lastKeyPressTime = millis();  
+
 
         while (i < buflen)
         {
+
+            if(millis() >= lastKeyPressTime + CLI_NO_INPUT_TIMEOUT_MS) 
+            {
+                break;
+            }
+
             if (kbhit())
             {
                 userInput = getch();
