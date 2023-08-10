@@ -4,7 +4,6 @@
 #include "cli/flog.hpp"
 #include "cli/conio.hpp"
 #include "util.hpp"
-#include "scheduler.hpp"
 
 
 #include "Particle.h"

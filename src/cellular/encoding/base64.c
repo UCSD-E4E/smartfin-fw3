@@ -13,16 +13,7 @@ static const char b64_table[65] =
                 "abcdefghijklmnopqrstuvwxyz"
                 "0123456789+/";
 
-/**
-* Base-64 encode a buffer
-*
-* @param in   Input buffer
-* @param ilen Length of input buffer
-* @param out  Output buffer
-* @param olen Size of output buffer, actual written on return
-*
-* @return 0 if success, otherwise errorcode
-*/
+
 int b64_encode(const uint8_t *in, size_t ilen, char *out, size_t *olen) {
     const uint8_t *in_end = in + ilen;
     const char *o = out;
@@ -82,17 +73,6 @@ static inline uint32_t b64val(char c) {
     }
 }
 
-
-/**
-* Decode a Base-64 encoded string
-*
-* @param in   Input buffer
-* @param ilen Length of input buffer
-* @param out  Output buffer
-* @param olen Size of output buffer, actual written on return
-*
-* @return 0 if success, otherwise errorcode
-*/
 int b64_decode(const char *in, size_t ilen, uint8_t *out, size_t *olen) {
     const char *in_end = in + ilen;
     const uint8_t *o = out;

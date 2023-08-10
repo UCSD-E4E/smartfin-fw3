@@ -15,22 +15,14 @@
 #define REC_DEBUG
 static int REC_getNumFiles(void);
 
-/**
- * @brief Initializes the Recorder to an idle state
- * 
- * @return int 1 if successful, otherwise 0
- */
+
 int Recorder::init(void)
 {
     memset(this->lastSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
     return 1;
 }
 
-/**
- * @brief Checks if the Recorder has data to upload
- * 
- * @return int  1 if data exists, otherwise 0
- */
+
 int Recorder::hasData(void)
 {
     DIR* directory = opendir("");
@@ -208,16 +200,7 @@ int Recorder::openLastSession(Deployment &session, char* pName)
     return 1;
 }
 
-/**
- * @brief Retrieves the last packet of data into pBuffer, and puts the session
- *  name into pName.
- * 
- * @param pBuffer Buffer to place last packet into
- * @param bufferLen Length of packet buffer
- * @param pName Buffer to place session name into
- * @param nameLen Length of name buffer
- * @return int -1 on failure, number of bytes placed into data buffer otherwise
- */
+
 int Recorder::getLastPacket(void *pBuffer, size_t bufferLen, char *pName, size_t nameLen)
 {
     Deployment &session = Deployment::getInstance();
@@ -276,11 +259,6 @@ int Recorder::popLastPacket(size_t len)
     return 1;
 }
 
-/**
- * @brief Set the current session name
- * 
- * @param sessionName Current name to set
- */
 void Recorder::setSessionName(const char *const sessionName)
 {
     memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
@@ -288,11 +266,6 @@ void Recorder::setSessionName(const char *const sessionName)
     SF_OSAL_printf("Setting session name to %s\n", this->currentSessionName);
 }
 
-/**
- * @brief Opens a session and configures the Recorder to record data
- * 
- * @return int 1 if successful, otherwise 0
- */
 int Recorder::openSession(const char *const sessionName)
 {
     memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
@@ -316,13 +289,6 @@ int Recorder::openSession(const char *const sessionName)
     }
 }
 
-/**
- * @brief Closes the current session
- * 
- * If the session was already closed, treated as success.
- * 
- * @return int  1 if successful, otherwise 0
- */
 int Recorder::closeSession(void)
 {
     char fileName[REC_SESSION_NAME_MAX_LEN + 1];

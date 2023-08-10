@@ -4,8 +4,8 @@
 #include "system.hpp"
 #include "cli/conio.hpp"
 #include "product.hpp"
-#include "base85.h"
-#include "base64.h"
+#include "encoding/base85.h"
+#include "encoding/base64.h"
 #include "sleepTask.hpp"
 #include "cli/flog.hpp"
 
@@ -23,12 +23,12 @@ void DataUpload::init(void)
 STATES_e DataUpload::run(void)
 {
     Particle.connect();
+
     uint8_t dataEncodeBuffer[DATA_UPLOAD_MAX_BLOCK_LEN];
     char dataPublishBuffer[DATA_UPLOAD_MAX_UPLOAD_LEN];
     char publishName[DU_PUBLISH_ID_NAME_LEN + 1];
     int nBytesToEncode;
     size_t nBytesToSend;
-
 
     if(!this->initSuccess)
     {
@@ -57,9 +57,6 @@ STATES_e DataUpload::run(void)
 
     SF_OSAL_printf("Got %u bytes to upload\n", nBytesToSend);
 
-    // strncpy(dataPublishBuffer, "Hi!", DATA_UPLOAD_MAX_UPLOAD_LEN);
-    // strncpy(publishName, "Test Publish", DU_PUBLISH_ID_NAME_LEN + 1);
-
     if(!Particle.connected())
     {
         // we're not connected!  abort
@@ -74,6 +71,7 @@ STATES_e DataUpload::run(void)
     {
         SF_OSAL_printf("Failed to upload data!\n");
     }
+
     Particle.publish("test1", "test2");
 
     SF_OSAL_printf("Uploaded record %s\n", dataPublishBuffer);

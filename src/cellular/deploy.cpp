@@ -12,13 +12,6 @@ Deployment& Deployment::getInstance(void)
 
 const char* filename;
 
-/**
- * @brief Opens a new deployment with the given name in the specified state
- * 
- * @param name Session Name
- * @param state Read/Write State
- * @return int  1 if successful, otherwise 0
- */
 int Deployment::open(const char* const name, Deployment::State_e state)
 {
     if(this->currentFile == 0)
@@ -80,11 +73,6 @@ int Deployment::read(void* pData, size_t nBytes)
     return bytesRead;
 }
 
-/**
- * @brief Closes the session.
- * 
- * @return int 1 if successful, otherwise 0
- */
 int Deployment::close(void)
 {
     if(currentFile == 0)
