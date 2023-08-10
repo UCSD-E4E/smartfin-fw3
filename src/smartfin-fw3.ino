@@ -96,8 +96,6 @@ void mainThread(void* args) {
     pState->task->exit();
 }
 
-
-
 static void initalizeTaskObjects(void) 
 {
     currentState = SF_DEFAULT_STATE;
@@ -145,6 +143,9 @@ static void printState(STATES_e state)
     break;
     case STATE_DEEP_SLEEP:
     SF_OSAL_printf("STATE_DEEP_SLEEP");
+    break;
+    case STATE_UPLOAD:
+    SF_OSAL_printf("STATE_UPLOAD");
     break;
     default:
     SF_OSAL_printf("UNKNOWN");

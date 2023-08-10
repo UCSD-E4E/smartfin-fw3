@@ -10,11 +10,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-
-
 #define REC_DEBUG
 static int REC_getNumFiles(void);
-
 
 int Recorder::init(void)
 {
@@ -22,17 +19,16 @@ int Recorder::init(void)
     return 1;
 }
 
-
 int Recorder::hasData(void)
 {
-    DIR* directory = opendir("");
+    DIR *directory = opendir("");
     if (directory == 0)
     {
         return 0;
-    } 
+    }
     while (readdir(directory) != NULL)
     {
-        if(readdir(directory)->d_name[0] != '.' && readdir(directory)->d_name[0] != '_')
+        if (readdir(directory)->d_name[0] != '.' && readdir(directory)->d_name[0] != '_')
         {
             closedir(directory);
             return 1;
@@ -62,12 +58,12 @@ static int REC_getNumFiles(void)
 {
     int i = 0;
 
-    DIR* directory = opendir("");
+    DIR *directory = opendir("");
     if (directory == 0)
     {
         closedir(directory);
         return -1;
-    } 
+    }
 
     while (readdir(directory) != NULL)
     {
@@ -75,17 +71,6 @@ static int REC_getNumFiles(void)
     }
     closedir(directory);
     return i;
-}
-
-static int REC_treeGetNumFiles(void)
-{
-    int i = 0;
-    int numFiles = 0;
-    for (i = 0; i < REC_DIR_TREE_SIZE; i++)
-    {
-        numFiles += (REC_dirTree[i].initialized != 0);
-    }
-    return numFiles;
 }
 
 static int REC_initializeTree(void)
@@ -102,16 +87,16 @@ static int REC_initializeTree(void)
         REC_dirTreeSkipped = 1;
     }
 
-    DIR* directory = opendir("");
+    DIR *directory = opendir("");
     if (directory == 0)
     {
         SF_OSAL_printf("Failed to open directory");
         return 1;
-    } 
-    
+    }
+
     for (i = 0; i < skipFiles; i++)
     {
-        if(readdir(directory) != NULL)
+        if (readdir(directory) != NULL)
         {
             SF_OSAL_printf("Failed to skip initial files\n");
             CLI_wipeFileSystem();
@@ -119,8 +104,8 @@ static int REC_initializeTree(void)
         }
     }
 
-    dirent* entry;
-    
+    dirent *entry;
+
     for (i = 0; i < REC_DIR_TREE_SIZE; i++)
     {
         entry = readdir(directory);
@@ -133,7 +118,7 @@ static int REC_initializeTree(void)
     return 0;
 }
 
-int Recorder::openLastSession(Deployment &session, char* pName)
+int Recorder::openLastSession(Deployment &session, char *pName)
 {
     int fileIdx;
     int length;
@@ -143,10 +128,10 @@ int Recorder::openLastSession(Deployment &session, char* pName)
         SF_OSAL_printf("Failed to initialize tree\n");
         return 1;
     }
-    for(int i = 0; i < REC_DIR_TREE_SIZE; i++)
+    for (int i = 0; i < REC_DIR_TREE_SIZE; i++)
     {
-        SF_OSAL_printf("%d: %32s %d\n", i, REC_dirTree[i].filename, 
-            REC_dirTree[i].initialized);
+        SF_OSAL_printf("%d: %32s %d\n", i, REC_dirTree[i].filename,
+                       REC_dirTree[i].initialized);
     }
 
     fileIdx = REC_DIR_TREE_SIZE - 1;
@@ -168,7 +153,7 @@ int Recorder::openLastSession(Deployment &session, char* pName)
 #ifdef REC_DEBUG
                 SF_OSAL_printf("REC::GLP open %s success\n", REC_dirTree[fileIdx].filename);
                 int file = open(REC_dirTree[fileIdx].filename, O_RDWR);
-                struct stat* sbuf;
+                struct stat *sbuf = {0};
                 fstat(file, sbuf);
 
                 length = sbuf->st_size;
@@ -180,7 +165,6 @@ int Recorder::openLastSession(Deployment &session, char* pName)
 #endif
             }
 
-            
             if (length == 0 || strcmp(REC_dirTree[fileIdx].filename, "") == 0)
             {
                 SF_OSAL_printf("No bytes, removing\n");
@@ -194,12 +178,11 @@ int Recorder::openLastSession(Deployment &session, char* pName)
                 return 0;
             }
         }
-    }while(fileIdx-- > 0);
+    } while (fileIdx-- > 0);
 
     SF_OSAL_printf("Failed to find session\n");
     return 1;
 }
-
 
 int Recorder::getLastPacket(void *pBuffer, size_t bufferLen, char *pName, size_t nameLen)
 {
@@ -226,13 +209,12 @@ int Recorder::getLastPacket(void *pBuffer, size_t bufferLen, char *pName, size_t
 
 /**
  * @brief Trims the last block with specified length from the recorder
- * 
+ *
  * @param len Length of block to trim
  * @return int 1 if successful, otherwise 0
  */
 int Recorder::popLastPacket(size_t len)
 {
-    int i = 0;
     Deployment &session = Deployment::getInstance();
     int newLength;
 
@@ -292,7 +274,7 @@ int Recorder::openSession(const char *const sessionName)
 int Recorder::closeSession(void)
 {
     char fileName[REC_SESSION_NAME_MAX_LEN + 1];
-    struct stat* statBuf;
+    struct stat *statBuf = {};
 
     if (NULL == this->pSession)
     {
