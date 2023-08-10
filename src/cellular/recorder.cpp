@@ -175,21 +175,21 @@ int Recorder::openLastSession(Deployment &session, char* pName)
             {
 #ifdef REC_DEBUG
                 SF_OSAL_printf("REC::GLP open %s success\n", REC_dirTree[fileIdx].filename);
-                SF_OSAL_printf("Length: %d\n", session.getLength());
-                // char* buf[1000];
                 int file = open(REC_dirTree[fileIdx].filename, O_RDWR);
                 struct stat* sbuf;
                 fstat(file, sbuf);
 
-                // int bytesRead = read(file, buf, );
-
                 length = sbuf->st_size;
+                SF_OSAL_printf("Length: %d\n", length);
+                close(file);
+
                 SF_OSAL_printf("Filename %s\n", REC_dirTree[fileIdx].filename);
 
 #endif
             }
 
-            if (length == 0)
+            
+            if (length == 0 || strcmp(REC_dirTree[fileIdx].filename, "") == 0)
             {
                 SF_OSAL_printf("No bytes, removing\n");
                 session.remove();
