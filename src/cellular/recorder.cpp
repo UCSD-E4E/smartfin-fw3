@@ -77,16 +77,6 @@ static int REC_getNumFiles(void)
     return i;
 }
 
-static int REC_treeGetNumFiles(void)
-{
-    int i = 0;
-    int numFiles = 0;
-    for (i = 0; i < REC_DIR_TREE_SIZE; i++)
-    {
-        numFiles += (REC_dirTree[i].initialized != 0);
-    }
-    return numFiles;
-}
 
 static int REC_initializeTree(void)
 {
@@ -168,8 +158,6 @@ int Recorder::openLastSession(Deployment &session, char* pName)
 #ifdef REC_DEBUG
                 SF_OSAL_printf("REC::GLP open %s success\n", REC_dirTree[fileIdx].filename);
                 int file = open(REC_dirTree[fileIdx].filename, O_RDWR);
-                struct stat* sbuf;
-                fstat(file, sbuf);
 
                 length = session.getLength();
                 SF_OSAL_printf("Length: %d\n", length);
@@ -232,7 +220,6 @@ int Recorder::getLastPacket(void *pBuffer, size_t bufferLen, char *pName, size_t
  */
 int Recorder::popLastPacket(size_t len)
 {
-    int i = 0;
     Deployment &session = Deployment::getInstance();
     int newLength;
 
@@ -292,7 +279,7 @@ int Recorder::openSession(const char *const sessionName)
 int Recorder::closeSession(void)
 {
     char fileName[REC_SESSION_NAME_MAX_LEN + 1];
-    struct stat* statBuf;
+    struct stat statBuf = {};
 
     if (NULL == this->pSession)
     {
@@ -312,8 +299,8 @@ int Recorder::closeSession(void)
     rename("__temp", fileName);
 #ifdef REC_DEBUG
     SF_OSAL_printf("Saving as %s\n", fileName);
-    stat(fileName, statBuf);
-    SF_OSAL_printf("Saved %u bytes\n", statBuf->st_size);
+    stat(fileName, &statBuf);
+    SF_OSAL_printf("Saved %u bytes\n", statBuf.st_size);
 #endif
     memset(this->dataBuffer, 0, REC_MEMORY_BUFFER_SIZE);
     this->dataIdx = 0;

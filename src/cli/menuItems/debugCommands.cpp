@@ -51,6 +51,7 @@ void CLI_createTestFile(void)
     int fd = open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
     SF_OSAL_printf("Error: %d", errno);
     SF_OSAL_printf("fd sucsess %d", fd);
+    
     if (fd != -1) {
         for(int ii = 0; ii < 100; ii++) {
             String msg = String::format("testing %d\n", ii);
