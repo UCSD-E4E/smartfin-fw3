@@ -1,0 +1,24 @@
+# Style Guide
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119.
+
+## Whitespace
+1. There must be one space character on each side of any binary operator (`+`, `-`, `*`, `/`, `%`).
+2. There must be one space character between a branching keyword and the conditional, e.g.:
+```
+while (cond)
+{
+    body
+}
+if (cond)
+{
+    body
+}
+for (cond)
+{
+    body
+}
+```
+3. All files must end with an empty line.
+4. All files must be indented with 4 spaces.
+## Static Functions
+1. Static function prototypes must live in their respective translation units.
