@@ -1,5 +1,9 @@
-# Style Guide
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119.
+# Commits
+## Commit Messages
+All commit messages MUST comply with [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
+
+# Style Guide
 
 ## Whitespace
 1. There must be one space character on each side of any binary operator (`+`, `-`, `*`, `/`, `%`).
