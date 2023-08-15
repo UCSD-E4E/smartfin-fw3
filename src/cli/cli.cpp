@@ -18,6 +18,7 @@
 #include "cliDebug.hpp"
 #include "states.hpp"
 #include "util.hpp"
+#include "vers.hpp"
 #include "product.hpp"
 
 #include "Particle.h"
@@ -38,6 +39,7 @@ const Menu_t CLI_menu[] =
     {6, "debug menu", &CLI_doDebugMode},
     {7, "hexdump", &CLI_hexdump},
     {8, "gps", &CLI_GPS},
+    {9, "Self Identify", &CLI_self_identify},
     {0, nullptr, nullptr}
 };
 
@@ -47,6 +49,8 @@ char userInput[SF_CLI_MAX_CMD_LEN];
 
 void CLI::init(void) 
 {
+    VERS_printBanner();
+
     CLI_nextState = STATE_CLI;
 
     // While there is an avaliable character typed, get it
