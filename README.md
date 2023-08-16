@@ -13,6 +13,7 @@ tracker edge    | v18     | Apache 2.0 | https://github.com/particle-iot/tracker
 
 # LED Behavior
 
+## Status LED
 State              | Color    | Pattern
 ---------------------------------------
 Charge             | Yellow   | Solid
@@ -25,3 +26,16 @@ Network DHCP       | Blue     | Solid
 Cloud Connecting   | Blue     | Solid
 Cloud Connected    | Blue     | Blink
 Cloud Handshake    | Blue     | Blink
+
+
+## Battery LED
+Condition                                    | Battery LED State   |
+--------------------------------------------------------------------|
+No charger                                    | LED OFF             |
+Is charging and less than 60 ms have passed   | No Change           |
+Is charging and at least 60 ms have passed    | LED Blinking        |
+Not charging and less than 10 ms have passed  | No Change           |
+Not charging and at least 10 ms have passed   | LED ON              |
+
+## Wet Dry LED
+TODO
