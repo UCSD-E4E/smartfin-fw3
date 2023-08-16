@@ -18,7 +18,6 @@
 #include "cliDebug.hpp"
 #include "states.hpp"
 #include "util.hpp"
-#include "vers.hpp"
 #include "product.hpp"
 
 #include "system.hpp"
@@ -30,10 +29,11 @@
 #include <bits/stdc++.h>
 
 void CLI_displayMenu(void);
+void CLI_manageInput(char* inputBuffer);
 void CLI_hexdump(void);
 
 static LEDStatus CLI_ledStatus;
-
+Menu_t *cmd;
 
 const Menu_t CLI_menu[] =
 {
@@ -46,18 +46,16 @@ const Menu_t CLI_menu[] =
     {7, "hexdump", &CLI_hexdump},
     {8, "gps", &CLI_GPS},
     {9, "sleep", &CLI_doSleep},
-    {10, "Self Identify", &CLI_self_identify},
     {0, nullptr, nullptr}
 };
 
-char userInput[SF_CLI_MAX_CMD_LEN];
+char inputBuffer[SF_CLI_MAX_CMD_LEN];
+
 
 STATES_e CLI_nextState;
 
 void CLI::init(void) 
 {
-    VERS_printBanner();
-
     CLI_nextState = STATE_CLI;
 
     CLI_ledStatus.setColor(CLI_RGB_LED_COLOR);
@@ -67,8 +65,7 @@ void CLI::init(void)
     CLI_ledStatus.setActive();
 
     pSystemDesc->pChargerCheck->start();
-
-
+    
     // While there is an avaliable character typed, get it
     while (kbhit())
     {
@@ -79,16 +76,13 @@ void CLI::init(void)
 
 STATES_e CLI::run(void)
 {
-    Menu_t *cmd;
     uint32_t lastKeyPressTime;
-
-    
-    userInput[0] = 0;
-
-    SF_OSAL_printf(__NL__ ">");
+    char userInput = 0;
+    int i = 0;
 
     lastKeyPressTime = millis();  
 
+    SF_OSAL_printf(__NL__ ">");
 
     CLI_nextState = STATE_CLI;
 
@@ -109,30 +103,51 @@ STATES_e CLI::run(void)
             break;
         }
 
-        memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
+        memset(inputBuffer, 0, SF_CLI_MAX_CMD_LEN);        
 
-        getline(userInput, SF_CLI_MAX_CMD_LEN);
-
-        if (strlen(userInput) != 0) //If there is a command
+        if (kbhit())
         {
-            SF_OSAL_printf("\r\n");
-            cmd = MNU_findCommand(userInput, CLI_menu);
-            if (!cmd) 
+            userInput = getch();
+            lastKeyPressTime = millis();
+            switch (userInput)
             {
-                SF_OSAL_printf("Unknown command" __NL__);
-                MNU_displayMenu(CLI_menu);
-                SF_OSAL_printf(__NL__">");
-            } 
-            else 
-            {
-                cmd->fn();
-                SF_OSAL_printf(__NL__">");
+            case '\b':
+                i--;
+                SF_OSAL_printf("\b \b");
+                break;
+            case '\r':
+            case '\n':
+                inputBuffer[i++] = 0;
+                SF_OSAL_printf("\r\n");
+                CLI_manageInput(inputBuffer);
+                i = 0;
+                break;
+            default:
+                inputBuffer[i++] = userInput;
+                putch(userInput);
+                break;
             }
         }
     }
 
     SF_OSAL_printf("Next State: %d", CLI_nextState);
     return CLI_nextState;
+}
+
+void CLI_manageInput(char* inputBuffer)
+{
+    cmd = MNU_findCommand(inputBuffer, CLI_menu);
+    if (!cmd) 
+    {
+        SF_OSAL_printf("Unknown command" __NL__);
+        MNU_displayMenu(CLI_menu);
+        SF_OSAL_printf(__NL__">");
+    } 
+    else 
+    {
+        cmd->fn();
+        SF_OSAL_printf(__NL__">");
+    }
 }
 
 void CLI::exit() 
