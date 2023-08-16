@@ -22,13 +22,19 @@
 #include "sleepTask.hpp"
 #include "system.hpp"
 
+#include "system.hpp"
+
 #include "Particle.h"
+
 
 #include <fstream>
 #include <bits/stdc++.h>
 
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
+
+static LEDStatus CLI_ledStatus;
+
 
 
 static void CLI_setState(void);
@@ -64,6 +70,12 @@ void CLI::init(void)
 {
     CLI_nextState = STATE_CLI;
 
+    CLI_ledStatus.setColor(CLI_RGB_LED_COLOR);
+    CLI_ledStatus.setPattern(CLI_RGB_LED_PATTERN);
+    CLI_ledStatus.setPeriod(CLI_RGB_LED_PERIOD);
+    CLI_ledStatus.setPriority(CLI_RGB_LED_PRIORITY);
+    CLI_ledStatus.setActive();
+
     pSystemDesc->pChargerCheck->start();
 
 
@@ -86,6 +98,7 @@ STATES_e CLI::run(void)
     SF_OSAL_printf(__NL__ ">");
 
     lastKeyPressTime = millis();  
+
 
     CLI_nextState = STATE_CLI;
 

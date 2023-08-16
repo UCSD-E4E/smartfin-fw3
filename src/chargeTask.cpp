@@ -10,7 +10,7 @@ static void byteshiftl(void* pData, size_t dataLen, size_t nPos, uint8_t fill);
 
 void ChargeTask::init(void)
 {
-    SF_OSAL_printf("Entering SYSTEM_STATE_CHARGING\n");
+    SF_OSAL_printf("Entering SYSTEM_STATE_CHARGING" __NL__);
     pSystemDesc->pChargerCheck->start();
     this->ledStatus.setColor(CHARGE_RGB_LED_COLOR);
     this->ledStatus.setPattern(CHARGE_RGB_LED_PATTERN);

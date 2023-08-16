@@ -5,6 +5,8 @@
 #include "consts.hpp"
 #include "product.hpp"
 
+#include "sys/led.hpp"
+
 #include "location_service.h"
 #include "Particle.h"
 
@@ -13,16 +15,23 @@ char SYS_deviceID[32];
 SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
+static LEDSystemTheme ledTheme;
+
 
 static void SYS_chargerTask(void);
-static int SYS_initTasks(void);
-static int SYS_initNVRAM(void);
 static int SYS_initGPS(void);
 static int SYS_initNVRAM(void);
 static int SYS_initTasks(void);
-static LocationServiceConfiguration create_location_service_config(void);
+static int SYS_initLEDs(void);
+
+static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
+static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
+
+
+
+static LocationServiceConfiguration create_location_service_config();
 
 
 int SYS_initSys(void)
@@ -39,6 +48,7 @@ int SYS_initSys(void)
     SYS_initTasks();
     SYS_initGPS();
     SYS_initNVRAM();
+    SYS_initLEDs();
 
     return 1;
 }
@@ -56,15 +66,34 @@ static int SYS_initTasks(void)
     systemFlags.batteryLow = false;
 
     systemDesc.pChargerCheck = &chargerTimer;
+    ledTimer.start();
+
     return 1;
 }
 
+static int SYS_initLEDs(void)
+{
+    batteryLED.init();
+
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_OFF, 0x000000, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_ON, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_CONNECTING, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_DHCP, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_CONNECTED, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTING, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTED, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
+    ledTheme.setSignal(LED_SIGNAL_CLOUD_HANDSHAKE, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
+    
+    systemDesc.pBatteryLED = &batteryLED;
+    systemDesc.systemTheme = &ledTheme;
+    return 1;
+}
 
 /**
  * @brief Charging task
  * 
  */
-static void SYS_chargerTask(void)
+void SYS_chargerTask(void)
 {
     bool isCharging = ~digitalRead(STAT_PIN);
     systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);

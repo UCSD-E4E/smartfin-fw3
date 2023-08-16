@@ -27,6 +27,7 @@ typedef struct SystemDesc_
     Timer* pChargerCheck;
     NVRAM* pNvram;
     SFLed* pBatteryLED;
+    LEDSystemTheme* systemTheme;
     const SystemFlags_t* flags;
 }SystemDesc_t;
 
