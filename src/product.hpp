@@ -7,20 +7,17 @@
 /**
  * USB Power Detection Pin TODO
  */
-#define SF_USB_PWR_DETECT_PIN   45
-/**
- * Battery Charging Status Pin 
- */
-#define STAT_PIN              50
+#define SF_USB_PWR_DETECT_PIN   A4
+
 /**
  * Pin for the Battery Status LED
  */
-#define STAT_LED_PIN          40
+#define STAT_LED_PIN          A5
 /**
  * @brief Wakeup Pin
  * 
  */
-#define WKP_PIN               38
+#define WKP_PIN               WKP
 
 
 /*******************************************************************************

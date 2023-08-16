@@ -60,7 +60,6 @@ int SYS_initSys(void)
  */
 static int SYS_initTasks(void)
 {
-    pinMode(STAT_PIN, INPUT);
     pinMode(SF_USB_PWR_DETECT_PIN, INPUT);
     systemFlags.hasCharger = true;
     systemFlags.batteryLow = false;
@@ -95,7 +94,7 @@ static int SYS_initLEDs(void)
  */
 void SYS_chargerTask(void)
 {
-    bool isCharging = ~digitalRead(STAT_PIN);
+    bool isCharging = (System.batteryState() == BATTERY_STATE_CHARGING);
     systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
     static int chargedTimestamp;
     static int chargingTimestamp;
