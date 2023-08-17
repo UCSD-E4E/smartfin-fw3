@@ -22,10 +22,10 @@ static int SYS_initNVRAM(void);
 static int SYS_initTasks(void);
 static void SYS_chargerTask(void);
 static int SYS_initGPS();
-static int SYS_initIMU(void);
+// static int SYS_initIMU(void);
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
-ICM20648 SF_imu(SF_ICM20648_ADDR);
+// ICM20648 SF_imu(SF_ICM20648_ADDR);
 
 static LocationServiceConfiguration create_location_service_config();
 
@@ -43,7 +43,7 @@ int SYS_initSys(void)
     SYS_initTasks();
     SYS_initGPS();
     SYS_initNVRAM();
-    SYS_initIMU();
+    // SYS_initIMU();
 
     return 1;
 }
@@ -59,11 +59,11 @@ static int SYS_initTasks(void)
     return 1;
 }
 
-static int SYS_initIMU(void)
-{
-    systemDesc.pIMU = &SF_imu;
-    return 1;
-}
+// static int SYS_initIMU(void)
+// {
+//     systemDesc.pIMU = &SF_imu;
+//     return 1;
+// }
 
 
 static void SYS_chargerTask(void)

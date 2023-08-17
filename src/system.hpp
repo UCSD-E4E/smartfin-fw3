@@ -3,7 +3,6 @@
 
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
-#include "imu/ICM20648.h"
 
 #include "location_service.h"
 
@@ -29,7 +28,6 @@ typedef struct SystemDesc_
     Timer* pChargerCheck;
     NVRAM* pNvram;
     SFLed* pBatteryLED;
-    ICM20648* pIMU;
     const SystemFlags_t* flags;
 }SystemDesc_t;
 

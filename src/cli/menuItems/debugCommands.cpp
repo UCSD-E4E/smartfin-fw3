@@ -67,6 +67,11 @@ void CLI_monitorIMU(void)
 {
     char ch;
 
+    float accelData[3] = {0,0,0};
+    float gyroData[3] = {0,0,0};
+    float magData[3] = {0,0,0};
+    float tmpData = 0;
+
     setupIMU();
     while(1)
     {
@@ -80,41 +85,17 @@ void CLI_monitorIMU(void)
 			}
 		}
 
-        loopIMU();
+        getAccelerometer(accelData, accelData + 1, accelData + 2);
+        getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+        getMagnetometer(magData, magData + 1, magData + 2);
+        getTemperature(&tmpData);
+
+        SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
+        SF_OSAL_printf("Gyroscope: %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
+        SF_OSAL_printf("Magnetometor:  %8.4f\t%8.4f\t%8.4f" __NL__, magData[0], magData[1], magData[2]);
+        SF_OSAL_printf("Temperature: %8.4f" __NL__, tmpData);
+        delay(500);
     }
 
-    // float accelData[3];
-    // float gyroData[3];
-
-    // char ch;
-
-    // if(!pSystemDesc->pIMU->open())
-    // {
-    //     SF_OSAL_printf("IMU Fail\n");
-    // }
-
-    // while(1)
-    // {
-	// 	if(kbhit()) 
-	// 	{
-	// 		ch = getch();
-
-	// 		if('q' == ch) 
-	// 		{
-    //             break;
-	// 		}
-	// 	}
-
-    //     pSystemDesc->pIMU->get_accelerometer(accelData, accelData + 1, accelData + 2);
-
-    //     pSystemDesc->pIMU->get_gyroscope(gyroData, gyroData + 1, gyroData + 2);
-
-    //     SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
-    //     SF_OSAL_printf("Gyroscope %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
-    //     delay(500);
-	// }
-
-    // SF_OSAL_printf(__NL__);
-
-    // pSystemDesc->pIMU->close();
+    stopICM();
 }

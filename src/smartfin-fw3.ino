@@ -98,8 +98,6 @@ void mainThread(void* args) {
     pState->task->exit();
 }
 
-
-
 static void initalizeTaskObjects(void) 
 {
     currentState = SF_DEFAULT_STATE;

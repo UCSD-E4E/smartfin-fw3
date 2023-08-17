@@ -10,9 +10,9 @@
  * 
  * Distributed as-is; no warranty is given.
  ***************************************************************/
-#include "ICM_20948.h"                // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
 #include "cli/conio.hpp"
-
+#include "cli/flog.hpp"
+#include "imu.hpp"
 
 #define SERIAL_PORT Serial
 
@@ -51,6 +51,7 @@ void setupIMU(void) {
 
     // Link the serif
     ICM_20948_link_serif(&myICM, &mySerif);
+
 
     while(ICM_20948_check_id( &myICM ) != ICM_20948_Stat_Ok){
         SF_OSAL_printf("whoami does not match. Halting...\n");
@@ -92,6 +93,10 @@ void setupIMU(void) {
     ICM_20948_enable_dlpf    ( &myICM, ICM_20948_Internal_Acc, false );
     ICM_20948_enable_dlpf    ( &myICM, ICM_20948_Internal_Gyr, false );
 
+    // ICM_20948_I2C icmObj;
+    // icmObj.startupMagnetometer();
+    // startupMagnetometer();
+
 
     // Now wake the sensor up
     ICM_20948_sleep         ( &myICM, false );
@@ -99,22 +104,68 @@ void setupIMU(void) {
 
 }
 
-void loopIMU(void) {
-  delay(1000);
-  
-  ICM_20948_AGMT_t agmt = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0}};
-  if(ICM_20948_get_agmt( &myICM, &agmt ) == ICM_20948_Stat_Ok){
-      printRawAGMT( agmt );
-      SF_OSAL_printf("mag x: %d", agmt.gyr.axes.x);
-  }else{
-      SF_OSAL_printf("Uh oh\n");
-  }
+bool getAMGTValues(ICM_20948_AGMT_t *agmt)
+{
+    ICM_20948_AGMT_t icmAgmt = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0}};
+    if(ICM_20948_get_agmt( &myICM, &icmAgmt ) == ICM_20948_Stat_Ok)
+    {
+        *agmt = icmAgmt;
+        return 0;
+    } else
+    {
+        SF_OSAL_printf("ICM Fail\n");
+        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        return 1;
+    }
 }
 
+bool getAccelerometer(float *acc_x, float *acc_y, float *acc_z)
+{
+    ICM_20948_AGMT_t agmt = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0}};
+    getAMGTValues(&agmt);
+    
+    *acc_x = getAccMG(agmt.acc.axes.x, agmt.fss.a);
+    *acc_y = getAccMG(agmt.acc.axes.y, agmt.fss.a);
+    *acc_z = getAccMG(agmt.acc.axes.z, agmt.fss.a);
 
-///////////////////////////////////////////////////////////////
-/* Here's where you actually define your interface functions */
-///////////////////////////////////////////////////////////////
+    return true;
+}
+
+bool getGyroscope(float *gyr_x, float *gyr_y, float *gyr_z)
+{
+    ICM_20948_AGMT_t agmt = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0}};
+    getAMGTValues(&agmt);
+    
+    *gyr_x = getGyrDPS(agmt.gyr.axes.x, agmt.fss.g);
+    *gyr_y = getGyrDPS(agmt.gyr.axes.y, agmt.fss.g);
+    *gyr_z = getGyrDPS(agmt.gyr.axes.z, agmt.fss.g);
+
+    return true;
+}
+
+bool getMagnetometer(float *mag_x, float *mag_y, float *mag_z)
+{
+    ICM_20948_AGMT_t agmt = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0}};
+    getAMGTValues(&agmt);
+
+    SF_OSAL_printf("mag x \n %f", agmt.mag.axes.x);
+    
+    *mag_x = getMagUT(agmt.mag.axes.x);
+    *mag_y = getMagUT(agmt.mag.axes.y);
+    *mag_z = getMagUT(agmt.mag.axes.z);
+
+    return true;
+}
+
+bool getTemperature(float *temperature)
+{
+    ICM_20948_AGMT_t agmt = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0}};
+    getAMGTValues(&agmt);
+
+    *temperature = getTmpC(agmt.tmp.val);
+    return true;
+}
+
 
 ICM_20948_Status_e my_write_i2c(uint8_t reg, uint8_t* data, uint32_t len, void* user)
 {
@@ -145,7 +196,12 @@ ICM_20948_Status_e my_read_i2c(uint8_t reg, uint8_t *buff, uint32_t len, void *u
     return ICM_20948_Stat_Ok;
 }
 
-// Some helper functions
+
+void stopICM(void)
+{
+    ICM_20948_sleep         ( &myICM, true );
+    ICM_20948_low_power     ( &myICM, true );
+}
 
 void printPaddedInt16b( int16_t val )
 {
@@ -189,6 +245,8 @@ void printRawAGMT( ICM_20948_AGMT_t agmt){
   SF_OSAL_printf(" ]");
   SF_OSAL_printf("\n");
 }
+
+
 
 float getAccMG( int16_t raw, uint8_t fss ){
   switch(fss){
