@@ -35,7 +35,6 @@ void CLI_hexdump(void);
 int manageInput(char* buffer, int buflen);
 
 static LEDStatus CLI_ledStatus;
-Menu_t *cmd;
 
 const Menu_t CLI_menu[] =
 {
@@ -59,9 +58,6 @@ STATES_e CLI_nextState;
 
 void CLI::init(void) 
 {
-
-
-
     VERS_printBanner();
 
     CLI_nextState = STATE_CLI;
@@ -161,7 +157,9 @@ int manageInput(char* buffer, int buflen, uint32_t lastKeyPressTime )
 
 void CLI_manageInput(char* inputBuffer)
 {
+    Menu_t *cmd;
     cmd = MNU_findCommand(inputBuffer, CLI_menu);
+    
     if (!cmd) 
     {
         SF_OSAL_printf("Unknown command" __NL__);
