@@ -32,6 +32,7 @@
 void CLI_displayMenu(void);
 void CLI_manageInput(char* inputBuffer);
 void CLI_hexdump(void);
+int manageInput(char* buffer, int buflen);
 
 static LEDStatus CLI_ledStatus;
 Menu_t *cmd;
@@ -51,8 +52,7 @@ const Menu_t CLI_menu[] =
     {0, nullptr, nullptr}
 };
 
-char inputBuffer[SF_CLI_MAX_CMD_LEN];
-
+char userInput[SF_CLI_MAX_CMD_LEN];
 
 STATES_e CLI_nextState;
 
@@ -84,7 +84,8 @@ void CLI::init(void)
 STATES_e CLI::run(void)
 {
     uint32_t lastKeyPressTime;
-    char userInput = 0;
+    userInput[0] = 0;
+
     int i = 0;
 
     lastKeyPressTime = millis();  
@@ -110,30 +111,14 @@ STATES_e CLI::run(void)
             break;
         }
 
-        memset(inputBuffer, 0, SF_CLI_MAX_CMD_LEN);        
+        memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
+        
+        getline(userInput, SF_CLI_MAX_CMD_LEN);
 
-        if (kbhit())
+        if (strlen(userInput) != 0) //If there is a command
         {
-            userInput = getch();
-            lastKeyPressTime = millis();
-            switch (userInput)
-            {
-            case '\b':
-                i--;
-                SF_OSAL_printf("\b \b");
-                break;
-            case '\r':
-            case '\n':
-                inputBuffer[i++] = 0;
-                SF_OSAL_printf("\r\n");
-                CLI_manageInput(inputBuffer);
-                i = 0;
-                break;
-            default:
-                inputBuffer[i++] = userInput;
-                putch(userInput);
-                break;
-            }
+            SF_OSAL_printf("\r\n");
+            CLI_manageInput(userInput);
         }
     }
 
@@ -141,8 +126,43 @@ STATES_e CLI::run(void)
     return CLI_nextState;
 }
 
+int manageInput(char* buffer, int buflen, uint32_t lastKeyPressTime )
+{
+    int i = 0;
+    char userInput;
+
+    while (i < buflen)
+    {
+        if (kbhit())
+        {
+            userInput = getch();
+            lastKeyPressTime = millis();  
+            switch(userInput)
+            {
+                case '\b':
+                    i--;
+                    putch('\b');
+                    putch(' ');
+                    putch('\b');
+                    break;
+                default:
+                    buffer[i++] = userInput;
+                    putch(userInput);
+                    break;
+                case '\r':
+                    buffer[i++] = 0;
+                    putch('\r');
+                    putch('\n');
+                    return i;
+            }
+        }
+    }
+    return i;
+}
+
 void CLI_manageInput(char* inputBuffer)
 {
+    SF_OSAL_printf("buffer%s", &inputBuffer);
     cmd = MNU_findCommand(inputBuffer, CLI_menu);
     if (!cmd) 
     {
