@@ -46,6 +46,7 @@ const Menu_t CLI_menu[] =
     {7, "hexdump", &CLI_hexdump},
     {8, "gps", &CLI_GPS},
     {9, "sleep", &CLI_doSleep},
+    {10, "Self Identify", &CLI_self_identify},
     {0, nullptr, nullptr}
 };
 
@@ -56,6 +57,11 @@ STATES_e CLI_nextState;
 
 void CLI::init(void) 
 {
+
+
+
+    VERS_printBanner();
+
     CLI_nextState = STATE_CLI;
 
     CLI_ledStatus.setColor(CLI_RGB_LED_COLOR);

@@ -86,7 +86,7 @@ static int SYS_initLEDs(void)
 
 void SYS_chargerTask(void)
 {
-    bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING ? true : false;
+    bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING;
     systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
     static int chargedTimestamp;
     static int chargingTimestamp;
