@@ -34,6 +34,12 @@ STATES_e ChargeTask::run(void)
             }
         }
 
+        //Check if currently charging using chargerCheck
+        if(!pSystemDesc->pChargerCheck->isActive())
+        {
+            return STATE_DEEP_SLEEP;
+        }
+
         os_thread_yield();
     }
 }

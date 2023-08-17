@@ -80,6 +80,8 @@ void mainThread(void* args) {
 
     pState = findState(currentState);
     SF_OSAL_printf(__NL__ "Starting state: ");
+
+    FLOG_AddError(FLOG_SYS_STARTSTATE, currentState);
     printState(currentState);
 
     if (pState == NULL) {
@@ -92,8 +94,6 @@ void mainThread(void* args) {
 
     pState->task->exit();
 }
-
-
 
 static void initalizeTaskObjects(void) 
 {

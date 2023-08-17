@@ -87,8 +87,6 @@ STATES_e CLI::run(void)
     uint32_t lastKeyPressTime;
     userInput[0] = 0;
 
-    int i = 0;
-
     lastKeyPressTime = millis();  
 
     SF_OSAL_printf(__NL__ ">");
@@ -163,7 +161,6 @@ int manageInput(char* buffer, int buflen, uint32_t lastKeyPressTime )
 
 void CLI_manageInput(char* inputBuffer)
 {
-    SF_OSAL_printf("buffer%s", &inputBuffer);
     cmd = MNU_findCommand(inputBuffer, CLI_menu);
     if (!cmd) 
     {

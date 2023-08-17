@@ -7,6 +7,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "states.hpp"
 
 #include "sys/led.hpp"
 
@@ -28,8 +29,6 @@ static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
-
-
 
 static LocationServiceConfiguration create_location_service_config();
 
