@@ -49,6 +49,7 @@ const Menu_t CLI_menu[] =
     {8, "gps", &CLI_GPS},
     {9, "sleep", &CLI_doSleep},
     {10, "Self Identify", &CLI_self_identify},
+    {11, "check charge ports", &CLI_checkCharging},
     {0, nullptr, nullptr}
 };
 

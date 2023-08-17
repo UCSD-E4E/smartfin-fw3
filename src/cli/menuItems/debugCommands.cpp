@@ -9,6 +9,7 @@
 #include "debugCommands.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "product.hpp"
 
 #include "Particle.h"
 #include "consts.hpp"
@@ -27,6 +28,12 @@ void CLI_displayFLOG(void)
 void CLI_clearFLOG(void)
 {
     FLOG_ClearLog();
+}
+
+void CLI_checkCharging(void) 
+{
+    SF_OSAL_printf("Charging? %d", System.batteryState() == BATTERY_STATE_CHARGING);
+    SF_OSAL_printf("Powered? %d", digitalRead(SF_USB_PWR_DETECT_PIN));
 }
 
 void CLI_testPrintf(void)
