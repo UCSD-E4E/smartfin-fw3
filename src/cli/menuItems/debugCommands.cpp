@@ -14,6 +14,8 @@
 #include "cli/flog.hpp"
 
 #include "Particle.h"
+
+#include "imu/imu.hpp"
 #include "consts.hpp"
 
 
@@ -63,16 +65,9 @@ void CLI_testPrintf(void)
 
 void CLI_monitorIMU(void)
 {
-    float accelData[3];
-    float gyroData[3];
-
     char ch;
 
-    if(!pSystemDesc->pIMU->open())
-    {
-        SF_OSAL_printf("IMU Fail\n");
-    }
-
+    setupIMU();
     while(1)
     {
 		if(kbhit()) 
@@ -85,16 +80,41 @@ void CLI_monitorIMU(void)
 			}
 		}
 
-        pSystemDesc->pIMU->get_accelerometer(accelData, accelData + 1, accelData + 2);
+        loopIMU();
+    }
 
-        pSystemDesc->pIMU->get_gyroscope(gyroData, gyroData + 1, gyroData + 2);
+    // float accelData[3];
+    // float gyroData[3];
 
-        SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
-        SF_OSAL_printf("Gyroscope %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
-        delay(500);
-	}
+    // char ch;
 
-    SF_OSAL_printf(__NL__);
+    // if(!pSystemDesc->pIMU->open())
+    // {
+    //     SF_OSAL_printf("IMU Fail\n");
+    // }
 
-    pSystemDesc->pIMU->close();
+    // while(1)
+    // {
+	// 	if(kbhit()) 
+	// 	{
+	// 		ch = getch();
+
+	// 		if('q' == ch) 
+	// 		{
+    //             break;
+	// 		}
+	// 	}
+
+    //     pSystemDesc->pIMU->get_accelerometer(accelData, accelData + 1, accelData + 2);
+
+    //     pSystemDesc->pIMU->get_gyroscope(gyroData, gyroData + 1, gyroData + 2);
+
+    //     SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
+    //     SF_OSAL_printf("Gyroscope %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
+    //     delay(500);
+	// }
+
+    // SF_OSAL_printf(__NL__);
+
+    // pSystemDesc->pIMU->close();
 }
