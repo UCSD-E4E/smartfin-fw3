@@ -18,6 +18,7 @@
 #include "cliDebug.hpp"
 #include "states.hpp"
 #include "util.hpp"
+#include "vers.hpp"
 #include "product.hpp"
 
 #include "system.hpp"
