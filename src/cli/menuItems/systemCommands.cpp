@@ -14,6 +14,8 @@
 #include "cli/cli.hpp"
 
 #include "states.hpp"
+#include "system.hpp"
+#include "vers.hpp"
 
 #include "Particle.h"
 
@@ -32,5 +34,11 @@ void CLI_doSleep(void)
 {
     SF_OSAL_printf("Next state is sleep\n");
     CLI_nextState = STATE_DEEP_SLEEP;
+}
+
+void CLI_self_identify(void) 
+{
+    SF_OSAL_printf("Smartfin ID: %s\n", pSystemDesc->deviceID);
+    VERS_printBanner();
 }
 
