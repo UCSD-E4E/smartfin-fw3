@@ -1,0 +1,24 @@
+@startuml
+class Task {
+    void init()
+    STATES_e run()
+    void exit()
+}
+class ChargeTask extends Task
+class CLI extends Task
+class DataUpload extends Task
+class SleepTask extends Task
+
+class SystemDesc{
+    const char deviceID;
+    LocationService pLocService;
+    const SystemFlags_t flags;
+}
+class SystemFlags_t{
+    bool batteryLow
+    bool hasCharger
+    bool inWater
+}
+LocationService o-- pLocService
+SystemDesc o-- SystemFlags_t
+@enduml
