@@ -1,6 +1,11 @@
 # smartfin-fw3
 Smartfin FW v3
 
+
+# Contributing
+
+Please see [docs/index.md](docs/index.md) for an overview of the codebase and how to get started contributing.
+
 # External Library Register
 Library         | Version | License | Source                                           | Location
 ----------------|---------|---------|--------------------------------------------------|---------
