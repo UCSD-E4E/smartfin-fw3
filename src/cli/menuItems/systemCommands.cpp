@@ -14,6 +14,7 @@
 #include "cli/cli.hpp"
 #include "cellular/dataCollection.hpp"
 #include "system.hpp"
+#include "vers.hpp"
 
 #include "Particle.h"
 
@@ -48,5 +49,11 @@ void CLI_doUpload(void)
     SS_ensemble10Func();
     pSystemDesc->pRecorder->closeSession();
     CLI_nextState = STATE_UPLOAD;
+}
+
+void CLI_self_identify(void) 
+{
+    SF_OSAL_printf("Smartfin ID: %s\n", pSystemDesc->deviceID);
+    VERS_printBanner();
 }
 
