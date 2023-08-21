@@ -18,6 +18,7 @@
 #include "cliDebug.hpp"
 #include "states.hpp"
 #include "util.hpp"
+#include "vers.hpp"
 #include "product.hpp"
 #include "sleepTask.hpp"
 #include "system.hpp"
@@ -33,9 +34,9 @@
 void CLI_displayMenu(void);
 void CLI_manageInput(char* inputBuffer);
 void CLI_hexdump(void);
+int manageInput(char* buffer, int buflen);
 
 static LEDStatus CLI_ledStatus;
-Menu_t *cmd;
 
 
 static void CLI_setState(void);
@@ -55,6 +56,8 @@ const Menu_t CLI_menu[] =
     {7, "hexdump", &CLI_hexdump},
     {8, "gps", &CLI_GPS},
     {9, "sleep", &CLI_doSleep},
+    {10, "Self Identify", &CLI_self_identify},
+    {11, "check charge ports", &CLI_checkCharging},
     {100, "Set State", &CLI_setState},
     {101, "Display System State", &CLI_displaySystemState},
     {102, "Display NVRAM", &CLI_displayNVRAM},
@@ -63,13 +66,14 @@ const Menu_t CLI_menu[] =
     {0, nullptr, nullptr}
 };
 
-char inputBuffer[SF_CLI_MAX_CMD_LEN];
-
+char userInput[SF_CLI_MAX_CMD_LEN];
 
 STATES_e CLI_nextState;
 
 void CLI::init(void) 
 {
+    VERS_printBanner();
+
     CLI_nextState = STATE_CLI;
 
     CLI_ledStatus.setColor(CLI_RGB_LED_COLOR);
@@ -91,8 +95,7 @@ void CLI::init(void)
 STATES_e CLI::run(void)
 {
     uint32_t lastKeyPressTime;
-    char userInput = 0;
-    int i = 0;
+    userInput[0] = 0;
 
     lastKeyPressTime = millis();  
 
@@ -117,30 +120,14 @@ STATES_e CLI::run(void)
             break;
         }
 
-        memset(inputBuffer, 0, SF_CLI_MAX_CMD_LEN);        
+        memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
+        
+        getline(userInput, SF_CLI_MAX_CMD_LEN);
 
-        if (kbhit())
+        if (strlen(userInput) != 0) //If there is a command
         {
-            userInput = getch();
-            lastKeyPressTime = millis();
-            switch (userInput)
-            {
-            case '\b':
-                i--;
-                SF_OSAL_printf("\b \b");
-                break;
-            case '\r':
-            case '\n':
-                inputBuffer[i++] = 0;
-                SF_OSAL_printf("\r\n");
-                CLI_manageInput(inputBuffer);
-                i = 0;
-                break;
-            default:
-                inputBuffer[i++] = userInput;
-                putch(userInput);
-                break;
-            }
+            SF_OSAL_printf("\r\n");
+            CLI_manageInput(userInput);
         }
     }
 
@@ -148,9 +135,45 @@ STATES_e CLI::run(void)
     return CLI_nextState;
 }
 
+int manageInput(char* buffer, int buflen, uint32_t lastKeyPressTime )
+{
+    int i = 0;
+    char userInput;
+
+    while (i < buflen)
+    {
+        if (kbhit())
+        {
+            userInput = getch();
+            lastKeyPressTime = millis();  
+            switch(userInput)
+            {
+                case '\b':
+                    i--;
+                    putch('\b');
+                    putch(' ');
+                    putch('\b');
+                    break;
+                default:
+                    buffer[i++] = userInput;
+                    putch(userInput);
+                    break;
+                case '\r':
+                    buffer[i++] = 0;
+                    putch('\r');
+                    putch('\n');
+                    return i;
+            }
+        }
+    }
+    return i;
+}
+
 void CLI_manageInput(char* inputBuffer)
 {
+    Menu_t *cmd;
     cmd = MNU_findCommand(inputBuffer, CLI_menu);
+    
     if (!cmd) 
     {
         SF_OSAL_printf("Unknown command" __NL__);

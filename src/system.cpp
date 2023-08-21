@@ -3,6 +3,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "states.hpp"
 #include "product.hpp"
 
 #include "sys/led.hpp"
@@ -28,8 +29,6 @@ static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
-
-
 
 static LocationServiceConfiguration create_location_service_config();
 
@@ -94,7 +93,7 @@ static int SYS_initLEDs(void)
  */
 void SYS_chargerTask(void)
 {
-    bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING ? true : false;
+    bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING;
     systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
     static int chargedTimestamp;
     static int chargingTimestamp;
