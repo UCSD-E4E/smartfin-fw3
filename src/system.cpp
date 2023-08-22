@@ -124,6 +124,7 @@ void SYS_chargerTask(void)
     {
         chargedTimestamp = 0;
         chargedTimestamp = 0;
+        FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
         systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
         systemDesc.pChargerCheck->stopFromISR();
     }

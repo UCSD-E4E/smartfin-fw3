@@ -2,6 +2,7 @@
 
 #include "Particle.h"
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
 #include "system.hpp"
 #include "sleepTask.hpp"
 #include "consts.hpp"
@@ -37,6 +38,7 @@ STATES_e ChargeTask::run(void)
         //Check if currently charging using chargerCheck
         if(!pSystemDesc->pChargerCheck->isActive())
         {
+            FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
             return STATE_DEEP_SLEEP;
         }
 
