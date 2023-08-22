@@ -71,7 +71,7 @@ void CLI_monitorTempSensor(void)
 
     if(pSystemDesc->pTempSensor->init() != 0)
     {
-        SF_OSAL_printf("Temp Fail\n");
+        SF_OSAL_printf("Temp Fail" __NL__);
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
     }
 
