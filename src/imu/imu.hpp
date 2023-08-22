@@ -1,21 +1,6 @@
 #ifndef  __ICM20648_HPP__
 #define  __ICM20648_HPP__
 
-#include "ICM_20948.h"
-
-/**
- * @brief Setup IMU 
-*/
-void setupIMU(void);
-/**
- * @brief Gets all AMGT values from ICM
- * 
- * @param[out] agmt value to get
- * 
- * @return true if measurement was successful
-*/
-bool getAMGTValues(ICM_20948_AGMT_t);
-
 /** Do a measurement on the gyroscope
  *
  * @param[out] temperature temp value
@@ -53,10 +38,9 @@ bool getAccelerometer(float *acc_x, float *acc_y, float *acc_z);
  * @returns true if measurement was successful
  */
 bool getMagnetometer(float *mag_x, float *mag_y, float *mag_z);
-
 /**
- * @brief stop the IMu
+ * @brief Setup IMU 
 */
-void stopICM(void);
+void setupICM(void);
 
 #endif

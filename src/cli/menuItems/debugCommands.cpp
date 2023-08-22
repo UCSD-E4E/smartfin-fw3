@@ -72,7 +72,7 @@ void CLI_monitorIMU(void)
     float magData[3] = {0,0,0};
     float tmpData = 0;
 
-    setupIMU();
+    setupICM();
     while(1)
     {
 		if(kbhit()) 
@@ -97,5 +97,4 @@ void CLI_monitorIMU(void)
         delay(500);
     }
 
-    stopICM();
 }
