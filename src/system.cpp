@@ -1,15 +1,15 @@
 #include "system.hpp"
 
-#include "location_service.h"
-#include "Particle.h"
-#include "product.hpp"
-
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "states.hpp"
+#include "product.hpp"
 
 #include "sys/led.hpp"
+
+#include "location_service.h"
+#include "Particle.h"
 
 char SYS_deviceID[32];
 
@@ -32,6 +32,7 @@ static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 
 static LocationServiceConfiguration create_location_service_config();
 
+
 int SYS_initSys(void)
 {
     memset(pSystemDesc, 0, sizeof(SystemDesc_t));
@@ -51,10 +52,14 @@ int SYS_initSys(void)
     return 1;
 }
 
+/**
+ * @brief Initialize system tasks (charging and sleep)
+ * 
+ * @return int 
+ */
 static int SYS_initTasks(void)
 {
-    pinMode(STAT_PIN, INPUT);
-    pinMode(SF_USB_PWR_DETECT_PIN, INPUT);
+    pinMode(SF_USB_PWR_DETECT_PIN, INPUT_PULLDOWN);
     systemFlags.hasCharger = true;
     systemFlags.batteryLow = false;
 
@@ -82,7 +87,10 @@ static int SYS_initLEDs(void)
     return 1;
 }
 
-
+/**
+ * @brief Charging task
+ * 
+ */
 void SYS_chargerTask(void)
 {
     bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING;
@@ -126,7 +134,6 @@ void SYS_chargerTask(void)
         chargedTimestamp = 0;
         FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
         systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
-        systemDesc.pChargerCheck->stopFromISR();
     }
 }
 
@@ -164,6 +171,11 @@ static int SYS_initGPS(void)
     return 1;
 }
 
+/**
+ * @brief Initializes NVRAM 
+ * 
+ * @return int sucsess
+ */
 static int SYS_initNVRAM(void)
 {
     NVRAM& nvram = NVRAM::getInstance();
@@ -194,4 +206,16 @@ static LocationServiceConfiguration create_location_service_config() {
     config.enableAssistNowAutonomous(LOCATION_CONFIG_ENABLE_ASSISTNOW_AUTONOMOUS);
 
     return config;
+}
+
+void SYS_displaySys(void)
+{
+    SF_OSAL_printf("Device ID: %s" __NL__, pSystemDesc->deviceID);
+    SF_OSAL_printf("Location Service: 0x%08x" __NL__, pSystemDesc->pLocService);
+    SF_OSAL_printf("Charger Check Timer: 0x%08x" __NL__, pSystemDesc->pChargerCheck);
+    SF_OSAL_printf("NVRAM: 0x%08x" __NL__, pSystemDesc->pNvram);
+    SF_OSAL_printf("Battery LED: 0x%08x" __NL__, pSystemDesc->pBatteryLED);
+    SF_OSAL_printf("Battery Low Flag: %d" __NL__, pSystemDesc->flags->batteryLow);
+    SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
+    SF_OSAL_printf("In Water Flag: %d" __NL__, pSystemDesc->flags->inWater);
 }

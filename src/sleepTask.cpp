@@ -4,6 +4,7 @@
 #include "product.hpp"
 #include "system.hpp"
 #include "cli/conio.hpp"
+#include "consts.hpp"
 
 #include "consts.hpp"
 
@@ -19,6 +20,7 @@ void SleepTask::init(void)
     this->ledStatus.setActive();
     if(digitalRead(SF_USB_PWR_DETECT_PIN))
     {
+        SF_OSAL_printf("USB detected, returning!" __NL__);
         return;
     }
 
@@ -58,12 +60,14 @@ void SleepTask::init(void)
             break;
     }
     //safety
+    SF_OSAL_printf("System going down!" __NL__);
     System.reset();
 }
 
 STATES_e SleepTask::run(void)
 {
-    return STATE_NULL;
+    SF_OSAL_printf("We're supposed to be asleep! Resetting state machine..." __NL__);
+    return SF_DEFAULT_STATE;
 }
 
 void SleepTask::exit(void)
@@ -111,4 +115,22 @@ void SleepTask::setBootBehavior(SleepTask::BOOT_BEHAVIOR_e behavior)
     SleepTask::bootBehavior = behavior;
     pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, SleepTask::bootBehavior);
     pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, true);
+}
+
+const char* SleepTask::strBootBehavior(BOOT_BEHAVIOR_e behavior)
+{
+    switch (behavior)
+    {
+        case BOOT_BEHAVIOR_NORMAL:
+            return "Normal";
+        case BOOT_BEHAVIOR_TMP_CAL_START:
+            return "Temp Cal Start";
+        case BOOT_BEHAVIOR_TMP_CAL_CONTINUE:
+            return "Temp Cal Continue";
+        case BOOT_BEHAVIOR_TMP_CAL_END:
+            return "Temp cal End";
+        case BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
+            return "Upload Reattempt";
+    }
+    return nullptr;
 }

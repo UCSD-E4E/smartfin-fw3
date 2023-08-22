@@ -32,8 +32,8 @@ void CLI_clearFLOG(void)
 
 void CLI_checkCharging(void) 
 {
-    SF_OSAL_printf("Charging? %d", System.batteryState() == BATTERY_STATE_CHARGING);
-    SF_OSAL_printf("Powered? %d", digitalRead(SF_USB_PWR_DETECT_PIN));
+    SF_OSAL_printf("Charging? %d" __NL__, System.batteryState() == BATTERY_STATE_CHARGING);
+    SF_OSAL_printf("Powered? %d" __NL__, digitalRead(SF_USB_PWR_DETECT_PIN));
 }
 
 void CLI_testPrintf(void)

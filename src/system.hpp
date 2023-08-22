@@ -41,8 +41,11 @@ extern SystemDesc_t* pSystemDesc;
  */
 int SYS_initSys(void);
 
-
-
+/**
+ * @brief Displays all system components
+ * 
+ */
+void SYS_displaySys(void);
 
 extern SystemDesc_t* pSystemDesc;
 

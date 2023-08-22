@@ -36,9 +36,10 @@ STATES_e ChargeTask::run(void)
         }
 
         //Check if currently charging using chargerCheck
-        if(!pSystemDesc->pChargerCheck->isActive())
+        if (!pSystemDesc->flags->hasCharger)
         {
             FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
+            SF_OSAL_printf("Going to sleep" __NL__);
             return STATE_DEEP_SLEEP;
         }
 
