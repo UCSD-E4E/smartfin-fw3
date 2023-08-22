@@ -44,6 +44,7 @@ static void CLI_displaySystemState(void);
 static void CLI_displayNVRAM(void);
 static void CLI_sleepSetSleepBehavior(void);
 static void CLI_sleepGetSleepBehavior(void);
+static void CLI_displayResetReason(void);
 
 const Menu_t CLI_menu[] =
 {
@@ -63,6 +64,7 @@ const Menu_t CLI_menu[] =
     {102, "Display NVRAM", &CLI_displayNVRAM},
     {200, "Sleep - Set Sleep Behavior", &CLI_sleepSetSleepBehavior},
     {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior},
+    {300, "Display Reset Reason", &CLI_displayResetReason},
     {0, nullptr, nullptr}
 };
 
@@ -261,4 +263,57 @@ static void CLI_sleepGetSleepBehavior(void)
 {
     SleepTask::BOOT_BEHAVIOR_e boot_behavior =  SleepTask::getBootBehavior();
     SF_OSAL_printf("Boot Behavior: %s" __NL__, SleepTask::strBootBehavior(boot_behavior));
+}
+
+void CLI_displayResetReason(void)
+{
+    uint16_t reset_reason = System.resetReason();
+    SF_OSAL_printf("Reset Reason: %hd", reset_reason);
+    switch(reset_reason)
+    {
+        case RESET_REASON_PIN_RESET:
+            SF_OSAL_printf("nRESET Assertion");
+            break;
+        case RESET_REASON_POWER_MANAGEMENT:
+            SF_OSAL_printf("Low Power Management Reset");
+            break;
+        case RESET_REASON_POWER_DOWN:
+            SF_OSAL_printf("Power-down Reset");
+            break;
+        case RESET_REASON_POWER_BROWNOUT:
+            SF_OSAL_printf("Brownout Reset");
+            break;
+        case RESET_REASON_WATCHDOG:
+            SF_OSAL_printf("Watchdog Reset");
+            break;
+        case RESET_REASON_UPDATE:
+            SF_OSAL_printf("FW Update Success");
+            break;
+        case RESET_REASON_UPDATE_TIMEOUT:
+            SF_OSAL_printf("FW Update Timeout");
+            break;
+        case RESET_REASON_FACTORY_RESET:
+            SF_OSAL_printf("Factory Reset");
+            break;
+        case RESET_REASON_SAFE_MODE:
+            SF_OSAL_printf("Safe Mode");
+            break;
+        case RESET_REASON_DFU_MODE:
+            SF_OSAL_printf("DFU mode");
+            break;
+        case RESET_REASON_PANIC:
+            SF_OSAL_printf("System Panic");
+            break;
+        case RESET_REASON_USER:
+            SF_OSAL_printf("User Reset");
+            break;
+        case RESET_REASON_NONE:
+            SF_OSAL_printf("No info available");
+            break;
+        case RESET_REASON_UNKNOWN:
+        default:
+            SF_OSAL_printf("Unknown Reset");
+            break;
+    }
+    SF_OSAL_printf(__NL__);
 }
