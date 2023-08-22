@@ -8,6 +8,8 @@
  * Please see License.md for the license information.
  *
  * Distributed as-is; no warranty is given.
+ * 
+ * Modified by Emily Thorpe - Auguest 2023
  ***************************************************************/
 #include "ICM_20948.h" // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
 #include "cli/conio.hpp"
