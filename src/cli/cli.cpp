@@ -34,7 +34,6 @@
 void CLI_displayMenu(void);
 void CLI_manageInput(char* inputBuffer);
 void CLI_hexdump(void);
-int manageInput(char* buffer, int buflen);
 
 static LEDStatus CLI_ledStatus;
 
@@ -98,6 +97,7 @@ STATES_e CLI::run(void)
 {
     uint32_t lastKeyPressTime;
     userInput[0] = 0;
+    size_t inputIdx = 0;
 
     lastKeyPressTime = millis();  
 
@@ -105,6 +105,7 @@ STATES_e CLI::run(void)
 
     CLI_nextState = STATE_CLI;
 
+    memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
     while (1) 
     {
         if(millis() >= lastKeyPressTime + CLI_NO_INPUT_TIMEOUT_MS) 
@@ -122,53 +123,36 @@ STATES_e CLI::run(void)
             break;
         }
 
-        memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
         
-        getline(userInput, SF_CLI_MAX_CMD_LEN);
-
-        if (strlen(userInput) != 0) //If there is a command
+        if (kbhit())
         {
-            SF_OSAL_printf("\r\n");
-            CLI_manageInput(userInput);
+            char userChar = getch();
+            lastKeyPressTime = millis();
+            switch (userChar)
+            {
+                case '\b':
+                    inputIdx = (inputIdx <= 0) ? 0 : inputIdx - 1;
+                    SF_OSAL_printf("\b \b");
+                    break;
+                case '\r':
+                case '\n':
+                    userInput[inputIdx++] = 0;
+                    SF_OSAL_printf(__NL__);
+                    CLI_manageInput(userInput);
+                    SF_OSAL_printf(__NL__ ">");
+                    inputIdx = 0;
+                    memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
+                    break;
+                default:
+                    userInput[inputIdx++] = userChar;
+                    putch(userChar);
+                    break;
+            }
         }
     }
 
     SF_OSAL_printf("Next State: %d", CLI_nextState);
     return CLI_nextState;
-}
-
-int manageInput(char* buffer, int buflen, uint32_t lastKeyPressTime )
-{
-    int i = 0;
-    char userInput;
-
-    while (i < buflen)
-    {
-        if (kbhit())
-        {
-            userInput = getch();
-            lastKeyPressTime = millis();  
-            switch(userInput)
-            {
-                case '\b':
-                    i--;
-                    putch('\b');
-                    putch(' ');
-                    putch('\b');
-                    break;
-                default:
-                    buffer[i++] = userInput;
-                    putch(userInput);
-                    break;
-                case '\r':
-                    buffer[i++] = 0;
-                    putch('\r');
-                    putch('\n');
-                    return i;
-            }
-        }
-    }
-    return i;
 }
 
 void CLI_manageInput(char* inputBuffer)
@@ -180,12 +164,10 @@ void CLI_manageInput(char* inputBuffer)
     {
         SF_OSAL_printf("Unknown command" __NL__);
         MNU_displayMenu(CLI_menu);
-        SF_OSAL_printf(__NL__">");
     } 
     else 
     {
         cmd->fn();
-        SF_OSAL_printf(__NL__">");
     }
 }
 
