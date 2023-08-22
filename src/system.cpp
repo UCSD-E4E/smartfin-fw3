@@ -59,7 +59,7 @@ int SYS_initSys(void)
  */
 static int SYS_initTasks(void)
 {
-    pinMode(SF_USB_PWR_DETECT_PIN, INPUT);
+    pinMode(SF_USB_PWR_DETECT_PIN, INPUT_PULLDOWN);
     systemFlags.hasCharger = true;
     systemFlags.batteryLow = false;
 
@@ -133,7 +133,6 @@ void SYS_chargerTask(void)
         chargedTimestamp = 0;
         chargedTimestamp = 0;
         systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
-        systemDesc.pChargerCheck->stopFromISR();
     }
 }
 
