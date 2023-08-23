@@ -2,6 +2,8 @@
 
 #include "Particle.h"
 #include "cli/conio.hpp"
+
+#include "cli/flog.hpp"
 #include "system.hpp"
 #include "sleepTask.hpp"
 #include "consts.hpp"
@@ -10,7 +12,7 @@ static void byteshiftl(void* pData, size_t dataLen, size_t nPos, uint8_t fill);
 
 void ChargeTask::init(void)
 {
-    SF_OSAL_printf("Entering SYSTEM_STATE_CHARGING\n");
+    SF_OSAL_printf("Entering SYSTEM_STATE_CHARGING" __NL__);
     pSystemDesc->pChargerCheck->start();
     this->ledStatus.setColor(CHARGE_RGB_LED_COLOR);
     this->ledStatus.setPattern(CHARGE_RGB_LED_PATTERN);
@@ -38,6 +40,15 @@ STATES_e ChargeTask::run(void)
         bool no_upload_flag;
         pSystemDesc->pNvram->get(NVRAM::NO_UPLOAD_FLAG, no_upload_flag);
         
+
+        //Check if currently charging using chargerCheck
+        if (!pSystemDesc->flags->hasCharger)
+        {
+            FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
+            SF_OSAL_printf("Going to sleep" __NL__);
+            return STATE_DEEP_SLEEP;
+        }
+
         os_thread_yield();
     }
 }

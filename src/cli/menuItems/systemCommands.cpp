@@ -13,6 +13,8 @@
 #include "cli/conio.hpp"
 #include "cli/cli.hpp"
 #include "cli/flog.hpp"
+#include "cli/cli.hpp"
+
 #include "system.hpp"
 #include "vers.hpp"
 

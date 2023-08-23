@@ -5,22 +5,18 @@
  * Pin Definitions
  *****************************************************************************/
 /**
- * USB Power Detection Pin 
+ * USB Power Detection Pin TODO
  */
-#define SF_USB_PWR_DETECT_PIN   45
-/**
- * Battery Charging Status Pin 
- */
-#define STAT_PIN              50
+#define SF_USB_PWR_DETECT_PIN   A4
+
 /**
  * Pin for the Battery Status LED
  */
-#define STAT_LED_PIN          40
+#define STAT_LED_PIN          A5
 /**
  * @brief Wakeup Pin
  * 
  */
-#define WKP_PIN               38
 
 /**
  * @brief ICM20648 Address TODO
@@ -28,6 +24,8 @@
  */
 #define SF_ICM20648_ADDR    (0x68 << 1)
 
+
+#define WKP_PIN               A7
 
 
 /*******************************************************************************
@@ -65,8 +63,6 @@
  * 
  */
 #define HARDWARE_REV 3
-
-
 
 /*******************************************************************************
  * System Configuration

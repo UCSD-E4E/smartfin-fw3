@@ -6,6 +6,11 @@
 
 #include "location_service.h"
 
+#define SYS_CHARGER_MIN_CHARGING_MS 5000
+#define SYS_CHARGER_MIN_CHARGED_MS 30000
+#define SYS_CHARGER_REFRESH_MS  500
+#define SYS_WATER_REFRESH_MS    1000
+#define SYS_BATTERY_MONITOR_MS  1000
 
 #define SYS_CHARGER_MIN_CHARGING_MS 5000
 #define SYS_CHARGER_MIN_CHARGED_MS 30000
@@ -29,7 +34,11 @@ typedef struct SystemDesc_
     NVRAM* pNvram;
     SFLed* pBatteryLED;
     const SystemFlags_t* flags;
+    LEDSystemTheme* systemTheme;
+    const SystemFlags_t* flags;
 }SystemDesc_t;
+
+extern SystemDesc_t* pSystemDesc;
 
 
 /**
@@ -39,6 +48,11 @@ typedef struct SystemDesc_
  */
 int SYS_initSys(void);
 
+/**
+ * @brief Displays all system components
+ * 
+ */
+void SYS_displaySys(void);
 
 extern SystemDesc_t* pSystemDesc;
 

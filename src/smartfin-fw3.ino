@@ -21,6 +21,9 @@
 #include "chargeTask.hpp"
 
 
+#include "sleepTask.hpp"
+#include "chargeTask.hpp"
+
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
 
@@ -53,13 +56,16 @@ void printState(STATES_e state);
 
 // setup() runs once, when the device is first turned on.
 void setup() {
+    uint16_t reset_reason;
+    System.enableFeature(FEATURE_RESET_INFO);
+    reset_reason = System.resetReason();
     Serial.begin(SF_SERIAL_SPEED);
 
     currentState = STATE_CLI;
 
     
     FLOG_Initialize();
-    FLOG_AddError(FLOG_SYS_START, 0); 
+    FLOG_AddError(FLOG_SYS_START, reset_reason); 
     time32_t bootTime = Time.now();
     SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
 
@@ -68,6 +74,8 @@ void setup() {
     SYS_initSys();
 
     initalizeTaskObjects();
+
+    currentState = STATE_CHARGE;
 }
 
 // loop() runs over and over again, as quickly as it can execute.
@@ -80,15 +88,14 @@ void mainThread(void* args) {
     StateMachine_t* pState;
     // Starting main thread
 
-    SF_OSAL_printf(__NL__ "Starting state");
     pState = findState(currentState);
-    SF_OSAL_printf(__NL__ "Current state: ");
+    SF_OSAL_printf(__NL__ "Starting state: ");
+
+    FLOG_AddError(FLOG_SYS_STARTSTATE, currentState);
     printState(currentState);
 
-
     if (pState == NULL) {
-        SF_OSAL_printf(__NL__ "State is null!");
-        return;
+        pState = findState(SF_DEFAULT_STATE);
     }
 
     pState->task->init();
@@ -121,12 +128,17 @@ static void initalizeTaskObjects(void)
 static StateMachine_t* findState(STATES_e state)
 {
     StateMachine_t* pStates;
+    // SF_OSAL_printf("Searching for %d" __NL__, state);
     for (pStates = stateMachine; pStates->task; pStates++)
     {
-      if (pStates->state == state)
-      {
+        // SF_OSAL_printf("Checking index %d, state: %d, task: 0x%08x" __NL__,
+        //                pStates - stateMachine,
+        //                pStates->state,
+        //                pStates->task);
+        if (pStates->state == state)
+        {
         return pStates;
-      }
+        }
     }
     SF_OSAL_printf("State not found!");
     return NULL;
@@ -135,19 +147,12 @@ static StateMachine_t* findState(STATES_e state)
 
 static void printState(STATES_e state)
 {
-  switch(state)
-  {
-    case STATE_CLI:
-    SF_OSAL_printf("STATE_CLI");
-    break;
-    case STATE_CHARGE:
-    SF_OSAL_printf("STATE_CHARGE");
-    break;
-    case STATE_DEEP_SLEEP:
-    SF_OSAL_printf("STATE_DEEP_SLEEP");
-    break;
-    default:
-    SF_OSAL_printf("UNKNOWN");
-    break;
-  }
+    const char* pStateName;
+    if (state >= STATE_N_STATES)
+    {
+        // Illegal state value
+        return;
+    }
+    pStateName = STATES_NAME_TAB[state];
+    SF_OSAL_printf("%s" __NL__, pStateName);
 }

@@ -25,8 +25,26 @@ class SleepTask : public Task {
         BOOT_BEHAVIOR_NOT_SET=255
     } BOOT_BEHAVIOR_e;
 
+    /**
+     * @brief Converts the boot behavior to a string
+     * 
+     * @param behavior Boot Behavior to convert
+     * 
+     * @return const char* Behavior name
+     */
+    static const char* strBootBehavior(BOOT_BEHAVIOR_e behavior);
+
+    /**
+     * @brief Updates boot behavior to NVRAM
+    */
     static void setBootBehavior(BOOT_BEHAVIOR_e);
+    /**
+     * @brief Get's current boot behavior from NVRAM
+    */
     static BOOT_BEHAVIOR_e getBootBehavior(void);
+    /**
+     * @brief Load boot behavior onto board
+    */
     static void loadBootBehavior(void);
     private:
     static BOOT_BEHAVIOR_e bootBehavior;
