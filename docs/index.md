@@ -12,3 +12,13 @@ As part of this shift, much of the code was re-writen, but the core logic largel
 First, read through our archeturual overview (see [architechture.md](architecture.md) and [arch.puml](arch.puml)). 
 
 Then, have a look at the overall program flow: [fw_flow.puml](fw_flow.puml)
+
+Now, you can decide what issue to focus on. Have a look at the issues or the list of work needed marked bellow. Once you decided on an issue, create a new branch off main and begin development from there.
+
+### Work Needed
+Here is a list of some important tasks for future development
+
+* Development of "Ride" task to manage data collection during surf ride. This can largely take the logic from Smartfin-fw2 intact, with minor changes to interact with the modified recorder class.
+* Porting over manufacturing tests for Smartfin-fw2
+* Porting over temperature callibration from Smartfin-fw2
+* Development of firmware for Wet/Dry, and eventually Salinity sensor
