@@ -15,6 +15,7 @@
 
 class ChargeTask : public Task{
     public:
+    /**
      * @brief initialize charge task
      * Sets LEDs
     */

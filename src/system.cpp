@@ -111,53 +111,6 @@ static int SYS_initLEDs(void)
     return 1;
 }
 
-static void SYS_chargerTask(void)
-{
-    bool isCharging = ~digitalRead(STAT_PIN);
-    systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
-    static int chargedTimestamp;
-    static int chargingTimestamp;
-
-    if(systemFlags.hasCharger)
-    {
-        // Check charging with hysteresis
-        if(isCharging)
-        {
-            chargingTimestamp++;
-            if(chargingTimestamp >= SYS_CHARGER_MIN_CHARGING_MS / SYS_CHARGER_REFRESH_MS)
-            {
-                chargingTimestamp = SYS_CHARGER_MIN_CHARGING_MS / SYS_CHARGER_REFRESH_MS;
-            }
-            chargedTimestamp = 0;
-        }
-        else
-        {
-            chargingTimestamp = 0;
-            chargedTimestamp++;
-            if(chargedTimestamp >= SYS_CHARGER_MIN_CHARGED_MS / SYS_CHARGER_REFRESH_MS)
-            {
-                chargedTimestamp = SYS_CHARGER_MIN_CHARGED_MS / SYS_CHARGER_REFRESH_MS;
-            }
-        }
-        if(chargingTimestamp >= SYS_CHARGER_MIN_CHARGING_MS / SYS_CHARGER_REFRESH_MS)
-        {
-            systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_BLINK);
-        }
-        if(chargedTimestamp >= SYS_CHARGER_MIN_CHARGED_MS / SYS_CHARGER_REFRESH_MS)
-        {
-            systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_ON);
-        }
-    }
-    else
-    {
-        chargedTimestamp = 0;
-        chargedTimestamp = 0;
-        systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
-        systemDesc.pChargerCheck->stopFromISR();
-    }
-}
-
-
 
 /**
  * @brief Charging task
@@ -252,19 +205,6 @@ static int SYS_initNVRAM(void)
     return 1;
 }
 
-/**
- * @brief Initializes NVRAM 
- * 
- * @return int sucsess
- */
-static int SYS_initNVRAM(void)
-{
-    NVRAM& nvram = NVRAM::getInstance();
-
-    systemDesc.pNvram = &nvram;
-
-    return 1;
-}
 
 /**
  * @brief Create a location service config object with defaults
