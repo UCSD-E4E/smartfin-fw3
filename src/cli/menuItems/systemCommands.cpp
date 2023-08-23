@@ -10,6 +10,8 @@
 #include "systemCommands.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "cli/cli.hpp"
+
 #include "system.hpp"
 #include "vers.hpp"
 
@@ -24,6 +26,11 @@ void CLI_connect(void)
 void CLI_disconnect(void)
 {
     Particle.disconnect();
+}
+
+void CLI_doSleep(void)
+{
+    CLI_nextState = STATE_DEEP_SLEEP;
 }
 
 void CLI_self_identify(void) 

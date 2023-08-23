@@ -20,6 +20,10 @@ void CLI_clearFLOG(void);
  * 
  */
 void CLI_testPrintf(void);
+/**
+ * @brief check charge ports
+*/
+void CLI_checkCharging(void);
 
 
 #endif

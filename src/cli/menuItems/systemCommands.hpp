@@ -21,4 +21,10 @@ void CLI_displayFLOG(void);
 void CLI_self_identify(void);
 
 
+/**
+ * @brief Enter sleep mode
+ * 
+ */
+void CLI_doSleep(void);
+
 #endif
