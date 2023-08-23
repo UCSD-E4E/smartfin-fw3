@@ -8,11 +8,11 @@
  * 
  */
 
+
 #include "led.hpp"
 
 #include "Particle.h"
 
-Timer SFLed::ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 SFLed* SFLed::firstLED = NULL;
 
 SFLed::SFLed(uint8_t pin, SFLed::SFLED_State_e state)
@@ -39,7 +39,7 @@ void SFLed::init(void)
     // Stack to top of LED linkedlist
     this->nextLED = SFLed::firstLED;
     SFLed::firstLED = this;
-    this->ledTimer.start();
+
 }
 
 SFLed::~SFLed(void)

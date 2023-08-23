@@ -29,8 +29,12 @@ typedef struct SystemDesc_
     NVRAM* pNvram;
     SFLed* pBatteryLED;
     tmpSensor* pTempSensor;
+    LEDSystemTheme* systemTheme;
     const SystemFlags_t* flags;
 }SystemDesc_t;
+
+extern SystemDesc_t* pSystemDesc;
+
 
 /**
  * @brief Initializes all system components
@@ -38,6 +42,12 @@ typedef struct SystemDesc_
  * @return int 
  */
 int SYS_initSys(void);
+
+/**
+ * @brief Displays all system components
+ * 
+ */
+void SYS_displaySys(void);
 
 extern SystemDesc_t* pSystemDesc;
 
