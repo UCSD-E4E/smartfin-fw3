@@ -91,10 +91,13 @@ static int SYS_initLEDs(void)
     return 1;
 }
 
-
-static void SYS_chargerTask(void)
+/**
+ * @brief Charging task
+ * 
+ */
+void SYS_chargerTask(void)
 {
-    bool isCharging = ~digitalRead(STAT_PIN);
+    bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING;
     systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
     static int chargedTimestamp;
     static int chargingTimestamp;
@@ -133,8 +136,8 @@ static void SYS_chargerTask(void)
     {
         chargedTimestamp = 0;
         chargedTimestamp = 0;
+        FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
         systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
-        systemDesc.pChargerCheck->stopFromISR();
     }
 }
 
