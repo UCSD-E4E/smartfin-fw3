@@ -11,20 +11,18 @@
  * 
  * Modified by Emily Thorpe - Auguest 2023
  ***************************************************************/
-#include "ICM_20948.h" // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
+#include "ICM_20948.h" 
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
 
 #define SERIAL_PORT Serial
 
 #define WIRE_PORT Wire
 #define AD0_VAL 1
 
-ICM_20948_I2C myICM; // Otherwise create an ICM_20948_I2C object
+ICM_20948_I2C myICM; 
 
-void printPaddedInt16b(int16_t val);
-void printRawAGMT(ICM_20948_AGMT_t agmt);
-void printFormattedFloat(float val, uint8_t leading, uint8_t decimals);
-void printScaledAGMT(ICM_20948_I2C *sensor);
+
 float getAccMG( int16_t raw, uint8_t fss );
 float getGyrDPS( int16_t raw, uint8_t fss );
 float getMagUT( int16_t raw );
@@ -32,29 +30,18 @@ float getTmpC( int16_t raw );
 
 void setupICM(void)
 {
+    WIRE_PORT.begin();
+    WIRE_PORT.setClock(400000);
 
-  WIRE_PORT.begin();
-  WIRE_PORT.setClock(400000);
-
-  //myICM.enableDebugging(); // Uncomment this line to enable helpful debug messages on Serial
-
-  bool initialized = false;
-  while (!initialized)
-  {
     myICM.begin(WIRE_PORT, AD0_VAL);
 
     SF_OSAL_printf("Initialization of the sensor returned: ");
     SF_OSAL_printf(myICM.statusString());
     if (myICM.status != ICM_20948_Stat_Ok)
     {
-      SF_OSAL_printf("Trying again...");
-      delay(500);
+        SF_OSAL_printf("ICM fail");
+        FLOG_AddError(FLOG_ICM_FAIL, 0);
     }
-    else
-    {
-      initialized = true;
-    }
-  }
 }
 
 
