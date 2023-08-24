@@ -26,6 +26,8 @@ class SFLed
     SFLED_State_e getState(void) const;
     void toggle(void);
     void init(void);
+    static void doLEDs(void);
+
 
     private:
     uint8_t pin;
@@ -34,6 +36,5 @@ class SFLed
 
     static SFLed* firstLED;
     static Timer ledTimer;
-    static void doLEDs(void);
 };
 #endif

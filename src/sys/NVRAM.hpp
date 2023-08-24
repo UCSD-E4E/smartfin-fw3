@@ -44,6 +44,14 @@ class NVRAM
     };
     static NVRAM& getInstance(void);
 
+    /**
+     * @brief Get data from NVRAM memory
+     * 
+     * @tparam T Type
+     * @param dataID ID of data to get
+     * @param pData Data
+     * @return int Sucsess
+     */
     template <typename T> int get(DATA_ID_e dataID, T& pData)
     {
         uint32_t addr;
@@ -64,6 +72,15 @@ class NVRAM
         EEPROM.get(addr, pData);
         return 1;
     }
+
+    /**
+     * @brief Put data into memory
+     * 
+     * @tparam T Typename
+     * @param dataID Data ID
+     * @param pData data
+     * @return int Sucsess value
+     */
     template <typename T> int put(DATA_ID_e dataID, const T& pData)
     {
         uint32_t addr;
@@ -85,6 +102,7 @@ class NVRAM
         return 1;
     }
 
+    void displayNVRAM(void);
 
     private:
     const nvramTableEntry_t* getTableEntry(DATA_ID_e);

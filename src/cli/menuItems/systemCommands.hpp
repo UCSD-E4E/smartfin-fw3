@@ -14,6 +14,12 @@ void CLI_disconnect(void);
  * @brief Display FLOG errors
 */
 void CLI_displayFLOG(void);
+/**
+ * @brief Display device ID and firmware version
+ * 
+ */
+void CLI_self_identify(void);
+
 
 /**
  * @brief Enter sleep mode

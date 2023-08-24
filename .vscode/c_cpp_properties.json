@@ -3,8 +3,8 @@
         {
             "name": "Particle",
             "includePath": [
-                "${workspaceFolder}/**",
-                "~\\.particle\\toolchains\\deviceOS\\5.3.0\\user\\inc"
+                "${workspaceFolder}\\src",
+                "~/.particle/toolchains/deviceOS/5.3.0/user/inc"
             ],
             "defines": [
                 "_DEBUG",
@@ -19,7 +19,19 @@
             "configurationProvider": "particle.particle-vscode-core",
             "mergeConfigurations": true,
             "browse": {
-                "limitSymbolsToIncludedHeaders": true
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "${default}",
+                    "~\\.particle\\toolchains\\deviceOS\\5.3.0\\user\\inc",
+                    "~\\.particle\\toolchains\\deviceOS\\5.3.0\\hal\\inc",
+                    "~\\.particle\\toolchains\\deviceOS\\5.3.0\\hal\\shared",
+                    "~\\.particle\\toolchains\\deviceOS\\5.3.0\\hal\\src\\gcc",
+                    "~\\.particle\\toolchains\\deviceOS\\5.3.0\\services\\inc",
+                    "~\\.particle\\toolchains\\deviceOS\\5.3.0\\system",
+                    "~\\.particle\\toolchains\\deviceOS\\5.3.0\\wiring",
+                    "~\\.particle\\toolchains\\deviceOS\\5.3.0\\third_party\\nrf5_sdk\\nrf5_sdk\\modules\\nrfx\\mdk",
+                    "${workspaceFolder}\\src"
+                ]
             }
         }
     ],

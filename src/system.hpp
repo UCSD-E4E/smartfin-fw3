@@ -31,6 +31,7 @@ typedef struct SystemDesc_
     WaterSensor* pWaterSensor;
     SFLed* pBatteryLED;
     SFLed* pWaterLED;
+    LEDSystemTheme* systemTheme;
     const SystemFlags_t* flags;
 }SystemDesc_t;
 
@@ -44,8 +45,11 @@ extern SystemDesc_t* pSystemDesc;
  */
 int SYS_initSys(void);
 
-
-
+/**
+ * @brief Displays all system components
+ * 
+ */
+void SYS_displaySys(void);
 
 extern SystemDesc_t* pSystemDesc;
 
