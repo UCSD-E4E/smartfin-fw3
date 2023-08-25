@@ -36,11 +36,6 @@ STATES_e ChargeTask::run(void)
             }
         }
 
-        //makes sure we don't go into upload mode in 3g off booting
-        bool no_upload_flag;
-        pSystemDesc->pNvram->get(NVRAM::NO_UPLOAD_FLAG, no_upload_flag);
-        
-
         //Check if currently charging using chargerCheck
         if (!pSystemDesc->flags->hasCharger)
         {
