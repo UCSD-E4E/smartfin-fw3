@@ -25,8 +25,6 @@
 
 #include "system.hpp"
 
-#include "../system.hpp"
-
 #include "Particle.h"
 
 
