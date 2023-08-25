@@ -12,12 +12,6 @@
 #define SYS_WATER_REFRESH_MS    1000
 #define SYS_BATTERY_MONITOR_MS  1000
 
-#define SYS_CHARGER_MIN_CHARGING_MS 5000
-#define SYS_CHARGER_MIN_CHARGED_MS 30000
-#define SYS_CHARGER_REFRESH_MS  500
-#define SYS_WATER_REFRESH_MS    1000
-#define SYS_BATTERY_MONITOR_MS  1000
-
 typedef volatile struct SystemFlags_
 {
     bool batteryLow;
