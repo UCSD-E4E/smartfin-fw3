@@ -4,7 +4,6 @@
 #include "product.hpp"
 #include "system.hpp"
 #include "cli/conio.hpp"
-#include "consts.hpp"
 
 #include "consts.hpp"
 
@@ -115,6 +114,7 @@ void SleepTask::setBootBehavior(SleepTask::BOOT_BEHAVIOR_e behavior)
     SleepTask::bootBehavior = behavior;
     pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, SleepTask::bootBehavior);
     pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, true);
+
 }
 
 const char* SleepTask::strBootBehavior(BOOT_BEHAVIOR_e behavior)
