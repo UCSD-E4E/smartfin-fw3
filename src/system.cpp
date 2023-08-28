@@ -11,12 +11,15 @@
 #include "location_service.h"
 #include "Particle.h"
 
+
+
 char SYS_deviceID[32];
 
 SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
 static LEDSystemTheme ledTheme;
+
 
 
 static void SYS_chargerTask(void);
@@ -57,6 +60,7 @@ int SYS_initSys(void)
 
     return 1;
 }
+
 
 /**
  * @brief Initialize system tasks (charging and sleep)
@@ -169,6 +173,7 @@ static void SYS_waterTask(void)
 }
 
 
+
 /**
  * @brief Initialization function for GPS 
  * Ublox gps, handled by @file gps/location_service.cpp
@@ -201,6 +206,7 @@ static int SYS_initGPS(void)
     
     return 1;
 }
+
 
 /**
  * @brief Initializes NVRAM 

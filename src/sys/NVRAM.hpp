@@ -44,6 +44,7 @@ class NVRAM
     };
     static NVRAM& getInstance(void);
 
+
     /**
      * @brief Get data from NVRAM memory
      * 

@@ -7,6 +7,9 @@
  * 
 */
 #include "debugCommands.hpp"
+
+#include "system.hpp"
+
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "cli/cli.hpp"
@@ -15,6 +18,8 @@
 #include "product.hpp"
 
 #include "Particle.h"
+
+#include "imu/imu.hpp"
 #include "consts.hpp"
 
 #include "system.hpp"
@@ -69,27 +74,37 @@ void CLI_testPrintf(void)
 
 }
 
-void CLI_monitorWetDry(void)
+
+void CLI_monitorIMU(void)
 {
-    uint8_t waterDetect;
     char ch;
 
+    float accelData[3] = {0,0,0};
+    float gyroData[3] = {0,0,0};
+    float magData[3] = {0,0,0};
+    float tmpData = 0;
+
+    setupICM();
     while(1)
     {
-		if(kbhit()) 
-		{
-			ch = getch();
+		    if(kbhit()) 
+		    {
+			      ch = getch();
 
-			if('q' == ch) 
-			{
+			      if('q' == ch) 
+			      {
                 break;
-			}
-		}
+			      }
+        }
+        getAccelerometer(accelData, accelData + 1, accelData + 2);
+        getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+        getMagnetometer(magData, magData + 1, magData + 2);
+        getTemperature(&tmpData);
 
-        waterDetect = pSystemDesc->pWaterSensor->getLastReading();
-
-        SF_OSAL_printf("Water Reading: %d", waterDetect);
-
+        SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
+        SF_OSAL_printf("Gyroscope: %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
+        SF_OSAL_printf("Magnetometor:  %8.4f\t%8.4f\t%8.4f" __NL__, magData[0], magData[1], magData[2]);
+        SF_OSAL_printf("Temperature: %8.4f" __NL__, tmpData);
         delay(500);
     }
 }
@@ -98,3 +113,36 @@ void CLI_doMfgTest(void)
 {
     CLI_nextState = STATE_MFG_TEST;
 }
+  
+
+void CLI_monitorWetDry(void)
+{
+    uint8_t waterDetect;
+    char ch;
+
+    float accelData[3] = {0,0,0};
+    float gyroData[3] = {0,0,0};
+    float magData[3] = {0,0,0};
+    float tmpData = 0;
+
+    setupICM();
+    while(1)
+    {
+		    if(kbhit()) 
+		    {
+			      ch = getch();
+
+			      if('q' == ch) 
+			      {
+                break;
+			      }
+        }
+      
+        waterDetect = pSystemDesc->pWaterSensor->getLastReading();
+
+        SF_OSAL_printf("Water Reading: %d", waterDetect);
+
+        delay(500);
+    }
+}
+

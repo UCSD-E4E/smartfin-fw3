@@ -28,6 +28,12 @@
  */
 #define WATER_MFG_TEST_EN     A3
 
+/**
+ * @brief ICM20648 Address TODO
+ * 
+ */
+#define SF_ICM20648_ADDR    (0x68 << 1)
+
 #define WKP_PIN               A7
 
 
@@ -72,8 +78,6 @@
  * 
  */
 #define HARDWARE_REV 3
-
-
 
 /*******************************************************************************
  * System Configuration

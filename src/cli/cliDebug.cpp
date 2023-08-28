@@ -24,6 +24,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include "cli/menuItems/debugCommands.hpp"
+
 const Menu_t CLI_debugMenu[] = 
 {
     {1, "Display Fault Log", &CLI_displayFLOG},
@@ -31,6 +33,7 @@ const Menu_t CLI_debugMenu[] =
     {3, "Restart System", &CLI_restart},
     {4, "MFG Test", &CLI_doMfgTest},
     {5, "Wet/Dry Monitor", &CLI_monitorWetDry},
+    {6, "Monitor IMU", &CLI_monitorIMU},
     {0, NULL, NULL}
 };
 
