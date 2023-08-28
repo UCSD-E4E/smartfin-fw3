@@ -14,7 +14,7 @@ gps-ublox       | 1.2.0   | Apache 2.0 | https://github.com/particle-iot/gps-ubl
 gps-quectel     | 1.0.0   | Apache 2.0 | https://github.com/particle-iot/gps-quectel      | lib/gps-quectel
 gps-nmea-parser | 1.2.0   | Apache 2.0 | https://github.com/particle-iot/gps-nmea-parser/ | lib/gps-nmea-parser
 tracker edge    | v18     | Apache 2.0 | https://github.com/particle-iot/tracker-edge     | lib/tracker-edge
-
+SparkFun ICM    | 1.2.0   | MIT     | https://github.com/UCSD-E4E/SparkFun_ICM-20948_ParticleLibrary | lib/SparkFun_ICM-20948_ParticleLibrary
 
 # LED Behavior
 

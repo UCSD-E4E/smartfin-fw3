@@ -58,6 +58,7 @@ class CLI : public Task
         CLI_menu_t* CLI_findCommand(const char *cmd);
 };
 
+
 /**
  * @brief State to go to after CLI
  * Used for changing state within CLI

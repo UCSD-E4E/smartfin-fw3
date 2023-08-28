@@ -26,6 +26,7 @@ class SFLed
     SFLED_State_e getState(void) const;
     void toggle(void);
     void init(void);
+
     static void doLEDs(void);
 
 

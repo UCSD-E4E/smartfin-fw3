@@ -21,9 +21,12 @@ void CLI_clearFLOG(void);
  */
 void CLI_testPrintf(void);
 /**
+ * @brief Monitor IMU (gyro and cellerular )
+*/
+void CLI_monitorIMU(void);
+/**
  * @brief check charge ports
 */
 void CLI_checkCharging(void);
-
 
 #endif
