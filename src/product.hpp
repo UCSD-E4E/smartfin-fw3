@@ -21,7 +21,7 @@
 /**
  * Water Detect Pin
  */
-#define WATER_DETECT_PIN      72
+#define WATER_DETECT_PIN      A6
 /**
  * @brief Manufacturing Water Detect Pin
  * 
