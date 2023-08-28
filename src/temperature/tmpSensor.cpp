@@ -15,6 +15,7 @@
 #include "max31725_cpp.h"
 
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
 #include "consts.hpp"
 
 #include <stdint.h>
@@ -27,6 +28,10 @@ m_sensor(sensor)
 bool tmpSensor::init()
 {
     int sucsess = m_sensor.write_cfg_reg(MAX31725_CFG_CONTINUOUS);
+    if(!success) 
+    {
+        FLOG_AddError(FLOG_TEMP_FAIL, 0);
+    }
     return sucsess;
 }
 
