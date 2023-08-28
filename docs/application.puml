@@ -1,0 +1,66 @@
+@startuml Service Diagram
+package "Device OS" {
+    [Cellular] as cellular
+    [I2C] as i2c
+    [Serial] as serial
+    [Filesystem] as fs
+    [SPI] as spi
+    [NVRAM] as nvram
+}
+
+
+package "Application" {
+    [CLI] as cli
+    [Ride] as ride
+    [Charge Task] as charge_task
+    [Sleep Task] as sleep_task
+    [Location Service] as loc_service
+}
+
+package "Board Support Package" {
+    [Temp Sensor] as temp_sensor
+    [Water Sensor] as water_sensor
+    [GPS] as gps
+    [LED] as led
+    [ICM] as icm
+}
+[ConIO] as conio
+[Recorder] as recorder
+[FLOG] as flog
+
+ride --> temp_sensor
+ride --> gps
+ride --> icm
+ride --> recorder
+ride --> flog
+ride --> water_sensor
+loc_service --> gps
+charge_task --> led
+charge_task --> flog
+sleep_task --> led
+sleep_task --> nvram
+sleep_task --> flog
+
+cli --> gps
+cli --> temp_sensor
+cli --> conio
+cli --> flog
+cli --> icm
+cli --> nvram
+cli --> water_sensor
+
+gps --> spi
+icm --> i2c
+water_sensor --> i2c
+temp_sensor --> i2c
+conio --> serial
+recorder --> fs
+recorder --> cellular
+recorder --> nvram
+recorder --> flog
+conio --> flog
+gps --> flog
+icm --> flog
+water_sensor --> flog
+temp_sensor --> flog
+@enduml
