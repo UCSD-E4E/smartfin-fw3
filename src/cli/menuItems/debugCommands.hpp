@@ -36,5 +36,13 @@ void CLI_testHasData(void);
  * @brief Delete all files
 */
 void CLI_wipeFileSystem(void);
+/**
+ * @brief Monitor IMU (gyro and cellerular )
+*/
+void CLI_monitorIMU(void);
+/**
+ * @brief check charge ports
+*/
+void CLI_checkCharging(void);
 
 #endif

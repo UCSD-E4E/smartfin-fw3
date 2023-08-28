@@ -29,6 +29,7 @@ typedef struct SystemDesc_
     Timer* pChargerCheck;
     NVRAM* pNvram;
     SFLed* pBatteryLED;
+    LEDSystemTheme* systemTheme;
     const SystemFlags_t* flags;
 }SystemDesc_t;
 
@@ -43,6 +44,11 @@ extern SystemDesc_t* pSystemDesc;
 void SYS_initSys(void);
 
 
+/**
+ * @brief Displays all system components
+ * 
+ */
+void SYS_displaySys(void);
 
 extern SystemDesc_t* pSystemDesc;
 

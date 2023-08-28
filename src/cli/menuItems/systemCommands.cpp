@@ -8,13 +8,19 @@
 */
 
 #include "systemCommands.hpp"
+
+
 #include "cli/conio.hpp"
+#include "cli/cli.hpp"
 #include "cli/flog.hpp"
 #include "states.hpp"
 #include "cli/cli.hpp"
 #include "cellular/dataCollection.hpp"
+
 #include "system.hpp"
 #include "vers.hpp"
+
+#include "states.hpp"
 
 #include "Particle.h"
 

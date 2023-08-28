@@ -3,6 +3,13 @@
 
 #include "task.hpp"
 
+
+#define CLI_RGB_LED_COLOR       SF_CLI_RGB_LED_COLOR
+#define CLI_RGB_LED_PATTERN     SF_CLI_RGB_LED_PATTERN
+#define CLI_RGB_LED_PERIOD      SF_CLI_RGB_LED_PERIOD
+#define CLI_RGB_LED_PRIORITY    SF_CLI_RGB_LED_PRIORITY
+
+
 /**
  * @brief CLI Menu Entry
  * 
@@ -51,6 +58,13 @@ class CLI : public Task
         CLI_menu_t* CLI_findCommand(const char *cmd);
 };
 
+extern STATES_e CLI_nextState;
+
+/**
+ * @brief State to go to after CLI
+ * Used for changing state within CLI
+ * 
+ */
 extern STATES_e CLI_nextState;
 
 #endif

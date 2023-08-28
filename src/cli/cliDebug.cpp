@@ -26,7 +26,6 @@
 #include <cstdlib>
 #include <cstdio>
 
-
 const Menu_t CLI_debugMenu[] = 
 {
     {1, "Display Fault Log", &CLI_displayFLOG},
@@ -37,6 +36,7 @@ const Menu_t CLI_debugMenu[] =
     {6, "test has data", &CLI_testHasData},
     {7, "test num files", &CLI_testGetNumFiles},
     {8, "wipe file system", &CLI_wipeFileSystem},
+    {9, "Monitor IMU", &CLI_monitorIMU},
     {0, NULL, NULL}
 };
 

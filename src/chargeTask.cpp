@@ -2,6 +2,8 @@
 
 #include "Particle.h"
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
+
 #include "system.hpp"
 #include "sleepTask.hpp"
 #include "consts.hpp"
@@ -32,6 +34,14 @@ STATES_e ChargeTask::run(void)
             {
                 return STATE_CLI;
             }
+        }
+
+        //Check if currently charging using chargerCheck
+        if (!pSystemDesc->flags->hasCharger)
+        {
+            FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
+            SF_OSAL_printf("Going to sleep" __NL__);
+            return STATE_DEEP_SLEEP;
         }
 
         os_thread_yield();

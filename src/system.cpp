@@ -1,37 +1,50 @@
 #include "system.hpp"
 
-#include "location_service.h"
-#include "Particle.h"
-#include "product.hpp"
-
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "SPI.h"
 #include <fcntl.h>
 
 #include "consts.hpp"
+#include "states.hpp"
+#include "product.hpp"
+
+#include "sys/led.hpp"
+
+#include "location_service.h"
+#include "Particle.h"
+
+
 
 char SYS_deviceID[32];
 
 SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
+static LEDSystemTheme ledTheme;
 
 Recorder dataRecorder;
+
 
 
 static void SYS_chargerTask(void);
 static int SYS_initGPS(void);
 static int SYS_initNVRAM(void);
 static int SYS_initTasks(void);
+
+static int SYS_initLEDs(void);
 static int SYS_initFS();
 
-static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 
+static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
+
+static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
+static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 
 static LocationServiceConfiguration create_location_service_config();
 
-void SYS_initSys(void)
+
+int SYS_initSys(void)
 {
     memset(pSystemDesc, 0, sizeof(SystemDesc_t));
     systemDesc.deviceID = SYS_deviceID;
@@ -46,21 +59,68 @@ void SYS_initSys(void)
     SYS_initFS();
 }
 
+/**
+ * @brief Initialize file system
+ * 
+ * @return int 
+ */
+static int SYS_initFS(void)
+{
+    // DP_spiFlash.begin();
+    // DP_fs.withPhysicalAddr(SF_FLASH_SIZE_MB * 1024 * 1024);
+    // SF_OSAL_printf("Device ID : %s", DP_spiFlash.jedecIdRead());
+    // FLOG_AddError(FLOG_SYS_MOUNT_FAIL, DP_fs.mountAndFormatIfNecessary());
+
+    // systemDesc.pFileSystem = &DP_fs;
+
+    dataRecorder.init();
+    systemDesc.pRecorder = &dataRecorder;
+
+    // EXAMPLE
+}
+
+ /**
+ * @brief Initialize system tasks (charging and sleep)
+ * 
+ * @return int 
+ */
 static int SYS_initTasks(void)
 {
-    pinMode(STAT_PIN, INPUT);
-    pinMode(SF_USB_PWR_DETECT_PIN, INPUT);
+    pinMode(SF_USB_PWR_DETECT_PIN, INPUT_PULLDOWN);
     systemFlags.hasCharger = true;
     systemFlags.batteryLow = false;
 
     systemDesc.pChargerCheck = &chargerTimer;
+    ledTimer.start();
+
     return 1;
 }
 
+static int SYS_initLEDs(void)
+{
+    batteryLED.init();
 
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_OFF, 0x000000, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_ON, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_CONNECTING, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_DHCP, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_NETWORK_CONNECTED, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTING, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
+    ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTED, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
+    ledTheme.setSignal(LED_SIGNAL_CLOUD_HANDSHAKE, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
+    
+    systemDesc.pBatteryLED = &batteryLED;
+    systemDesc.systemTheme = &ledTheme;
+    return 1;
+}
+
+/**
+ * @brief Charging task
+ * 
+ */
 void SYS_chargerTask(void)
 {
-    bool isCharging = ~digitalRead(STAT_PIN);
+    bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING;
     systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
     static int chargedTimestamp;
     static int chargingTimestamp;
@@ -99,34 +159,12 @@ void SYS_chargerTask(void)
     {
         chargedTimestamp = 0;
         chargedTimestamp = 0;
+        FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
         systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
-        systemDesc.pChargerCheck->stopFromISR();
     }
 }
 
 
-/**
- * @brief Initialize file system
- * 
- * @return int 
- */
-static int SYS_initFS(void)
-{
-    // DP_spiFlash.begin();
-    // DP_fs.withPhysicalAddr(SF_FLASH_SIZE_MB * 1024 * 1024);
-    // SF_OSAL_printf("Device ID : %s", DP_spiFlash.jedecIdRead());
-    // FLOG_AddError(FLOG_SYS_MOUNT_FAIL, DP_fs.mountAndFormatIfNecessary());
-
-    // systemDesc.pFileSystem = &DP_fs;
-
-    dataRecorder.init();
-    systemDesc.pRecorder = &dataRecorder;
-
-    // EXAMPLE
-    
-
-    return 1;
-}
 
 /**
  * @brief Initialization function for GPS 
@@ -161,6 +199,12 @@ static int SYS_initGPS(void)
     return 1;
 }
 
+
+/**
+ * @brief Initializes NVRAM 
+ * 
+ * @return int sucsess
+ */
 static int SYS_initNVRAM(void)
 {
     NVRAM& nvram = NVRAM::getInstance();
@@ -191,4 +235,16 @@ static LocationServiceConfiguration create_location_service_config() {
     config.enableAssistNowAutonomous(LOCATION_CONFIG_ENABLE_ASSISTNOW_AUTONOMOUS);
 
     return config;
+}
+
+void SYS_displaySys(void)
+{
+    SF_OSAL_printf("Device ID: %s" __NL__, pSystemDesc->deviceID);
+    SF_OSAL_printf("Location Service: 0x%08x" __NL__, pSystemDesc->pLocService);
+    SF_OSAL_printf("Charger Check Timer: 0x%08x" __NL__, pSystemDesc->pChargerCheck);
+    SF_OSAL_printf("NVRAM: 0x%08x" __NL__, pSystemDesc->pNvram);
+    SF_OSAL_printf("Battery LED: 0x%08x" __NL__, pSystemDesc->pBatteryLED);
+    SF_OSAL_printf("Battery Low Flag: %d" __NL__, pSystemDesc->flags->batteryLow);
+    SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
+    SF_OSAL_printf("In Water Flag: %d" __NL__, pSystemDesc->flags->inWater);
 }

@@ -7,13 +7,19 @@
  * 
 */
 #include "debugCommands.hpp"
+
+#include "system.hpp"
+
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include <fcntl.h>
 #include <dirent.h>
 
+#include "product.hpp"
 
 #include "Particle.h"
+
+#include "imu/imu.hpp"
 #include "consts.hpp"
 #include "cellular/recorder.hpp"
 #include "system.hpp"
@@ -76,6 +82,13 @@ void CLI_wipeFileSystem(void)
     {
         unlink(readdir(directory)->d_name);
     }
+
+}
+
+void CLI_checkCharging(void) 
+{
+    SF_OSAL_printf("Charging? %d" __NL__, System.batteryState() == BATTERY_STATE_CHARGING);
+    SF_OSAL_printf("Powered? %d" __NL__, digitalRead(SF_USB_PWR_DETECT_PIN));
 }
 
 void CLI_testPrintf(void)
@@ -104,4 +117,40 @@ void CLI_testPrintf(void)
     SF_OSAL_printf("Precision HEX: %4X" __NL__, 123);
     SF_OSAL_printf("Zero Prepend Precision HEX: %04X" __NL__, 123);
 
+}
+
+
+void CLI_monitorIMU(void)
+{
+    char ch;
+
+    float accelData[3] = {0,0,0};
+    float gyroData[3] = {0,0,0};
+    float magData[3] = {0,0,0};
+    float tmpData = 0;
+
+    setupICM();
+    while(1)
+    {
+		if(kbhit()) 
+		{
+			ch = getch();
+
+			if('q' == ch) 
+			{
+                break;
+			}
+		}
+
+        getAccelerometer(accelData, accelData + 1, accelData + 2);
+        getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+        getMagnetometer(magData, magData + 1, magData + 2);
+        getTemperature(&tmpData);
+
+        SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
+        SF_OSAL_printf("Gyroscope: %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
+        SF_OSAL_printf("Magnetometor:  %8.4f\t%8.4f\t%8.4f" __NL__, magData[0], magData[1], magData[2]);
+        SF_OSAL_printf("Temperature: %8.4f" __NL__, tmpData);
+        delay(500);
+    }
 }
