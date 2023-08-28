@@ -38,34 +38,34 @@ The main firwmare logic is stored in `smartfin-fw3.ino`, holding the setup and m
 
 ### Components
 
-********Utility/Component Classes:********
+### Utility/Component Classes:
 
-********Flog********
+#### Flog
 
 - Various debugging messages to log
 
-************FileCLI************
+#### FileCLI
 
 - Utiltiies to allow cli acsess of on-storage data and files
 
-********************DataUpload********************
+#### DataUpload
 
 - Uploads data to internet server
 
-**************MFGTest**************
+#### MFGTest
 
 - Manufacturing testing of various sensors
 
-******************Scheduler:******************
+#### Scheduler
 
 - Schedules tasks for callibration and deployment
 
-******************Recorder:******************
+#### Recorder
 
 - System to store data to onboard from sensors
 - Sleep until miliseconds function
 
-************System************
+#### System
 
 - Main file that initalizes all sensors and components
     - Initalized components:
