@@ -73,6 +73,7 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_GPS_INIT_FAIL, "GPS Init Fail"},
     {FLOG_GPS_START_FAIL, "GPS Start Fail"},
     {FLOG_TEMP_FAIL, "Temp Start Fail"},
+    {FLOG_ICM_FAIL, "ICM Fail"},
     {FLOG_CHARGER_REMOVED, "Charger removed"},
     {FLOG_NULL, NULL}
 };

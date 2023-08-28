@@ -175,6 +175,7 @@ void CLI_manageInput(char* inputBuffer)
     }
 }
 
+
 void CLI::exit() 
 {
     pSystemDesc->pChargerCheck->stop();

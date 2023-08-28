@@ -18,6 +18,14 @@
  * @brief Wakeup Pin
  * 
  */
+
+/**
+ * @brief ICM20648 Address TODO
+ * 
+ */
+#define SF_ICM20648_ADDR    (0x68 << 1)
+
+
 #define WKP_PIN               A7
 
 

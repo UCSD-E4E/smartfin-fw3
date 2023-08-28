@@ -13,6 +13,7 @@
 
 #include "Particle.h"
 
+
 SFLed* SFLed::firstLED = NULL;
 
 SFLed::SFLed(uint8_t pin, SFLed::SFLED_State_e state)

@@ -39,6 +39,8 @@ typedef enum FLOG_CODE_
     FLOG_GPS_START_FAIL   =0x0606,
     FLOG_TEMP_FAIL        =0x0701,
     FLOG_CHARGER_REMOVED  =0x0702,
+    FLOG_ICM_FAIL         =0x0703,
+    FLOG_CHARGER_REMOVED  =0x0704
 }FLOG_CODE_e;
 
 void FLOG_Initialize(void);

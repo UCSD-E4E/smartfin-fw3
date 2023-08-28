@@ -17,6 +17,8 @@
 
 #include "Particle.h"
 
+
+
 char SYS_deviceID[32];
 
 SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
@@ -161,6 +163,7 @@ void SYS_chargerTask(void)
 }
 
 
+
 /**
  * @brief Initialization function for GPS 
  * Ublox gps, handled by @file gps/location_service.cpp
@@ -194,6 +197,12 @@ static int SYS_initGPS(void)
     return 1;
 }
 
+
+/**
+ * @brief Initializes NVRAM 
+ * 
+ * @return int sucsess
+ */
 static int SYS_initNVRAM(void)
 {
     NVRAM& nvram = NVRAM::getInstance();

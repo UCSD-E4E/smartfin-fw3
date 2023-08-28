@@ -34,6 +34,7 @@ const Menu_t CLI_debugMenu[] =
     {2, "Clear Fault Log", &CLI_clearFLOG},
     {3, "Restart System", &CLI_restart},
     {4, "Monitor Temperature", &CLI_monitorTempSensor},
+    {5, "Monitor IMU", &CLI_monitorIMU},
     {0, NULL, NULL}
 };
 

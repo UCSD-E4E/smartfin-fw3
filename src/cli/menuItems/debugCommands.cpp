@@ -8,11 +8,14 @@
 */
 #include "debugCommands.hpp"
 
+
+#include "system.hpp"
+
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "product.hpp"
 
-#include "system.hpp"
+#include "imu/imu.hpp"
 #include "consts.hpp"
 
 
@@ -102,4 +105,39 @@ void CLI_monitorTempSensor(void)
 
     SF_OSAL_printf(__NL__);
     pSystemDesc->pTempSensor->stop();
+}
+
+void CLI_monitorIMU(void)
+{
+    char ch;
+
+    float accelData[3] = {0,0,0};
+    float gyroData[3] = {0,0,0};
+    float magData[3] = {0,0,0};
+    float tmpData = 0;
+
+    setupICM();
+    while(1)
+    {
+		if(kbhit()) 
+		{
+			ch = getch();
+
+			if('q' == ch) 
+			{
+                break;
+			}
+		}
+
+        getAccelerometer(accelData, accelData + 1, accelData + 2);
+        getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+        getMagnetometer(magData, magData + 1, magData + 2);
+        getTemperature(&tmpData);
+
+        SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
+        SF_OSAL_printf("Gyroscope: %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
+        SF_OSAL_printf("Magnetometor:  %8.4f\t%8.4f\t%8.4f" __NL__, magData[0], magData[1], magData[2]);
+        SF_OSAL_printf("Temperature: %8.4f" __NL__, tmpData);
+        delay(500);
+    }
 }
