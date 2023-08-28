@@ -1,0 +1,44 @@
+@startuml Service Diagram
+package "Device OS" {
+    [Cellular] as cellular
+    [I2C] as i2c
+    [Serial] as serial
+    [Filesystem] as fs
+    [SPI] as spi
+}
+
+
+package "Application" {
+    [CLI] as cli
+    [Ride] as ride
+}
+
+package "Board Support Package" {
+    [Temp Sensor] as temp_sensor
+    [Water Sensor] as water_sensor
+    [GPS] as gps
+    [ICM] as icm
+}
+[ConIO] as conio
+[Recorder] as recorder
+
+ride --> temp_sensor
+ride --> gps
+ride --> icm
+ride --> recorder
+ride --> water_sensor
+
+cli --> gps
+cli --> temp_sensor
+cli --> conio
+cli --> icm
+cli --> water_sensor
+
+gps --> spi
+icm --> i2c
+water_sensor --> i2c
+temp_sensor --> i2c
+conio --> serial
+recorder --> fs
+recorder --> cellular
+@enduml
