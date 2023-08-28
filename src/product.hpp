@@ -17,16 +17,16 @@
 /**
  * Water Detect Enable Pin
  */
-#define WATER_DETECT_EN_PIN   29
+#define WATER_DETECT_EN_PIN   A2
 /**
  * Water Detect Pin
  */
-#define WATER_DETECT_PIN      28
+#define WATER_DETECT_PIN      72
 /**
  * @brief Manufacturing Water Detect Pin
  * 
  */
-#define WATER_MFG_TEST_EN     23
+#define WATER_MFG_TEST_EN     A3
 
 #define WKP_PIN               A7
 

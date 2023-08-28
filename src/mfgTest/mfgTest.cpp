@@ -66,6 +66,8 @@ int MfgTest::wet_dry_sensor_test(void)
     // set in-water
     digitalWrite(WATER_MFG_TEST_EN, HIGH);
 
+    SF_OSAL_printf("value: %d " , digitalRead(WATER_MFG_TEST_EN));
+
     for (int i = 0; i < 100; i++)
     {
         pSystemDesc->pWaterSensor->takeReading();
@@ -81,6 +83,8 @@ int MfgTest::wet_dry_sensor_test(void)
     }
     // set out-of-water
     digitalWrite(WATER_MFG_TEST_EN, LOW);
+    SF_OSAL_printf("value: %d " , digitalRead(WATER_MFG_TEST_EN));
+
 
 
     //Take 100 readings, then query the status
