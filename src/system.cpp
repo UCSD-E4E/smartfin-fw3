@@ -88,8 +88,6 @@ static int SYS_initTempSensor(void)
     Wire.begin();
     systemDesc.pTempSensor = &tempSensor;
 
-    ledTimer.start();
-
     return 1;
 }
 
