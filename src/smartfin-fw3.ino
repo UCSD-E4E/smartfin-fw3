@@ -15,11 +15,6 @@
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "location_service.h"
-
-#include "sleepTask.hpp"
-#include "chargeTask.hpp"
-
 
 #include "sleepTask.hpp"
 #include "chargeTask.hpp"

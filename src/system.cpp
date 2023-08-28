@@ -176,6 +176,12 @@ static int SYS_initGPS(void)
     return 1;
 }
 
+
+/**
+ * @brief Initializes NVRAM 
+ * 
+ * @return int sucsess
+ */
 static int SYS_initNVRAM(void)
 {
     NVRAM& nvram = NVRAM::getInstance();

@@ -103,5 +103,4 @@ void CLI_monitorIMU(void)
         SF_OSAL_printf("Temperature: %8.4f" __NL__, tmpData);
         delay(500);
     }
-
 }
