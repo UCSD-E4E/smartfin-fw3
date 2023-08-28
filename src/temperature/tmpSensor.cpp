@@ -28,7 +28,7 @@ m_sensor(sensor)
 bool tmpSensor::init()
 {
     int sucsess = m_sensor.write_cfg_reg(MAX31725_CFG_CONTINUOUS);
-    if(!success) 
+    if(!sucsess) 
     {
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
     }
