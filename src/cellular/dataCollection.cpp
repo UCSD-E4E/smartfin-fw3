@@ -4,7 +4,7 @@
 #include "cli/flog.hpp"
 #include "cli/conio.hpp"
 #include "util.hpp"
-
+#include "imu/imu.hpp"
 
 #include "Particle.h"
 
@@ -28,6 +28,13 @@ void SS_ensemble10Func()
     int32_t lat, lng;
     float temp;
     uint8_t water;
+    float accelData[3] = {0,0,0};
+    float gyroData[3] = {0,0,0};
+    float magData[3] = {0,0,0};
+
+    LocationPoint point;
+    LocationService& instance= LocationService::instance();
+
     
     bool hasGPS = false;
     Ensemble10_eventData_t* pData = &ensemble10Data;
@@ -43,44 +50,27 @@ void SS_ensemble10Func()
     }ensData;
     #pragma pack(pop)
 
-    // TODO: after merging of sensors, get data from here instead of dummy data
-    // Obtain measurements    
-    // temp = pSystemDesc->pTempSensor->getTemp();
-    // water = pSystemDesc->pWaterSensor->getCurrentReading();
+    getAccelerometer(accelData, accelData + 1, accelData + 2);
+    getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+    getMagnetometer(magData, magData + 1, magData + 2);
+    getTemperature(&temp);
 
+    instance.getLocation(point);
 
-    // pSystemDesc->pIMU->get_accelerometer(accelData, accelData + 1, accelData + 2);
-    // pSystemDesc->pIMU->get_accel_raw_data((uint8_t*) accelRawData);
+    if(point.locked == 1 && point.satsInView > 4)
+    {
+        hasGPS = true;
+        lat = point.latitude;
+        lng = point.longitude;
+    }
+    else
+    {
+        hasGPS = false;
+        lat = pData->location[0];
+        lng = pData->location[1];
+    }
 
-    // pSystemDesc->pIMU->get_gyroscope(gyroData, gyroData + 1, gyroData + 2);
-    // pSystemDesc->pIMU->get_gyro_raw_data((uint8_t*) gyroRawData);
-    
-    // pSystemDesc->pCompass->read(magData, magData + 1, magData + 2);
-    // pSystemDesc->pCompass->read((uint8_t*) magRawData);
-
-    // if(pSystemDesc->pGPS->location.isValid() && pSystemDesc->pGPS->location.isUpdated() && (pSystemDesc->pGPS->location.age() < GPS_AGE_VALID_MS))
-    // {
-    //     hasGPS = true;
-    //     lat = pSystemDesc->pGPS->location.lat_int32();
-    //     lng = pSystemDesc->pGPS->location.lng_int32();
-    // }
-    // else
-    // {
-    //     hasGPS = false;
-    //     lat = pData->location[0];
-    //     lng = pData->location[1];
-    // }
-
-    // Test values:
-    temp = 23.0;
-    water = 1;
-    float accelData[3] = {1, 1, 1};
-    float gyroData[3]  = {0,0,0};
-    int16_t magData[3] = {-1,-1,-1};
-
-    lat = 13;
-    lng = 23;
-    hasGPS = true;
+    water = 0; // TODO - waiting on water sensor integration
 
     // Accumulate measurements
     pData->temperature += temp;

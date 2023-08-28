@@ -44,7 +44,7 @@ static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 static LocationServiceConfiguration create_location_service_config();
 
 
-int SYS_initSys(void)
+void SYS_initSys(void)
 {
     memset(pSystemDesc, 0, sizeof(SystemDesc_t));
     systemDesc.deviceID = SYS_deviceID;
@@ -57,6 +57,7 @@ int SYS_initSys(void)
     SYS_initGPS();
     SYS_initNVRAM();
     SYS_initFS();
+    SYS_initLEDs();
 }
 
 /**
@@ -76,7 +77,7 @@ static int SYS_initFS(void)
     dataRecorder.init();
     systemDesc.pRecorder = &dataRecorder;
 
-    // EXAMPLE
+    return 1;
 }
 
  /**
