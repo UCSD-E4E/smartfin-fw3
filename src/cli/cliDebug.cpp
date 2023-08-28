@@ -54,7 +54,7 @@ void CLI_doDebugMode(void)
             break;
         }
 
-        SF_OSAL_printf("\r" __NL__);
+        SF_OSAL_printf(__NL__);
 
         cmd = MNU_findCommand(userInput, CLI_debugMenu);
         if (!cmd) 
