@@ -124,14 +124,14 @@ void CLI_monitorIMU(void)
     setupICM();
     while(1)
     {
-		    if(kbhit()) 
-		    {
-			      ch = getch();
+        if(kbhit()) 
+        {
+            ch = getch();
 
-			      if('q' == ch) 
-			      {
+            if('q' == ch) 
+            {
                 break;
-			      }
+            }
         }
         getAccelerometer(accelData, accelData + 1, accelData + 2);
         getGyroscope(gyroData, gyroData + 1, gyroData + 2);
@@ -157,24 +157,18 @@ void CLI_monitorWetDry(void)
     uint8_t waterDetect;
     char ch;
 
-    float accelData[3] = {0,0,0};
-    float gyroData[3] = {0,0,0};
-    float magData[3] = {0,0,0};
-    float tmpData = 0;
-
-    setupICM();
     while(1)
     {
-		    if(kbhit()) 
-		    {
-			      ch = getch();
+        if(kbhit()) 
+        {
+            ch = getch();
 
-			      if('q' == ch) 
-			      {
+            if('q' == ch) 
+            {
                 break;
-			      }
+            }
         }
-      
+    
         waterDetect = pSystemDesc->pWaterSensor->getLastReading();
 
         SF_OSAL_printf("Water Reading: %d", waterDetect);
