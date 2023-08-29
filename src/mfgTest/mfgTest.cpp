@@ -8,12 +8,6 @@
 #include "cli/conio.hpp"
 #include "product.hpp"
 
-typedef int (MfgTest::*mfg_run_function_t)(void);
-
-typedef struct {
-    mfg_run_function_t run_function_ptr;
-} mfg_test_entry_t;
-
 int(* (MfgTest::MFG_TEST_TABLE)[])(void) = {
     &MfgTest::wet_dry_sensor_test,
     NULL

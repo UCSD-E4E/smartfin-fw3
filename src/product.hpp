@@ -39,7 +39,6 @@
  * @brief Wakeup pin 
  * 
  */
-*/
 #define WKP_PIN               A7
 
 
