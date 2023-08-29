@@ -2,20 +2,21 @@
 #include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
 #include "cli/conio.hpp"
 
+
+
+uint8_t water_detect_array[WATER_DETECT_ARRAY_SIZE];
+
 WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set,
                          uint8_t water_detect_pin_to_set, 
-                         uint8_t window_size, uint8_t array_size) : 
+                         uint8_t window_size) : 
                          water_detect_en_pin(water_detect_en_pin_to_set), 
                          water_detect_pin(water_detect_pin_to_set), 
-                         moving_window_size(window_size), 
-                         water_detect_array_size(array_size)
+                         moving_window_size(window_size)
 {
-    water_detect_array = (uint8_t *)calloc(water_detect_array_size, sizeof(uint8_t));
 }
 
 WaterSensor::~WaterSensor()
 {
-    free(water_detect_array);
 }
 
 /**
@@ -27,7 +28,7 @@ WaterSensor::~WaterSensor()
 bool WaterSensor::resetArray()
 {
     // clear the buffer out
-    memset(water_detect_array, (uint8_t)0, (sizeof(uint8_t) * water_detect_array_size));
+    memset(water_detect_array, (uint8_t)0, (sizeof(uint8_t) * WATER_DETECT_ARRAY_SIZE));
     array_sum = 0;
     array_location = 0;
     samples_taken_since_reset = 0;
@@ -67,7 +68,7 @@ void WaterSensor::setWindowSize(uint8_t window_size_to_set)
 uint8_t WaterSensor::takeReading()
 {
     // increment array location
-    array_location = (array_location + 1) % water_detect_array_size;
+    array_location = (array_location + 1) % WATER_DETECT_ARRAY_SIZE;
     // subtract last value in the window from the rolling sum
     array_sum -= water_detect_array[waterDetectArrayLocation(array_location, (-1 * moving_window_size))];
 
@@ -132,7 +133,7 @@ void WaterSensor::update()
  */
 uint8_t WaterSensor::getLastReading()
 {
-    return this->water_detect_array[this->array_location];
+    return water_detect_array[this->array_location];
 }
 
 /**
@@ -235,11 +236,11 @@ uint8_t WaterSensor::waterDetectArrayLocation(int16_t location, int16_t offset)
 {
     if ((location + offset) < 0)
     {
-        return (water_detect_array_size + (location + offset));
+        return (WATER_DETECT_ARRAY_SIZE + (location + offset));
     }
-    else if ((location + offset) >= water_detect_array_size)
+    else if ((location + offset) >= WATER_DETECT_ARRAY_SIZE)
     { 
-        return ((location + offset) - water_detect_array_size);   
+        return ((location + offset) - WATER_DETECT_ARRAY_SIZE);   
     } 
     else
     {

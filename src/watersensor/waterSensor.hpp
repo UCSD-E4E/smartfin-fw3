@@ -32,13 +32,10 @@ private:
     uint8_t water_detect_pin;
     // how many samples to look at for the moving window
     uint8_t moving_window_size;
-    const uint8_t water_detect_array_size;
     uint8_t low_detect_percentage = DEFAULT_WATER_SENSOR_LOW_PERCENTAGE;
     uint8_t high_detect_percentage = DEFAULT_WATER_SENSOR_HIGH_PERCENTAGE;
     // how many samples have been taken since a reset (signally a valid measurement)
     uint8_t samples_taken_since_reset = 0;
-    // the array that stores the previous checks of the water detect
-    uint8_t *water_detect_array;
     // sum of the array, initially set to zero.
     uint8_t array_sum = 0;
     // current location in the array
@@ -47,7 +44,7 @@ private:
     uint8_t last_water_detect = 0;
 
 public:
-    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set, uint8_t window_size, uint8_t array_size);
+    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set, uint8_t window_size);
     ~WaterSensor();
 
     // resets the array to zero
