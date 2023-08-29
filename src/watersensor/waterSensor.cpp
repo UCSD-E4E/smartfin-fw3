@@ -71,10 +71,7 @@ uint8_t WaterSensor::takeReading()
     // subtract last value in the window from the rolling sum
     array_sum -= water_detect_array[waterDetectArrayLocation(array_location, (-1 * moving_window_size))];
 
-    digitalWrite(water_detect_en_pin, LOW);
-    delayMicroseconds(WATER_DETECT_EN_TIME_US);
-    water_detect_array[array_location] = digitalRead(water_detect_pin); // comment out if using above logic block
-    digitalWrite(water_detect_en_pin, HIGH);
+    water_detect_array[array_location] = getCurrentReading();
 
     // add value to the current sum
     array_sum += water_detect_array[array_location];
