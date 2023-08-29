@@ -1,11 +1,23 @@
+/**
+ * @file flog.cpp
+ * @author @emilybthorpe
+ * @brief Fault Log (FLOG) with persistent memory
+ * @version 0.1
+ * @date 2023-08-03
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #include "flog.hpp"
+
+#include "conio.hpp"
 
 #include <Particle.h>
 
-#include "conio.hpp"
+
 typedef struct FLOG_Entry_
 {
-
     uint32_t timestamp_ms;
     uint16_t errorCode;
     uint16_t param;
@@ -60,6 +72,7 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_RESET_REASON, "Reset Reason"},
     {FLOG_GPS_INIT_FAIL, "GPS Init Fail"},
     {FLOG_GPS_START_FAIL, "GPS Start Fail"},
+    {FLOG_TEMP_FAIL, "Temp Start Fail"},
     {FLOG_ICM_FAIL, "ICM Fail"},
     {FLOG_CHARGER_REMOVED, "Charger removed"},
     {FLOG_NULL, NULL}

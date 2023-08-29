@@ -1,5 +1,8 @@
 #include "Particle.h"
 #include "i2c.h"
+
+#include "cli/conio.hpp"
+
 #include <stdint.h>
 #include <Wire.h>
 

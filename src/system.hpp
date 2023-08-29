@@ -5,6 +5,7 @@
 #include "sys/led.hpp"
 #include "watersensor/waterSensor.hpp"
 
+#include "temperature/tmpSensor.h"
 #include "location_service.h"
 
 #define SYS_CHARGER_MIN_CHARGING_MS 5000
@@ -31,6 +32,7 @@ typedef struct SystemDesc_
     WaterSensor* pWaterSensor;
     SFLed* pBatteryLED;
     SFLed* pWaterLED;
+    tmpSensor* pTempSensor;
     LEDSystemTheme* systemTheme;
     const SystemFlags_t* flags;
 }SystemDesc_t;

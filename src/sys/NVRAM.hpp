@@ -103,6 +103,7 @@ class NVRAM
         return 1;
     }
 
+
     void displayNVRAM(void);
 
     private:

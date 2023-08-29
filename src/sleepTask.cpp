@@ -17,6 +17,7 @@ void SleepTask::init(void)
     this->ledStatus.setPeriod(SLEEP_RGB_LED_PERIOD);
     this->ledStatus.setPriority(SLEEP_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
+
     if(digitalRead(SF_USB_PWR_DETECT_PIN))
     {
         SF_OSAL_printf("USB detected, returning!" __NL__);
@@ -39,6 +40,7 @@ void SleepTask::init(void)
     switch(SleepTask::bootBehavior)
     {
         case BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
+
             SF_OSAL_printf("REUPLOAD" __NL__);
             if(digitalRead(WKP_PIN) == HIGH)
             {
@@ -65,6 +67,7 @@ void SleepTask::init(void)
 
 STATES_e SleepTask::run(void)
 {
+
     SF_OSAL_printf("We're supposed to be asleep! Resetting state machine..." __NL__);
     return SF_DEFAULT_STATE;
 }
@@ -93,6 +96,7 @@ void SleepTask::loadBootBehavior(void)
         bootValid = 0;
         if(!pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, bootValid))
         {
+
             SF_OSAL_printf("Failed to clear boot flag" __NL__);
             return;
         }
