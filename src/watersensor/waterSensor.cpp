@@ -12,7 +12,12 @@ WaterSensor::~WaterSensor()
     free(water_detect_array);
 }
 
-// reset the array, load it all up w/ 0s and clear the sum & location
+/**
+ * @brief reset the array, load it all up w/ 0s and clear the sum & location
+ * 
+ *
+ * @return sucsess
+ */
 bool WaterSensor::resetArray()
 {
     // clear the buffer out
@@ -23,6 +28,11 @@ bool WaterSensor::resetArray()
     return 0;
 }
 
+/**
+ * @brief Set window size to value
+ * 
+ * @param window_size_to_set 
+ */
 void WaterSensor::setWindowSize(uint8_t window_size_to_set)
 {
     // swtich the window parameter and clear the sum (for resumming)
@@ -35,7 +45,7 @@ void WaterSensor::setWindowSize(uint8_t window_size_to_set)
     {
         array_sum += water_detect_array[waterDetectArrayLocation(array_location, (-1 * i))];
     }
-    
+
     // if changing from a larger to smaller sample window size, change samples_taken_since_reset accordingly
     if (samples_taken_since_reset > moving_window_size)
     {
@@ -43,6 +53,11 @@ void WaterSensor::setWindowSize(uint8_t window_size_to_set)
     }
 }
 
+/**
+ * @brief Take a reading from the sensor
+ * 
+ * @return uint8_t 
+ */
 uint8_t WaterSensor::takeReading()
 {
     // increment array location
@@ -97,36 +112,63 @@ uint8_t WaterSensor::takeReading()
     }
 }
 
+/**
+ * @brief Takes a reading from the sensor as part of an update pulse
+ * 
+ */
 void WaterSensor::update()
 {
     this->takeReading();
 }
 
+/**
+ * @brief Get last reading
+ * 
+ *
+ * @return last reading from water array
+ */
 uint8_t WaterSensor::getLastReading()
 {
     return this->water_detect_array[this->array_location];
 }
 
+/**
+ * @brief Get's last water detect status
+ * 
+ *
+ * @return last water detect 
+ */
 uint8_t WaterSensor::getLastStatus()
 {
     return last_water_detect;
 }
 
-// gets the current in/out of water status (return true = in water, false = out)
+/**
+ * @brief gets the current in/out of water status
+
+ * 
+ * @return uint8_t return true = in water, false = out
+ */
 uint8_t WaterSensor::getCurrentStatus()
 {
     return last_water_detect;
 }
 
-// forces the in/out of water status.  Usefule because of hystersis
+/**
+ * @brief forces the in/out of water status
+ * Usefule because of hystersis
+ * @param water_detect_state 
+ */
 void WaterSensor::forceState(uint8_t water_detect_state)
 {
     last_water_detect = water_detect_state;
 }
 
-// PJB edited next few lines (to water_detect_array) to prevent fin from thinking it's wet when powered by USB
-// This chunk can be altered by adding a diode to WATER input
-// gets the current reading of the sensor (not the overall status w/ hystersis)
+/**
+ * @brief gets the current reading of the sensor (not the overall status w/ hystersis)
+ * 
+ * @return uint8_t 
+ */ 
 uint8_t WaterSensor::getCurrentReading()
 {
     uint8_t temp_8;
@@ -139,7 +181,12 @@ uint8_t WaterSensor::getCurrentReading()
     return temp_8; // comment out if using above logic block
 }
 
-// set the low detection percentage of the moving window for hystersis
+/**
+ * @brief set the low detection percentage of the moving window for hystersis
+ * 
+ * @param low_percentage 
+ * @return bool sucsess
+ */
 bool WaterSensor::setLowDetectPercentage(uint8_t low_percentage)
 {
     if ((low_percentage >= 0) && (low_percentage <= 100))
@@ -152,7 +199,13 @@ bool WaterSensor::setLowDetectPercentage(uint8_t low_percentage)
         return false;
     }
 }
-// set the high detection percentage of the moving window for hystersis
+
+/**
+ * @brief set the high detection percentage of the moving window for hystersis
+ * 
+ * @param high_percentage 
+ * @return bool sucsess
+ */
 bool WaterSensor::setHighDetectPercentage(uint8_t high_percentage)
 {
     if ((high_percentage >= 0) && (high_percentage <= 100))
@@ -166,8 +219,16 @@ bool WaterSensor::setHighDetectPercentage(uint8_t high_percentage)
     }
 }
 
+
+/**
+ * @brief returns a valid location  for a location + an offset
+ * value is between 0 and WATER_DETECT_ARRAY_SIZE
+ *
+ * @param location 
+ * @param offset 
+ * @return valid location
+ */
 uint8_t WaterSensor::waterDetectArrayLocation(int16_t location, int16_t offset)
-// returns a valid location (between 0 and WATER_DETECT_ARRAY_SIZE) for a location + an offset
 {
     if ((location + offset) < 0)
     {
