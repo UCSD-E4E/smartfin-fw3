@@ -30,11 +30,16 @@
 #define WATER_MFG_TEST_EN     A3
 
 /**
- * @brief ICM20648 Address TODO
+ * @brief ICM20648 Address
  * 
  */
 #define SF_ICM20648_ADDR    (0x68 << 1)
 
+/**
+ * @brief Wakeup pin 
+ * 
+ */
+*/
 #define WKP_PIN               A7
 
 
@@ -53,6 +58,12 @@
  * happens 1/second
  */
 #define WATER_DETECT_SURF_SESSION_INIT_WINDOW   40
+
+/**
+ * How long (in us) to turn on water detection circuit when looking for water
+ */
+#define WATER_DETECT_EN_TIME_US     1000
+
 /**
  * Charging voltage (mV)
  */
@@ -63,11 +74,6 @@
  * 
  */
 #define SF_BATTERY_SHUTDOWN_VOLTAGE 3.0
-
-/**
- * How long (in us) to turn on water detection circuit when looking for water
- */
-#define WATER_DETECT_EN_TIME_US     1000
 
 /**
  * @brief Particle IO device
