@@ -98,6 +98,8 @@ static int SYS_initTempSensor(void)
 {
     Wire.begin();
     systemDesc.pTempSensor = &tempSensor;
+
+    return 1;
 }
 
 
