@@ -77,7 +77,7 @@ int MfgTest::wet_dry_sensor_test(void)
     if (!pSystemDesc->pWaterSensor->getCurrentStatus())
     {
         SF_OSAL_printf("Wet Sensor failed" __NL__);
-        retval = -EIO;
+        retval = 1;
     }
     else
     {
@@ -99,7 +99,7 @@ int MfgTest::wet_dry_sensor_test(void)
     if (pSystemDesc->pWaterSensor->getCurrentStatus())
     {
         SF_OSAL_printf("Dry Sensor failed" __NL__);
-        retval = -EIO;
+        retval = 1;
     }
     else
     {
