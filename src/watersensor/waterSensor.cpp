@@ -35,9 +35,12 @@ void WaterSensor::setWindowSize(uint8_t window_size_to_set)
     {
         array_sum += water_detect_array[waterDetectArrayLocation(array_location, (-1 * i))];
     }
+    
     // if changing from a larger to smaller sample window size, change samples_taken_since_reset accordingly
     if (samples_taken_since_reset > moving_window_size)
+    {
         samples_taken_since_reset = moving_window_size;
+    }
 }
 
 uint8_t WaterSensor::takeReading()
@@ -57,7 +60,9 @@ uint8_t WaterSensor::takeReading()
 
     // increment sample counter if needed
     if (samples_taken_since_reset < moving_window_size)
+    {
         samples_taken_since_reset++;
+    }
 
     /*
      * if we haven't gotten enough readings, return the hystersis enforced last value
@@ -71,23 +76,23 @@ uint8_t WaterSensor::takeReading()
         return last_water_detect;
     }
 
-    // out of the water!
     else if ((((uint16_t)array_sum * 100) / moving_window_size) < low_detect_percentage)
     {
+        // out of the water!
         last_water_detect = 0;
         return last_water_detect;
     }
 
-    // in the water!
     else if ((((uint16_t)array_sum * 100) / moving_window_size) > high_detect_percentage)
     {
+        // in the water!
         last_water_detect = 1;
         return last_water_detect;
     }
 
-    // nothing has changed, return current status
     else
     {
+        // nothing has changed, return current status
         return last_water_detect;
     }
 }
@@ -143,7 +148,9 @@ bool WaterSensor::setLowDetectPercentage(uint8_t low_percentage)
         return true;
     }
     else
+    {
         return false;
+    }
 }
 // set the high detection percentage of the moving window for hystersis
 bool WaterSensor::setHighDetectPercentage(uint8_t high_percentage)
@@ -154,16 +161,24 @@ bool WaterSensor::setHighDetectPercentage(uint8_t high_percentage)
         return true;
     }
     else
+    {
         return false;
+    }
 }
 
 uint8_t WaterSensor::waterDetectArrayLocation(int16_t location, int16_t offset)
 // returns a valid location (between 0 and WATER_DETECT_ARRAY_SIZE) for a location + an offset
 {
     if ((location + offset) < 0)
+    {
         return (water_detect_array_size + (location + offset));
+    }
     else if ((location + offset) >= water_detect_array_size)
-        return ((location + offset) - water_detect_array_size);
+    { 
+        return ((location + offset) - water_detect_array_size);   
+    } 
     else
+    {
         return (location + offset);
+    }
 }
