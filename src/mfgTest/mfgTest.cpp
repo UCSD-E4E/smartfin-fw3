@@ -70,6 +70,7 @@ int MfgTest::wet_dry_sensor_test(void)
     {
         pSystemDesc->pWaterSensor->takeReading();
     }
+    
     if (!pSystemDesc->pWaterSensor->getCurrentStatus())
     {
         SF_OSAL_printf("Wet Sensor failed" __NL__);
@@ -79,6 +80,7 @@ int MfgTest::wet_dry_sensor_test(void)
     {
         SF_OSAL_printf("Wet Sensor passed" __NL__);
     }
+
     // set out-of-water
     digitalWrite(WATER_MFG_TEST_EN, LOW);
     SF_OSAL_printf("value: %d " , digitalRead(WATER_MFG_TEST_EN));
@@ -90,6 +92,7 @@ int MfgTest::wet_dry_sensor_test(void)
     {
         pSystemDesc->pWaterSensor->takeReading();
     }
+
     if (pSystemDesc->pWaterSensor->getCurrentStatus())
     {
         SF_OSAL_printf("Dry Sensor failed" __NL__);

@@ -16,6 +16,7 @@ class MfgTest : public Task {
     STATES_e run(void);
     void exit(void);
 
+    private:
     static int wet_dry_sensor_test(void);
     static int(* MFG_TEST_TABLE[])(void);
     
