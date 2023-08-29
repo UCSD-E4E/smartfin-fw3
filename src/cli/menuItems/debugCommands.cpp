@@ -171,7 +171,7 @@ void CLI_monitorWetDry(void)
     
         waterDetect = pSystemDesc->pWaterSensor->getLastReading();
 
-        SF_OSAL_printf("Water Reading: %d", waterDetect);
+        SF_OSAL_printf("Water Reading: %d" __NL__, waterDetect);
 
         delay(500);
     }
