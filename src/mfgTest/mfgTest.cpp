@@ -13,15 +13,17 @@ int(* (MfgTest::MFG_TEST_TABLE)[])(void) = {
     NULL
 };
 
-void MfgTest::init(void){}
+void MfgTest::init(void)
+{
+}
 
 STATES_e MfgTest::run(void)
 {
     String deviceID = System.deviceID();
     int retval = 0;
 
-    SF_OSAL_printf("\r\nStarting Manufacturing Testing\r\n");
-    SF_OSAL_printf("Testing Device %s\r\n", deviceID.c_str());
+    SF_OSAL_printf("Starting Manufacturing Testing" __NL__);
+    SF_OSAL_printf("Testing Device %s" __NL__, deviceID.c_str());
 
     for(uint8_t i = 0; MFG_TEST_TABLE[i]; i++)
     {
@@ -34,23 +36,25 @@ STATES_e MfgTest::run(void)
 
     if(retval)
     {
-        SF_OSAL_printf("Manufacturing Tests FAILED.\r\nMark unit as scrap.\r\n\r\n");
+        SF_OSAL_printf("Manufacturing Tests FAILED" __NL__ "Mark unit as scrap." __NL__ );
     }
     else
     {
-        SF_OSAL_printf("All tests passed.\r\n");
+        SF_OSAL_printf("All tests passed." __NL__);
     }
     return STATE_CLI;
 }
 
-void MfgTest::exit(void){}
+void MfgTest::exit(void)
+{
+}
 
 int MfgTest::wet_dry_sensor_test(void)
 {
     int retval = 0;
 
-    SF_OSAL_printf("Running the Wet/Dry Sensor\r\n");
-    SF_OSAL_printf("Internally shorting the Wet/Dry Sensor\r\n");
+    SF_OSAL_printf("Running the Wet/Dry Sensor" __NL__);
+    SF_OSAL_printf("Internally shorting the Wet/Dry Sensor" __NL__);
 
     pSystemDesc->pWaterSensor->resetArray();
     // change window to small window (smaller moving average for quick detect)
@@ -68,12 +72,12 @@ int MfgTest::wet_dry_sensor_test(void)
     }
     if (!pSystemDesc->pWaterSensor->getCurrentStatus())
     {
-        SF_OSAL_printf("Wet Sensor failed\r\n");
+        SF_OSAL_printf("Wet Sensor failed" __NL__);
         retval = -EIO;
     }
     else
     {
-        SF_OSAL_printf("Wet Sensor passed\r\n");
+        SF_OSAL_printf("Wet Sensor passed" __NL__);
     }
     // set out-of-water
     digitalWrite(WATER_MFG_TEST_EN, LOW);
@@ -88,12 +92,12 @@ int MfgTest::wet_dry_sensor_test(void)
     }
     if (pSystemDesc->pWaterSensor->getCurrentStatus())
     {
-        SF_OSAL_printf("Dry Sensor failed\r\n");
+        SF_OSAL_printf("Dry Sensor failed" __NL__);
         retval = -EIO;
     }
     else
     {
-        SF_OSAL_printf("Dry Sensor passed\r\n");
+        SF_OSAL_printf("Dry Sensor passed" __NL__);
     }
 
     digitalWrite(WATER_MFG_TEST_EN, LOW);
