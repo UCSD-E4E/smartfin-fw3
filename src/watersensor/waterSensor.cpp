@@ -2,7 +2,13 @@
 #include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
 #include "cli/conio.hpp"
 
-WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set, uint8_t water_detect_pin_to_set, uint8_t window_size, uint8_t array_size) : water_detect_en_pin(water_detect_en_pin_to_set), water_detect_pin(water_detect_pin_to_set), moving_window_size(window_size), water_detect_array_size(array_size)
+WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set,
+                         uint8_t water_detect_pin_to_set, 
+                         uint8_t window_size, uint8_t array_size) : 
+                         water_detect_en_pin(water_detect_en_pin_to_set), 
+                         water_detect_pin(water_detect_pin_to_set), 
+                         moving_window_size(window_size), 
+                         water_detect_array_size(array_size)
 {
     water_detect_array = (uint8_t *)calloc(water_detect_array_size, sizeof(uint8_t));
 }

@@ -7,6 +7,7 @@
 #include "system.hpp"
 #include "cli/conio.hpp"
 #include "product.hpp"
+#include "consts.hpp"
 
 int(* (MfgTest::MFG_TEST_TABLE)[])(void) = {
     &MfgTest::wet_dry_sensor_test,
@@ -36,7 +37,7 @@ STATES_e MfgTest::run(void)
 
     if(retval)
     {
-        SF_OSAL_printf("Manufacturing Tests FAILED" __NL__ "Mark unit as scrap." __NL__ `);
+        SF_OSAL_printf("Manufacturing Tests FAILED" __NL__ "Mark unit as scrap." __NL__);
     }
     else
     {
@@ -70,7 +71,7 @@ int MfgTest::wet_dry_sensor_test(void)
     {
         pSystemDesc->pWaterSensor->takeReading();
     }
-    
+
     if (!pSystemDesc->pWaterSensor->getCurrentStatus())
     {
         SF_OSAL_printf("Wet Sensor failed" __NL__);
