@@ -54,6 +54,8 @@ int MfgTest::wet_dry_sensor_test(void)
 {
     int retval = 0;
 
+    pSystemDesc->pWaterCheck->stop();
+
     SF_OSAL_printf("Running the Wet/Dry Sensor" __NL__);
     SF_OSAL_printf("Internally shorting the Wet/Dry Sensor" __NL__);
 
@@ -105,6 +107,9 @@ int MfgTest::wet_dry_sensor_test(void)
     }
 
     digitalWrite(WATER_MFG_TEST_EN, LOW);
+
+    pSystemDesc->pWaterCheck->start();
+
 
     return retval;
 }
