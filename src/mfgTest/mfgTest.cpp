@@ -36,7 +36,7 @@ STATES_e MfgTest::run(void)
 
     if(retval)
     {
-        SF_OSAL_printf("Manufacturing Tests FAILED" __NL__ "Mark unit as scrap." __NL__ );
+        SF_OSAL_printf("Manufacturing Tests FAILED" __NL__ "Mark unit as scrap." __NL__ `);
     }
     else
     {
