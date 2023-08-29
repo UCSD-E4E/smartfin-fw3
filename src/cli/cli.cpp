@@ -62,6 +62,7 @@ const Menu_t CLI_menu[] =
     {9, "sleep", &CLI_doSleep},
     {10, "Self Identify", &CLI_self_identify},
     {11, "check charge ports", &CLI_checkCharging},
+    {12, "MFG Test", &CLI_doMfgTest},
     {100, "Set State", &CLI_setState},
     {101, "Display System State", &CLI_displaySystemState},
     {102, "Display NVRAM", &CLI_displayNVRAM},
