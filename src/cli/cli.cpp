@@ -9,13 +9,15 @@
 #include "cli.hpp"
 
 #include "cliDebug.hpp"
+
 #include "conio.hpp"
 #include "consts.hpp"
 #include "menu.hpp"
+
 #include "menuItems/systemCommands.hpp"
 #include "menuItems/debugCommands.hpp"
 #include "menuItems/gpsCommands.hpp"
-#include "cliDebug.hpp"
+
 #include "states.hpp"
 #include "util.hpp"
 #include "vers.hpp"
@@ -25,13 +27,10 @@
 
 #include "system.hpp"
 
-#include "../system.hpp"
-
-#include "Particle.h"
-
-
 #include <fstream>
 #include <bits/stdc++.h>
+
+#include "Particle.h"
 
 void CLI_displayMenu(void);
 void CLI_manageInput(char* inputBuffer);
@@ -80,14 +79,14 @@ void CLI::init(void)
 
     CLI_nextState = STATE_CLI;
 
+    pSystemDesc->pChargerCheck->start();
+
     CLI_ledStatus.setColor(CLI_RGB_LED_COLOR);
     CLI_ledStatus.setPattern(CLI_RGB_LED_PATTERN);
     CLI_ledStatus.setPeriod(CLI_RGB_LED_PERIOD);
     CLI_ledStatus.setPriority(CLI_RGB_LED_PRIORITY);
     CLI_ledStatus.setActive();
 
-    pSystemDesc->pChargerCheck->start();
-    
     // While there is an avaliable character typed, get it
     while (kbhit())
     {

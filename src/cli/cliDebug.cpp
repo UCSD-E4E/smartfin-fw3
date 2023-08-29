@@ -13,18 +13,25 @@
 
 #include "conio.hpp"
 #include "cli.hpp"
+#include "menu.hpp"
+
 #include "menuItems/debugCommands.hpp"
+
 #include "product.hpp"
 #include "util.hpp"
 #include "menu.hpp"
 
 #include "system.hpp"
 
-#include "Particle.h"
+#include "consts.hpp"
 
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
+
+
+#include "Particle.h"
+
 
 const Menu_t CLI_debugMenu[] = 
 {
@@ -37,6 +44,7 @@ const Menu_t CLI_debugMenu[] =
     {7, "test num files", &CLI_testGetNumFiles},
     {8, "wipe file system", &CLI_wipeFileSystem},
     {9, "Monitor IMU", &CLI_monitorIMU},
+    {10, "Monitor Temperature", &CLI_monitorTempSensor},
     {0, NULL, NULL}
 };
 
@@ -51,22 +59,23 @@ void CLI_doDebugMode(void)
 
         Menu_t *cmd;
         getline(userInput, SF_CLI_MAX_CMD_LEN);
+        
         if (atoi(userInput) == 0) // Exiting debug mode
         {
             break;
         }
 
-        SF_OSAL_printf("\r\n");
+        SF_OSAL_printf(__NL__);
+
         cmd = MNU_findCommand(userInput, CLI_debugMenu);
         if (!cmd) 
         {
-            putch(userInput[0]);
-            SF_OSAL_printf("Unknown command\n");
-            SF_OSAL_printf(">");
+            SF_OSAL_printf("Unknown command" __NL__);
         } else {
             cmd->fn();
-            SF_OSAL_printf(">");
         }
+        
+        SF_OSAL_printf(">");
     }
     return;
 }

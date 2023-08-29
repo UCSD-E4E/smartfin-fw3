@@ -8,6 +8,7 @@
 */
 #include "debugCommands.hpp"
 
+
 #include "system.hpp"
 
 #include "cli/conio.hpp"
@@ -17,12 +18,14 @@
 
 #include "product.hpp"
 
-#include "Particle.h"
-
 #include "imu/imu.hpp"
 #include "consts.hpp"
 #include "cellular/recorder.hpp"
 #include "system.hpp"
+
+
+#include "Particle.h"
+
 
 
 void CLI_restart(void)
@@ -119,6 +122,40 @@ void CLI_testPrintf(void)
 
 }
 
+void CLI_monitorTempSensor(void) 
+{
+    float temp;
+    char ch;
+
+    SF_OSAL_printf("starting temp sensor");
+
+    if(pSystemDesc->pTempSensor->init() != 0)
+    {
+        SF_OSAL_printf("Temp Fail" __NL__);
+        pSystemDesc->pTempSensor->stop();
+        return;
+    }
+
+    SF_OSAL_printf("Started" __NL__);
+
+    while(1) 
+    {
+        if(kbhit()) 
+        {
+            ch = getch();
+            if('q' == ch) 
+            {
+                break;
+            }
+        }
+        
+        temp = pSystemDesc->pTempSensor->getTemp();
+        SF_OSAL_printf("Temperature Reading: %f" __NL__, temp);
+    }
+
+    SF_OSAL_printf(__NL__);
+    pSystemDesc->pTempSensor->stop();
+}
 
 void CLI_monitorIMU(void)
 {

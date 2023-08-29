@@ -36,6 +36,11 @@ void CLI_testHasData(void);
  * @brief Delete all files
 */
 void CLI_wipeFileSystem(void);
+/*
+ * @brief Monitors temperature sensor
+ * 
+ */
+void CLI_monitorTempSensor(void);
 /**
  * @brief Monitor IMU (gyro and cellerular )
 */

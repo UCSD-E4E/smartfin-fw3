@@ -9,13 +9,14 @@
 
 #include "systemCommands.hpp"
 
-
 #include "cli/conio.hpp"
 #include "cli/cli.hpp"
 #include "cli/flog.hpp"
 #include "states.hpp"
 #include "cli/cli.hpp"
 #include "cellular/dataCollection.hpp"
+
+#include "states.hpp"
 
 #include "system.hpp"
 #include "vers.hpp"

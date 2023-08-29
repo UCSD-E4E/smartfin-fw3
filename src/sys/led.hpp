@@ -36,5 +36,6 @@ class SFLed
 
     static SFLed* firstLED;
     static Timer ledTimer;
+
 };
 #endif
