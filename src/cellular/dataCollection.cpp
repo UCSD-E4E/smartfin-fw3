@@ -53,8 +53,17 @@ void SS_ensemble10Func()
     getAccelerometer(accelData, accelData + 1, accelData + 2);
     getGyroscope(gyroData, gyroData + 1, gyroData + 2);
     getMagnetometer(magData, magData + 1, magData + 2);
-    getTemperature(&temp);
 
+    /**
+     * Check pre-processer defines to switch between 
+     * ICM and MAX temp sensor
+     */
+    #if USE_ICM_TEMP_SENSOR
+        getTemperature(&temp);
+    #else 
+        temp = pSystemDesc->pTempSensor->getTemp();
+    #endif
+        
     instance.getLocation(point);
 
     if(point.locked == 1 && point.satsInView > 4)

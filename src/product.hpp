@@ -75,6 +75,8 @@
 
 #define LITTLEFS_OBJ_NAME_LEN 31
 
+#define USE_ICM_TEMP_SENSOR 0
+
 /**
  * how long to stay in CLI mode if there are no key presses at all
  */
