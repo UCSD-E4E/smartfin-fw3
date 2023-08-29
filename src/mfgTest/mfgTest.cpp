@@ -11,6 +11,7 @@
 
 int(* (MfgTest::MFG_TEST_TABLE)[])(void) = {
     &MfgTest::wet_dry_sensor_test,
+    &MfgTest::temperature_sensor_test,
     NULL
 };
 
@@ -115,3 +116,28 @@ int MfgTest::wet_dry_sensor_test(void)
 }
 
 
+int MfgTest::temperature_sensor_test(void)
+{
+    float temp;
+    int retval = 0;
+
+    SF_OSAL_printf("Running the Temp Test\r\n");
+
+    pSystemDesc->pTempSensor->init();
+
+    temp = pSystemDesc->pTempSensor->getTemp();
+
+    if ((temp >= MFG_MIN_VALID_TEMPERATURE) && (temp <= MFG_MAX_VALID_TEMPERATURE))
+    {
+        SF_OSAL_printf("Temp passed: Temp %f\r\n", temp);
+    }
+    else
+    {
+        SF_OSAL_printf("Temp failed\r\n");
+        retval = 1;
+    }
+
+    pSystemDesc->pTempSensor->stop();
+
+    return retval;
+}

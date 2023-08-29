@@ -3,7 +3,7 @@
 
 #include "task.hpp"
 
-#define MFG_MIN_VALID_TEMPERATURE   15
+#define MFG_MIN_VALID_TEMPERATURE   -10
 #define MFG_MAX_VALID_TEMPERATURE   30
 
 class MfgTest : public Task {
@@ -18,6 +18,7 @@ class MfgTest : public Task {
 
     private:
     static int wet_dry_sensor_test(void);
+    static int temperature_sensor_test(void);
     static int(* MFG_TEST_TABLE[])(void);
     
 };
