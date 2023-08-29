@@ -9,15 +9,15 @@
 
 #include "conio.hpp"
 
-#include "Particle.h"
-#include <string>
-
-
-#include <cstdio>
 #include "product.hpp"
 
-char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
+#include <string>
+#include <cstdio>
 
+#include "Particle.h"
+
+
+char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
 
 
 extern "C"

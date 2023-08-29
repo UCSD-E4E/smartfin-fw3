@@ -1,7 +1,6 @@
 #ifndef __CONIO_HPP__
 #define __CONIO_HPP__
-// #include <stdarg.h>
-// #include <stddef.h>
+
 #include <stdint.h>
 
 #define SF_OSAL_PRINTF_BUFLEN   1024

@@ -1,5 +1,11 @@
 #include "system.hpp"
 
+#include "product.hpp"
+
+#include "temperature/tmpSensor.h"
+#include "temperature/max31725.h"
+#include "location_service.h"
+
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
@@ -8,7 +14,7 @@
 
 #include "sys/led.hpp"
 
-#include "location_service.h"
+
 #include "Particle.h"
 
 
@@ -27,6 +33,11 @@ static int SYS_initGPS(void);
 static int SYS_initNVRAM(void);
 static int SYS_initTasks(void);
 static int SYS_initLEDs(void);
+static int SYS_initTempSensor(void);
+
+I2C i2cBus;
+MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
+tmpSensor tempSensor(max31725);
 
 static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
 
@@ -49,6 +60,8 @@ int SYS_initSys(void)
 
     SYS_initTasks();
     SYS_initGPS();
+    SYS_initTempSensor();
+    SYS_initNVRAM();
     SYS_initNVRAM();
     SYS_initLEDs();
 
@@ -68,7 +81,14 @@ static int SYS_initTasks(void)
     systemFlags.batteryLow = false;
 
     systemDesc.pChargerCheck = &chargerTimer;
-    ledTimer.start();
+    return 1;
+}
+
+
+static int SYS_initTempSensor(void)
+{
+    Wire.begin();
+    systemDesc.pTempSensor = &tempSensor;
 
     return 1;
 }
@@ -90,6 +110,7 @@ static int SYS_initLEDs(void)
     systemDesc.systemTheme = &ledTheme;
     return 1;
 }
+
 
 /**
  * @brief Charging task
@@ -190,6 +211,7 @@ static int SYS_initNVRAM(void)
 
     return 1;
 }
+
 
 /**
  * @brief Create a location service config object with defaults

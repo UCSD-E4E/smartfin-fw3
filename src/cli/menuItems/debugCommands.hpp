@@ -21,6 +21,11 @@ void CLI_clearFLOG(void);
  */
 void CLI_testPrintf(void);
 /**
+ * @brief Monitors temperature sensor
+ * 
+ */
+void CLI_monitorTempSensor(void);
+/**
  * @brief Monitor IMU (gyro and cellerular )
 */
 void CLI_monitorIMU(void);

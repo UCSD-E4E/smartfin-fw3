@@ -13,25 +13,28 @@
 
 #include "conio.hpp"
 #include "cli.hpp"
-#include "menuItems/debugCommands.hpp"
-#include "product.hpp"
-#include "util.hpp"
 #include "menu.hpp"
 
-#include "Particle.h"
+#include "menuItems/debugCommands.hpp"
+
+#include "product.hpp"
+#include "util.hpp"
+#include "consts.hpp"
 
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
 
-#include "cli/menuItems/debugCommands.hpp"
+#include "Particle.h"
+
 
 const Menu_t CLI_debugMenu[] = 
 {
     {1, "Display Fault Log", &CLI_displayFLOG},
     {2, "Clear Fault Log", &CLI_clearFLOG},
     {3, "Restart System", &CLI_restart},
-    {4, "Monitor IMU", &CLI_monitorIMU},
+    {4, "Monitor Temperature", &CLI_monitorTempSensor},
+    {5, "Monitor IMU", &CLI_monitorIMU},
     {0, NULL, NULL}
 };
 
@@ -46,22 +49,23 @@ void CLI_doDebugMode(void)
 
         Menu_t *cmd;
         getline(userInput, SF_CLI_MAX_CMD_LEN);
+        
         if (atoi(userInput) == 0) // Exiting debug mode
         {
             break;
         }
 
-        SF_OSAL_printf("\r\n");
+        SF_OSAL_printf(__NL__);
+
         cmd = MNU_findCommand(userInput, CLI_debugMenu);
         if (!cmd) 
         {
-            putch(userInput[0]);
-            SF_OSAL_printf("Unknown command\n");
-            SF_OSAL_printf(">");
+            SF_OSAL_printf("Unknown command" __NL__);
         } else {
             cmd->fn();
-            SF_OSAL_printf(">");
         }
+        
+        SF_OSAL_printf(">");
     }
     return;
 }

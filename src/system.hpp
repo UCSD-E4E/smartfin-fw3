@@ -4,6 +4,7 @@
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
 
+#include "temperature/tmpSensor.h"
 #include "location_service.h"
 
 #define SYS_CHARGER_MIN_CHARGING_MS 5000
@@ -27,6 +28,7 @@ typedef struct SystemDesc_
     Timer* pChargerCheck;
     NVRAM* pNvram;
     SFLed* pBatteryLED;
+    tmpSensor* pTempSensor;
     LEDSystemTheme* systemTheme;
     const SystemFlags_t* flags;
 }SystemDesc_t;
