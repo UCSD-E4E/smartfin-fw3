@@ -12,6 +12,8 @@
 #include "consts.hpp"
 #include "system.hpp"
 
+#include "mfgTest/mfgTest.hpp"
+
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
@@ -32,6 +34,8 @@ typedef struct StateMachine_
 static CLI cliTask;
 static ChargeTask chargeTask;
 static SleepTask sleepTask;
+static MfgTest mfgTask;
+
 
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 
@@ -39,6 +43,7 @@ static StateMachine_t stateMachine[] =
     {STATE_CLI, &cliTask},
     {STATE_DEEP_SLEEP, &sleepTask},
     {STATE_CHARGE, &chargeTask},
+    {STATE_MFG_TEST, &mfgTask},
     {STATE_NULL, NULL}
 };
 

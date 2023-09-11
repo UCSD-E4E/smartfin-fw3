@@ -13,10 +13,15 @@
 
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "cli/cli.hpp"
+#include "states.hpp"
+
 #include "product.hpp"
 
 #include "imu/imu.hpp"
 #include "consts.hpp"
+
+#include "system.hpp"
 
 
 #include "Particle.h"
@@ -119,16 +124,15 @@ void CLI_monitorIMU(void)
     setupICM();
     while(1)
     {
-		if(kbhit()) 
-		{
-			ch = getch();
+        if(kbhit()) 
+        {
+            ch = getch();
 
-			if('q' == ch) 
-			{
+            if('q' == ch) 
+            {
                 break;
-			}
-		}
-
+            }
+        }
         getAccelerometer(accelData, accelData + 1, accelData + 2);
         getGyroscope(gyroData, gyroData + 1, gyroData + 2);
         getMagnetometer(magData, magData + 1, magData + 2);
@@ -141,3 +145,39 @@ void CLI_monitorIMU(void)
         delay(500);
     }
 }
+
+void CLI_doMfgTest(void)
+{
+    CLI_nextState = STATE_MFG_TEST;
+}
+  
+
+void CLI_monitorWetDry(void)
+{
+    uint8_t waterDetect;
+    uint8_t water_status;
+    char ch;
+
+    SF_OSAL_printf("Reading    Status" __NL__);
+    while(1)
+    {
+        if(kbhit()) 
+        {
+            ch = getch();
+
+            if('q' == ch) 
+            {
+                break;
+            }
+        }
+    
+        waterDetect = pSystemDesc->pWaterSensor->getLastReading();
+        water_status = pSystemDesc->pWaterSensor->getLastStatus();
+
+        SF_OSAL_printf("%10d %6d\r", waterDetect, water_status);
+
+        delay(500);
+    }
+    SF_OSAL_printf(__NL__);
+}
+

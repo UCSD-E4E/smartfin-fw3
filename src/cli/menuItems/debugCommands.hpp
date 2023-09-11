@@ -33,5 +33,13 @@ void CLI_monitorIMU(void);
  * @brief check charge ports
 */
 void CLI_checkCharging(void);
+/**
+ * @brief monitor wet/dry sensor
+*/
+void CLI_monitorWetDry(void);
+/**
+ * @brief run manufacturing test
+*/
+void CLI_doMfgTest(void);
 
 #endif

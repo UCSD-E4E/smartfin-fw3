@@ -3,6 +3,7 @@
 
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
+#include "watersensor/waterSensor.hpp"
 
 #include "temperature/tmpSensor.h"
 #include "location_service.h"
@@ -26,8 +27,11 @@ typedef struct SystemDesc_
     const char* deviceID;
     LocationService* pLocService;
     Timer* pChargerCheck;
+    Timer* pWaterCheck;
     NVRAM* pNvram;
+    WaterSensor* pWaterSensor;
     SFLed* pBatteryLED;
+    SFLed* pWaterLED;
     tmpSensor* pTempSensor;
     LEDSystemTheme* systemTheme;
     const SystemFlags_t* flags;

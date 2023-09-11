@@ -32,6 +32,8 @@ static void SYS_chargerTask(void);
 static int SYS_initGPS(void);
 static int SYS_initNVRAM(void);
 static int SYS_initTasks(void);
+static void SYS_waterTask(void);
+static int SYS_initWaterSensor(void);
 static int SYS_initLEDs(void);
 static int SYS_initTempSensor(void);
 
@@ -42,7 +44,10 @@ tmpSensor tempSensor(max31725);
 static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
+static Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
 static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
+
+static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN, WATER_DETECT_SURF_SESSION_INIT_WINDOW);
 
 static LocationServiceConfiguration create_location_service_config();
 
@@ -63,6 +68,7 @@ int SYS_initSys(void)
     SYS_initTempSensor();
     SYS_initNVRAM();
     SYS_initNVRAM();
+    SYS_initWaterSensor();
     SYS_initLEDs();
 
     return 1;
@@ -81,6 +87,9 @@ static int SYS_initTasks(void)
     systemFlags.batteryLow = false;
 
     systemDesc.pChargerCheck = &chargerTimer;
+    systemDesc.pWaterCheck = &waterTimer;
+    waterTimer.start();
+
     return 1;
 }
 
@@ -90,6 +99,18 @@ static int SYS_initTempSensor(void)
     Wire.begin();
     systemDesc.pTempSensor = &tempSensor;
 
+    return 1;
+}
+
+
+static int SYS_initWaterSensor(void)
+{
+    pinMode(WATER_DETECT_EN_PIN, OUTPUT);
+    pinMode(WATER_DETECT_PIN, INPUT);
+    pinMode(WATER_MFG_TEST_EN, OUTPUT);
+    digitalWrite(WATER_MFG_TEST_EN, LOW);
+    systemDesc.pWaterSensor = &waterSensor;
+    ledTimer.start();
     return 1;
 }
 
@@ -159,6 +180,19 @@ void SYS_chargerTask(void)
         chargedTimestamp = 0;
         FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
         systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
+    }
+}
+
+static void SYS_waterTask(void)
+{
+    systemDesc.pWaterSensor->update();
+    if(systemDesc.pWaterSensor->getLastReading())
+    {
+        systemDesc.pWaterLED->setState(SFLed::SFLED_STATE_ON);
+    }
+    else
+    {
+        systemDesc.pWaterLED->setState(SFLed::SFLED_STATE_OFF);
     }
 }
 
