@@ -21,19 +21,16 @@ void MfgTest::init(void)
 
 STATES_e MfgTest::run(void)
 {
+    const mfg_test_fn* test_fn = nullptr;
     String deviceID = System.deviceID();
     int retval = 0;
 
     SF_OSAL_printf("Starting Manufacturing Testing" __NL__);
     SF_OSAL_printf("Testing Device %s" __NL__, deviceID.c_str());
 
-    for(uint8_t i = 0; MFG_TEST_TABLE[i]; i++)
+    for(test_fn = MFG_TEST_TABLE; *test_fn; test_fn++)
     {
-        retval = MFG_TEST_TABLE[i]();
-        if(retval != 0)
-        {
-            break;
-        }
+        retval |= (int)(*test_fn)();
     }
 
     if(retval)
@@ -51,9 +48,9 @@ void MfgTest::exit(void)
 {
 }
 
-int MfgTest::wet_dry_sensor_test(void)
+MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
 {
-    int retval = 0;
+    MFG_TEST_RESULT_t retval = MFG_TEST_RESULT_t::PASS;
 
     pSystemDesc->pWaterCheck->stop();
 
@@ -78,7 +75,7 @@ int MfgTest::wet_dry_sensor_test(void)
     if (!pSystemDesc->pWaterSensor->getCurrentStatus())
     {
         SF_OSAL_printf("Wet Sensor failed" __NL__);
-        retval = 1;
+        retval = MFG_TEST_RESULT_t::FAIL;
     }
     else
     {
@@ -100,7 +97,7 @@ int MfgTest::wet_dry_sensor_test(void)
     if (pSystemDesc->pWaterSensor->getCurrentStatus())
     {
         SF_OSAL_printf("Dry Sensor failed" __NL__);
-        retval = 1;
+        retval = MFG_TEST_RESULT_t::FAIL;
     }
     else
     {
@@ -116,10 +113,10 @@ int MfgTest::wet_dry_sensor_test(void)
 }
 
 
-int MfgTest::temperature_sensor_test(void)
+MfgTest::MFG_TEST_RESULT_t MfgTest::temperature_sensor_test(void)
 {
     float temp;
-    int retval = 0;
+    MFG_TEST_RESULT_t retval = MFG_TEST_RESULT_t::PASS;
 
     SF_OSAL_printf("Running the Temp Test" __NL__);
 
@@ -134,7 +131,7 @@ int MfgTest::temperature_sensor_test(void)
     else
     {
         SF_OSAL_printf("Temp failed" __NL__);
-        retval = 1;
+        retval = MFG_TEST_RESULT_t::FAIL;
     }
 
     pSystemDesc->pTempSensor->stop();

@@ -17,11 +17,23 @@ class MfgTest : public Task {
     void exit(void);
 
     private:
-    static int wet_dry_sensor_test(void);
-    static int temperature_sensor_test(void);
-    typedef int (*mfg_test_fn)(void);
+    typedef enum {
+        PASS = 0,
+        FAIL = 1,
+    } MFG_TEST_RESULT_t;
+    /**
+     * @brief Function signature for all manufacturing tests.
+     * 
+     * All manufacturing test functions MUST return one of either MfgTest::PASS
+     * 
+     * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise MfgTest::MFG_TEST_RESULT_t::FAIL.
+     * 
+     */
+    typedef MFG_TEST_RESULT_t (*mfg_test_fn)(void);
     static const mfg_test_fn MFG_TEST_TABLE[];
     
+    static MFG_TEST_RESULT_t wet_dry_sensor_test(void);
+    static MFG_TEST_RESULT_t temperature_sensor_test(void);
 };
 
 #endif
