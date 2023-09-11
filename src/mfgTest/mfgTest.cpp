@@ -9,10 +9,10 @@
 #include "product.hpp"
 #include "consts.hpp"
 
-int(* (MfgTest::MFG_TEST_TABLE)[])(void) = {
+const MfgTest::mfg_test_fn MfgTest::MFG_TEST_TABLE[] = {
     &MfgTest::wet_dry_sensor_test,
     &MfgTest::temperature_sensor_test,
-    NULL
+    nullptr
 };
 
 void MfgTest::init(void)
@@ -121,7 +121,7 @@ int MfgTest::temperature_sensor_test(void)
     float temp;
     int retval = 0;
 
-    SF_OSAL_printf("Running the Temp Test\r\n");
+    SF_OSAL_printf("Running the Temp Test" __NL__);
 
     pSystemDesc->pTempSensor->init();
 
@@ -129,11 +129,11 @@ int MfgTest::temperature_sensor_test(void)
 
     if ((temp >= MFG_MIN_VALID_TEMPERATURE) && (temp <= MFG_MAX_VALID_TEMPERATURE))
     {
-        SF_OSAL_printf("Temp passed: Temp %f\r\n", temp);
+        SF_OSAL_printf("Temp passed: Temp %f" __NL__, temp);
     }
     else
     {
-        SF_OSAL_printf("Temp failed\r\n");
+        SF_OSAL_printf("Temp failed" __NL__);
         retval = 1;
     }
 

@@ -19,7 +19,8 @@ class MfgTest : public Task {
     private:
     static int wet_dry_sensor_test(void);
     static int temperature_sensor_test(void);
-    static int(* MFG_TEST_TABLE[])(void);
+    typedef int (*mfg_test_fn)(void);
+    static const mfg_test_fn MFG_TEST_TABLE[];
     
 };
 
