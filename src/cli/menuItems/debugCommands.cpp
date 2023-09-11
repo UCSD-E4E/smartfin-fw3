@@ -61,16 +61,16 @@ void CLI_testGetNumFiles(void)
 void CLI_createTestFile(void)
 {
     int fd = open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
-    SF_OSAL_printf("Error: %d", errno);
-    SF_OSAL_printf("fd sucsess %d", fd);
+    SF_OSAL_printf("Error: %d" __NL__, errno);
+    SF_OSAL_printf("fd sucsess %d" __NL__, fd);
     
     if (fd != -1) {
         for(int ii = 0; ii < 100; ii++) {
             String msg = String::format("testing %d\n", ii);
-            SF_OSAL_printf("Creating file with msg %s", msg);
+            SF_OSAL_printf("Creating file with msg %s" __NL__, msg.c_str());
 
             int i = write(fd, msg.c_str(), msg.length());
-            SF_OSAL_printf("Sucsess: %d", i);
+            SF_OSAL_printf("Sucsess: %d" __NL__, i);
         }
         close(fd);
     }
