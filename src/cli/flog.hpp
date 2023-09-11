@@ -41,10 +41,11 @@ typedef enum FLOG_CODE_
     FLOG_CHARGER_REMOVED  =0x0702,
     FLOG_SYS_MOUNT_FAIL   =0x0703,
     FLOG_TEMP_FAIL        =0x0704,
+    FLOG_FS_OPENDIR_FAIL  =0x0800,
 }FLOG_CODE_e;
 
 void FLOG_Initialize(void);
-void FLOG_AddError(FLOG_CODE_e errorCode, uint16_t parameter);
+void FLOG_AddError(FLOG_CODE_e errorCode, uint32_t parameter);
 void FLOG_DisplayLog(void);
 void FLOG_ClearLog(void);
 

@@ -20,7 +20,7 @@ typedef struct FLOG_Entry_
 {
     uint32_t timestamp_ms;
     uint16_t errorCode;
-    uint16_t param;
+    uint32_t param;
 }FLOG_Entry_t;
 
 typedef struct FLOG_Data_
@@ -76,6 +76,7 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_TEMP_FAIL, "Temp Start Fail"},
     {FLOG_ICM_FAIL, "ICM Fail"},
     {FLOG_CHARGER_REMOVED, "Charger removed"},
+    {FLOG_FS_OPENDIR_FAIL, "opendir fail"},
     {FLOG_NULL, NULL}
 };
 
@@ -86,7 +87,7 @@ void FLOG_Initialize(void)
         FLOG_ClearLog();
     }
 }
-void FLOG_AddError(FLOG_CODE_e errorCode, uint16_t parameter)
+void FLOG_AddError(FLOG_CODE_e errorCode, uint32_t parameter)
 {
     FLOG_Entry_t* pEntry;
 
