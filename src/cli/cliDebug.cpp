@@ -38,13 +38,15 @@ const Menu_t CLI_debugMenu[] =
     {1, "Display Fault Log", &CLI_displayFLOG},
     {2, "Clear Fault Log", &CLI_clearFLOG},
     {3, "Restart System", &CLI_restart},
-    {4, "reinitialize system", &SYS_initSys},
-    {5, "create test file", &CLI_createTestFile},
-    {6, "test has data", &CLI_testHasData},
-    {7, "test num files", &CLI_testGetNumFiles},
-    {8, "wipe file system", &CLI_wipeFileSystem},
-    {9, "Monitor IMU", &CLI_monitorIMU},
-    {10, "Monitor Temperature", &CLI_monitorTempSensor},
+    {4, "MFG Test", &CLI_doMfgTest},
+    {5, "Wet/Dry Monitor", &CLI_monitorWetDry},
+    {6, "Monitor IMU", &CLI_monitorIMU},
+    {7, "Monitor Temperature", &CLI_monitorTempSensor},
+    {8, "reinitialize system", &SYS_initSys},
+    {9, "create test file", &CLI_createTestFile},
+    {10, "test has data", &CLI_testHasData},
+    {11, "test num files", &CLI_testGetNumFiles},
+    {12, "wipe file system", &CLI_wipeFileSystem},
     {0, NULL, NULL}
 };
 
@@ -55,6 +57,12 @@ void CLI_doDebugMode(void)
     int CLI_debugRun = 1;
     while (CLI_debugRun)
     {
+
+        if(CLI_nextState != STATE_CLI)
+        {
+            break;
+        }
+
         MNU_displayMenu(CLI_debugMenu);
 
         Menu_t *cmd;

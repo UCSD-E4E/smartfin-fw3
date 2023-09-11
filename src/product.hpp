@@ -14,19 +14,32 @@
  * Pin for the Battery Status LED
  */
 #define STAT_LED_PIN          A5
+
 /**
- * @brief Wakeup Pin
+ * Water Detect Enable Pin
+ */
+#define WATER_DETECT_EN_PIN   A2
+/**
+ * Water Detect Pin
+ */
+#define WATER_DETECT_PIN      A6
+/**
+ * @brief Manufacturing Water Detect Pin
  * 
  */
+#define WATER_MFG_TEST_EN     A3
 
 
 /**
- * @brief ICM20648 Address TODO
+ * @brief ICM20648 Address
  * 
  */
 #define SF_ICM20648_ADDR    (0x68 << 1)
 
-
+/**
+ * @brief Wakeup pin 
+ * 
+ */
 #define WKP_PIN               A7
 
 
@@ -40,6 +53,18 @@
 #define SF_FLASH_SIZE_MB    4
 
 /**
+ * window sizes are how many water detect samples are looked at in a moving 
+ * average to determine if we are in or out of the water.  Generally a sample
+ * happens 1/second
+ */
+#define WATER_DETECT_SURF_SESSION_INIT_WINDOW   40
+
+/**
+ * How long (in us) to turn on water detection circuit when looking for water
+ */
+#define WATER_DETECT_EN_TIME_US     1000
+
+/**
  * Charging voltage (mV)
  */
 #define SF_CHARGE_VOLTAGE   4112
@@ -49,11 +74,6 @@
  * 
  */
 #define SF_BATTERY_SHUTDOWN_VOLTAGE 3.0
-
-/**
- * How long (in us) to turn on water detection circuit when looking for water
- */
-#define WATER_DETECT_EN_TIME_US     1000
 
 /**
  * @brief Particle IO device
@@ -116,6 +136,10 @@
  */
 #define SF_CELL_SIGNAL_TIMEOUT_MS 300000
 
+/**
+ * Max size of the window/how large the FIFO array is
+ */
+#define WATER_DETECT_ARRAY_SIZE 200
 
 
 /**

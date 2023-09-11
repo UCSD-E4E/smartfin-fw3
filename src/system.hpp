@@ -4,6 +4,7 @@
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
 #include "cellular/recorder.hpp"
+#include "watersensor/waterSensor.hpp"
 
 #include "temperature/tmpSensor.h"
 #include "location_service.h"
@@ -28,8 +29,11 @@ typedef struct SystemDesc_
     LocationService* pLocService;
     Recorder* pRecorder;
     Timer* pChargerCheck;
+    Timer* pWaterCheck;
     NVRAM* pNvram;
+    WaterSensor* pWaterSensor;
     SFLed* pBatteryLED;
+    SFLed* pWaterLED;
     tmpSensor* pTempSensor;
     LEDSystemTheme* systemTheme;
     const SystemFlags_t* flags;
