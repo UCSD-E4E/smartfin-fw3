@@ -58,4 +58,9 @@ void CLI_monitorWetDry(void);
 */
 void CLI_doMfgTest(void);
 
+/**
+ * @brief File CLI
+ * 
+ */
+void CLI_fileCLI(void);
 #endif

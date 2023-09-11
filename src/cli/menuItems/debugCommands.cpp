@@ -15,6 +15,7 @@
 #include "cli/flog.hpp"
 #include "cli/cli.hpp"
 #include "states.hpp"
+#include "fileCLI/fileCLI.hpp"
 
 #include <fcntl.h>
 #include <dirent.h>
@@ -230,3 +231,8 @@ void CLI_monitorWetDry(void)
     SF_OSAL_printf(__NL__);
 }
 
+void CLI_fileCLI(void)
+{
+    FileCLI cli;
+    cli.execute();
+}

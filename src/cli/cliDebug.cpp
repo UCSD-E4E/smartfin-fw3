@@ -47,6 +47,7 @@ const Menu_t CLI_debugMenu[] =
     {10, "test has data", &CLI_testHasData},
     {11, "test num files", &CLI_testGetNumFiles},
     {12, "wipe file system", &CLI_wipeFileSystem},
+    {13, "File CLI", &CLI_fileCLI},
     {0, NULL, NULL}
 };
 
