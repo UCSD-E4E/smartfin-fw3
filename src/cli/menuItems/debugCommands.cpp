@@ -155,8 +155,10 @@ void CLI_doMfgTest(void)
 void CLI_monitorWetDry(void)
 {
     uint8_t waterDetect;
+    uint8_t water_status;
     char ch;
 
+    SF_OSAL_printf("Reading    Status" __NL__);
     while(1)
     {
         if(kbhit()) 
@@ -170,10 +172,12 @@ void CLI_monitorWetDry(void)
         }
     
         waterDetect = pSystemDesc->pWaterSensor->getLastReading();
+        water_status = pSystemDesc->pWaterSensor->getLastStatus();
 
-        SF_OSAL_printf("Water Reading: %d" __NL__, waterDetect);
+        SF_OSAL_printf("%10d %6d\r", waterDetect, water_status);
 
         delay(500);
     }
+    SF_OSAL_printf(__NL__);
 }
 
