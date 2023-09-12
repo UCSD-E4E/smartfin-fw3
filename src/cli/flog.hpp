@@ -42,6 +42,8 @@ typedef enum FLOG_CODE_
     FLOG_SYS_MOUNT_FAIL   =0x0703,
     FLOG_TEMP_FAIL        =0x0704,
     FLOG_FS_OPENDIR_FAIL  =0x0800,
+    FLOG_FS_STAT_FAIL     =0x0801,
+    FLOG_DEBUG            =0xFFFF,
 }FLOG_CODE_e;
 
 void FLOG_Initialize(void);

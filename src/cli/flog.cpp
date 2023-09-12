@@ -77,6 +77,8 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_ICM_FAIL, "ICM Fail"},
     {FLOG_CHARGER_REMOVED, "Charger removed"},
     {FLOG_FS_OPENDIR_FAIL, "opendir fail"},
+    {FLOG_FS_STAT_FAIL, "stat fail"},
+    {FLOG_DEBUG, "debug point"},
     {FLOG_NULL, NULL}
 };
 
