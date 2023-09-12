@@ -5,6 +5,7 @@
 
 #include <stddef.h>
 #include <dirent.h>
+#include <sys/syslimits.h>
 
 #define FILE_CLI_INPUT_BUFFER_LEN   80
 #define FILE_CLI_MAX_DIR_DEPTH  4
@@ -23,7 +24,7 @@ class FileCLI{
      * @brief Creates a new FileCLI object
      * 
      */
-    FileCLI(void){};
+    FileCLI(void);
     /**
      * @brief Executes the File CLI
      * 
@@ -82,9 +83,14 @@ class FileCLI{
      * 
      */
     void change_dir(void);
+    /**
+     * @brief Print working directory
+     * 
+     */
+    void print_dir(void);
     int run = 1;
     DIR* dir_stack[FILE_CLI_MAX_DIR_DEPTH];
-    char* path_stack[FILE_CLI_MAX_DIR_DEPTH];
+    char path_stack[FILE_CLI_MAX_DIR_DEPTH][NAME_MAX];
     int current_dir;
     typedef struct menu_
     {

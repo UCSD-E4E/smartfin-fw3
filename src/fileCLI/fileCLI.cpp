@@ -10,12 +10,15 @@
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/syslimits.h>
 
-static char path_buffer[FILE_CLI_MAX_PATH_LEN];
+static char path_buffer[PATH_MAX];
 
 FileCLI::menu_t FileCLI::fsExplorerMenu[] = 
 {
+    {'c', &FileCLI::change_dir},
     {'l', &FileCLI::list_dir},
+    {'p', &FileCLI::print_dir},
     {'q', &FileCLI::exit},
     {'\0', NULL}
 };
@@ -83,7 +86,7 @@ void FileCLI::list_dir(void)
                 f_type = 'd';
                 break;
         }
-        this->path_stack[this->current_dir] = dirent->d_name;
+        strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         const char* path = buildPath();
         if(stat(path, &file_stats))
         {
@@ -96,6 +99,7 @@ void FileCLI::list_dir(void)
                         dirent->d_name);
     }
     rewinddir(cwd);
+    memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 }
 
 FileCLI::menu_t* FileCLI::findCommand(const char* const cmd)
@@ -121,12 +125,17 @@ const char* FileCLI::buildPath(void)
 {
     size_t path_buffer_idx = 0;
     int dir_idx = 0;
-    for(; dir_idx < this->current_dir; dir_idx++)
+
+    memset(path_buffer, 0, PATH_MAX);
+
+
+    for(; dir_idx <= this->current_dir; dir_idx++)
     {
-        strcpy(path_buffer, PATH_SEP);
+
+        strcpy(path_buffer + path_buffer_idx, PATH_SEP);
         strncpy(path_buffer + path_buffer_idx + 1,
-                this->path_stack[this->current_dir],
-                FILE_CLI_MAX_PATH_LEN - path_buffer_idx - 1);
+                this->path_stack[dir_idx],
+                PATH_MAX - path_buffer_idx - 1);
         path_buffer_idx = strlen(path_buffer);
     }
     return path_buffer;
@@ -134,19 +143,71 @@ const char* FileCLI::buildPath(void)
 
 void FileCLI::change_dir(void)
 {
+    char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
     DIR* cwd = this->dir_stack[this->current_dir];
     struct dirent* dirent;
     long idx = 0;
+    int cmd_val;
+    const char* path;
+    long same_dir_idx = 0, prev_dir_idx = 0;
 
+    idx = telldir(cwd);
     while ((dirent = readdir(cwd)))
     {
         if(dirent->d_type == DT_REG)
         {
             continue;
         }
-        idx = telldir(cwd);
         SF_OSAL_printf("%d: %-16s" __NL__,
                         idx,
                         dirent->d_name);
+        if(strcmp(dirent->d_name, ".") == 0)
+        {
+            same_dir_idx = idx;
+        }
+        if(strcmp(dirent->d_name, "..") == 0)
+        {
+            prev_dir_idx = idx;
+        }
+        idx = telldir(cwd);
     }
+    rewinddir(cwd);
+    SF_OSAL_printf(__NL__);
+    SF_OSAL_printf("Enter the number of the directory to change to: ");
+    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    cmd_val = atoi(input_buffer);
+
+    if(cmd_val == same_dir_idx)
+    {
+        return;
+    }
+    if(cmd_val == prev_dir_idx && this->current_dir != 0)
+    {
+        memset(this->path_stack[this->current_dir - 1], 0, NAME_MAX);
+        closedir(this->dir_stack[this->current_dir]);
+        this->current_dir--;
+        return;
+    }
+
+    seekdir(cwd, cmd_val);
+    dirent = readdir(cwd);
+    rewinddir(cwd);
+    strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+    this->current_dir++;
+    path = buildPath();
+    this->dir_stack[this->current_dir] = opendir(path);
+}
+
+FileCLI::FileCLI(void)
+{
+    memset(this->path_stack,
+           0,
+           sizeof(char) * FILE_CLI_MAX_DIR_DEPTH * NAME_MAX);
+}
+
+void FileCLI::print_dir(void)
+{
+    const char* path;
+    path = buildPath();
+    SF_OSAL_printf("%s" __NL__, path);
 }
