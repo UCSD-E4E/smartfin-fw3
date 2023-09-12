@@ -32,7 +32,8 @@ void FileCLI::execute(void)
     this->dir_stack[this->current_dir] = opendir("/");
     if(NULL == this->dir_stack[this->current_dir])
     {
-        FLOG_AddError(FLOG_FS_OPENDIR_FAIL, (uint32_t)this->dir_stack[this->current_dir]);
+        FLOG_AddError(FLOG_FS_OPENDIR_FAIL,
+                      (uint32_t)this->dir_stack[this->current_dir]);
         SF_OSAL_printf("Failed to open root" __NL__);
         return;
     }
