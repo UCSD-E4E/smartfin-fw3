@@ -5,10 +5,10 @@
 #include "consts.hpp"
 
 #include <fcntl.h>
+#include <dirent.h>
 
 #include "Particle.h"
 
-#include <sys/dirent.h>
 
 
 FileCLI::menu_t FileCLI::fsExplorerMenu[] = 

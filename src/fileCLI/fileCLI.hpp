@@ -1,9 +1,12 @@
 #ifndef __FILECLI_H__
 #define __FILECLI_H__
 
-#include <dirent.h>
-
+/* 
+ * The include order must violate the style guide since Particle.h defines some of the required definitions
+ * used by dirent.h
+ */
 #include "Particle.h"
+#include <dirent.h>
 
 #define FILE_CLI_INPUT_BUFFER_LEN   80
 
