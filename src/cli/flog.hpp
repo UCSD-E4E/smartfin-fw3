@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define FLOG_NUM_ENTRIES    256
+#define FLOG_NUM_ENTRIES    128
 
 typedef enum FLOG_CODE_
 {
