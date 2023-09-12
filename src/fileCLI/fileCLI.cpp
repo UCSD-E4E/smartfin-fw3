@@ -6,6 +6,7 @@
 
 #include "Particle.h"
 
+#include <ctype.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <string.h>
@@ -17,6 +18,7 @@ static char path_buffer[PATH_MAX];
 FileCLI::menu_t FileCLI::fsExplorerMenu[] = 
 {
     {'c', &FileCLI::change_dir},
+    {'h', &FileCLI::dumpHex},
     {'l', &FileCLI::list_dir},
     {'p', &FileCLI::print_dir},
     {'q', &FileCLI::exit},
@@ -159,6 +161,7 @@ void FileCLI::change_dir(void)
     {
         if(dirent->d_type == DT_REG)
         {
+            idx = telldir(cwd);
             continue;
         }
         SF_OSAL_printf("%d: %-16s" __NL__,
@@ -264,4 +267,111 @@ void FileCLI::deleteFile(void)
     }
     this->current_dir--;
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
+}
+
+
+void hexdump(int fp, size_t file_len)
+{
+    #define BYTES_PER_LINE 16
+    size_t file_idx = 0;
+    uint8_t byte_buffer[BYTES_PER_LINE + 1];
+    int bytes_read = 0;
+    size_t line_idx = 0;
+
+    for (file_idx = 0; file_idx < file_len; file_idx += bytes_read)
+    {
+        SF_OSAL_printf("%08x  ", file_idx);
+        memset(byte_buffer, 0, BYTES_PER_LINE + 1);
+        bytes_read = read(fp, byte_buffer, BYTES_PER_LINE);
+        if (-1 == bytes_read)
+        {
+            SF_OSAL_printf(__NL__ "Error in reading: %s" __NL__, 
+                           strerror(errno));
+            return;
+        }
+        // Print hex
+        for(line_idx = 0; line_idx < (size_t) bytes_read; line_idx++)
+        {
+            SF_OSAL_printf("%02hx ", byte_buffer[line_idx]);
+            if (7 == line_idx)
+            {
+                SF_OSAL_printf(" ");
+            }
+            // Make the byte printable
+            if (!isprint(byte_buffer[line_idx]))
+            {
+                byte_buffer[line_idx] = (uint8_t) '.';
+            }
+        }
+        // fill line
+        for(;line_idx < BYTES_PER_LINE; line_idx++)
+        {
+            SF_OSAL_printf("   ");
+            if (7 == line_idx)
+            {
+                SF_OSAL_printf(" ");
+            }
+        }
+        SF_OSAL_printf(" |%s|" __NL__, (const char*) byte_buffer);
+    }
+    SF_OSAL_printf("0x%08x" __NL__, file_idx);
+
+}
+
+void FileCLI::dumpHex(void)
+{
+    char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
+    DIR* cwd = this->dir_stack[this->current_dir];
+    struct dirent* dirent;
+    long idx;
+    int cmd_val;
+    const char* path;
+    int fp;
+    struct stat fstats;
+
+    idx = telldir(cwd);
+    while ((dirent = readdir(cwd)))
+    {
+        if (dirent->d_type != DT_REG)
+        {
+            idx = telldir(cwd);
+            continue;
+        }
+        strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+        SF_OSAL_printf("%d: %-16s" __NL__,
+                        idx,
+                        dirent->d_name);
+        idx = telldir(cwd);
+    }
+    rewinddir(cwd);
+    memset(this->path_stack[this->current_dir], 0, NAME_MAX);
+
+    SF_OSAL_printf("Enter the number of the file to hexdump: ");
+    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    cmd_val = atoi(input_buffer);
+
+    seekdir(cwd, cmd_val);
+    dirent = readdir(cwd);
+    rewinddir(cwd);
+    strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+    this->current_dir++;
+    path = buildPath(false);
+
+    fp = open(path, O_RDONLY);
+    if(-1 == fp)
+    {
+        SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
+        return;
+    }
+
+    if(fstat(fp, &fstats))
+    {
+        SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
+        close(fp);
+        return;
+    }
+
+    hexdump(fp, fstats.st_size);
+
+    close(fp);
 }
