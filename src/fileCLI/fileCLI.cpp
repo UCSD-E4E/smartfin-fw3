@@ -20,6 +20,7 @@ FileCLI::menu_t FileCLI::fsExplorerMenu[] =
     {'l', &FileCLI::list_dir},
     {'p', &FileCLI::print_dir},
     {'q', &FileCLI::exit},
+    {'r', &FileCLI::deleteFile},
     {'\0', NULL}
 };
 
@@ -87,7 +88,7 @@ void FileCLI::list_dir(void)
                 break;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
-        const char* path = buildPath();
+        const char* path = buildPath(true);
         if(stat(path, &file_stats))
         {
             FLOG_AddError(FLOG_FS_STAT_FAIL, errno);
@@ -121,7 +122,7 @@ void FileCLI::exit(void)
     FLOG_AddError(FLOG_DEBUG, 0);
 }
 
-const char* FileCLI::buildPath(void)
+const char* FileCLI::buildPath(bool is_dir)
 {
     size_t path_buffer_idx = 0;
     int dir_idx = 0;
@@ -129,7 +130,9 @@ const char* FileCLI::buildPath(void)
     memset(path_buffer, 0, PATH_MAX);
 
 
-    for(; dir_idx <= this->current_dir; dir_idx++)
+    for(; 
+        is_dir ? (dir_idx <= this->current_dir) : (dir_idx < this->current_dir);
+        dir_idx++)
     {
 
         strcpy(path_buffer + path_buffer_idx, PATH_SEP);
@@ -194,7 +197,7 @@ void FileCLI::change_dir(void)
     rewinddir(cwd);
     strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
     this->current_dir++;
-    path = buildPath();
+    path = buildPath(true);
     this->dir_stack[this->current_dir] = opendir(path);
 }
 
@@ -208,6 +211,57 @@ FileCLI::FileCLI(void)
 void FileCLI::print_dir(void)
 {
     const char* path;
-    path = buildPath();
+    path = buildPath(true);
     SF_OSAL_printf("%s" __NL__, path);
+}
+
+void FileCLI::deleteFile(void)
+{
+    char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
+    DIR* cwd = this->dir_stack[this->current_dir];
+    struct dirent* dirent;
+    char f_type;
+    long idx;
+    int cmd_val;
+    const char* path;
+
+    idx = telldir(cwd);
+    while ((dirent = readdir(cwd)))
+    {
+        switch(dirent->d_type)
+        {
+            default:
+            case DT_REG:
+                f_type = ' ';
+                break;
+            case DT_DIR:
+                f_type = 'd';
+                break;
+        }
+        strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+        SF_OSAL_printf("%d: %c %-16s" __NL__,
+                        idx,
+                        f_type,
+                        dirent->d_name);
+        idx = telldir(cwd);
+    }
+    rewinddir(cwd);
+    memset(this->path_stack[this->current_dir], 0, NAME_MAX);
+
+    SF_OSAL_printf("Enter the number of the file to remove: ");
+    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    cmd_val = atoi(input_buffer);
+
+    seekdir(cwd, cmd_val);
+    dirent = readdir(cwd);
+    rewinddir(cwd);
+    strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+    this->current_dir++;
+    path = buildPath(false);
+    if(unlink(path))
+    {
+        SF_OSAL_printf("Failed to unlink file: %s" __NL__, strerror(errno));
+    }
+    this->current_dir--;
+    memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 }

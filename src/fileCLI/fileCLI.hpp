@@ -105,6 +105,6 @@ class FileCLI{
      * @return Pointer to menu entry if matching entry found, otherwise nullptr
      */
     static menu_t* findCommand(const char* const cmd);
-    const char* buildPath(void);
+    const char* buildPath(bool is_dir);
 };
 #endif
