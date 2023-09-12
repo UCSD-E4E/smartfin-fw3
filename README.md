@@ -17,7 +17,7 @@ tracker edge    | v18     | Apache 2.0 | https://github.com/particle-iot/tracker
 SparkFun ICM    | 1.2.0   | MIT     | https://github.com/UCSD-E4E/SparkFun_ICM-20948_ParticleLibrary | lib/SparkFun_ICM-20948_ParticleLibrary
 Max 31725       | 2019    | Apache 2.0 | https://os.mbed.com/teams/MaximIntegrated/code/MAX31725_Accurate_Temperature_Sensor//file/b4fdbbe79036/max31725.h/ | temperature/
 urlsafe-b64     | 022c4cc | MIT     | https://github.com/Akagi201/urlsafe-b64 | src/cellular/encoding
-base85          | 2cd6e9b | MIT     | https://github.com/rafagafe/base85 | src/cellular/encoding
+base85          | 9c52d27 | MIT     | https://github.com/rafagafe/base85 | src/cellular/encoding
 
 
 
