@@ -35,7 +35,7 @@ FileCLI::menu_t FileCLI::fsExplorerMenu[] =
 void FileCLI::print_help(void)
 {
     SF_OSAL_printf("%c\t%s" __NL__, 'p', "Print Working Directory");
-    SF_OSAL_printf("%c\t%s" __NL__, 'l', "List Dir");
+    SF_OSAL_printf("%c\t%s" __NL__, 'l', "List Directory");
     SF_OSAL_printf("%c\t%s" __NL__, 'c', "Change Directory");
     SF_OSAL_printf("%c\t%s" __NL__, 'r', "Remove File/Directory");
     SF_OSAL_printf("%c\t%s" __NL__, 'd', "Base85/64 Dump");
