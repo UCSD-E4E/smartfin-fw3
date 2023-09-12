@@ -28,9 +28,21 @@ FileCLI::menu_t FileCLI::fsExplorerMenu[] =
     {'p', &FileCLI::print_dir},
     {'q', &FileCLI::exit},
     {'r', &FileCLI::deleteFile},
+    {'?', &FileCLI::print_help},
     {'\0', NULL}
 };
 
+void FileCLI::print_help(void)
+{
+    SF_OSAL_printf("%c\t%s" __NL__, 'p', "Print Working Directory");
+    SF_OSAL_printf("%c\t%s" __NL__, 'l', "List Dir");
+    SF_OSAL_printf("%c\t%s" __NL__, 'c', "Change Directory");
+    SF_OSAL_printf("%c\t%s" __NL__, 'r', "Remove File/Directory");
+    SF_OSAL_printf("%c\t%s" __NL__, 'd', "Base85/64 Dump");
+    SF_OSAL_printf("%c\t%s" __NL__, 'h', "Hex Dump");
+    SF_OSAL_printf("%c\t%s" __NL__, 'q', "Quit");
+    SF_OSAL_printf("%c\t%s" __NL__, '?', "Displays this help text");
+}
 
 void FileCLI::execute(void)
 {

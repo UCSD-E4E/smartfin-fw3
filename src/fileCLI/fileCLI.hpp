@@ -38,11 +38,7 @@ class FileCLI{
 
     protected:
     private:
-    /**
-     * @brief Duplicates the current file
-     * 
-     */
-    void copyFile(void);
+
     /**
      * @brief Dumps the current file to console as base85
      * 
@@ -80,6 +76,13 @@ class FileCLI{
      * 
      */
     void print_dir(void);
+
+    /**
+     * @brief Prints the help for the FileCLI
+     * 
+     */
+    void print_help(void);
+
     int run = 1;
     DIR* dir_stack[FILE_CLI_MAX_DIR_DEPTH];
     char path_stack[FILE_CLI_MAX_DIR_DEPTH][NAME_MAX];
