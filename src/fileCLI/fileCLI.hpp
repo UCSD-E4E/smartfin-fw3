@@ -1,14 +1,15 @@
 #ifndef __FILECLI_H__
 #define __FILECLI_H__
 
-/* 
- * The include order must violate the style guide since Particle.h defines some of the required definitions
- * used by dirent.h
- */
 #include "Particle.h"
+
+#include <stddef.h>
 #include <dirent.h>
 
 #define FILE_CLI_INPUT_BUFFER_LEN   80
+#define FILE_CLI_MAX_DIR_DEPTH  4
+#define PATH_SEP    "/"
+#define FILE_CLI_MAX_PATH_LEN   64
 
 /**
  * @brief File CLI
@@ -82,12 +83,22 @@ class FileCLI{
      */
     void list_dir(void);
     int run = 1;
-    DIR* current_dir;
+    DIR* dir_stack[FILE_CLI_MAX_DIR_DEPTH];
+    char* path_stack[FILE_CLI_MAX_DIR_DEPTH];
+    int current_dir;
     typedef struct menu_
     {
         const char cmd;
         void (FileCLI::*fn)(void);
     } menu_t;
     static menu_t fsExplorerMenu[];
+    /**
+     * @brief Finds the menu entry corresponding to the specified command string
+     * 
+     * @param cmd Command String
+     * @return Pointer to menu entry if matching entry found, otherwise nullptr
+     */
+    static menu_t* findCommand(const char* const cmd);
+    const char* buildPath(void);
 };
 #endif
