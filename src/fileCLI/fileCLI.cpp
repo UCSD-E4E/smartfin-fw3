@@ -3,6 +3,10 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "cellular/encoding/base64.h"
+#include "cellular/encoding/base85.h"
+#include "product.hpp"
+#include "system.hpp"
 
 #include "Particle.h"
 
@@ -18,6 +22,7 @@ static char path_buffer[PATH_MAX];
 FileCLI::menu_t FileCLI::fsExplorerMenu[] = 
 {
     {'c', &FileCLI::change_dir},
+    {'d', &FileCLI::dumpBase85},
     {'h', &FileCLI::dumpHex},
     {'l', &FileCLI::list_dir},
     {'p', &FileCLI::print_dir},
@@ -48,6 +53,7 @@ void FileCLI::execute(void)
     {
         FLOG_AddError(FLOG_DEBUG, 5);
         SF_OSAL_printf(":>");
+        memset(input_buffer, 0, FILE_CLI_INPUT_BUFFER_LEN);
         getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
         cmd = findCommand(input_buffer);
         if (!cmd)
@@ -372,6 +378,96 @@ void FileCLI::dumpHex(void)
     }
 
     hexdump(fp, fstats.st_size);
+
+    close(fp);
+}
+
+void base85dump(int fp, size_t file_len)
+{
+    size_t file_idx = 0, bytes_read;
+    uint8_t byte_buffer[512];
+    char encoded_buffer[1024];
+    size_t totalEncodedLen = 0;
+    size_t n_packets = 0;
+    size_t encodedLen = 0;
+    for(file_idx = 0; file_idx < file_len; file_idx += bytes_read)
+    {
+        bytes_read = read(fp, byte_buffer, SF_BLOCK_SIZE);
+        #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
+            encodedLen = bintob85(encoded_buffer, byte_buffer, bytes_read) - encodedBuffer;
+        #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64
+            encodedLen = 1024;
+            b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
+        #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
+            encodedLen = 1024;
+            urlsafe_b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
+        #endif
+        totalEncodedLen += encodedLen;
+        SF_OSAL_printf("%s" __NL__, encoded_buffer);
+        n_packets++;
+    }
+
+    SF_OSAL_printf(__NL__ "%d chars of encoded data" __NL__, totalEncodedLen);
+    SF_OSAL_printf("%d packets" __NL__, n_packets);
+}
+
+void FileCLI::dumpBase85(void)
+{
+    char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
+    DIR* cwd = this->dir_stack[this->current_dir];
+    struct dirent* dirent;
+    long idx;
+    int cmd_val;
+    const char* path;
+    int fp;
+    struct stat fstats;
+
+    idx = telldir(cwd);
+    while ((dirent = readdir(cwd)))
+    {
+        if (dirent->d_type != DT_REG)
+        {
+            idx = telldir(cwd);
+            continue;
+        }
+        strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+        SF_OSAL_printf("%d: %-16s" __NL__,
+                        idx,
+                        dirent->d_name);
+        idx = telldir(cwd);
+    }
+    rewinddir(cwd);
+    memset(this->path_stack[this->current_dir], 0, NAME_MAX);
+
+    SF_OSAL_printf("Enter the number of the file to dump: ");
+    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    cmd_val = atoi(input_buffer);
+
+    seekdir(cwd, cmd_val);
+    dirent = readdir(cwd);
+    rewinddir(cwd);
+    strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+    this->current_dir++;
+    path = buildPath(false);
+
+    fp = open(path, O_RDONLY);
+    if(-1 == fp)
+    {
+        SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
+        return;
+    }
+
+    if(fstat(fp, &fstats))
+    {
+        SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
+        close(fp);
+        return;
+    }
+
+    SF_OSAL_printf("Publish Header: %s-%s" __NL__,
+                   pSystemDesc->deviceID,
+                   dirent->d_name);
+    base85dump(fp, fstats.st_size);
 
     close(fp);
 }

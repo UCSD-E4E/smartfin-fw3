@@ -48,21 +48,13 @@ class FileCLI{
      * 
      */
     void dumpBase85(void);
-    /**
-     * @brief Dumps the current file as a comma separate sequence of byte values
-     * 
-     */
-    void dumpDecimal(void);
+
     /**
      * @brief Dumps the current file as a hexdump
      * 
      */
     void dumpHex(void);
-    /**
-     * @brief Dumps the current file to console as ASCII
-     * 
-     */
-    void dumpAscii(void);
+
     /**
      * @brief Removes the current file from the filesystem
      * 

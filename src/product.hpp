@@ -214,4 +214,5 @@
 
 #define SF_CLI_MAX_CMD_LEN 100
 
+#define SF_BLOCK_SIZE   496
 #endif
