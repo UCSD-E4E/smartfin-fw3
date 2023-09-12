@@ -38,11 +38,6 @@ class FileCLI{
     protected:
     private:
     /**
-     * @brief Switches to the next active file
-     * 
-     */
-    void doNextFile(void);
-    /**
      * @brief Duplicates the current file
      * 
      */
@@ -82,6 +77,11 @@ class FileCLI{
      * 
      */
     void list_dir(void);
+    /**
+     * @brief Changes to the specified directory
+     * 
+     */
+    void change_dir(void);
     int run = 1;
     DIR* dir_stack[FILE_CLI_MAX_DIR_DEPTH];
     char* path_stack[FILE_CLI_MAX_DIR_DEPTH];

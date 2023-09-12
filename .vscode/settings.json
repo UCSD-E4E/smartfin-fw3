@@ -72,5 +72,6 @@
     "editor.rulers": [
         80
     ],
+    "particle.enableVerboseLocalCompilerLogging": true,
 
 }

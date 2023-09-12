@@ -95,6 +95,7 @@ void FileCLI::list_dir(void)
                         file_stats.st_size,
                         dirent->d_name);
     }
+    rewinddir(cwd);
 }
 
 FileCLI::menu_t* FileCLI::findCommand(const char* const cmd)
@@ -129,4 +130,23 @@ const char* FileCLI::buildPath(void)
         path_buffer_idx = strlen(path_buffer);
     }
     return path_buffer;
+}
+
+void FileCLI::change_dir(void)
+{
+    DIR* cwd = this->dir_stack[this->current_dir];
+    struct dirent* dirent;
+    long idx = 0;
+
+    while ((dirent = readdir(cwd)))
+    {
+        if(dirent->d_type == DT_REG)
+        {
+            continue;
+        }
+        idx = telldir(cwd);
+        SF_OSAL_printf("%d: %-16s" __NL__,
+                        idx,
+                        dirent->d_name);
+    }
 }
