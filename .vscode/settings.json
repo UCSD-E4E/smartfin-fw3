@@ -69,5 +69,8 @@
     "C_Cpp.intelliSenseEngine": "Tag Parser",
     "C_Cpp.doxygen.generatedStyle": "/**",
     "C_Cpp.autoAddFileAssociations": false,
+    "editor.rulers": [
+        80
+    ],
 
 }
