@@ -1,21 +1,27 @@
 
 /*
- * Developed by Rafa Garcia <rafagarcia77@gmail.com>
- *
- * base85.c is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * base85.c is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with base85.c.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
+<https://github.com/rafagafe/base85>
+
+  Licensed under the MIT License <http://opensource.org/licenses/MIT>.
+  SPDX-License-Identifier: MIT
+  Copyright (c) 2016-2018 Rafa Garcia <rafagarcia77@gmail.com>.
+  Permission is hereby  granted, free of charge, to any  person obtaining a copy
+  of this software and associated  documentation files (the "Software"), to deal
+  in the Software  without restriction, including without  limitation the rights
+  to  use, copy,  modify, merge,  publish, distribute,  sublicense, and/or  sell
+  copies  of  the Software,  and  to  permit persons  to  whom  the Software  is
+  furnished to do so, subject to the following conditions:
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+  THE SOFTWARE  IS PROVIDED "AS  IS", WITHOUT WARRANTY  OF ANY KIND,  EXPRESS OR
+  IMPLIED,  INCLUDING BUT  NOT  LIMITED TO  THE  WARRANTIES OF  MERCHANTABILITY,
+  FITNESS FOR  A PARTICULAR PURPOSE AND  NONINFRINGEMENT. IN NO EVENT  SHALL THE
+  AUTHORS  OR COPYRIGHT  HOLDERS  BE  LIABLE FOR  ANY  CLAIM,  DAMAGES OR  OTHER
+  LIABILITY, WHETHER IN AN ACTION OF  CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+*/
 
 #include "base85.h"
 
@@ -32,11 +38,10 @@ static char const bintodigit[] = {
 
     '!','#','$','%','&','(',')','*','+','-',';',
     '<','=','>','?','@','^','_','`','{','|','}','~',
-
 };
 
 /** Escape values. */
-enum escape_e {
+enum escape {
     notadigit = 85u /**< Return value when a non-digit-base-85 is found. */
 };
 
@@ -60,23 +65,21 @@ static unsigned char const digittobin[] = {
     85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85,
 };
 
-/** Some powers of 85. */
-enum p855_e {
-    p850 = 1ul,         /*< 85^0 */
-    p851 = 85ul,        /*< 85^1 */
-    p852 = p851 * p851, /*< 85^2 */
-    p853 = p851 * p852, /*< 85^3 */
-    p854 = p851 * p853, /*< 85^4 */
-};
+/* Some powers of 85. */
+#define p850 1ul           /*< 85^0 */
+#define p851 85ul          /*< 85^1 */
+#define p852 (p851 * p851) /*< 85^2 */
+#define p853 (p851 * p852) /*< 85^3 */
+#define p854 (p851 * p853) /*< 85^4 */
+
 
 /** Powers of 85 list. */
 static unsigned long const pow85[] = { p854, p853, p852, p851, p850 };
 
 /** Converts a integer of 4 bytes in 5 digits of base 85.
   * @param dest Memory block where to put the 5 digits of base 85.
-  * @param value Value of the integer of 4 bytes.
-  * @return dest + 5. */
-static char* ultob85( char* dest, unsigned int long value ) {
+  * @param value Value of the integer of 4 bytes. */
+static void ultob85( char* dest, unsigned int long value ) {
 
     unsigned int const digitsQty = sizeof pow85 / sizeof *pow85;
 
@@ -85,8 +88,6 @@ static char* ultob85( char* dest, unsigned int long value ) {
         dest[ i ] = bintodigit[ bin ];
         value -= bin * pow85[ i ];
     }
-
-    return dest + digitsQty;
 }
 
 /** Helper constant to get the endianness of the running machine. */
@@ -99,39 +100,38 @@ static char const* const littleEndian = (char const*)&endianness;
   * @param src Pointer to array of bytes.
   * @param sz Size in bytes of array from 0 until 4.
   * @return  The unsigned long value. */
-static unsigned long betoul( void const* src, unsigned int sz ) {
+static unsigned long betoul( void const* src, int sz ) {
 
     unsigned long value = 0;
     char* const d = (char*)&value;
     char const* const s = (char const*)src;
 
-    for( unsigned int i = 0; i < sz; ++i )
+    for( int i = 0; i < sz; ++i )
         d[ *littleEndian ? 3 - i : i ] = s[ i ];
 
-    for( unsigned int i = sz; i < 4; ++i )
+    for( int i = sz; i < 4; ++i )
         d[ *littleEndian ? 3 - i : i ] = 0;
 
     return value;
 }
 
-/* Convert a binary memory block in a base85 null-terminated string. */
-char* bintob85( char* dest, void const* src, size_t size ) {
+char* bintob85( char* restrict dest, void const* restrict src, size_t size ) {
 
-    char const* s = (char const*)src;
-    unsigned int const quartets = size / 4;
-    for( unsigned int i = 0; i < quartets; ++i, s += 4 ) {
-        unsigned long const value = betoul( s, 4 );
-        dest = ultob85( dest, value );
-    }
+    size_t const quartets = size / 4;
+    char const* s = (char*)src + 4 * quartets;
+    dest += 5 * quartets;
 
-    unsigned int const remainder = size % 4;
-    if ( remainder ) {
-        unsigned long const value = betoul( s, remainder );
-        dest = ultob85( dest, value );
-    }
+    int const remainder = size % 4;
+    if ( remainder )
+        ultob85( dest, betoul( s, remainder ) );
 
-    *dest = '\0';
-    return dest;
+    char* rslt = dest + ( remainder ? 5 : 0 );
+    *rslt = '\0';
+
+    for( size_t i = 0; i < quartets; ++i )
+        ultob85( dest -= 5, betoul( s -= 4, 4 ) );
+
+    return rslt;
 }
 
 /** Copy a unsigned long in a big-endian array of 4 bytes.
@@ -143,29 +143,25 @@ static void* ultobe( void* dest, unsigned long value ) {
     char* const d = (char*)dest;
     char const* const s = (char*)&value;
 
-    for( unsigned int i = 0; i < 4; ++i )
+    for( int i = 0; i < 4; ++i )
         d[ i ] = s[ *littleEndian ? 3 - i : i ];
 
     return d + 4;
 }
 
 /* Convert a base85 string to binary format. */
-void* b85tobin( void* dest, char const* src ) {
+void* b85tobin( void* restrict dest, char const* restrict src ) {
 
     for( unsigned char const* s = (unsigned char const*)src;; ) {
 
         unsigned long value = 0;
-        for( unsigned int i = 0; i < sizeof pow85 / sizeof *pow85; ++i, ++s ) {
+        for( int i = 0; i < sizeof pow85 / sizeof *pow85; ++i, ++s ) {
             unsigned int const bin = digittobin[ *s ];
-            if ( bin == notadigit ) return i == 0 ? dest : 0;
+            if ( bin == notadigit )
+                return i == 0 ? dest : 0;
             value += bin * pow85[ i ];
         }
 
         dest = ultobe( dest, value );
     }
-}
-
-const char* _b85_getcharset(void)
-{
-    return bintodigit;
 }
