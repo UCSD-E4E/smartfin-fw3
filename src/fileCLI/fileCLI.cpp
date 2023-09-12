@@ -19,7 +19,7 @@
 
 static char path_buffer[PATH_MAX];
 
-FileCLI::menu_t FileCLI::fsExplorerMenu[] = 
+FileCLI::menu_t FileCLI::fsExplorerMenu[] =
 {
     {'c', &FileCLI::change_dir},
     {'d', &FileCLI::dumpBase85},
@@ -48,15 +48,15 @@ void FileCLI::execute(void)
 {
     char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
     menu_t* cmd;
-    void (FileCLI::*fn)(void);
+    void (FileCLI:: * fn)(void);
 
     this->run = 1;
     this->current_dir = 0;
     this->dir_stack[this->current_dir] = opendir("/");
-    if(NULL == this->dir_stack[this->current_dir])
+    if (NULL == this->dir_stack[this->current_dir])
     {
         FLOG_AddError(FLOG_FS_OPENDIR_FAIL,
-                      (uint32_t)this->dir_stack[this->current_dir]);
+            (uint32_t)this->dir_stack[this->current_dir]);
         SF_OSAL_printf("Failed to open root" __NL__);
         return;
     }
@@ -79,7 +79,7 @@ void FileCLI::execute(void)
         }
         FLOG_AddError(FLOG_DEBUG, 1);
     }
-    for(;this->current_dir >= 0; this->current_dir--)
+    for (;this->current_dir >= 0; this->current_dir--)
     {
         FLOG_AddError(FLOG_DEBUG, 2);
         closedir(this->dir_stack[this->current_dir]);
@@ -97,27 +97,27 @@ void FileCLI::list_dir(void)
 
     while ((dirent = readdir(cwd)))
     {
-        switch(dirent->d_type)
+        switch (dirent->d_type)
         {
-            default:
-            case DT_REG:
-                f_type = ' ';
-                break;
-            case DT_DIR:
-                f_type = 'd';
-                break;
+        default:
+        case DT_REG:
+            f_type = ' ';
+            break;
+        case DT_DIR:
+            f_type = 'd';
+            break;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         const char* path = buildPath(true);
-        if(stat(path, &file_stats))
+        if (stat(path, &file_stats))
         {
             FLOG_AddError(FLOG_FS_STAT_FAIL, errno);
             SF_OSAL_printf("Failed to stat %s" __NL__, path);
         }
         SF_OSAL_printf("%c %8d %-16s" __NL__,
-                        f_type,
-                        file_stats.st_size,
-                        dirent->d_name);
+            f_type,
+            file_stats.st_size,
+            dirent->d_name);
     }
     rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
@@ -150,15 +150,15 @@ const char* FileCLI::buildPath(bool is_dir)
     memset(path_buffer, 0, PATH_MAX);
 
 
-    for(; 
+    for (;
         is_dir ? (dir_idx <= this->current_dir) : (dir_idx < this->current_dir);
         dir_idx++)
     {
 
         strcpy(path_buffer + path_buffer_idx, PATH_SEP);
         strncpy(path_buffer + path_buffer_idx + 1,
-                this->path_stack[dir_idx],
-                PATH_MAX - path_buffer_idx - 1);
+            this->path_stack[dir_idx],
+            PATH_MAX - path_buffer_idx - 1);
         path_buffer_idx = strlen(path_buffer);
     }
     return path_buffer;
@@ -177,19 +177,19 @@ void FileCLI::change_dir(void)
     idx = telldir(cwd);
     while ((dirent = readdir(cwd)))
     {
-        if(dirent->d_type == DT_REG)
+        if (dirent->d_type == DT_REG)
         {
             idx = telldir(cwd);
             continue;
         }
         SF_OSAL_printf("%d: %-16s" __NL__,
-                        idx,
-                        dirent->d_name);
-        if(strcmp(dirent->d_name, ".") == 0)
+            idx,
+            dirent->d_name);
+        if (strcmp(dirent->d_name, ".") == 0)
         {
             same_dir_idx = idx;
         }
-        if(strcmp(dirent->d_name, "..") == 0)
+        if (strcmp(dirent->d_name, "..") == 0)
         {
             prev_dir_idx = idx;
         }
@@ -201,11 +201,11 @@ void FileCLI::change_dir(void)
     getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
-    if(cmd_val == same_dir_idx)
+    if (cmd_val == same_dir_idx)
     {
         return;
     }
-    if(cmd_val == prev_dir_idx && this->current_dir != 0)
+    if (cmd_val == prev_dir_idx && this->current_dir != 0)
     {
         memset(this->path_stack[this->current_dir - 1], 0, NAME_MAX);
         closedir(this->dir_stack[this->current_dir]);
@@ -225,8 +225,8 @@ void FileCLI::change_dir(void)
 FileCLI::FileCLI(void)
 {
     memset(this->path_stack,
-           0,
-           sizeof(char) * FILE_CLI_MAX_DIR_DEPTH * NAME_MAX);
+        0,
+        sizeof(char) * FILE_CLI_MAX_DIR_DEPTH * NAME_MAX);
 }
 
 void FileCLI::print_dir(void)
@@ -249,21 +249,21 @@ void FileCLI::deleteFile(void)
     idx = telldir(cwd);
     while ((dirent = readdir(cwd)))
     {
-        switch(dirent->d_type)
+        switch (dirent->d_type)
         {
-            default:
-            case DT_REG:
-                f_type = ' ';
-                break;
-            case DT_DIR:
-                f_type = 'd';
-                break;
+        default:
+        case DT_REG:
+            f_type = ' ';
+            break;
+        case DT_DIR:
+            f_type = 'd';
+            break;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         SF_OSAL_printf("%d: %c %-16s" __NL__,
-                        idx,
-                        f_type,
-                        dirent->d_name);
+            idx,
+            f_type,
+            dirent->d_name);
         idx = telldir(cwd);
     }
     rewinddir(cwd);
@@ -279,7 +279,7 @@ void FileCLI::deleteFile(void)
     strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
     this->current_dir++;
     path = buildPath(false);
-    if(unlink(path))
+    if (unlink(path))
     {
         SF_OSAL_printf("Failed to unlink file: %s" __NL__, strerror(errno));
     }
@@ -290,7 +290,7 @@ void FileCLI::deleteFile(void)
 
 void hexdump(int fp, size_t file_len)
 {
-    #define BYTES_PER_LINE 16
+#define BYTES_PER_LINE 16
     size_t file_idx = 0;
     uint8_t byte_buffer[BYTES_PER_LINE + 1];
     int bytes_read = 0;
@@ -303,12 +303,12 @@ void hexdump(int fp, size_t file_len)
         bytes_read = read(fp, byte_buffer, BYTES_PER_LINE);
         if (-1 == bytes_read)
         {
-            SF_OSAL_printf(__NL__ "Error in reading: %s" __NL__, 
-                           strerror(errno));
+            SF_OSAL_printf(__NL__ "Error in reading: %s" __NL__,
+                strerror(errno));
             return;
         }
         // Print hex
-        for(line_idx = 0; line_idx < (size_t) bytes_read; line_idx++)
+        for (line_idx = 0; line_idx < (size_t)bytes_read; line_idx++)
         {
             SF_OSAL_printf("%02hx ", byte_buffer[line_idx]);
             if (7 == line_idx)
@@ -318,11 +318,11 @@ void hexdump(int fp, size_t file_len)
             // Make the byte printable
             if (!isprint(byte_buffer[line_idx]))
             {
-                byte_buffer[line_idx] = (uint8_t) '.';
+                byte_buffer[line_idx] = (uint8_t)'.';
             }
         }
         // fill line
-        for(;line_idx < BYTES_PER_LINE; line_idx++)
+        for (;line_idx < BYTES_PER_LINE; line_idx++)
         {
             SF_OSAL_printf("   ");
             if (7 == line_idx)
@@ -330,7 +330,7 @@ void hexdump(int fp, size_t file_len)
                 SF_OSAL_printf(" ");
             }
         }
-        SF_OSAL_printf(" |%s|" __NL__, (const char*) byte_buffer);
+        SF_OSAL_printf(" |%s|" __NL__, (const char*)byte_buffer);
     }
     SF_OSAL_printf("0x%08x" __NL__, file_idx);
 
@@ -357,8 +357,8 @@ void FileCLI::dumpHex(void)
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         SF_OSAL_printf("%d: %-16s" __NL__,
-                        idx,
-                        dirent->d_name);
+            idx,
+            dirent->d_name);
         idx = telldir(cwd);
     }
     rewinddir(cwd);
@@ -376,13 +376,13 @@ void FileCLI::dumpHex(void)
     path = buildPath(false);
 
     fp = open(path, O_RDONLY);
-    if(-1 == fp)
+    if (-1 == fp)
     {
         SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
         return;
     }
 
-    if(fstat(fp, &fstats))
+    if (fstat(fp, &fstats))
     {
         SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
         close(fp);
@@ -402,18 +402,18 @@ void base85dump(int fp, size_t file_len)
     size_t totalEncodedLen = 0;
     size_t n_packets = 0;
     size_t encodedLen = 0;
-    for(file_idx = 0; file_idx < file_len; file_idx += bytes_read)
+    for (file_idx = 0; file_idx < file_len; file_idx += bytes_read)
     {
         bytes_read = read(fp, byte_buffer, SF_BLOCK_SIZE);
-        #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
-            encodedLen = bintob85(encoded_buffer, byte_buffer, bytes_read) - encodedBuffer;
-        #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64
-            encodedLen = 1024;
-            b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
-        #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
-            encodedLen = 1024;
-            urlsafe_b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
-        #endif
+    #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
+        encodedLen = bintob85(encoded_buffer, byte_buffer, bytes_read) - encodedBuffer;
+    #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64
+        encodedLen = 1024;
+        b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
+    #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
+        encodedLen = 1024;
+        urlsafe_b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
+    #endif
         totalEncodedLen += encodedLen;
         SF_OSAL_printf("%s" __NL__, encoded_buffer);
         n_packets++;
@@ -444,8 +444,8 @@ void FileCLI::dumpBase85(void)
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         SF_OSAL_printf("%d: %-16s" __NL__,
-                        idx,
-                        dirent->d_name);
+            idx,
+            dirent->d_name);
         idx = telldir(cwd);
     }
     rewinddir(cwd);
@@ -463,13 +463,13 @@ void FileCLI::dumpBase85(void)
     path = buildPath(false);
 
     fp = open(path, O_RDONLY);
-    if(-1 == fp)
+    if (-1 == fp)
     {
         SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
         return;
     }
 
-    if(fstat(fp, &fstats))
+    if (fstat(fp, &fstats))
     {
         SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
         close(fp);
@@ -477,8 +477,8 @@ void FileCLI::dumpBase85(void)
     }
 
     SF_OSAL_printf("Publish Header: %s-%s" __NL__,
-                   pSystemDesc->deviceID,
-                   dirent->d_name);
+        pSystemDesc->deviceID,
+        dirent->d_name);
     base85dump(fp, fstats.st_size);
 
     close(fp);
