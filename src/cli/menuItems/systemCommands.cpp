@@ -3,25 +3,20 @@
  * Description: System CLI commands
  * @file debugCommands.cpp
  * @author @emilybthorpe
- * @date Jul 20 2023 
- * 
+ * @date Jul 20 2023
+ *
 */
 
 #include "systemCommands.hpp"
 
+#include "cli/cli.hpp"
 #include "cli/conio.hpp"
-#include "cli/cli.hpp"
 #include "cli/flog.hpp"
-#include "states.hpp"
-#include "cli/cli.hpp"
 #include "cellular/dataCollection.hpp"
-
+#include "consts.hpp"
 #include "states.hpp"
-
 #include "system.hpp"
 #include "vers.hpp"
-
-#include "states.hpp"
 
 #include "Particle.h"
 
@@ -47,10 +42,10 @@ void CLI_doUpload(void)
     char integer_string[64];
     int integer = Time.now();
 
-    char other_string[64] = "Session: "; 
+    char other_string[64] = "Session: ";
     sprintf(integer_string, "%d", integer);
 
-    strcat(other_string, integer_string); 
+    strcat(other_string, integer_string);
     pSystemDesc->pRecorder->openSession(NULL);
     pSystemDesc->pRecorder->setSessionName(other_string);
 
@@ -60,7 +55,7 @@ void CLI_doUpload(void)
     SF_OSAL_printf("Quit the menu to set the next state" __NL__);
 }
 
-void CLI_self_identify(void) 
+void CLI_self_identify(void)
 {
     SF_OSAL_printf("Smartfin ID: %s\n", pSystemDesc->deviceID);
     VERS_printBanner();
