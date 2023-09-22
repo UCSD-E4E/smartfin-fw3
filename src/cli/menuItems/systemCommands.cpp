@@ -57,6 +57,7 @@ void CLI_doUpload(void)
     SS_ensemble10Func();
     pSystemDesc->pRecorder->closeSession();
     CLI_nextState = STATE_UPLOAD;
+    SF_OSAL_printf("Quit the menu to set the next state" __NL__);
 }
 
 void CLI_self_identify(void) 
