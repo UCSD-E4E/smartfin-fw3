@@ -17,6 +17,7 @@
 #include "menuItems/systemCommands.hpp"
 #include "menuItems/debugCommands.hpp"
 #include "menuItems/gpsCommands.hpp"
+#include "debug/recorder_debug.hpp"
 
 #include "states.hpp"
 #include "util.hpp"
@@ -33,7 +34,6 @@
 #include "Particle.h"
 
 void CLI_displayMenu(void);
-void CLI_manageInput(char* inputBuffer);
 void CLI_hexdump(void);
 
 static LEDStatus CLI_ledStatus;
@@ -48,29 +48,29 @@ static void CLI_displayResetReason(void);
 
 const Menu_t CLI_menu[] =
 {
-    {1, "display Menu", &CLI_displayMenu},
-    {2, "disconnect particle", &CLI_disconnect},
-    {3, "connect particle", &CLI_connect},
-    {4, "show flog errors", &CLI_displayFLOG},
-    {5, "test printf", &CLI_testPrintf},
-    {6, "debug menu", &CLI_doDebugMode},
-    {7, "hexdump", &CLI_hexdump},
-    {8, "gps", &CLI_GPS},
-    {9, "sleep", &CLI_doSleep},
-    {10, "Self Identify", &CLI_self_identify},
-    {11, "check charge ports", &CLI_checkCharging},
-    {12, "MFG Test", &CLI_doMfgTest},
-    {13, "upload", &CLI_doUpload},
-    {100, "Set State", &CLI_setState},
-    {101, "Display System State", &CLI_displaySystemState},
-    {102, "Display NVRAM", &CLI_displayNVRAM},
-    {200, "Sleep - Set Sleep Behavior", &CLI_sleepSetSleepBehavior},
-    {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior},
-    {300, "Display Reset Reason", &CLI_displayResetReason},
-    {0, nullptr, nullptr}
+    {1, "display Menu", &CLI_displayMenu, MENU_CMD},
+    {2, "disconnect particle", &CLI_disconnect, MENU_CMD},
+    {3, "connect particle", &CLI_connect, MENU_CMD},
+    {4, "show flog errors", &CLI_displayFLOG, MENU_CMD},
+    {5, "test printf", &CLI_testPrintf, MENU_CMD},
+    {6, "debug menu", {.pMenu=CLI_debugMenu}, MENU_SUBMENU},
+    {7, "hexdump", &CLI_hexdump, MENU_CMD},
+    {8, "gps", &CLI_GPS, MENU_CMD},
+    {9, "sleep", &CLI_doSleep, MENU_CMD},
+    {10, "Self Identify", &CLI_self_identify, MENU_CMD},
+    {11, "check charge ports", &CLI_checkCharging, MENU_CMD},
+    {12, "MFG Test", &CLI_doMfgTest, MENU_CMD},
+    {13, "upload", &CLI_doUpload, MENU_CMD},
+    {14, "Recorder Test Menu", {.pMenu=Recorder_debug_menu}, MENU_SUBMENU},
+    {100, "Set State", &CLI_setState, MENU_CMD},
+    {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
+    {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
+    {200, "Sleep - Set Sleep Behavior", &CLI_sleepSetSleepBehavior, MENU_CMD},
+    {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior, MENU_CMD},
+    {300, "Display Reset Reason", &CLI_displayResetReason, MENU_CMD},
+    {0, nullptr, nullptr, MENU_NULL}
 };
 
-char userInput[SF_CLI_MAX_CMD_LEN];
 
 STATES_e CLI_nextState;
 
@@ -97,56 +97,8 @@ void CLI::init(void)
 
 STATES_e CLI::run(void)
 {
-    Menu_t *cmd;
-    
-    userInput[0] = 0;
-
-    SF_OSAL_printf(__NL__ ">");
-
-  
-
-    while (1) 
-    {
-        memset(userInput, 0, SF_CLI_MAX_CMD_LEN);        
-
-        getline(userInput, SF_CLI_MAX_CMD_LEN);
-
-        if (strlen(userInput) != 0) //If there is a command
-        {
-            SF_OSAL_printf("\r\n");
-            cmd = MNU_findCommand(userInput, CLI_menu);
-            if (!cmd) 
-            {
-                SF_OSAL_printf("Unknown command" __NL__);
-                MNU_displayMenu(CLI_menu);
-                SF_OSAL_printf(">");
-            } 
-            else 
-            {
-                cmd->fn();
-                SF_OSAL_printf(__NL__">");
-            }
-        }
-    }
-
-
+    MNU_executeMenu(CLI_menu);
     return CLI_nextState;
-}
-
-void CLI_manageInput(char* inputBuffer)
-{
-    Menu_t *cmd;
-    cmd = MNU_findCommand(inputBuffer, CLI_menu);
-    
-    if (!cmd) 
-    {
-        SF_OSAL_printf("Unknown command" __NL__);
-        MNU_displayMenu(CLI_menu);
-    } 
-    else 
-    {
-        cmd->fn();
-    }
 }
 
 

@@ -35,56 +35,18 @@
 
 const Menu_t CLI_debugMenu[] = 
 {
-    {1, "Display Fault Log", &CLI_displayFLOG},
-    {2, "Clear Fault Log", &CLI_clearFLOG},
-    {3, "Restart System", &CLI_restart},
-    {4, "MFG Test", &CLI_doMfgTest},
-    {5, "Wet/Dry Monitor", &CLI_monitorWetDry},
-    {6, "Monitor IMU", &CLI_monitorIMU},
-    {7, "Monitor Temperature", &CLI_monitorTempSensor},
-    {8, "reinitialize system", &SYS_initSys},
-    {9, "create test file", &CLI_createTestFile},
-    {10, "test has data", &CLI_testHasData},
-    {11, "test num files", &CLI_testGetNumFiles},
-    {12, "wipe file system", &CLI_wipeFileSystem},
-    {13, "File CLI", &CLI_fileCLI},
-    {0, NULL, NULL}
+    {1, "Display Fault Log", &CLI_displayFLOG, MENU_CMD},
+    {2, "Clear Fault Log", &CLI_clearFLOG, MENU_CMD},
+    {3, "Restart System", &CLI_restart, MENU_CMD},
+    {4, "MFG Test", &CLI_doMfgTest, MENU_CMD},
+    {5, "Wet/Dry Monitor", &CLI_monitorWetDry, MENU_CMD},
+    {6, "Monitor IMU", &CLI_monitorIMU, MENU_CMD},
+    {7, "Monitor Temperature", &CLI_monitorTempSensor, MENU_CMD},
+    {8, "reinitialize system", &SYS_initSys, MENU_CMD},
+    {9, "create test file", &CLI_createTestFile, MENU_CMD},
+    {10, "test has data", &CLI_testHasData, MENU_CMD},
+    {11, "test num files", &CLI_testGetNumFiles, MENU_CMD},
+    {12, "wipe file system", &CLI_wipeFileSystem, MENU_CMD},
+    {13, "File CLI", &CLI_fileCLI, MENU_CMD},
+    {0, nullptr, nullptr, MENU_NULL}
 };
-
-void CLI_doDebugMode(void)
-{
-    char* userInput = new char[SF_CLI_MAX_CMD_LEN];
-
-    int CLI_debugRun = 1;
-    while (CLI_debugRun)
-    {
-
-        if(CLI_nextState != STATE_CLI)
-        {
-            break;
-        }
-
-        MNU_displayMenu(CLI_debugMenu);
-
-        Menu_t *cmd;
-        getline(userInput, SF_CLI_MAX_CMD_LEN);
-        
-        if (atoi(userInput) == 0) // Exiting debug mode
-        {
-            break;
-        }
-
-        SF_OSAL_printf(__NL__);
-
-        cmd = MNU_findCommand(userInput, CLI_debugMenu);
-        if (!cmd) 
-        {
-            SF_OSAL_printf("Unknown command" __NL__);
-        } else {
-            cmd->fn();
-        }
-        
-        SF_OSAL_printf(">");
-    }
-    return;
-}
