@@ -39,6 +39,7 @@ void CLI_disconnect(void)
 void CLI_doSleep(void)
 {
     CLI_nextState = STATE_DEEP_SLEEP;
+    SF_OSAL_printf("Quit the menu to set the next state" __NL__);
 }
 
 void CLI_doUpload(void)
