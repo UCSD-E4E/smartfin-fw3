@@ -11,30 +11,52 @@
 #include "util.hpp"
 
 #include "cli/conio.hpp"
+#include "consts.hpp"
 
 #include "Particle.h"
 
 
 
-void hexDump(const void *memoryLocation, int buflen) 
+void hexDump(const void *memoryLocation, size_t buflen) 
 {
-    const uint8_t *memLoc = (const uint8_t*) memoryLocation;
+#define BYTES_PER_LINE 16
+    size_t buffer_idx = 0;
+    uint8_t byte_buffer[BYTES_PER_LINE + 1];
+    const uint8_t* data_window = (const uint8_t*) memoryLocation;
+    int bytes_read = 0;
+    size_t line_idx = 0;
 
-    const size_t rowLen = 32;
-
-    if (buflen % 4 != 0) {
-        SF_OSAL_printf("non-valid length");
-        return;
-    }
-
-    
-    for (int i = 0; i < buflen; i+=rowLen)
+    for(buffer_idx = 0; buffer_idx < buflen; buffer_idx += bytes_read)
     {
-        SF_OSAL_printf("%04x: ", i);
-        for (uint16_t j = 0; j < rowLen; j+=2)
+        SF_OSAL_printf("%08x  ", buffer_idx);
+        memset(byte_buffer, 0, BYTES_PER_LINE + 1);
+        bytes_read = ((buffer_idx + BYTES_PER_LINE) < buflen) ? BYTES_PER_LINE : buflen - buffer_idx;
+        memcpy(byte_buffer, data_window + buffer_idx, bytes_read);
+
+        // Print hex
+        for (line_idx = 0; line_idx < (size_t) bytes_read; line_idx++)
         {
-            SF_OSAL_printf("%02x%02x ", memLoc[i], memLoc[i + 1]);
+            SF_OSAL_printf("%02hx ", byte_buffer[line_idx]);
+            if (7 == line_idx)
+            {
+                SF_OSAL_printf(" ");
+            }
+            // Make the byte printable
+            if (!isprint(byte_buffer[line_idx]))
+            {
+                byte_buffer[line_idx] = (uint8_t)'.';
+            }
         }
-        SF_OSAL_printf("\n");
+        // fill line
+        for (;line_idx < BYTES_PER_LINE; line_idx++)
+        {
+            SF_OSAL_printf("   ");
+            if (7 == line_idx)
+            {
+                SF_OSAL_printf(" ");
+            }
+        }
+        SF_OSAL_printf(" |%s|" __NL__, (const char*)byte_buffer);
     }
+    SF_OSAL_printf("%08x" __NL__, buffer_idx);
 }
