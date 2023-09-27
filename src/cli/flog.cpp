@@ -51,6 +51,9 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_SYS_EXECSTATE, "Executing State Body"},
     {FLOG_SYS_EXITSTATE, "Exiting State"},
     {FLOG_SYS_UNKNOWNSTATE, "Unknown State"},
+    {FLOG_RESET_REASON, "Reset Reason"},
+    {FLOG_CHARGER_REMOVED, "Charger removed"},
+
     {FLOG_CAL_BURST, "Calibrate Burst"},
     {FLOG_CAL_INIT, "Calibrate Initialization"},
     {FLOG_CAL_START_RUN, "Calibrate Start RUN"},
@@ -59,26 +62,33 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_CAL_EXIT, "Calbiration Exit"},
     {FLOG_CAL_SLEEP, "Calibration Sleep"},
     {FLOG_CAL_TEMP, "Calibration Temp Measurement"},
+
     {FLOG_MAG_ID_MISMATCH, "Compass ID Mismatch"},
     {FLOG_MAG_MEAS_TO, "Compass Measurement Timeout"},
     {FLOG_MAG_TEST_FAIL, "Compass Self-Test Failure"},
     {FLOG_MAG_MEAS_OVRFL, "Compass Measurement Overflow"},
     {FLOG_MAG_I2C_FAIL, "Compass I2C Failure"},
     {FLOG_MAG_MODE_FAIL, "Compass Mode Set Fail"},
+    {FLOG_ICM_FAIL, "ICM Fail"},
+
     {FLOG_RIDE_INIT_TIMEOUT, "Ride init Timeout"},
+
     {FLOG_UPLOAD_NO_UPLOAD, "Upload - No Upload Flag set"},
     {FLOG_UPL_BATT_LOW, "Upload Battery low"},
     {FLOG_UPL_FOLDER_COUNT, "Upload file count"},
     {FLOG_UPL_CONNECT_FAIL, "Upload connect fail"},
-    {FLOG_RESET_REASON, "Reset Reason"},
+
     {FLOG_GPS_INIT_FAIL, "GPS Init Fail"},
     {FLOG_GPS_START_FAIL, "GPS Start Fail"},
-    {FLOG_SYS_MOUNT_FAIL, "Mounting fail"},
+
     {FLOG_TEMP_FAIL, "Temp Start Fail"},
-    {FLOG_ICM_FAIL, "ICM Fail"},
-    {FLOG_CHARGER_REMOVED, "Charger removed"},
+
     {FLOG_FS_OPENDIR_FAIL, "opendir fail"},
     {FLOG_FS_STAT_FAIL, "stat fail"},
+    {FLOG_SYS_MOUNT_FAIL, "Mounting fail"},
+    {FLOG_FS_MKDIR_FAIL, "mkdir fail"},
+    {FLOG_REC_SETUP_FAIL, "Recorder setup failed"},
+
     {FLOG_DEBUG, "debug point"},
     {FLOG_NULL, NULL}
 };

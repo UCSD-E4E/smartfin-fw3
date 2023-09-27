@@ -1,14 +1,15 @@
 #ifndef __RECORDER_HPP__
 #define __RECORDER_HPP__
 
-#include <stddef.h>
-#include "deploy.hpp"
 #include "cli/conio.hpp"
+#include "deploy.hpp"
 #include "product.hpp"
+
+#include <stddef.h>
 
 /**
  * @brief Maximum Session Name Length
- * 
+ *
  */
 #define REC_SESSION_NAME_MAX_LEN 31
 
@@ -21,71 +22,75 @@
 
 class Recorder
 {
-    public:
+public:
     /**
      * @brief Initializes the Recorder to an idle state
-     * 
+     *
      * @return int 1 if successful, otherwise 0
      */
     int init(void);
     /**
      * @brief Checks if the Recorder has data to upload
-     * 
+     *
      * @return int  1 if data exists, otherwise 0
      */
     int hasData(void);
     /**
-     * @brief Retrieves the last packet of data into pBuffer, and puts the session
-     *  name into pName.
-     * 
+     * @brief Retrieves the last packet of data into pBuffer, and puts the 
+     *  session name into pName.
+     *
      * @param pBuffer Buffer to place last packet into
      * @param bufferLen Length of packet buffer
      * @param pName Buffer to place session name into
      * @param nameLen Length of name buffer
-     * @return int -1 on failure, number of bytes placed into data buffer otherwise
+     * @return int -1 on failure, number of bytes placed into data buffer 
+     *  otherwise
      */
-    int getLastPacket(void* pBuffer, size_t bufferLen, char* pName, size_t nameLen);
+    int getLastPacket(void* pBuffer,
+                      size_t bufferLen,
+                      char* pName,
+                      size_t nameLen);
     /**
      * @brief Trims the last block with specified length from the recorder
-     * 
+     *
      * @param len Length of block to trim
      * @return int 1 if successful, otherwise 0
      */
     int popLastPacket(size_t len);
     /**
      * @brief Set the current session name
-     * 
+     *
      * @param sessionName Current name to set
      */
     void setSessionName(const char* const);
     /**
      * @brief Gets number of files in filesystem
-     * 
+     *
      * @return int number of files
-    */
+     */
     int getNumFiles(void);
     /**
      * @brief Opens a session and configures the Recorder to record data
-     * 
+     *
      * @return int 1 if successful, otherwise 0
      */
     int openSession(const char* const depName);
     /**
      * @brief Closes the current session
-     * 
+     *
      * If the session was already closed, treated as success.
-     * 
+     *
      * @return int  1 if successful, otherwise 0
      */
     int closeSession(void);
     /**
      * @brief Put bytes into current data buffer
-     * 
+     *
      * @param pData data to put
      * @param nBytes number of bytes to put
-     * 
+     *
      * @return sucsess
-    */
+     */
     int putBytes(const void* pData, size_t nBytes);
 
     template <typename T> int putData(T& data)
@@ -93,8 +98,8 @@ class Recorder
         return this->putBytes(&data, sizeof(T));
     };
 
-    private:
-    const char* uploadIgnorePatterns[2] = 
+private:
+    const char* uploadIgnorePatterns[2] =
     {
         "TMP116",
         NULL
@@ -107,7 +112,7 @@ class Recorder
 
     void getSessionName(char* fileName);
 
-    int openLastSession(Deployment &session, char* pName);
+    int openLastSession(Deployment& session, char* pName);
 };
 
 #endif

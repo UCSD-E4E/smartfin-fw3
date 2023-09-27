@@ -1,24 +1,85 @@
+/**
+ * @file recorder.cpp
+ * @author Nathan Hui (nthui@ucsd.edu)
+ * @brief Data Recorder
+ * @version 0.1
+ * @date 2023-09-26
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #include "recorder.hpp"
 
-#include "system.hpp"
-#include "deploy.hpp"
+#include "cellular/deploy.hpp"
 #include "cli/conio.hpp"
-#include <fcntl.h>
-#include <dirent.h>
+#include "consts.hpp"
 #include "product.hpp"
-#include "cli/menuItems/debugCommands.hpp"
+#include "system.hpp"
+
 #include <dirent.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 
 
-
 #define REC_DEBUG
+
+#define DATA_ROOT "/data"
 static int REC_getNumFiles(void);
 
+static int REC_create_data_root(void);
+
+int REC_create_data_root(void)
+{
+    struct stat stat_result;
+
+    int result = stat(DATA_ROOT, &stat_result);
+    if (0 == result)
+    {
+        if ((stat_result.st_mode & S_IFDIR) != 0)
+        {
+            return 1;
+        }
+    #ifdef REC_DEBUG
+        SF_OSAL_printf("REC::create_data_root: file in the way!" __NL__);
+    #endif
+        unlink(DATA_ROOT);
+    }
+    else
+    {
+        if (ENOENT != errno)
+        {
+        #ifdef REC_DEBUG
+            SF_OSAL_printf("REC::create_data_root: Failed to stat: %d" __NL__,
+                           errno);
+        #endif
+        FLOG_AddError(FLOG_FS_STAT_FAIL, errno);
+        return 0;
+        }
+    }
+
+    result = mkdir(DATA_ROOT, 0777);
+    if (0 == result)
+    {
+        return 1;
+    }
+#ifdef REC_DEBUG
+    SF_OSAL_printf("REC::create_data_root: Failed to create: %d" __NL__, errno);
+#endif
+    FLOG_AddError(FLOG_FS_MKDIR_FAIL, errno);
+    return 0;
+}
 
 int Recorder::init(void)
 {
+    // Create DATA_ROOT if necessary
+    if (0 == REC_create_data_root())
+    {
+        FLOG_AddError(FLOG_REC_SETUP_FAIL, 0);
+        return 0;
+    }
     memset(this->lastSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
+
     return 1;
 }
 
@@ -29,10 +90,11 @@ int Recorder::hasData(void)
     if (directory == 0)
     {
         return 0;
-    } 
+    }
     while (readdir(directory) != NULL)
     {
-        if(readdir(directory)->d_name[0] != '.' && readdir(directory)->d_name[0] != '_')
+        if (readdir(directory)->d_name[0] != '.' &&
+            readdir(directory)->d_name[0] != '_')
         {
             closedir(directory);
             return 1;
@@ -67,7 +129,7 @@ static int REC_getNumFiles(void)
     {
         closedir(directory);
         return -1;
-    } 
+    }
 
     while (readdir(directory) != NULL)
     {
@@ -97,20 +159,19 @@ static int REC_initializeTree(void)
     {
         SF_OSAL_printf("Failed to open directory");
         return 1;
-    } 
-    
+    }
+
     for (i = 0; i < skipFiles; i++)
     {
-        if(readdir(directory) != NULL)
+        if (readdir(directory) != NULL)
         {
             SF_OSAL_printf("Failed to skip initial files\n");
-            CLI_wipeFileSystem();
             return 1;
         }
     }
 
     dirent* entry;
-    
+
     for (i = 0; i < REC_DIR_TREE_SIZE; i++)
     {
         entry = readdir(directory);
@@ -123,7 +184,7 @@ static int REC_initializeTree(void)
     return 0;
 }
 
-int Recorder::openLastSession(Deployment &session, char* pName)
+int Recorder::openLastSession(Deployment& session, char* pName)
 {
     int fileIdx;
     int length;
@@ -133,9 +194,9 @@ int Recorder::openLastSession(Deployment &session, char* pName)
         SF_OSAL_printf("Failed to initialize tree\n");
         return 1;
     }
-    for(int i = 0; i < REC_DIR_TREE_SIZE; i++)
+    for (int i = 0; i < REC_DIR_TREE_SIZE; i++)
     {
-        SF_OSAL_printf("%d: %32s %d\n", i, REC_dirTree[i].filename, 
+        SF_OSAL_printf("%d: %32s %d\n", i, REC_dirTree[i].filename,
             REC_dirTree[i].initialized);
     }
 
@@ -143,20 +204,26 @@ int Recorder::openLastSession(Deployment &session, char* pName)
     // fileIdx = 0;
     do
     {
-        if (REC_dirTree[fileIdx].initialized && REC_dirTree[fileIdx].filename[0] != '.')
+        if (REC_dirTree[fileIdx].initialized &&
+            REC_dirTree[fileIdx].filename[0] != '.')
         {
-            SF_OSAL_printf("Trying to open %d %32s %d\n", fileIdx, REC_dirTree[fileIdx].filename, REC_dirTree[fileIdx].initialized);
+            SF_OSAL_printf("Trying to open %d %32s %d\n",
+                           fileIdx,
+                           REC_dirTree[fileIdx].filename,
+                           REC_dirTree[fileIdx].initialized);
             if (!session.open(REC_dirTree[fileIdx].filename, Deployment::RDWR))
             {
-#ifdef REC_DEBUG
-                SF_OSAL_printf("REC::GLP open %s fail\n", REC_dirTree[fileIdx].filename);
-#endif
+            #ifdef REC_DEBUG
+                SF_OSAL_printf("REC::GLP open %s fail\n",
+                               REC_dirTree[fileIdx].filename);
+            #endif
                 return 1;
             }
             else
             {
-#ifdef REC_DEBUG
-                SF_OSAL_printf("REC::GLP open %s success\n", REC_dirTree[fileIdx].filename);
+            #ifdef REC_DEBUG
+                SF_OSAL_printf("REC::GLP open %s success\n",
+                               REC_dirTree[fileIdx].filename);
                 int file = open(REC_dirTree[fileIdx].filename, O_RDWR);
 
                 length = session.getLength();
@@ -165,10 +232,10 @@ int Recorder::openLastSession(Deployment &session, char* pName)
 
                 SF_OSAL_printf("Filename %s\n", REC_dirTree[fileIdx].filename);
 
-#endif
+            #endif
             }
 
-            
+
             if (length == 0 || strcmp(REC_dirTree[fileIdx].filename, "") == 0)
             {
                 SF_OSAL_printf("No bytes, removing\n");
@@ -182,16 +249,19 @@ int Recorder::openLastSession(Deployment &session, char* pName)
                 return 0;
             }
         }
-    }while(fileIdx-- > 0);
+    } while (fileIdx-- > 0);
 
     SF_OSAL_printf("Failed to find session\n");
     return 1;
 }
 
 
-int Recorder::getLastPacket(void *pBuffer, size_t bufferLen, char *pName, size_t nameLen)
+int Recorder::getLastPacket(void* pBuffer,
+                            size_t bufferLen,
+                            char* pName,
+                            size_t nameLen)
 {
-    Deployment &session = Deployment::getInstance();
+    Deployment& session = Deployment::getInstance();
     int newLength;
     int bytesRead;
     char name[LITTLEFS_OBJ_NAME_LEN];
@@ -205,7 +275,7 @@ int Recorder::getLastPacket(void *pBuffer, size_t bufferLen, char *pName, size_t
     newLength = session.getLength() - bufferLen;
     session.seek(newLength);
     bytesRead = session.read(pBuffer, bufferLen);
-    snprintf((char *)pName, nameLen, "Sfin-%s-%s-%d", pSystemDesc->deviceID,
+    snprintf((char*)pName, nameLen, "Sfin-%s-%s-%d", pSystemDesc->deviceID,
              name, newLength / REC_MAX_PACKET_SIZE);
     session.close();
     strcpy(this->lastSessionName, name);
@@ -214,21 +284,21 @@ int Recorder::getLastPacket(void *pBuffer, size_t bufferLen, char *pName, size_t
 
 /**
  * @brief Trims the last block with specified length from the recorder
- * 
+ *
  * @param len Length of block to trim
  * @return int 1 if successful, otherwise 0
  */
 int Recorder::popLastPacket(size_t len)
 {
-    Deployment &session = Deployment::getInstance();
+    Deployment& session = Deployment::getInstance();
     int newLength;
 
     // have last file in dirEntry
     if (!session.open(this->lastSessionName, Deployment::RDWR))
     {
-#ifdef REC_DEBUG
+    #ifdef REC_DEBUG
         SF_OSAL_printf("REC::TRIM - Fail to open\n");
-#endif
+    #endif
         return 0;
     }
 
@@ -246,19 +316,21 @@ int Recorder::popLastPacket(size_t len)
     return 1;
 }
 
-void Recorder::setSessionName(const char *const sessionName)
+void Recorder::setSessionName(const char* const sessionName)
 {
     memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
     strncpy(this->currentSessionName, sessionName, REC_SESSION_NAME_MAX_LEN);
     SF_OSAL_printf("Setting session name to %s\n", this->currentSessionName);
 }
 
-int Recorder::openSession(const char *const sessionName)
+int Recorder::openSession(const char* const sessionName)
 {
     memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
     if (sessionName)
     {
-        strncpy(this->currentSessionName, sessionName, REC_SESSION_NAME_MAX_LEN);
+        strncpy(this->currentSessionName,
+                sessionName,
+                REC_SESSION_NAME_MAX_LEN);
     }
     this->pSession = &Deployment::getInstance();
     if (!this->pSession->open("__temp", Deployment::WRITE))
@@ -307,7 +379,7 @@ int Recorder::closeSession(void)
     return 1;
 }
 
-void Recorder::getSessionName(char *pFileName)
+void Recorder::getSessionName(char* pFileName)
 {
     uint32_t i;
     char tempFileName[REC_SESSION_NAME_MAX_LEN + 1];
@@ -320,7 +392,10 @@ void Recorder::getSessionName(char *pFileName)
     }
     for (i = 0; i < 100; i++)
     {
-        snprintf(tempFileName, REC_SESSION_NAME_MAX_LEN, "000000_temp_%02lu", i);
+        snprintf(tempFileName,
+                 REC_SESSION_NAME_MAX_LEN,
+                 "000000_temp_%02lu",
+                 i);
         fh = open(tempFileName, O_RDONLY);
         if (fh != 0)
         {
@@ -337,7 +412,7 @@ void Recorder::getSessionName(char *pFileName)
     return;
 }
 
-int Recorder::putBytes(const void *pData, size_t nBytes)
+int Recorder::putBytes(const void* pData, size_t nBytes)
 {
     if (nBytes > (REC_MAX_PACKET_SIZE - this->dataIdx))
     {
