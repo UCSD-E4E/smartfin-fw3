@@ -26,3 +26,14 @@ for (cond)
 4. All files must be indented with 4 spaces.
 ## Static Functions
 1. Static function prototypes must live in their respective translation units.
+
+## Include Order
+Note: Inclusion of `<dirent.h>` may need to be preceded by `"Particle.h"` to provide system definitions.
+
+Includes should be organized in the following order:
+1. Application headers (with respect to the source root) in double quotes
+2. Library headers in angle brackets
+3. System headers in angle brackets
+4. Platform headers
+
+Where C system headers are used, prefer the C style header over the C++ style header (e.g. string.h over cstring)
