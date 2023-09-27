@@ -13,6 +13,7 @@
 
 #include "cellular/deploy.hpp"
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
 #include "consts.hpp"
 #include "product.hpp"
 #include "system.hpp"
