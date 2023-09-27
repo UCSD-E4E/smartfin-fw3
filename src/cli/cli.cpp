@@ -18,6 +18,7 @@
 #include "menuItems/debugCommands.hpp"
 #include "menuItems/gpsCommands.hpp"
 #include "debug/recorder_debug.hpp"
+#include "debug/session_debug.hpp"
 
 #include "states.hpp"
 #include "util.hpp"
@@ -62,6 +63,7 @@ const Menu_t CLI_menu[] =
     {12, "MFG Test", &CLI_doMfgTest, MENU_CMD},
     {13, "upload", &CLI_doUpload, MENU_CMD},
     {14, "Recorder Test Menu", {.pMenu=Recorder_debug_menu}, MENU_SUBMENU},
+    {15, "Session Test Menu", {.pMenu=Session_debug_menu}, MENU_SUBMENU},
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
