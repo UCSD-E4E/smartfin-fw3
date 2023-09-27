@@ -25,6 +25,7 @@ FileCLI::menu_t FileCLI::fsExplorerMenu[] =
     {'d', &FileCLI::dumpBase85},
     {'h', &FileCLI::dumpHex},
     {'l', &FileCLI::list_dir},
+    {'m', &FileCLI::mkdir},
     {'p', &FileCLI::print_dir},
     {'q', &FileCLI::exit},
     {'r', &FileCLI::deleteFile},
@@ -37,6 +38,7 @@ void FileCLI::print_help(void)
     SF_OSAL_printf("%c\t%s" __NL__, 'p', "Print Working Directory");
     SF_OSAL_printf("%c\t%s" __NL__, 'l', "List Directory");
     SF_OSAL_printf("%c\t%s" __NL__, 'c', "Change Directory");
+    SF_OSAL_printf("%c\t%s" __NL__, 'm', "Make Directory");
     SF_OSAL_printf("%c\t%s" __NL__, 'r', "Remove File/Directory");
     SF_OSAL_printf("%c\t%s" __NL__, 'd', "Base85/64 Dump");
     SF_OSAL_printf("%c\t%s" __NL__, 'h', "Hex Dump");
@@ -332,7 +334,7 @@ void hexdump(int fp, size_t file_len)
         }
         SF_OSAL_printf(" |%s|" __NL__, (const char*)byte_buffer);
     }
-    SF_OSAL_printf("0x%08x" __NL__, file_idx);
+    SF_OSAL_printf("%08x" __NL__, file_idx);
 
 }
 
@@ -482,4 +484,17 @@ void FileCLI::dumpBase85(void)
     base85dump(fp, fstats.st_size);
 
     close(fp);
+}
+
+void FileCLI::mkdir(void)
+{
+    char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
+    int result;
+
+    SF_OSAL_printf("Enter new directory name: ");
+    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+
+    result = ::mkdir(input_buffer, 0777);
+    SF_OSAL_printf("Returned %d" __NL__, result);
+    return;
 }

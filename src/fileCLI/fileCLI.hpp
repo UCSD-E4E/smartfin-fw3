@@ -83,6 +83,12 @@ class FileCLI{
      */
     void print_help(void);
 
+    /**
+     * @brief Creates a new directory
+     * 
+     */
+    void mkdir(void);
+
     int run = 1;
     DIR* dir_stack[FILE_CLI_MAX_DIR_DEPTH];
     char path_stack[FILE_CLI_MAX_DIR_DEPTH][NAME_MAX];
