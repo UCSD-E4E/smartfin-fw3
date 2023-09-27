@@ -4,14 +4,15 @@
  * @brief Fault Log (FLOG) with persistent memory
  * @version 0.1
  * @date 2023-08-03
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 
 #include "flog.hpp"
 
 #include "conio.hpp"
+#include "consts.hpp"
 
 #include <Particle.h>
 
@@ -20,8 +21,8 @@ typedef struct FLOG_Entry_
 {
     uint32_t timestamp_ms;
     uint16_t errorCode;
-    uint32_t param;
-}FLOG_Entry_t;
+    FLOG_VALUE_TYPE param;
+}__attribute__((packed)) FLOG_Entry_t;
 
 typedef struct FLOG_Data_
 {
@@ -89,7 +90,7 @@ void FLOG_Initialize(void)
         FLOG_ClearLog();
     }
 }
-void FLOG_AddError(FLOG_CODE_e errorCode, uint32_t parameter)
+void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
 {
     FLOG_Entry_t* pEntry;
 
@@ -98,7 +99,7 @@ void FLOG_AddError(FLOG_CODE_e errorCode, uint32_t parameter)
         FLOG_Initialize();
     }
 
-    pEntry = &flogData.flogEntries[(flogData.numEntries + 1) & (FLOG_NUM_ENTRIES - 1)];
+    pEntry = &flogData.flogEntries[(flogData.numEntries) & (FLOG_NUM_ENTRIES - 1)];
     pEntry->timestamp_ms = millis();
     pEntry->errorCode = errorCode;
     pEntry->param = parameter;
@@ -124,17 +125,17 @@ void FLOG_DisplayLog(void)
 
     for (; i < flogData.numEntries; i++)
     {
-        SF_OSAL_printf("%8d %32s, parameter: 0x%04X\n", 
-            flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms, 
-            FLOG_FindMessage((FLOG_CODE_e) flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode), 
+        SF_OSAL_printf("%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT __NL__,
+            flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
+            FLOG_FindMessage((FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
             flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
     }
     SF_OSAL_printf("\n");
 }
 void FLOG_ClearLog(void)
 {
-        memset(&flogData, 0, sizeof(FLOG_Data_t));
-        flogData.nNumEntries = ~flogData.numEntries;
+    memset(&flogData, 0, sizeof(FLOG_Data_t));
+    flogData.nNumEntries = ~flogData.numEntries;
 }
 
 static const char* FLOG_FindMessage(FLOG_CODE_e code)
