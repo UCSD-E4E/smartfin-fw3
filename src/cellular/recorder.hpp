@@ -6,6 +6,7 @@
 #include "product.hpp"
 
 #include <stddef.h>
+#include <stdint.h>
 #include <limits.h>
 
 /**
@@ -60,11 +61,11 @@ public:
      */
     int popLastPacket(size_t len);
     /**
-     * @brief Set the current session name
+     * @brief Set the current session start time
      *
-     * @param sessionName Current name to set
+     * @param session_time Current time to set
      */
-    void setSessionName(const char* const);
+    void setSessionTime(uint32_t);
     /**
      * @brief Gets number of files in filesystem
      *
@@ -103,13 +104,13 @@ public:
 private:
     typedef struct timestamp_entry_
     {
-        uint32_t data_index;
+        uint32_t session_idx;
         uint32_t timestamp;
     }timestamp_entry_t;
 
     typedef struct metadata_header_
     {
-        uint32_t next_data_index;
+        uint32_t next_session_index;
         uint32_t n_entries;
     }metadata_header_t;
 
@@ -118,6 +119,7 @@ private:
     uint8_t dataBuffer[REC_MEMORY_BUFFER_SIZE];
     uint32_t dataIdx;
     Deployment* pSession;
+    uint32_t current_session_index;
     metadata_header_t metadata_header;
     bool metadata_header_valid;
 

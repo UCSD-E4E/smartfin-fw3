@@ -27,6 +27,7 @@ void REC_testGetLastPacket(void);
 void REC_testOpen(void);
 void REC_testClose(void);
 void REC_testPutBytes(void);
+void REC_testSetTime(void);
 
 const Menu_t Recorder_debug_menu[] =
 {
@@ -35,6 +36,7 @@ const Menu_t Recorder_debug_menu[] =
     {3, "Open Session", &REC_testOpen, MENU_CMD},
     {4, "Close Session", &REC_testClose, MENU_CMD},
     {5, "Put Bytes", &REC_testPutBytes, MENU_CMD},
+    {6, "Set Session Time", &REC_testSetTime, MENU_CMD},
     // {3, "Get Last Packet", &REC_testGetLastPacket, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}
 };
@@ -114,17 +116,23 @@ void REC_testPutBytes(void)
     for (hex_idx = 0; hex_idx < input_length; hex_idx += 2)
     {
         memcpy(hex_buffer, user_input + hex_idx, 2);
-        hexDump(hex_buffer, 3);
         user_input[byte_idx] = (uint8_t) strtoul(hex_buffer, nullptr, 16);
-        hexDump(user_input, input_length);
         byte_idx++;
     }
-
-    SF_OSAL_printf("Byte IDX: %lu" __NL__, byte_idx);
-    hexDump(user_input, input_length);
 
     if (1 != pRecorder->putBytes(user_input, byte_idx))
     {
         SF_OSAL_printf("putBytes failed!" __NL__);
     }
+}
+
+void REC_testSetTime(void)
+{
+    char user_input[REC_MEMORY_BUFFER_SIZE];
+    Recorder* pRecorder = pSystemDesc->pRecorder;
+
+    SF_OSAL_printf("Enter start time: ");
+    getline(user_input, REC_MEMORY_BUFFER_SIZE);
+
+    pRecorder->setSessionTime(atoi(user_input));
 }

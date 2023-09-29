@@ -30,7 +30,7 @@
 #define DATA_ROOT "/data"
 #define METADATA_FILE DATA_ROOT "/.metadata"
 static int REC_create_data_root(void);
-static void REC_create_data_filename(int data_index,
+static void REC_create_data_filename(int session_idx,
                                     char* p_filename,
                                     size_t filename_len);
 
@@ -89,11 +89,11 @@ int Recorder::create_metadata_file(void)
     return 1;
 }
 
-void REC_create_data_filename(uint32_t data_index,
+void REC_create_data_filename(uint32_t session_idx,
                              char* p_filename,
                              size_t filename_len)
 {
-    snprintf(p_filename, filename_len, DATA_ROOT "/%010u.bin", data_index);
+    snprintf(p_filename, filename_len, DATA_ROOT "/%010u.bin", session_idx);
 }
 
 
@@ -298,20 +298,47 @@ int Recorder::popLastPacket(size_t len)
     return 1;
 }
 
-void Recorder::setSessionName(const char* const sessionName)
+void Recorder::setSessionTime(uint32_t session_time)
 {
-    // memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
-    // strncpy(this->currentSessionName, sessionName, REC_SESSION_NAME_MAX_LEN);
-    // SF_OSAL_printf("Setting session name to %s\n", this->currentSessionName);
+    int fp;
+    timestamp_entry_t entry;
+    
+    fp = ::open(METADATA_FILE, O_RDWR);
+    if (-1 == fp)
+    {
+        FLOG_AddError(FLOG_FS_OPEN_FAIL, errno);
+        return;
+    }
+    ::lseek(fp, sizeof(metadata_header_t), SEEK_SET);
+
+    for (int entry_idx = 0; entry_idx < this->metadata_header.n_entries; entry_idx++)
+    {
+        ::read(fp, &entry, sizeof(timestamp_entry_t));
+        if (entry.session_idx == this->current_session_index)
+        {
+            break;
+        }
+    }
+
+    if (entry.session_idx != this->current_session_index)
+    {
+        return;
+    }
+    entry.timestamp = session_time;
+    ::lseek(fp, -1 * sizeof(timestamp_entry_t), SEEK_CUR);
+    ::write(fp, &entry, sizeof(timestamp_entry_t));
+    ::close(fp);
 }
 
 int Recorder::openSession()
 {
-    uint32_t data_index = this->metadata_header.next_data_index;
     int fp;
-    timestamp_entry_t entry = {data_index, 0};
+    timestamp_entry_t entry;
 
-    this->metadata_header.next_data_index++;
+    this->current_session_index = this->metadata_header.next_session_index;
+    entry.session_idx = this->current_session_index;
+    entry.timestamp = 0;
+    this->metadata_header.next_session_index++;
     this->metadata_header.n_entries++;
     fp = ::open(METADATA_FILE, O_WRONLY);
     if (-1 == fp)
@@ -324,7 +351,9 @@ int Recorder::openSession()
     ::write(fp, &entry, sizeof(timestamp_entry_t));
     ::close(fp);
 
-    REC_create_data_filename(data_index, this->filename_buffer, REC_SESSION_NAME_MAX_LEN);
+    REC_create_data_filename(this->current_session_index,
+                             this->filename_buffer,
+                             REC_SESSION_NAME_MAX_LEN);
 
     this->pSession = &Deployment::getInstance();
     if (!this->pSession->open(this->filename_buffer, Deployment::WRITE))
