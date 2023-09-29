@@ -394,6 +394,7 @@ void FileCLI::dumpHex(void)
     hexdump(fp, fstats.st_size);
 
     close(fp);
+    this->current_dir--;
 }
 
 void base85dump(int fp, size_t file_len)
