@@ -6,6 +6,7 @@
 #include "product.hpp"
 
 #include <stddef.h>
+#include <limits.h>
 
 /**
  * @brief Maximum Session Name Length
@@ -19,6 +20,7 @@
 #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64 || SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
 #define REC_MAX_PACKET_SIZE  466
 #endif
+
 
 class Recorder
 {
@@ -74,7 +76,7 @@ public:
      *
      * @return int 1 if successful, otherwise 0
      */
-    int openSession(const char* const depName);
+    int openSession(void);
     /**
      * @brief Closes the current session
      *
@@ -99,18 +101,27 @@ public:
     };
 
 private:
-    const char* uploadIgnorePatterns[2] =
+    typedef struct timestamp_entry_
     {
-        "TMP116",
-        NULL
-    };
-    char currentSessionName[REC_SESSION_NAME_MAX_LEN + 1];
+        uint32_t data_index;
+        uint32_t timestamp;
+    }timestamp_entry_t;
+
+    typedef struct metadata_header_
+    {
+        uint32_t next_data_index;
+        uint32_t n_entries;
+    }metadata_header_t;
+
+    char filename_buffer[REC_SESSION_NAME_MAX_LEN];
     char lastSessionName[REC_SESSION_NAME_MAX_LEN + 1];
     uint8_t dataBuffer[REC_MEMORY_BUFFER_SIZE];
     uint32_t dataIdx;
     Deployment* pSession;
+    metadata_header_t metadata_header;
+    bool metadata_header_valid;
 
-    void getSessionName(char* fileName);
+    int create_metadata_file(void);
 
     int openLastSession(Deployment& session, char* pName);
 };

@@ -215,4 +215,6 @@
 #define SF_CLI_MAX_CMD_LEN 100
 
 #define SF_BLOCK_SIZE   496
+
+#define SF_NAME_MAX 64
 #endif

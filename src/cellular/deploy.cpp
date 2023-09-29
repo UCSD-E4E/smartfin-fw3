@@ -55,7 +55,7 @@ int Deployment::open(const char* const name, Deployment::State_e state)
     {
         return 0;
     }
-    strncpy(this->filename, name, NAME_MAX);
+    strncpy(this->filename, name, SF_NAME_MAX);
     this->currentState = state;
     return 1;
 }
@@ -99,7 +99,7 @@ int Deployment::close(void)
         return 0;
     }
     this->currentFile = 0;
-    memset(this->filename, 0, NAME_MAX);
+    memset(this->filename, 0, SF_NAME_MAX);
     return 1;
 }
 
@@ -160,7 +160,7 @@ int Deployment::remove(void)
     #endif
         return 0;
     }
-    memset(this->filename, 0, NAME_MAX);
+    memset(this->filename, 0, SF_NAME_MAX);
     this->currentFile = 0;
     return 1;
 }

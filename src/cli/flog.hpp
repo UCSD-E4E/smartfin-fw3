@@ -55,6 +55,8 @@ typedef enum FLOG_CODE_
     FLOG_FS_STAT_FAIL     =0x0801,
     FLOG_SYS_MOUNT_FAIL   =0x0802,
     FLOG_FS_MKDIR_FAIL    =0x0803,
+    FLOG_FS_CREAT_FAIL    =0x0804,
+    FLOG_FS_OPEN_FAIL     =0x0805,
     FLOG_REC_SETUP_FAIL   =0x0810,
 
     FLOG_DEBUG            =0xFFFF,

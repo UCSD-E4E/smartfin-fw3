@@ -87,6 +87,8 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_FS_STAT_FAIL, "stat fail"},
     {FLOG_SYS_MOUNT_FAIL, "Mounting fail"},
     {FLOG_FS_MKDIR_FAIL, "mkdir fail"},
+    {FLOG_FS_CREAT_FAIL, "file create fail"},
+    {FLOG_FS_OPEN_FAIL, "file open fail"},
     {FLOG_REC_SETUP_FAIL, "Recorder setup failed"},
 
     {FLOG_DEBUG, "debug point"},

@@ -1,9 +1,10 @@
 #ifndef __DEPLOY_HPP__
 #define __DEPLOY_HPP__
 
+#include "product.hpp"
+
 #include <stddef.h>
 #include <limits.h>
-
 class Deployment
 {
 public:
@@ -81,7 +82,7 @@ private:
     Deployment(Deployment const&);
     int currentFile;
     State_e currentState;
-    char filename[NAME_MAX];
+    char filename[SF_NAME_MAX];
 };
 
 #endif
