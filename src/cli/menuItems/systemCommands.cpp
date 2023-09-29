@@ -47,7 +47,6 @@ void CLI_doUpload(void)
 
     strcat(other_string, integer_string);
     pSystemDesc->pRecorder->openSession();
-    pSystemDesc->pRecorder->setSessionName(other_string);
 
     SS_ensemble10Func();
     pSystemDesc->pRecorder->closeSession();
