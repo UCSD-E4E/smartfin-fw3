@@ -401,6 +401,11 @@ int Recorder::openSession()
     {
         return 0;
     }
+    if (nullptr != this->pSession)
+    {
+        SF_OSAL_printf("Double open!" __NL__);
+        return 0;
+    }
 
     this->current_session_index = this->metadata_header.next_session_index;
     push_metadata_entry(this->current_session_index);
