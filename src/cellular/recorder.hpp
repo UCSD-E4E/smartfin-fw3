@@ -37,7 +37,9 @@ public:
      *
      * @return int  1 if data exists, otherwise 0
      */
-    int hasData(void);
+    inline int hasData(void) {
+        return this->metadata_header.n_entries != 0;
+    }
     /**
      * @brief Retrieves the last packet of data into pBuffer, and puts the 
      *  session name into pName.
@@ -71,7 +73,10 @@ public:
      *
      * @return int number of files
      */
-    int getNumFiles(void);
+    inline int getNumFiles(void)
+    {
+        return this->metadata_header.n_entries;
+    }
     /**
      * @brief Opens a session and configures the Recorder to record data
      *
@@ -92,7 +97,7 @@ public:
      * @param pData data to put
      * @param nBytes number of bytes to put
      *
-     * @return sucsess
+     * @return 1 on sucsess, otherwise 0
      */
     int putBytes(const void* pData, size_t nBytes);
 
@@ -120,12 +125,18 @@ private:
     uint32_t dataIdx;
     Deployment* pSession;
     uint32_t current_session_index;
+    bool time_set;
     metadata_header_t metadata_header;
     bool metadata_header_valid;
 
-    int create_metadata_file(void);
 
-    int openLastSession(Deployment& session, char* pName);
+    int openLastSession(Deployment& session, char* p_name_buf);
+
+    int create_metadata_file(void);
+    int pop_metadata_entry(void);
+    int push_metadata_entry(uint32_t session_idx);
+    int set_metadata_entry_time(uint32_t session_idx, uint32_t timestamp);
+    int peek_last_metadata_entry(timestamp_entry_t& entry);
 };
 
 #endif

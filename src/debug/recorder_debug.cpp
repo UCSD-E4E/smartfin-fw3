@@ -28,6 +28,7 @@ void REC_testOpen(void);
 void REC_testClose(void);
 void REC_testPutBytes(void);
 void REC_testSetTime(void);
+void REC_testCreateBigSession(void);
 
 const Menu_t Recorder_debug_menu[] =
 {
@@ -37,7 +38,8 @@ const Menu_t Recorder_debug_menu[] =
     {4, "Close Session", &REC_testClose, MENU_CMD},
     {5, "Put Bytes", &REC_testPutBytes, MENU_CMD},
     {6, "Set Session Time", &REC_testSetTime, MENU_CMD},
-    // {3, "Get Last Packet", &REC_testGetLastPacket, MENU_CMD},
+    {7, "Get Last Packet", &REC_testGetLastPacket, MENU_CMD},
+    {8, "Create big session", &REC_testCreateBigSession, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}
 };
 
@@ -124,6 +126,29 @@ void REC_testPutBytes(void)
     {
         SF_OSAL_printf("putBytes failed!" __NL__);
     }
+}
+
+void REC_testCreateBigSession(void)
+{
+    char user_input[REC_MEMORY_BUFFER_SIZE];
+    uint8_t rand_byte;
+    size_t hex_idx;
+    size_t input_length;
+    Recorder* pRecorder = pSystemDesc->pRecorder;
+
+    SF_OSAL_printf("Size of session to create: ");
+    getline((char*) user_input, REC_MEMORY_BUFFER_SIZE);
+
+    input_length = atoi(user_input);
+    for (hex_idx = 0; hex_idx < input_length; hex_idx ++)
+    {
+        rand_byte = random(256);
+        if (1 != pRecorder->putBytes(&rand_byte, 1))
+        {
+            SF_OSAL_printf("putBytes failed!" __NL__);
+        }
+    }
+
 }
 
 void REC_testSetTime(void)
