@@ -65,8 +65,6 @@
     "C_Cpp.codeAnalysis.clangTidy.enabled": false,
     "C_Cpp.default.cppStandard": "c++11",
     "C_Cpp.default.cStandard": "c11",
-    "C_Cpp.default.intelliSenseMode": "windows-gcc-arm",
-    "C_Cpp.intelliSenseEngine": "Tag Parser",
     "C_Cpp.doxygen.generatedStyle": "/**",
     "C_Cpp.autoAddFileAssociations": false,
     "editor.rulers": [
