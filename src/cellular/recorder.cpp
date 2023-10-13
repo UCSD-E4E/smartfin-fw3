@@ -96,8 +96,8 @@ int Recorder::create_metadata_file(void)
             SF_OSAL_printf("REC::create_metadata_file: Failed to stat: %d" __NL__,
                            errno);
         #endif
-        FLOG_AddError(FLOG_FS_STAT_FAIL, errno);
-        return 0;
+            FLOG_AddError(FLOG_FS_STAT_FAIL, errno);
+            return 0;
         }
     }
 
@@ -252,9 +252,19 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
         }
 
         /*
-        We now have the last session, return
+        We now have the last session, build name
         */
-       return 0;
+        if (0 != entry.timestamp)
+        {
+            String fmt_time = Time.format(entry.timestamp, "%y%m%d-%H%M%S");
+            snprintf(p_name_buf, NAME_MAX, "%s", fmt_time.c_str());
+        }
+        else
+        {
+            snprintf(p_name_buf, NAME_MAX, "%08lu", entry.session_idx);
+        }
+        SF_OSAL_printf("Set name to %s" __NL__, p_name_buf);
+        return 0;
     }
     return 5;
 }
@@ -381,18 +391,23 @@ int Recorder::popLastPacket(size_t len)
     return 1;
 }
 
-void Recorder::setSessionTime(uint32_t session_time)
+int Recorder::setSessionTime(uint32_t session_time)
 {
     if (nullptr == this->pSession)
     {
-        return;
+        return 1;
     }
-    if (!this->time_set)
+    if (this->time_set)
     {
-        return;
+        return 0;
     }
-    
-    set_metadata_entry_time(this->current_session_index, session_time);
+
+    this->time_set = true;    
+    if (0 != set_metadata_entry_time(this->current_session_index, session_time))
+    {
+        return 3;
+    }
+    return 0;
 }
 
 int Recorder::openSession()

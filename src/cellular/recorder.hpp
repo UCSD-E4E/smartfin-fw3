@@ -13,7 +13,7 @@
  * @brief Maximum Session Name Length
  *
  */
-#define REC_SESSION_NAME_MAX_LEN 31
+#define REC_SESSION_NAME_MAX_LEN 64
 
 #define REC_MEMORY_BUFFER_SIZE  512
 #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
@@ -66,8 +66,9 @@ public:
      * @brief Set the current session start time
      *
      * @param session_time Current time to set
+     * @return 0 on success, otherwise error code
      */
-    void setSessionTime(uint32_t);
+    int setSessionTime(uint32_t);
     /**
      * @brief Gets number of files in filesystem
      *

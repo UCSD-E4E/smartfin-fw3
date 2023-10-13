@@ -78,6 +78,7 @@ void REC_testGetLastPacket(void)
         return;
     }
     hexDump(data_buffer, retval);
+    SF_OSAL_printf("Name: %s" __NL__, name_buffer);
     return;
 }
 
@@ -157,11 +158,15 @@ void REC_testSetTime(void)
 {
     char user_input[REC_MEMORY_BUFFER_SIZE];
     Recorder* pRecorder = pSystemDesc->pRecorder;
+    int timestamp;
+    int retval;
 
     SF_OSAL_printf("Enter start time: ");
     getline(user_input, REC_MEMORY_BUFFER_SIZE);
-
-    pRecorder->setSessionTime(atoi(user_input));
+    timestamp = atoi(user_input);
+    SF_OSAL_printf("Setting time to %d (0x%04x)" __NL__, timestamp, timestamp);
+    retval = pRecorder->setSessionTime(timestamp);
+    SF_OSAL_printf("Returned %d" __NL__, retval);
 }
 
 void REC_testPopLastPacket(void)
