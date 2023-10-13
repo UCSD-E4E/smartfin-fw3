@@ -68,6 +68,7 @@ int Deployment::write(void* pData, size_t nBytes)
         return 0;
     }
     bytesWritten = ::write(currentFile, (uint8_t*)pData, nBytes);
+    ::fsync(currentFile);
     return bytesWritten;
 }
 
