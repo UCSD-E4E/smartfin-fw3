@@ -349,6 +349,7 @@ int Recorder::popLastPacket(size_t len)
     if (0 == newLength)
     {
         session.remove();
+        pop_metadata_entry();
     }
     else
     {
