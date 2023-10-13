@@ -63,13 +63,16 @@ public:
     */
     int close(void);
     /**
-     * Removes the current file
+     * @brief Removes the current file.
+     * 
+     * Once this method returns, the Deployment object may immediately open a
+     * new session
      *
      * @return int 1 if successful, otherwise 0
     */
     int remove(void);
     /**
-     * @brief Truncates current file
+     * @brief Truncates current file.
      *
      * @param size_t Number of bytes to truncate to
      *
