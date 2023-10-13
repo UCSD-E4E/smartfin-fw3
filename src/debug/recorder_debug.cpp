@@ -29,6 +29,7 @@ void REC_testClose(void);
 void REC_testPutBytes(void);
 void REC_testSetTime(void);
 void REC_testCreateBigSession(void);
+void REC_testPopLastPacket(void);
 
 const Menu_t Recorder_debug_menu[] =
 {
@@ -40,6 +41,7 @@ const Menu_t Recorder_debug_menu[] =
     {6, "Set Session Time", &REC_testSetTime, MENU_CMD},
     {7, "Get Last Packet", &REC_testGetLastPacket, MENU_CMD},
     {8, "Create big session", &REC_testCreateBigSession, MENU_CMD},
+    {9, "Pop Last Packet", &REC_testPopLastPacket, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}
 };
 
@@ -160,4 +162,14 @@ void REC_testSetTime(void)
     getline(user_input, REC_MEMORY_BUFFER_SIZE);
 
     pRecorder->setSessionTime(atoi(user_input));
+}
+
+void REC_testPopLastPacket(void)
+{
+    Recorder* pRecorder = pSystemDesc->pRecorder;
+    int retval;
+    
+    retval = pRecorder->popLastPacket(REC_MAX_PACKET_SIZE);
+
+    SF_OSAL_printf("Returned %d" __NL__, retval);
 }
