@@ -67,8 +67,19 @@ int Recorder::create_metadata_file(void)
                 FLOG_AddError(FLOG_FS_OPEN_FAIL, errno);
                 return 0;
             }
-            ::read(fp, &this->metadata_header, sizeof(metadata_header_t));
-            ::close(fp);
+            if (sizeof(metadata_header_t) != ::read(fp,
+                                                    &this->metadata_header,
+                                                    sizeof(metadata_header_t)))
+            {
+                FLOG_AddError(FLOG_FS_READ_FAIL, errno);
+                ::close(fp);
+                return 0;
+            }
+            if (0 != ::close(fp))
+            {
+                FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
+                return 0;
+            }
             this->metadata_header_valid = true;
             return 1;
         }
@@ -96,8 +107,19 @@ int Recorder::create_metadata_file(void)
         FLOG_AddError(FLOG_FS_CREAT_FAIL, errno);
         return 0;
     }
-    ::write(fp, &this->metadata_header, sizeof(metadata_header_t));
-    ::close(fp);
+    if (sizeof(metadata_header_t) != ::write(fp,
+                                             &this->metadata_header,
+                                             sizeof(metadata_header_t)))
+    {
+        FLOG_AddError(FLOG_FS_WRITE_FAIL, errno);
+        ::close(fp);
+        return 0;
+    }
+    if (0 != ::close(fp))
+    {
+        FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
+        return 0;
+    }
     this->metadata_header_valid = true;
     return 1;
 }
