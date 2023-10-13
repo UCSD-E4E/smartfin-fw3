@@ -65,7 +65,6 @@ void FileCLI::execute(void)
 
     while (this->run)
     {
-        FLOG_AddError(FLOG_DEBUG, 5);
         SF_OSAL_printf(":>");
         memset(input_buffer, 0, FILE_CLI_INPUT_BUFFER_LEN);
         getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
@@ -79,15 +78,11 @@ void FileCLI::execute(void)
             fn = cmd->fn;
             ((*this).*fn)();
         }
-        FLOG_AddError(FLOG_DEBUG, 1);
     }
     for (;this->current_dir >= 0; this->current_dir--)
     {
-        FLOG_AddError(FLOG_DEBUG, 2);
         closedir(this->dir_stack[this->current_dir]);
-        FLOG_AddError(FLOG_DEBUG, 3);
     }
-    FLOG_AddError(FLOG_DEBUG, 4);
 }
 
 void FileCLI::list_dir(void)
@@ -141,7 +136,6 @@ FileCLI::menu_t* FileCLI::findCommand(const char* const cmd)
 void FileCLI::exit(void)
 {
     this->run = 0;
-    FLOG_AddError(FLOG_DEBUG, 0);
 }
 
 const char* FileCLI::buildPath(bool is_dir)
