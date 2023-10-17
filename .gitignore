@@ -121,3 +121,4 @@ smartfin-fw3.cpp
 target/
 *.bin
 nul
+out/docs/application/Service Diagram.png
