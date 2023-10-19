@@ -2,6 +2,9 @@
 #include "product.hpp"
 #include "cli/conio.hpp"
 #include "consts.hpp"
+#include "util.hpp"
+
+#include "Particle.h"
 
 const char* BUILD_DATE = __DATE__;
 const char* BUILD_TIME = __TIME__;
@@ -38,8 +41,27 @@ const char* BUILD_TIME = __TIME__;
 
 void VERS_printBanner(void)
 {
-    SF_OSAL_printf(__NL__ "Smartfin FW v%d.%d.%d%s\r" __NL__, FW_MAJOR_VERSION, FW_MINOR_VERSION, FW_BUILD_NUM, FW_BRANCH);
+    SF_OSAL_printf(__NL__ "Smartfin FW v%d.%d.%d%s" __NL__, FW_MAJOR_VERSION, FW_MINOR_VERSION, FW_BUILD_NUM, FW_BRANCH);
     SF_OSAL_printf("FW Build: %s %s" __NL__ , BUILD_DATE, BUILD_TIME);
+    #ifdef SYSTEM_VERSION_v310
+    const uint32_t APP_ADDR = 0x000b4000; // Device OS 3.1 and later (256K binaries)
+    #else
+    const uint32_t APP_ADDR = 0x000d4000; // Earlier versions including 2.x LTS
+    #endif
+
+    const module_info_t *prefix = (module_info_t *)APP_ADDR;
+
+    const uint32_t *crcAddr = (const uint32_t *)prefix->module_end_address;
+    SF_OSAL_printf("CRC32=%lx" __NL__, N_TO_B_ENDIAN_4(*crcAddr));
+
+    const uint8_t *sha = (const uint8_t *)(((uint32_t)prefix->module_end_address) - 34);
+    SF_OSAL_printf("SHA256=");
+    for (size_t byte_idx = 0; byte_idx < 32; byte_idx++)
+    {
+        SF_OSAL_printf("%02x", sha[byte_idx]);
+    }
+    SF_OSAL_printf(__NL__);
+    
 }
 
 const char* VERS_getBuildDate(void)
