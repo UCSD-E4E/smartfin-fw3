@@ -8,10 +8,10 @@ skinparam nodesep 50
 skinparam ranksep 150
 
 package "Device OS" {
-    [Cellular] as cellular #Red
+    [Cellular] as cellular #Yellow
     [I2C] as i2c #Green
     [Serial] as serial #Green
-    [Filesystem] as fs #Yellow
+    [Filesystem] as fs #Green
     [SPI] as spi #Green
     [GPIO] as gpio #Green
     [EEPROM] as eeprom #Green
@@ -37,7 +37,7 @@ package "Board Support Package" {
 
 package "Application Support Package" {
     [ConIO] as conio #Green
-    [Recorder] as recorder #Yellow
+    [Recorder] as recorder #Green
     [FLOG] as flog #Green
     [NVRAM] as nvram #Green
 }
