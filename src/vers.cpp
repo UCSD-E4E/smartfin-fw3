@@ -43,6 +43,7 @@ void VERS_printBanner(void)
 {
     SF_OSAL_printf(__NL__ "Smartfin FW v%d.%d.%d%s" __NL__, FW_MAJOR_VERSION, FW_MINOR_VERSION, FW_BUILD_NUM, FW_BRANCH);
     SF_OSAL_printf("FW Build: %s %s" __NL__ , BUILD_DATE, BUILD_TIME);
+    SF_OSAL_printf("Device OS: %s" __NL__, System.version().c_str());
     #ifdef SYSTEM_VERSION_v310
     const uint32_t APP_ADDR = 0x000b4000; // Device OS 3.1 and later (256K binaries)
     #else
