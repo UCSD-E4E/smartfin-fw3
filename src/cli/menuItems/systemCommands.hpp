@@ -26,5 +26,10 @@ void CLI_self_identify(void);
  * 
  */
 void CLI_doSleep(void);
+/**
+ * @brief Get dummy data and attempt upload
+ * 
+*/
+void CLI_doUpload(void);
 
 #endif

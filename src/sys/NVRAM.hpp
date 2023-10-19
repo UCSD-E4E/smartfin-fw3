@@ -18,6 +18,7 @@ class NVRAM
         TMP116_CAL_CYCLE_PERIOD_SEC,
         UPLOAD_REATTEMPTS,
         NO_UPLOAD_FLAG,
+        CLOUD_CONNECT_COUNTER,
         NUM_DATA_IDs
     }DATA_ID_e;
 
@@ -39,7 +40,8 @@ class NVRAM
         {TMP116_CAL_DATA_COLLECTION_PERIOD_SEC, 0x0008, sizeof(uint32_t)},
         {TMP116_CAL_CYCLE_PERIOD_SEC, 0x000C, sizeof(uint32_t)},
         {UPLOAD_REATTEMPTS, 0x0014, sizeof(uint8_t)},
-        {NO_UPLOAD_FLAG, 0x0015, sizeof(uint8_t)}
+        {NO_UPLOAD_FLAG, 0x0015, sizeof(uint8_t)},
+        {CLOUD_CONNECT_COUNTER, 0x0016, sizeof(uint16_t)},
 
     };
     static NVRAM& getInstance(void);

@@ -3,6 +3,7 @@
 
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
+#include "cellular/recorder.hpp"
 #include "watersensor/waterSensor.hpp"
 
 #include "temperature/tmpSensor.h"
@@ -26,6 +27,7 @@ typedef struct SystemDesc_
 {
     const char* deviceID;
     LocationService* pLocService;
+    Recorder* pRecorder;
     Timer* pChargerCheck;
     Timer* pWaterCheck;
     NVRAM* pNvram;
@@ -45,7 +47,8 @@ extern SystemDesc_t* pSystemDesc;
  * 
  * @return int 
  */
-int SYS_initSys(void);
+void SYS_initSys(void);
+
 
 /**
  * @brief Displays all system components

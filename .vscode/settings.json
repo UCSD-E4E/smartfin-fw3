@@ -63,11 +63,20 @@
     "particle.targetDevice": "",
     "cmake.configureOnOpen": false,
     "C_Cpp.codeAnalysis.clangTidy.enabled": false,
-    "C_Cpp.default.cppStandard": "c++17",
-    "C_Cpp.default.cStandard": "c17",
-    "C_Cpp.default.intelliSenseMode": "windows-gcc-arm",
-    "C_Cpp.intelliSenseEngine": "Tag Parser",
+    "C_Cpp.default.cppStandard": "c++11",
+    "C_Cpp.default.cStandard": "c11",
     "C_Cpp.doxygen.generatedStyle": "/**",
     "C_Cpp.autoAddFileAssociations": false,
+    "editor.rulers": [
+        80
+    ],
+    "particle.enableVerboseLocalCompilerLogging": true,
+    "C_Cpp.vcFormat.space.pointerReferenceAlignment": "left",
+    "C_Cpp.formatting": "vcFormat",
+    "C_Cpp.vcFormat.newLine.scopeBracesOnSeparateLines": true,
+    "C_Cpp.vcFormat.newLine.beforeOpenBrace.type": "newLine",
+    "C_Cpp.vcFormat.newLine.beforeOpenBrace.block": "newLine",
+    "C_Cpp.vcFormat.indent.preserveWithinParentheses": true,
+    "C_Cpp.vcFormat.indent.preprocessor": "oneLeft",
 
 }

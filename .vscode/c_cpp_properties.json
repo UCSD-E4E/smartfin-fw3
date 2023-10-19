@@ -14,8 +14,8 @@
             "windowsSdkVersion": "10.0.22000.0",
             "compilerPath": "~\\.particle\\toolchains\\gcc-arm\\10.2.1\\bin\\arm-none-eabi-gcc.exe",
             "intelliSenseMode": "windows-gcc-arm",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
             "configurationProvider": "particle.particle-vscode-core",
             "mergeConfigurations": true,
             "browse": {
@@ -26,6 +26,7 @@
                     "~\\.particle\\toolchains\\deviceOS\\5.3.0\\hal\\inc",
                     "~\\.particle\\toolchains\\deviceOS\\5.3.0\\hal\\shared",
                     "~\\.particle\\toolchains\\deviceOS\\5.3.0\\hal\\src\\gcc",
+                    "~\\.particle\\toolchains\\deviceOS\\5.3.0\\hal\\src\\nRF52840\\posix",
                     "~\\.particle\\toolchains\\deviceOS\\5.3.0\\services\\inc",
                     "~\\.particle\\toolchains\\deviceOS\\5.3.0\\system",
                     "~\\.particle\\toolchains\\deviceOS\\5.3.0\\wiring",

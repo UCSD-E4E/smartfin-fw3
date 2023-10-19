@@ -17,11 +17,13 @@
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-
+#include "cellular/sf_cloud.hpp"
 #include "sleepTask.hpp"
 #include "chargeTask.hpp"
+#include "cellular/dataUpload.hpp"
 
-SYSTEM_MODE(MANUAL);
+
+SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
 // Statemachine for handeling task-switching
@@ -34,6 +36,7 @@ typedef struct StateMachine_
 static CLI cliTask;
 static ChargeTask chargeTask;
 static SleepTask sleepTask;
+static DataUpload uploadTask;
 static MfgTest mfgTask;
 
 
@@ -43,6 +46,7 @@ static StateMachine_t stateMachine[] =
     {STATE_CLI, &cliTask},
     {STATE_DEEP_SLEEP, &sleepTask},
     {STATE_CHARGE, &chargeTask},
+    {STATE_UPLOAD, &uploadTask},
     {STATE_MFG_TEST, &mfgTask},
     {STATE_NULL, NULL}
 };
@@ -56,17 +60,15 @@ void printState(STATES_e state);
 
 // setup() runs once, when the device is first turned on.
 void setup() {
-    uint16_t reset_reason;
     System.enableFeature(FEATURE_RESET_INFO);
-    reset_reason = System.resetReason();
     Serial.begin(SF_SERIAL_SPEED);
 
     currentState = STATE_CLI;
 
     
     FLOG_Initialize();
-    FLOG_AddError(FLOG_SYS_START, reset_reason); 
     time32_t bootTime = Time.now();
+    FLOG_AddError(FLOG_SYS_START, bootTime); 
     SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
 
     FLOG_AddError(FLOG_RESET_REASON, System.resetReason());
@@ -76,6 +78,14 @@ void setup() {
     initalizeTaskObjects();
 
     currentState = STATE_CHARGE;
+
+    if (!sf::cloud::initialize_counter())
+    {
+        if (currentState == STATE_UPLOAD)
+        {
+            currentState = STATE_CHARGE;
+        }
+    }
 }
 
 // loop() runs over and over again, as quickly as it can execute.
@@ -121,8 +131,6 @@ static void initalizeTaskObjects(void)
               currentState = SF_DEFAULT_STATE;
             break;
     }
-
-    FLOG_AddError(FLOG_SYS_STARTSTATE, (uint16_t) currentState);
 }
 
 static StateMachine_t* findState(STATES_e state)

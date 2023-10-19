@@ -8,6 +8,9 @@
 
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "SPI.h"
+#include <fcntl.h>
+
 #include "consts.hpp"
 #include "states.hpp"
 #include "product.hpp"
@@ -26,6 +29,8 @@ SystemFlags_t systemFlags;
 
 static LEDSystemTheme ledTheme;
 
+Recorder dataRecorder;
+
 
 
 static void SYS_chargerTask(void);
@@ -35,6 +40,7 @@ static int SYS_initTasks(void);
 static void SYS_waterTask(void);
 static int SYS_initWaterSensor(void);
 static int SYS_initLEDs(void);
+static int SYS_initFS();
 static int SYS_initTempSensor(void);
 
 I2C i2cBus;
@@ -52,7 +58,7 @@ static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN, WATER_DETE
 static LocationServiceConfiguration create_location_service_config();
 
 
-int SYS_initSys(void)
+void SYS_initSys(void)
 {
     memset(pSystemDesc, 0, sizeof(SystemDesc_t));
     systemDesc.deviceID = SYS_deviceID;
@@ -61,21 +67,36 @@ int SYS_initSys(void)
     memset(SYS_deviceID, 0, 32);
     strncpy(SYS_deviceID, System.deviceID().c_str(), 31);
 
-    
-
     SYS_initTasks();
     SYS_initGPS();
     SYS_initTempSensor();
     SYS_initNVRAM();
-    SYS_initNVRAM();
+    SYS_initFS();
     SYS_initWaterSensor();
     SYS_initLEDs();
+}
+
+/**
+ * @brief Initialize file system
+ * 
+ * @return int 
+ */
+static int SYS_initFS(void)
+{
+    // DP_spiFlash.begin();
+    // DP_fs.withPhysicalAddr(SF_FLASH_SIZE_MB * 1024 * 1024);
+    // SF_OSAL_printf("Device ID : %s", DP_spiFlash.jedecIdRead());
+    // FLOG_AddError(FLOG_SYS_MOUNT_FAIL, DP_fs.mountAndFormatIfNecessary());
+
+    // systemDesc.pFileSystem = &DP_fs;
+
+    dataRecorder.init();
+    systemDesc.pRecorder = &dataRecorder;
 
     return 1;
 }
 
-
-/**
+ /**
  * @brief Initialize system tasks (charging and sleep)
  * 
  * @return int 
@@ -280,4 +301,9 @@ void SYS_displaySys(void)
     SF_OSAL_printf("Battery Low Flag: %d" __NL__, pSystemDesc->flags->batteryLow);
     SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
     SF_OSAL_printf("In Water Flag: %d" __NL__, pSystemDesc->flags->inWater);
+
+    SF_OSAL_printf(__NL__);
+    SF_OSAL_printf("Particle Connected: %d" __NL__, Particle.connected());
+    SF_OSAL_printf("Cellular On: %d" __NL__, Cellular.isOn());
+    SF_OSAL_printf("Cellular Ready: %d" __NL__, Cellular.ready());
 }
