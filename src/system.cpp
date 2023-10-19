@@ -71,7 +71,6 @@ void SYS_initSys(void)
     SYS_initGPS();
     SYS_initTempSensor();
     SYS_initNVRAM();
-    SYS_initNVRAM();
     SYS_initFS();
     SYS_initWaterSensor();
     SYS_initLEDs();
@@ -302,4 +301,9 @@ void SYS_displaySys(void)
     SF_OSAL_printf("Battery Low Flag: %d" __NL__, pSystemDesc->flags->batteryLow);
     SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
     SF_OSAL_printf("In Water Flag: %d" __NL__, pSystemDesc->flags->inWater);
+
+    SF_OSAL_printf(__NL__);
+    SF_OSAL_printf("Particle Connected: %d" __NL__, Particle.connected());
+    SF_OSAL_printf("Cellular On: %d" __NL__, Cellular.isOn());
+    SF_OSAL_printf("Cellular Ready: %d" __NL__, Cellular.ready());
 }

@@ -2,7 +2,7 @@
 
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-
+#include "cellular/sf_cloud.hpp"
 #include "encoding/base85.h"
 #include "encoding/base64.h"
 
@@ -17,14 +17,14 @@ void DataUpload::init(void)
     SF_OSAL_printf("Entering SYSTEM_STATE_DATA_UPLOAD\n");
 
     this->initSuccess = 0;
-    Particle.connect();
-    os_thread_yield();
+    sf::cloud::wait_connect(5000);
     this->initSuccess = 1;
 }
 
 STATES_e DataUpload::run(void)
 {
-    Particle.connect();
+    sf::cloud::wait_connect(5000);
+
 
     uint8_t dataEncodeBuffer[DATA_UPLOAD_MAX_BLOCK_LEN];
     char dataPublishBuffer[DATA_UPLOAD_MAX_UPLOAD_LEN];

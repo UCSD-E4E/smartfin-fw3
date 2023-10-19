@@ -61,4 +61,6 @@ void NVRAM::displayNVRAM(void)
     SF_OSAL_printf("Upload Reattempts: 0x%02hx" __NL__, u8);
     this->get(NO_UPLOAD_FLAG, u8);
     SF_OSAL_printf("No Upload Flag: 0x%02hx" __NL__, u8);
+    this->get(CLOUD_CONNECT_COUNTER, u16);
+    SF_OSAL_printf("Cloud Connect Counter: 0x%04hx" __NL__, u16);
 }

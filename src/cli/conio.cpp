@@ -52,6 +52,7 @@ extern "C"
 
         while (i < buflen)
         {
+            Particle.process();
             if (kbhit())
             {
                 userInput = getch();

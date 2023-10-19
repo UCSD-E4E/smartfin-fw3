@@ -13,6 +13,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "cellular/dataCollection.hpp"
+#include "cellular/sf_cloud.hpp"
 #include "consts.hpp"
 #include "states.hpp"
 #include "system.hpp"
@@ -22,13 +23,15 @@
 
 void CLI_connect(void)
 {
-    Particle.connect();
-    waitFor(Particle.connected, 300000);
+
+    sf::cloud::wait_connect(30000);
+    SF_OSAL_printf("Connected" __NL__);
 }
 
 void CLI_disconnect(void)
 {
-    Particle.disconnect();
+    sf::cloud::wait_disconnect(30000);
+    SF_OSAL_printf("Disconnected" __NL__);
 }
 
 void CLI_doSleep(void)

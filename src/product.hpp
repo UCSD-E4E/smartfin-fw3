@@ -217,4 +217,10 @@
 #define SF_BLOCK_SIZE   496
 
 #define SF_NAME_MAX 64
+
+/**
+ * @brief Maximum number of attempts to connect to the cloud
+ * 
+ */
+#define SF_CLOUD_CONNECT_MAX_ATTEMPTS   5
 #endif

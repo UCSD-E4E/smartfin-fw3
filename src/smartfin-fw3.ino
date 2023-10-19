@@ -17,13 +17,13 @@
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-
+#include "cellular/sf_cloud.hpp"
 #include "sleepTask.hpp"
 #include "chargeTask.hpp"
 #include "cellular/dataUpload.hpp"
 
 
-SYSTEM_MODE(MANUAL);
+SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
 // Statemachine for handeling task-switching
@@ -80,6 +80,14 @@ void setup() {
     initalizeTaskObjects();
 
     currentState = STATE_CHARGE;
+
+    if (!sf::cloud::initialize_counter())
+    {
+        if (currentState == STATE_UPLOAD)
+        {
+            currentState = STATE_CHARGE;
+        }
+    }
 }
 
 // loop() runs over and over again, as quickly as it can execute.
