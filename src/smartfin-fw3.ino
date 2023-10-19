@@ -60,17 +60,15 @@ void printState(STATES_e state);
 
 // setup() runs once, when the device is first turned on.
 void setup() {
-    uint16_t reset_reason;
     System.enableFeature(FEATURE_RESET_INFO);
-    reset_reason = System.resetReason();
     Serial.begin(SF_SERIAL_SPEED);
 
     currentState = STATE_CLI;
 
     
     FLOG_Initialize();
-    FLOG_AddError(FLOG_SYS_START, reset_reason); 
     time32_t bootTime = Time.now();
+    FLOG_AddError(FLOG_SYS_START, bootTime); 
     SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
 
     FLOG_AddError(FLOG_RESET_REASON, System.resetReason());
@@ -133,8 +131,6 @@ static void initalizeTaskObjects(void)
               currentState = SF_DEFAULT_STATE;
             break;
     }
-
-    FLOG_AddError(FLOG_SYS_STARTSTATE, (uint16_t) currentState);
 }
 
 static StateMachine_t* findState(STATES_e state)
