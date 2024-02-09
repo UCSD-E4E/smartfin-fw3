@@ -42,7 +42,9 @@ jobs:
     
     - name: Set up NPM
       uses: actions/setup-node@v4
+      with:
+        node-version: '>=20.8.1'
     
     - name: Set up Semantic Release
       run: |
-        npm install --save-dev semantic-release
+        npx semantic-release@23
