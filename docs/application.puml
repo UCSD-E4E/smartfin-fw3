@@ -8,7 +8,7 @@ skinparam nodesep 50
 skinparam ranksep 150
 
 package "Device OS" {
-    [Cellular] as cellular #Yellow
+    [Cellular] as cellular #Green
     [I2C] as i2c #Green
     [Serial] as serial #Green
     [Filesystem] as fs #Green
