@@ -57,7 +57,7 @@ jobs:
     
     - name: Install plugins
       run: |
-        npm install @semantic-release/exec -D
+        npm install @semantic-release/exec @semantic-release/git @semantic-release/changelog -D
     
     - name: Run Semantic Release
       env:
