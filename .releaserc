@@ -1,8 +1,4 @@
 {
-    "branches": [
-        "main",
-        "37-feat-semver"
-    ],
     "plugins": [
         "@semantic-release/commit-analyzer",
         "@semantic-release/release-notes-generator",
