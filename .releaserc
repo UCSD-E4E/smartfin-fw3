@@ -1,0 +1,16 @@
+{
+    "branches": [
+        "main",
+        "37-feat-semver"
+    ],
+    "plugins": [
+        "@semantic-release/commit-analyzer",
+        "@semantic-release/release-notes-generator",
+        [
+            "@semantic-release/exec",
+            {
+                "prepareCmd": "echo ${nextRelease.version} ${branch.name} ${commits.length} ${Date.now()}"
+            }
+        ]
+    ]
+}
