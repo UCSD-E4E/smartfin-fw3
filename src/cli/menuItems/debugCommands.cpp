@@ -15,12 +15,16 @@
 #include "cli/flog.hpp"
 #include "cli/cli.hpp"
 #include "states.hpp"
+#include "fileCLI/fileCLI.hpp"
+
+#include <fcntl.h>
+#include <dirent.h>
 
 #include "product.hpp"
 
 #include "imu/imu.hpp"
 #include "consts.hpp"
-
+#include "cellular/recorder.hpp"
 #include "system.hpp"
 
 
@@ -41,6 +45,51 @@ void CLI_displayFLOG(void)
 void CLI_clearFLOG(void)
 {
     FLOG_ClearLog();
+}
+
+void CLI_testHasData(void)
+{
+    int hasData = pSystemDesc->pRecorder->hasData();
+    SF_OSAL_printf("Has data: %d", hasData);
+}
+
+void CLI_testGetNumFiles(void)
+{
+    int numFiles = pSystemDesc->pRecorder->getNumFiles();
+    SF_OSAL_printf("Number of Files: %d", numFiles);
+}
+
+void CLI_createTestFile(void)
+{
+    int fd = open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
+    SF_OSAL_printf("Error: %d" __NL__, errno);
+    SF_OSAL_printf("fd sucsess %d" __NL__, fd);
+    
+    if (fd != -1) {
+        for(int ii = 0; ii < 100; ii++) {
+            String msg = String::format("testing %d\n", ii);
+            SF_OSAL_printf("Creating file with msg %s" __NL__, msg.c_str());
+
+            int i = write(fd, msg.c_str(), msg.length());
+            SF_OSAL_printf("Sucsess: %d" __NL__, i);
+        }
+        close(fd);
+    }
+}
+
+void CLI_wipeFileSystem(void)
+{
+    DIR* directory = opendir("");
+    if (directory == 0)
+    {
+        closedir(directory);
+    } 
+
+    while (readdir(directory) != NULL)
+    {
+        unlink(readdir(directory)->d_name);
+    }
+
 }
 
 void CLI_checkCharging(void) 
@@ -133,6 +182,7 @@ void CLI_monitorIMU(void)
                 break;
             }
         }
+
         getAccelerometer(accelData, accelData + 1, accelData + 2);
         getGyroscope(gyroData, gyroData + 1, gyroData + 2);
         getMagnetometer(magData, magData + 1, magData + 2);
@@ -181,3 +231,8 @@ void CLI_monitorWetDry(void)
     SF_OSAL_printf(__NL__);
 }
 
+void CLI_fileCLI(void)
+{
+    FileCLI cli;
+    cli.execute();
+}

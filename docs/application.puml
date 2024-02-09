@@ -1,66 +1,90 @@
+' Green for modules that are complete
+' Yellow for modules that are WIP
+' Red for modules that are not implemented
 @startuml Service Diagram
+top to bottom direction
+
+skinparam nodesep 50
+skinparam ranksep 150
+
 package "Device OS" {
-    [Cellular] as cellular
-    [I2C] as i2c
-    [Serial] as serial
-    [Filesystem] as fs
-    [SPI] as spi
-    [NVRAM] as nvram
+    [Cellular] as cellular #Yellow
+    [I2C] as i2c #Green
+    [Serial] as serial #Green
+    [Filesystem] as fs #Green
+    [SPI] as spi #Green
+    [GPIO] as gpio #Green
+    [EEPROM] as eeprom #Green
 }
 
 
 package "Application" {
-    [CLI] as cli
-    [Ride] as ride
-    [Charge Task] as charge_task
-    [Sleep Task] as sleep_task
-    [Location Service] as loc_service
+    [CLI] as cli #Green
+    [Ride] as ride #Red
+    [Charge Task] as charge_task #Green
+    [Sleep Task] as sleep_task #Green
+    [Data Upload] as upload #Red
 }
 
 package "Board Support Package" {
-    [Temp Sensor] as temp_sensor
-    [Water Sensor] as water_sensor
-    [GPS] as gps
-    [LED] as led
-    [ICM] as icm
+    [Temp Sensor] as temp_sensor #Green
+    [Water Sensor] as water_sensor #Green
+    [Location Service] as loc_service #Green
+    [GPS] as gps #Green
+    [LED] as led #Green
+    [ICM] as icm #Green
 }
-[ConIO] as conio
-[Recorder] as recorder
-[FLOG] as flog
 
-ride --> temp_sensor
-ride --> gps
-ride --> icm
+package "Application Support Package" {
+    [ConIO] as conio #Green
+    [Recorder] as recorder #Green
+    [FLOG] as flog #Green
+    [NVRAM] as nvram #Green
+}
+
+ride <-- temp_sensor
+ride <-- gps
+ride <-- icm
 ride --> recorder
-ride --> flog
-ride --> water_sensor
-loc_service --> gps
+' ride -r-> flog
+ride <-- water_sensor
+loc_service -r-> gps
 charge_task --> led
-charge_task --> flog
+' charge_task -r-> flog
 sleep_task --> led
 sleep_task --> nvram
-sleep_task --> flog
+' sleep_task -r-> flog
 
-cli --> gps
-cli --> temp_sensor
-cli --> conio
-cli --> flog
-cli --> icm
-cli --> nvram
-cli --> water_sensor
+cli <-- gps
+cli <-- temp_sensor
+cli <--> conio
+' cli -r-> flog
+cli <-- icm
+cli <--> nvram
+cli <-- water_sensor
 
 gps --> spi
 icm --> i2c
-water_sensor --> i2c
 temp_sensor --> i2c
 conio --> serial
-recorder --> fs
-recorder --> cellular
-recorder --> nvram
-recorder --> flog
-conio --> flog
-gps --> flog
-icm --> flog
-water_sensor --> flog
-temp_sensor --> flog
+recorder <--> fs
+
+water_sensor --> gpio
+led --> gpio
+ride --> led
+nvram --> eeprom
+eeprom -> fs
+upload <-- recorder
+upload --> cellular
+upload <-- water_sensor
+upload --> led
+charge_task --> gpio
+upload --> gpio
+sleep_task <-- water_sensor
+' recorder -u-> flog
+' conio -u-> flog
+' gps -u-> flog
+' icm -u-> flog
+' water_sensor -u-> flog
+' temp_sensor -u-> flog
 @enduml

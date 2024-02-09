@@ -21,6 +21,22 @@ void CLI_clearFLOG(void);
  */
 void CLI_testPrintf(void);
 /**
+ * @brief Creates test file in filesystem
+*/
+void CLI_createTestFile(void);
+/**
+ * @brief Get number of files
+*/
+void CLI_testGetNumFiles(void);
+/**
+ * @brief tests if data exists
+*/
+void CLI_testHasData(void);
+/**
+ * @brief Delete all files
+*/
+void CLI_wipeFileSystem(void);
+/*
  * @brief Monitors temperature sensor
  * 
  */
@@ -42,4 +58,9 @@ void CLI_monitorWetDry(void);
 */
 void CLI_doMfgTest(void);
 
+/**
+ * @brief File CLI
+ * 
+ */
+void CLI_fileCLI(void);
 #endif

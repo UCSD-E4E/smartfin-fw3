@@ -1,35 +1,51 @@
 @startuml Firmware Flowchart
+hide empty description
+
 Sleep: D1 OFF
 Sleep: DS1 Charging Status
 Sleep: DS2 Water Detect Status
 Sleep: Cell Modem OFF
 
-Connect: D1 Solid Blue
-Connect: DS1 Charging Status
-Connect: DS2 Water Detect Status
-Connect: Cell Modem ON
+state DataUpload {
+    Connect: D1 Solid Blue
+    Connect: DS1 Charging Status
+    Connect: DS2 Water Detect Status
+    Connect: Cell Modem ON
 
-state "Charged Complete" as charge_complete
-charge_complete: D1 OFF
-charge_complete: DS1 Solid Green
-charge_complete: DS2 Water Detect Status
-charge_complete: Cell Modem OFF
+    Transmit: D1 Blink Blue
+    Transmit: DS1 Charging Status
+    Transmit: DS2 Water Detect Status
+    Transmit: Cell Modem ON
+}
 
-state "Deployed/No GPS" as deployed_nogps
-deployed_nogps: D1 Solid White
-deployed_nogps: DS1 Charging Status
-deployed_nogps: DS2 Water Detect Status
-deployed_nogps: Cell Modem OFF
+state Ride {
+    state "Deployed/No GPS" as deployed_nogps
+    deployed_nogps: D1 Solid White
+    deployed_nogps: DS1 Charging Status
+    deployed_nogps: DS2 Water Detect Status
+    deployed_nogps: Cell Modem OFF
 
-Transmit: D1 Blink Blue
-Transmit: DS1 Charging Status
-Transmit: DS2 Water Detect Status
-Transmit: Cell Modem ON
+    state "Deployed/GPS" as deployed_gps
+    deployed_gps: D1 Blink White
+    deployed_gps: DS1 Charging Status
+    deployed_gps: DS2 Water Detect Status
+    deployed_gps: Cell Modem OFF
 
-Charging: D1 OFF
-Charging: DS1 Blink Green
-Charging: DS2 Water Detect Status
-Charging: Cell Modem OFF
+}
+
+
+state ChargeTask {
+    state "Charged Complete" as charge_complete
+    charge_complete: D1 OFF
+    charge_complete: DS1 Solid Green
+    charge_complete: DS2 Water Detect Status
+    charge_complete: Cell Modem OFF
+
+    Charging: D1 OFF
+    Charging: DS1 Blink Green
+    Charging: DS2 Water Detect Status
+    Charging: Cell Modem OFF
+}
 
 state "CLI" as CLI
 CLI: D1 Solid Yellow
@@ -37,39 +53,31 @@ CLI: DS1 Charging Status
 CLI: DS2 Water Detect Status
 CLI: Cell Modem OFF
 
-state "Deployed/GPS" as deployed_gps
-deployed_gps: D1 Blink White
-deployed_gps: DS1 Charging Status
-deployed_gps: DS2 Water Detect Status
-deployed_gps: Cell Modem OFF
-
 state choice1 <<choice>>
 state choice2 <<choice>>
-[*] --> Setup
-Setup --> Sleep
-Sleep --> choice1 : USB Connect
-Sleep --> deployed_nogps : Water Detected
-choice1 --> Connect : Data to transmit: Yes
-choice1 --> Charging : Data to transmit: No
-deployed_nogps --> Sleep : Low Battery
-deployed_nogps --> choice2 : Out of water
-deployed_nogps --> deployed_gps : GPS Lock
-Connect --> Transmit : Connected
-Connect --> Sleep : Low Battery or No Connection
-Charging --> charge_complete : Charge Complete
-Charging --> Sleep : USB Disconnect
-Charging --> CLI : "#CLI"
-choice2 --> Connect : Data to transmit: Yes
-choice2 --> Sleep : Data to transmit: No
-deployed_gps --> choice2 : Out of water
-deployed_gps --> Sleep : Low Battery
-deployed_gps --> deployed_nogps : Lost GPS Lock
-charge_complete --> Sleep : USB Disconnect or ~40 days elapsed
-CLI --> Connect : Upload Data Command
-CLI --> deployed_nogps : Deploy Command
-CLI --> Sleep : Sleep Command or CLI timeout
-Transmit --> deployed_nogps : Water Detected
-Transmit --> Sleep : Transmit Complete or Low Battery
-Transmit --> Connect : Lost Connection
+[*] -d-> Setup
+Setup -d-> Sleep
+Sleep -d-> Ride : Water Detected
+deployed_nogps -u-> deployed_gps : GPS Lock
+deployed_gps -d-> deployed_nogps : Lost GPS Lock
+Ride -d-> choice2 : Out of water
+choice2 -d-> Connect : Data to transmit
+Connect -u-> Transmit : Connected
+Transmit -u-> Sleep : Transmit Complete
+
+Sleep -l-> choice1 : USB Connect
+choice1 -d-> Connect : Data to transmit
+choice1 -l-> ChargeTask : No data to transmit
+Charging -d-> charge_complete : Charge Complete
+ChargeTask --r--> CLI : "#CLI"
+CLI -d--> Connect : Upload Data Command
+CLI -d--> Ride : Deploy Command
+CLI -l--> Sleep : Sleep Command/CLI timeout
+choice2 -u-> Sleep : No data to transmit
+DataUpload -u-> Sleep : Low Battery/No Connection
+Ride -l-> Sleep : Low Battery
+ChargeTask -r-> Sleep : USB Disconnect/~40 days elapsed
+DataUpload -r-> Ride : Water Detected
+Transmit -d-> Connect : Lost Connection
 
 @enduml

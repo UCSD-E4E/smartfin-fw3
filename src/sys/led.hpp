@@ -29,7 +29,6 @@ class SFLed
 
     static void doLEDs(void);
 
-
     private:
     uint8_t pin;
     SFLED_State_e state;

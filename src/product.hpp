@@ -29,6 +29,7 @@
  */
 #define WATER_MFG_TEST_EN     A3
 
+
 /**
  * @brief ICM20648 Address
  * 
@@ -85,9 +86,16 @@
  */
 #define HARDWARE_REV 3
 
+
 /*******************************************************************************
  * System Configuration
  ******************************************************************************/
+
+#define RIDE_DATA_DIR "ridedata"
+
+#define LITTLEFS_OBJ_NAME_LEN 31
+
+#define USE_ICM_TEMP_SENSOR 0
 
 /**
  * how long to stay in CLI mode if there are no key presses at all
@@ -206,4 +214,13 @@
 
 #define SF_CLI_MAX_CMD_LEN 100
 
+#define SF_BLOCK_SIZE   496
+
+#define SF_NAME_MAX 64
+
+/**
+ * @brief Maximum number of attempts to connect to the cloud
+ * 
+ */
+#define SF_CLOUD_CONNECT_MAX_ATTEMPTS   5
 #endif

@@ -5,12 +5,14 @@
 #include "system.hpp"
 #include "cli/conio.hpp"
 
+
 #include "consts.hpp"
 
 SleepTask::BOOT_BEHAVIOR_e SleepTask::bootBehavior;
 
 void SleepTask::init(void)
 {
+
     SF_OSAL_printf("Entering SYSTEM_STATE_DEEP_SLEEP" __NL__);
     this->ledStatus.setColor(SLEEP_RGB_LED_COLOR);
     this->ledStatus.setPattern(SLEEP_RGB_LED_PATTERN);

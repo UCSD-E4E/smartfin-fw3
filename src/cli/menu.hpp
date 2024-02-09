@@ -6,6 +6,29 @@
 #include <cstdlib>
 
 /**
+ * @brief Menu Type
+ * 
+ */
+typedef enum MenuType_
+{
+    /**
+     * @brief Null Menu
+     * 
+     */
+    MENU_NULL,
+    /**
+     * @brief Command Item
+     * 
+     */
+    MENU_CMD,
+    /**
+     * @brief Submenu
+     * 
+     */
+    MENU_SUBMENU,
+}MenuType_t;
+
+/**
  * @brief Menu structure
  * 
  */
@@ -21,11 +44,19 @@ typedef const struct Menu_
      * 
      */
     const char* const fnName;
-    /**
-     * @brief Command function pointer
-     * 
-     */
-    void (*fn)(void);
+    union {
+        /**
+         * @brief Command function pointer
+         * 
+         */
+        void (*fn)(void);
+        /**
+         * @brief Pointer to submenu
+         * 
+         */
+        const struct Menu_* pMenu;
+    } ptr;
+    MenuType_t menuType;
 }Menu_t;
 
 /**
@@ -43,4 +74,11 @@ const Menu_t* MNU_findCommand(const char* input, const Menu_t* pMenu);
  * @param pMenu Menu structure to display
  */
 void MNU_displayMenu(const Menu_t* pMenu);
+
+/**
+ * @brief Executes the given menu
+ * 
+ * @param pMenu Menu to execute
+ */
+void MNU_executeMenu(const Menu_t* pMenu);
 #endif

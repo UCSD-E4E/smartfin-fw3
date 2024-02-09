@@ -19,6 +19,19 @@ class SystemFlags_t{
     bool hasCharger
     bool inWater
 }
+
+class Recorder {
+    int init()
+    int hasData()
+    int getLastPacket(void*, size_t, char* size_t)
+    int popLastPacket(size_t)
+    void setSessionName(const char*)
+    int getNumFiles()
+    int openSession(const char* const)
+    int closeSession()
+    int putBytes(const void*, size_t)
+    int putData(T)
+}
 LocationService o-- pLocService
 SystemDesc o-- SystemFlags_t
 @enduml
