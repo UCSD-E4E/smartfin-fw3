@@ -24,3 +24,25 @@ jobs:
             path: |
                 ${{ steps.compile.outputs.firmware-path }}
                 ${{ steps.compile.outputs.target-path }}
+
+  release:
+    needs: [compile]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    if: ${{ github.ref == 'refs/heads/37-feat-semver' }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        submodules: recursive
+        ref: master
+    
+    - name: Set up NPM
+      uses: actions/setup-node@v4
+    
+    - name: Set up Semantic Release
+      run: |
+        npm install --save-dev semantic-release
