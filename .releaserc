@@ -9,7 +9,7 @@
         [
             "@semantic-release/exec",
             {
-                "prepareCmd": "echo ${nextRelease.version} ${branch.name} ${commits.length} ${Date.now()}"
+                "prepareCmd": "python semantic_release_prepare.py ${nextRelease.version} ${branch.name} src/vers.hpp"
             }
         ]
     ]
