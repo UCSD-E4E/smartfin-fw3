@@ -45,6 +45,8 @@ jobs:
       with:
         node-version: '>=20.8.1'
     
-    - name: Set up Semantic Release
+    - name: Run Semantic Release
+      env:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
       run: |
         npx semantic-release@23
