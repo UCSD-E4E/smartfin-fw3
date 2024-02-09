@@ -1,4 +1,7 @@
 {
+    "branches": [
+        "main"
+    ],
     "plugins": [
         "@semantic-release/commit-analyzer",
         "@semantic-release/release-notes-generator",
@@ -6,6 +9,12 @@
             "@semantic-release/exec",
             {
                 "prepareCmd": "python semantic_release_prepare.py ${nextRelease.version} ${branch.name} src/vers.hpp"
+            }
+        ],
+        [
+            "@semantic-release/exec",
+            {
+                "prepareCmd": "echo 'release=true' >> \"$GITHUB_OUTPUT\""
             }
         ],
         [

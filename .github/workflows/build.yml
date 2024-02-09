@@ -33,7 +33,7 @@ jobs:
       contents: write
     if: ${{ github.ref == 'refs/heads/37-feat-semver' }}
     outputs:
-      release: ${{ steps.release}}
+      release: ${{ steps.release.outputs.release }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -68,3 +68,9 @@ jobs:
       run: |
         npx semantic-release@23
   
+    - name: Publish package distributions to GitHub Releases
+      id: github-release
+      if: steps.release.outputs.release == 'true'
+      uses: python-semantic-release/upload-to-gh-release@main
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
