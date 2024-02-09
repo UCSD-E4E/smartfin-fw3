@@ -38,7 +38,7 @@ jobs:
       with:
         fetch-depth: 0
         submodules: recursive
-        ref: master
+        ref: 37-feat-semver
     
     - name: Set up NPM
       uses: actions/setup-node@v4
