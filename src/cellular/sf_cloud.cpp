@@ -67,4 +67,25 @@ namespace sf::cloud
         nvram.put(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
         return retval;
     }
+
+    int publish_blob(const char* title, const char* blob)
+    {
+        if (strlen(blob) > particle::protocol::MAX_EVENT_DATA_LENGTH)
+        {
+            return OVERSIZE_DATA;
+        }
+        if (strlen(title) > particle::protocol::MAX_EVENT_NAME_LENGTH)
+        {
+            return OVERSIZE_NAME;
+        }
+        if (!Particle.connected())
+        {
+            return NOT_CONNECTED;
+        }
+        if (!Particle.publish(title, blob))
+        {
+            return PUBLISH_FAIL;
+        }
+        return SUCCESS;
+    }
 }

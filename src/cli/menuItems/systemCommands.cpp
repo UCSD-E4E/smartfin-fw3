@@ -49,12 +49,9 @@ void CLI_doUpload(void)
     sprintf(integer_string, "%d", integer);
 
     strcat(other_string, integer_string);
-    pSystemDesc->pRecorder->openSession();
 
-    SS_ensemble10Func();
-    pSystemDesc->pRecorder->closeSession();
-    CLI_nextState = STATE_UPLOAD;
-    SF_OSAL_printf("Quit the menu to set the next state" __NL__);
+    int success = sf::cloud::publish_blob(other_string, "Particle was here!");
+    SF_OSAL_printf("Particle publish: %d" __NL__, success);
 }
 
 void CLI_self_identify(void)

@@ -9,6 +9,10 @@ namespace sf
             SUCCESS,
             ATTEMPTS_EXCEEDED,
             TIMEOUT,
+            NOT_CONNECTED,
+            OVERSIZE_DATA,
+            OVERSIZE_NAME,
+            PUBLISH_FAIL,
         }error_e;
 
         /**
@@ -40,6 +44,17 @@ namespace sf
          * @return false if in an error condition, otherwise true
          */
         bool initialize_counter(void);
+
+        /**
+         * @brief Publishes the specified message
+         * 
+         *
+         * @param title Message title.  Must be 1-64 characters and only letters,
+         *                              numbers, underscores, dashes, or slashes.
+         * @param blob Message blob.  Must be 1024 bytes or less, UTF-8 encoded.
+         * @return 0 on success, otherise error code.
+         */
+        int publish_blob(const char* title, const char* blob);
     };
 };
 #endif
