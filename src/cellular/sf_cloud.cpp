@@ -16,6 +16,10 @@ namespace sf::cloud
         uint16_t n_attempts;
         system_tick_t end_time = millis() + timeout_ms;
         NVRAM& nvram = *pSystemDesc->pNvram;
+        if (Particle.connected())
+        {
+            return SUCCESS;
+        }
         nvram.get(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
         if (n_attempts > SF_CLOUD_CONNECT_MAX_ATTEMPTS)
         {
