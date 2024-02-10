@@ -37,3 +37,8 @@ Includes should be organized in the following order:
 4. Platform headers
 
 Where C system headers are used, prefer the C style header over the C++ style header (e.g. string.h over cstring)
+
+## Return Values
+Prefer returning error codes.
+
+Error codes may be defined by documentation or by enumeration.
