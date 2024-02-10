@@ -16,14 +16,15 @@ void DataUpload::init(void)
 {
     SF_OSAL_printf("Entering SYSTEM_STATE_DATA_UPLOAD\n");
 
-    this->initSuccess = 0;
-    sf::cloud::wait_connect(5000);
     this->initSuccess = 1;
+    if(sf::cloud::wait_connect(30000))
+    {
+        this->initSuccess = 0;
+    }
 }
 
 STATES_e DataUpload::run(void)
 {
-    sf::cloud::wait_connect(5000);
 
 
     uint8_t dataEncodeBuffer[DATA_UPLOAD_MAX_BLOCK_LEN];
@@ -84,7 +85,10 @@ STATES_e DataUpload::run(void)
 
 void DataUpload::exit(void)
 {
-    Cellular.off();
+    if(sf::cloud::wait_disconnect(5000))
+    {
+        FLOG_AddError(FLOG_CELL_DISCONN_FAIL, 0);
+    }
 }
 
 STATES_e DataUpload::exitState(void)
