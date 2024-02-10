@@ -67,10 +67,3 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
       run: |
         npx semantic-release@23
-  
-    - name: Publish package distributions to GitHub Releases
-      id: github-release
-      if: steps.release.outputs.release == 'true'
-      uses: python-semantic-release/upload-to-gh-release@main
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
