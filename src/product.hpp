@@ -147,7 +147,11 @@
  * 
  */
 #define SF_UPLOAD_REATTEMPT_DELAY_SEC 600
-
+ /**
+  * @brief Milliseconds between transmit attempts
+  *
+  */
+#define SF_UPLOAD_MS_PER_TRANSMIT   1000
 /**
  * @brief how many ms is a GPS data point valid for a given data log
  * 
@@ -210,11 +214,32 @@
 #define SF_UPLOAD_ENCODING SF_UPLOAD_BASE64URL
 
 
+#if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
+ /**
+  * How many bytes to store chunks of data in on the SPI flash.
+  *
+  * 816 * 5/4 (base85 encoding compression rate) = 1020 which is less than 1024
+  * bytes which is the maximum size of publish events.
+  */
+#define SF_PACKET_SIZE  816
+#define SF_RECORD_SIZE  1020
+#elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64 || SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
+ /**
+  * How many bytes to store chunks of data in on the SPI flash.
+  *
+  * 768 * 4/3 (base64 encoding compression rate) = 1024 which is the maximum size
+  * of publish events.
+  */
+#define SF_PACKET_SIZE  768
+#define SF_RECORD_SIZE  1024
+#endif
+
+
+
 #define SF_SERIAL_SPEED 9600
 
 #define SF_CLI_MAX_CMD_LEN 100
 
-#define SF_BLOCK_SIZE   496
 
 #define SF_NAME_MAX 64
 

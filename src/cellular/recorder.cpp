@@ -301,15 +301,15 @@ int Recorder::getLastPacket(void* pBuffer,
     }
 
     current_length = session.getLength();
-    if (current_length % REC_MAX_PACKET_SIZE == 0)
+    if (current_length % SF_PACKET_SIZE == 0)
     {
         // only full packets available
-        bytes_to_read = REC_MAX_PACKET_SIZE;
+        bytes_to_read = SF_PACKET_SIZE;
     }
     else
     {
         // partial packet
-        bytes_to_read = current_length % REC_MAX_PACKET_SIZE;
+        bytes_to_read = current_length % SF_PACKET_SIZE;
     }
 
     #ifdef REC_DEBUG
@@ -328,7 +328,7 @@ int Recorder::getLastPacket(void* pBuffer,
     session.seek(newLength);
     bytesRead = session.read(pBuffer, bytes_to_read);
     snprintf((char*)pName, nameLen, "Sfin-%s-%s-%d", pSystemDesc->deviceID,
-             name, newLength / REC_MAX_PACKET_SIZE);
+             name, newLength / SF_PACKET_SIZE);
     session.close();
     return bytesRead;
 }
@@ -337,7 +337,8 @@ int Recorder::getLastPacket(void* pBuffer,
  * @brief Trims the last block with specified length from the recorder
  *
  * @param len Length of block to trim
- * @return int 1 if successful, otherwise 0
+ * @return int 0 if successful, otherwise error code.  -1 if another session is
+ * already open.  -2 if previous session unopenable.
  */
 int Recorder::popLastPacket(size_t len)
 {
@@ -362,19 +363,19 @@ int Recorder::popLastPacket(size_t len)
         #ifdef REC_DEBUG
         SF_OSAL_printf("Failed to open last session" __NL__);
         #endif
-        return -1;
+        return -2;
     }
 
     current_length = session.getLength();
-    if (current_length % REC_MAX_PACKET_SIZE == 0)
+    if (current_length % SF_PACKET_SIZE == 0)
     {
         // only full packets available
-        bytes_to_pop = REC_MAX_PACKET_SIZE;
+        bytes_to_pop = SF_PACKET_SIZE;
     }
     else
     {
         // partial packet
-        bytes_to_pop = current_length % REC_MAX_PACKET_SIZE;
+        bytes_to_pop = current_length % SF_PACKET_SIZE;
     }
 
     newLength = current_length - bytes_to_pop;
@@ -388,7 +389,7 @@ int Recorder::popLastPacket(size_t len)
         session.truncate(newLength);
         session.close();
     }
-    return 1;
+    return 0;
 }
 
 int Recorder::setSessionTime(uint32_t session_time)
@@ -473,16 +474,16 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
         FLOG_AddError(FLOG_REC_SESSION_CLOSED, 0);
         return 1;
     }
-    if (nBytes > (REC_MAX_PACKET_SIZE - this->dataIdx))
+    if (nBytes > (SF_PACKET_SIZE - this->dataIdx))
     {
         // data will not fit, flush and clear
         // pad 0
-        for (; this->dataIdx < REC_MAX_PACKET_SIZE; this->dataIdx++)
+        for (; this->dataIdx < SF_PACKET_SIZE; this->dataIdx++)
         {
             this->dataBuffer[this->dataIdx] = 0;
         }
         // SF_OSAL_printf("Flushing\n");
-        this->pSession->write(this->dataBuffer, REC_MAX_PACKET_SIZE);
+        this->pSession->write(this->dataBuffer, SF_PACKET_SIZE);
 
         memset(this->dataBuffer, 0, REC_MEMORY_BUFFER_SIZE);
         this->dataIdx = 0;

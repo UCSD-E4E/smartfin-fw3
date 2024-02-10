@@ -401,7 +401,7 @@ void base85dump(int fp, size_t file_len)
     size_t encodedLen = 0;
     for (file_idx = 0; file_idx < file_len; file_idx += bytes_read)
     {
-        bytes_read = read(fp, byte_buffer, SF_BLOCK_SIZE);
+        bytes_read = read(fp, byte_buffer, SF_PACKET_SIZE);
     #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
         encodedLen = bintob85(encoded_buffer, byte_buffer, bytes_read) - encodedBuffer;
     #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64

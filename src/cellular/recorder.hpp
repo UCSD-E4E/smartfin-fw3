@@ -15,12 +15,11 @@
  */
 #define REC_SESSION_NAME_MAX_LEN 64
 
-#define REC_MEMORY_BUFFER_SIZE  512
-#if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
-#define REC_MAX_PACKET_SIZE  496
-#elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64 || SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
-#define REC_MAX_PACKET_SIZE  466
+#define REC_MEMORY_BUFFER_SIZE  1024
+#if REC_MEMORY_BUFFER_SIZE < SF_PACKET_SIZE
+#error REC_MEMORY_BUFFER_SIZE < SF_PACKET_SIZE
 #endif
+
 
 
 class Recorder
@@ -60,7 +59,8 @@ public:
      * @brief Trims the last block with specified length from the recorder
      *
      * @param len Length of block to trim
-     * @return int 1 if successful, otherwise 0
+     * @return int 0 if successful, otherwise error code.  -1 if another session
+     * is already open.  -2 if previous session unopenable.
      */
     int popLastPacket(size_t len);
     /**

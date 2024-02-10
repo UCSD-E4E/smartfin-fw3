@@ -182,7 +182,7 @@ void REC_testPopLastPacket(void)
     Recorder* pRecorder = pSystemDesc->pRecorder;
     int retval;
     
-    retval = pRecorder->popLastPacket(REC_MAX_PACKET_SIZE);
+    retval = pRecorder->popLastPacket(SF_PACKET_SIZE);
 
     SF_OSAL_printf("Returned %d" __NL__, retval);
 }

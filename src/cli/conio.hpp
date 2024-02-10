@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define SF_OSAL_PRINTF_BUFLEN   1024
+#define SF_OSAL_PRINTF_BUFLEN   1536
 
 #ifdef __cplusplus
 extern "C"

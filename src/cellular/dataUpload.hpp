@@ -10,23 +10,7 @@
  * RGB LED state is handled by the system theme.
  */
 
-#if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
-/**
- * How many bytes to store chunks of data in on the SPI flash.
- * 
- * 496 * 5/4 (base85 encoding compression rate) = 620 which is less than the 622
- * bytes which is the maximum size of publish events.
- */
-#define DATA_UPLOAD_MAX_BLOCK_LEN   496
-#elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64 || SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
-/**
- * How many bytes to store chunks of data in on the SPI flash.
- * 
- * 466 * 4/3 (base64 encoding compression rate) = 621 which is less than the 622
- * bytes which is the maximum size of publish events.
- */
-#define DATA_UPLOAD_MAX_BLOCK_LEN   466
-#endif
+
 
 /**
  * @brief Number of bytes to buffer for upload
@@ -38,7 +22,7 @@
  * @brief Minimum time between publish
  * 
  */
-#define DATA_UPLOAD_MIN_PUBLISH_TIME_MS 1000
+#define DATA_UPLOAD_MIN_PUBLISH_TIME_MS SF_UPLOAD_MS_PER_TRANSMIT
 
 /**
  * @brief Publish Event Name Length (not including NULL terminator)
@@ -63,5 +47,6 @@ class DataUpload : public Task{
     int initSuccess;
     system_tick_t lastConnectTime;
     STATES_e exitState(void);
+    STATES_e can_upload(void);
 };
 #endif
