@@ -64,6 +64,6 @@ jobs:
     - name: Run Semantic Release
       id: release
       env:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
       run: |
         npx semantic-release@23
