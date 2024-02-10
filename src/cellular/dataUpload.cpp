@@ -6,6 +6,7 @@
 #include "encoding/base85.h"
 #include "encoding/base64.h"
 
+#include "consts.hpp"
 #include "system.hpp"
 #include "product.hpp"
 #include "sleepTask.hpp"
@@ -69,10 +70,10 @@ STATES_e DataUpload::run(void)
 
     SF_OSAL_printf("Data: %s", dataPublishBuffer);
 
-    bool sucsess = Particle.publish(publishName, dataPublishBuffer);
+    int sucsess = sf::cloud::publish_blob(publishName, dataPublishBuffer);
     if (!sucsess)
     {
-        SF_OSAL_printf("Failed to upload data!\n");
+        SF_OSAL_printf("Failed to upload data %d" __NL__, sucsess);
     }
 
     SF_OSAL_printf("Uploaded record %s\n", dataPublishBuffer);
