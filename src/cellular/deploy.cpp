@@ -35,7 +35,7 @@ int Deployment::open(const char* const name, Deployment::State_e state)
         ::close(this->currentFile);
     }
 #ifdef DEP_DEBUG
-    SF_OSAL_printf("opening!");
+    SF_OSAL_printf("opening!" __NL__);
 #endif
     switch (state)
     {
