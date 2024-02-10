@@ -55,6 +55,7 @@ namespace sf
         /**
          * @brief Publishes the specified message
          * 
+         * This function may block for as much as 20 seconds.
          *
          * @param title Message title.  Must be 1-64 characters and only letters,
          *                              numbers, underscores, dashes, or slashes.
