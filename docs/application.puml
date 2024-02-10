@@ -23,7 +23,7 @@ package "Application" {
     [Ride] as ride #Red
     [Charge Task] as charge_task #Green
     [Sleep Task] as sleep_task #Green
-    [Data Upload] as upload #Red
+    [Data Upload] as upload #Green
 }
 
 package "Board Support Package" {

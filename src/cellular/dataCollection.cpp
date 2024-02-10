@@ -116,7 +116,7 @@ void SS_ensemble10Func()
 
     ensData.header.ensembleType = ENS_TEMP_IMU;
     int x = pSystemDesc->pRecorder->putBytes(&ensData, sizeof(EnsembleHeader_t) + sizeof(Ensemble10_data_t));
-    SF_OSAL_printf("Sucsess %d", x);
+    SF_OSAL_printf("Error code %d", x);
     
     memset(pData, 0, sizeof(Ensemble10_eventData_t));
     SF_OSAL_printf("Finished setting up data");

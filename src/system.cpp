@@ -57,6 +57,7 @@ static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN, WATER_DETE
 
 static LocationServiceConfiguration create_location_service_config();
 
+static FuelGauge battery_desc;
 
 void SYS_initSys(void)
 {
@@ -74,6 +75,8 @@ void SYS_initSys(void)
     SYS_initFS();
     SYS_initWaterSensor();
     SYS_initLEDs();
+
+    systemDesc.pBattery = &battery_desc;    
 }
 
 /**

@@ -36,6 +36,7 @@ typedef struct SystemDesc_
     SFLed* pWaterLED;
     tmpSensor* pTempSensor;
     LEDSystemTheme* systemTheme;
+    FuelGauge* pBattery;
     const SystemFlags_t* flags;
 }SystemDesc_t;
 

@@ -33,6 +33,13 @@ namespace sf
         int wait_disconnect(int timeout_ms);
 
         /**
+         * @brief Checks if system is still connected
+         * 
+         * @return true if connected, otherwise false
+         */
+        bool is_connected();
+
+        /**
          * @brief Initializes the counter.
          * 
          * If the counter is greater than SF_CLOUD_CONNECT_MAX_ATTEMPTS, then 
@@ -48,6 +55,7 @@ namespace sf
         /**
          * @brief Publishes the specified message
          * 
+         * This function may block for as much as 20 seconds.
          *
          * @param title Message title.  Must be 1-64 characters and only letters,
          *                              numbers, underscores, dashes, or slashes.
