@@ -49,7 +49,7 @@ void CLI_clearFLOG(void)
 
 void CLI_testHasData(void)
 {
-    int hasData = pSystemDesc->pRecorder->hasData();
+    bool hasData = pSystemDesc->pRecorder->hasData();
     SF_OSAL_printf("Has data: %d", hasData);
 }
 

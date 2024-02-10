@@ -35,9 +35,9 @@ public:
     /**
      * @brief Checks if the Recorder has data to upload
      *
-     * @return int  1 if data exists, otherwise 0
+     * @return bool  true if data exists, otherwise false
      */
-    inline int hasData(void) {
+    inline bool hasData(void) {
         return this->metadata_header.n_entries != 0;
     }
     /**

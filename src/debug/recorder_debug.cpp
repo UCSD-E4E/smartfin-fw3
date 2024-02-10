@@ -48,7 +48,7 @@ const Menu_t Recorder_debug_menu[] =
 void REC_testHasData(void)
 {
     Recorder* pRecorder = pSystemDesc->pRecorder;
-    int has_data = pRecorder->hasData();
+    bool has_data = pRecorder->hasData();
     SF_OSAL_printf("hasData: %d" __NL__, has_data);
     return;
 }
