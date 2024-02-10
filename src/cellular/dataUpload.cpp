@@ -60,7 +60,7 @@ STATES_e DataUpload::run(void)
 
     SF_OSAL_printf("Got %u bytes to upload\n", nBytesToSend);
 
-    if (!Particle.connected())
+    if (!sf::cloud::is_connected())
     {
         // we're not connected!  abort
         SF_OSAL_printf("not connected :(");
