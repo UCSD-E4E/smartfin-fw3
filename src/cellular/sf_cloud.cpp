@@ -88,4 +88,10 @@ namespace sf::cloud
         }
         return SUCCESS;
     }
+
+    bool is_connected()
+    {
+        return Particle.connected();
+    }
+
 }
