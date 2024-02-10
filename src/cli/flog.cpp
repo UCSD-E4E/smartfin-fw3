@@ -94,7 +94,9 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_FS_FTRUNC_FAIL, "file ftrunc fail"},
     {FLOG_FS_READ_FAIL, "file ftrunc fail"},
     {FLOG_REC_SETUP_FAIL, "Recorder setup failed"},
+    {FLOG_REC_SESSION_CLOSED, "Write to Closed Session"},
 
+    {FLOG_SW_NULLPTR, "Software Null Pointer"},
     {FLOG_DEBUG, "debug point"},
     {FLOG_NULL, NULL}
 };
