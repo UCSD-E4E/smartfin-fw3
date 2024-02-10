@@ -77,6 +77,8 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_UPL_BATT_LOW, "Upload Battery low"},
     {FLOG_UPL_FOLDER_COUNT, "Upload file count"},
     {FLOG_UPL_CONNECT_FAIL, "Upload connect fail"},
+    {FLOG_UPL_OPEN_FAIL, "Upload open last session fail"},
+    {FLOG_UPL_PUB_FAIL, "Upload Publish fail"},
 
     {FLOG_GPS_INIT_FAIL, "GPS Init Fail"},
     {FLOG_GPS_START_FAIL, "GPS Start Fail"},
