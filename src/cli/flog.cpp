@@ -77,6 +77,8 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_UPL_BATT_LOW, "Upload Battery low"},
     {FLOG_UPL_FOLDER_COUNT, "Upload file count"},
     {FLOG_UPL_CONNECT_FAIL, "Upload connect fail"},
+    {FLOG_UPL_OPEN_FAIL, "Upload open last session fail"},
+    {FLOG_UPL_PUB_FAIL, "Upload Publish fail"},
 
     {FLOG_GPS_INIT_FAIL, "GPS Init Fail"},
     {FLOG_GPS_START_FAIL, "GPS Start Fail"},
@@ -95,6 +97,8 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_FS_READ_FAIL, "file ftrunc fail"},
     {FLOG_REC_SETUP_FAIL, "Recorder setup failed"},
     {FLOG_REC_SESSION_CLOSED, "Write to Closed Session"},
+
+    {FLOG_CELL_DISCONN_FAIL, "Cellular failed to disconnect"},
 
     {FLOG_SW_NULLPTR, "Software Null Pointer"},
     {FLOG_DEBUG, "debug point"},

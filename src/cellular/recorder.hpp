@@ -15,12 +15,11 @@
  */
 #define REC_SESSION_NAME_MAX_LEN 64
 
-#define REC_MEMORY_BUFFER_SIZE  512
-#if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
-#define REC_MAX_PACKET_SIZE  496
-#elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64 || SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
-#define REC_MAX_PACKET_SIZE  466
+#define REC_MEMORY_BUFFER_SIZE  1024
+#if REC_MEMORY_BUFFER_SIZE < SF_PACKET_SIZE
+#error REC_MEMORY_BUFFER_SIZE < SF_PACKET_SIZE
 #endif
+
 
 
 class Recorder
@@ -35,9 +34,9 @@ public:
     /**
      * @brief Checks if the Recorder has data to upload
      *
-     * @return int  1 if data exists, otherwise 0
+     * @return bool  true if data exists, otherwise false
      */
-    inline int hasData(void) {
+    inline bool hasData(void) {
         return this->metadata_header.n_entries != 0;
     }
     /**
@@ -48,8 +47,9 @@ public:
      * @param bufferLen Length of packet buffer
      * @param pName Buffer to place session name into
      * @param nameLen Length of name buffer
-     * @return int -1 on failure, number of bytes placed into data buffer 
-     *  otherwise
+     * @return int error code on failure, number of bytes placed into data buffer 
+     *  otherwise.  -1 for already active session.  -2 for inability to open
+     * session.  -3 on buffer overflow.
      */
     int getLastPacket(void* pBuffer,
                       size_t bufferLen,
@@ -59,7 +59,8 @@ public:
      * @brief Trims the last block with specified length from the recorder
      *
      * @param len Length of block to trim
-     * @return int 1 if successful, otherwise 0
+     * @return int 0 if successful, otherwise error code.  -1 if another session
+     * is already open.  -2 if previous session unopenable.
      */
     int popLastPacket(size_t len);
     /**

@@ -42,3 +42,7 @@ Where C system headers are used, prefer the C style header over the C++ style he
 Prefer returning error codes.
 
 Error codes may be defined by documentation or by enumeration.
+
+If returning a true or false value, prefer using `bool`.
+
+`assert` is strictly prohibited in releasable code.

@@ -4,6 +4,7 @@
 #include "product.hpp"
 #include "sys/NVRAM.hpp"
 #include "system.hpp"
+#include "consts.hpp"
 
 #include <stdint.h>
 
@@ -11,11 +12,16 @@
 
 namespace sf::cloud
 {
+    system_tick_t last_publish_time = 0;
     int wait_connect(int timeout_ms)
     {
         uint16_t n_attempts;
         system_tick_t end_time = millis() + timeout_ms;
         NVRAM& nvram = *pSystemDesc->pNvram;
+        if (Particle.connected())
+        {
+            return SUCCESS;
+        }
         nvram.get(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
         if (n_attempts > SF_CLOUD_CONNECT_MAX_ATTEMPTS)
         {
@@ -70,6 +76,12 @@ namespace sf::cloud
 
     int publish_blob(const char* title, const char* blob)
     {
+        system_tick_t time_since_last = millis() - last_publish_time;
+        // SF_OSAL_printf("%u ms since last publish" __NL__, time_since_last);
+        if (time_since_last < SF_UPLOAD_MS_PER_TRANSMIT)
+        {
+            delay(SF_UPLOAD_MS_PER_TRANSMIT - time_since_last);
+        }
         if (strlen(blob) > particle::protocol::MAX_EVENT_DATA_LENGTH)
         {
             return OVERSIZE_DATA;
@@ -86,6 +98,13 @@ namespace sf::cloud
         {
             return PUBLISH_FAIL;
         }
+        last_publish_time = millis();
         return SUCCESS;
     }
+
+    bool is_connected()
+    {
+        return Particle.connected();
+    }
+
 }

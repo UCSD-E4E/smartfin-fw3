@@ -48,7 +48,7 @@ const Menu_t Recorder_debug_menu[] =
 void REC_testHasData(void)
 {
     Recorder* pRecorder = pSystemDesc->pRecorder;
-    int has_data = pRecorder->hasData();
+    bool has_data = pRecorder->hasData();
     SF_OSAL_printf("hasData: %d" __NL__, has_data);
     return;
 }
@@ -72,9 +72,9 @@ void REC_testGetLastPacket(void)
                                       name_buffer,
                                       REC_SESSION_NAME_MAX_LEN);
 
-    if (-1 == retval)
+    if (0 >= retval)
     {
-        SF_OSAL_printf("Returned -1" __NL__);
+        SF_OSAL_printf("Returned error! %d" __NL__, retval);
         return;
     }
     hexDump(data_buffer, retval);
@@ -182,7 +182,7 @@ void REC_testPopLastPacket(void)
     Recorder* pRecorder = pSystemDesc->pRecorder;
     int retval;
     
-    retval = pRecorder->popLastPacket(REC_MAX_PACKET_SIZE);
+    retval = pRecorder->popLastPacket(SF_PACKET_SIZE);
 
     SF_OSAL_printf("Returned %d" __NL__, retval);
 }

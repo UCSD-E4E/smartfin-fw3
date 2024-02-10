@@ -394,21 +394,21 @@ void FileCLI::dumpHex(void)
 void base85dump(int fp, size_t file_len)
 {
     size_t file_idx = 0, bytes_read;
-    uint8_t byte_buffer[512];
-    char encoded_buffer[1024];
+    uint8_t byte_buffer[SF_PACKET_SIZE];
+    char encoded_buffer[SF_RECORD_SIZE];
     size_t totalEncodedLen = 0;
     size_t n_packets = 0;
     size_t encodedLen = 0;
     for (file_idx = 0; file_idx < file_len; file_idx += bytes_read)
     {
-        bytes_read = read(fp, byte_buffer, SF_BLOCK_SIZE);
+        bytes_read = read(fp, byte_buffer, SF_PACKET_SIZE);
     #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
         encodedLen = bintob85(encoded_buffer, byte_buffer, bytes_read) - encodedBuffer;
     #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64
-        encodedLen = 1024;
+        encodedLen = SF_RECORD_SIZE;
         b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
     #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
-        encodedLen = 1024;
+        encodedLen = SF_RECORD_SIZE;
         urlsafe_b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
     #endif
         totalEncodedLen += encodedLen;
