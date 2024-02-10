@@ -31,7 +31,7 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    if: ${{ github.ref == 'refs/heads/37-feat-semver' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     outputs:
       release: ${{ steps.release.outputs.release }}
     steps:
@@ -40,7 +40,7 @@ jobs:
       with:
         fetch-depth: 0
         submodules: recursive
-        ref: 37-feat-semver
+        ref: main
 
     - name: Set up Python
       uses: actions/setup-python@v5
