@@ -470,7 +470,8 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
 {
     if (nullptr == this->pSession)
     {
-        return 0;
+        FLOG_AddError(FLOG_REC_SESSION_CLOSED, 0);
+        return 1;
     }
     if (nBytes > (REC_MAX_PACKET_SIZE - this->dataIdx))
     {
@@ -491,7 +492,7 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
     // SF_OSAL_printf("Putting %u bytes\n", nBytes);
     memcpy(&this->dataBuffer[this->dataIdx], pData, nBytes);
     this->dataIdx += nBytes;
-    return 1;
+    return 0;
 }
 
 int Recorder::pop_metadata_entry(void)

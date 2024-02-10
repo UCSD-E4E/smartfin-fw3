@@ -125,9 +125,13 @@ void REC_testPutBytes(void)
         byte_idx++;
     }
 
-    if (1 != pRecorder->putBytes(user_input, byte_idx))
+    switch (pRecorder->putBytes(user_input, byte_idx))
     {
-        SF_OSAL_printf("putBytes failed!" __NL__);
+    case 0:
+        break;
+    case 1:
+        SF_OSAL_printf("Session not opened!" __NL__);
+        break;
     }
 }
 
@@ -143,12 +147,16 @@ void REC_testCreateBigSession(void)
     getline((char*) user_input, REC_MEMORY_BUFFER_SIZE);
 
     input_length = atoi(user_input);
-    for (hex_idx = 0; hex_idx < input_length; hex_idx ++)
+    for (hex_idx = 0; hex_idx < input_length; hex_idx++)
     {
         rand_byte = random(256);
-        if (1 != pRecorder->putBytes(&rand_byte, 1))
+        switch (pRecorder->putBytes(&rand_byte, 1))
         {
-            SF_OSAL_printf("putBytes failed!" __NL__);
+        case 0:
+            break;
+        case 1:
+            SF_OSAL_printf("Session not opened!" __NL__);
+            break;
         }
     }
 
