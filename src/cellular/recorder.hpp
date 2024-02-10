@@ -48,8 +48,9 @@ public:
      * @param bufferLen Length of packet buffer
      * @param pName Buffer to place session name into
      * @param nameLen Length of name buffer
-     * @return int -1 on failure, number of bytes placed into data buffer 
-     *  otherwise
+     * @return int error code on failure, number of bytes placed into data buffer 
+     *  otherwise.  -1 for already active session.  -2 for inability to open
+     * session.  -3 on buffer overflow.
      */
     int getLastPacket(void* pBuffer,
                       size_t bufferLen,

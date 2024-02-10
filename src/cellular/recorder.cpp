@@ -297,7 +297,7 @@ int Recorder::getLastPacket(void* pBuffer,
         #ifdef REC_DEBUG
         SF_OSAL_printf("Failed to open last session" __NL__);
         #endif
-        return -1;
+        return -2;
     }
 
     current_length = session.getLength();
@@ -321,7 +321,7 @@ int Recorder::getLastPacket(void* pBuffer,
         #ifdef REC_DEBUG
         SF_OSAL_printf("Buffer overflow!" __NL__);
         #endif
-        return -1;
+        return -3;
     }
 
     newLength = current_length - bytes_to_read;

@@ -72,9 +72,9 @@ void REC_testGetLastPacket(void)
                                       name_buffer,
                                       REC_SESSION_NAME_MAX_LEN);
 
-    if (-1 == retval)
+    if (0 >= retval)
     {
-        SF_OSAL_printf("Returned -1" __NL__);
+        SF_OSAL_printf("Returned error! %d" __NL__, retval);
         return;
     }
     hexDump(data_buffer, retval);
