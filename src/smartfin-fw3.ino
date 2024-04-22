@@ -20,6 +20,7 @@
 #include "cellular/sf_cloud.hpp"
 #include "sleepTask.hpp"
 #include "chargeTask.hpp"
+#include "rideTask.hpp"
 #include "cellular/dataUpload.hpp"
 
 
@@ -38,7 +39,7 @@ static ChargeTask chargeTask;
 static SleepTask sleepTask;
 static DataUpload uploadTask;
 static MfgTest mfgTask;
-
+static RideTask rideTask;
 
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = 
@@ -48,6 +49,7 @@ static StateMachine_t stateMachine[] =
     {STATE_CHARGE, &chargeTask},
     {STATE_UPLOAD, &uploadTask},
     {STATE_MFG_TEST, &mfgTask},
+    {STATE_DEPLOYED, &rideTask},
     {STATE_NULL, NULL}
 };
 
