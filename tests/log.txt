@@ -1,0 +1,65 @@
+Current time: 0
+Task 0: Scheduled Start Time: 0
+Task 0: Next Start Time: 0
+Task 0: Proposed End Time: 400
+Task 0: Set as next event to execute at time 0
+Task 1: Scheduled Start Time: 0
+Task 1: Next Start Time: 0
+Task 1: Proposed End Time: 200
+Task 2: Scheduled Start Time: 0
+Task 2: Next Start Time: 0
+Task 2: Proposed End Time: 600
+Next event to execute: Task » at time 0
+|0|4000
+Current time: 4000
+Task 0: Scheduled Start Time: 2000
+Task 0: Next Start Time: 6000
+Task 0: Proposed End Time: 6400
+Task 0: Set as next event to execute at time 6000
+Task 1: Scheduled Start Time: 0
+Task 1: Next Start Time: 6000
+Task 1: Proposed End Time: 6200
+Task 2: Scheduled Start Time: 0
+Task 2: Next Start Time: 6000
+Task 2: Proposed End Time: 6600
+Next event to execute: Task » at time 6000
+|4000|10002
+Current time: 10002
+Task 0: Scheduled Start Time: 4000
+Task 0: Next Start Time: 12000
+Task 0: Proposed End Time: 12400
+Task 0: Set as next event to execute at time 12000
+Task 1: Scheduled Start Time: 0
+Task 1: Next Start Time: 12000
+Task 1: Proposed End Time: 12200
+Task 2: Scheduled Start Time: 0
+Task 2: Next Start Time: 12000
+Task 2: Proposed End Time: 12600
+Next event to execute: Task » at time 12000
+|10002|14004
+Current time: 14004
+Task 0: Scheduled Start Time: 6000
+Task 0: Next Start Time: 16000
+Task 0: Proposed End Time: 16400
+Task 0: Set as next event to execute at time 16000
+Task 1: Scheduled Start Time: 0
+Task 1: Next Start Time: 16000
+Task 1: Proposed End Time: 16200
+Task 2: Scheduled Start Time: 0
+Task 2: Next Start Time: 16000
+Task 2: Proposed End Time: 16600
+Next event to execute: Task » at time 16000
+|14004|18004
+Current time: 18004
+Task 0: Scheduled Start Time: 8000
+Task 0: Next Start Time: 20000
+Task 0: Proposed End Time: 20400
+Task 0: Set as next event to execute at time 20000
+Task 1: Scheduled Start Time: 0
+Task 1: Next Start Time: 20000
+Task 1: Proposed End Time: 20200
+Task 2: Scheduled Start Time: 0
+Task 2: Next Start Time: 20000
+Task 2: Proposed End Time: 20600
+Next event to execute: Task » at time 20000
+|18004|22005

@@ -23,6 +23,42 @@ static void SS_ensemble08Init(DeploymentSchedule_t* pDeployment);
 
 static void SS_fwVerInit(DeploymentSchedule_t* pDeployment){return;}
 static void SS_fwVerFunc(DeploymentSchedule_t* pDeployment){return;}
+static void SS_ensembleAInit(DeploymentSchedule_t* pDeployment);
+static void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment)
+{
+    uint32_t d = 4;
+    if ( pDeployment->measurementCount == 1)
+    {
+        d = 6;
+    }
+    delay(d);
+
+    return;
+}
+
+static void SS_ensembleBInit(DeploymentSchedule_t* pDeployment);
+static void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment)
+{
+    uint32_t d = 2;
+    if ( pDeployment->measurementCount == 3)
+    {
+        d = 11;
+    }
+    delay(d);
+    return;
+}
+
+static void SS_ensembleCInit(DeploymentSchedule_t* pDeployment);
+static void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment)
+{
+    uint32_t d = 6;
+    if ( pDeployment->measurementCount == 3)
+    {
+        d = 8;
+    }
+    delay(d);
+    return;
+}
 
 
 typedef struct Ensemble10_eventData_
@@ -55,7 +91,7 @@ static Ensemble10_eventData_t ensemble10Data;
 static Ensemble07_eventData_t ensemble07Data;
 static Ensemble08_eventData_t ensemble08Data;
 
-DeploymentSchedule_t deploymentSchedule[] = 
+DeploymentSchedule_t deploymentSchedule[] =
 {
     {&SS_ensemble10Func, &SS_ensemble10Init, 1, 0, 1000, UINT32_MAX, 0, 0, 0, &ensemble10Data},
     {&SS_ensemble07Func, &SS_ensemble07Init, 1, 0, 10000, UINT32_MAX, 0, 0, 0, &ensemble07Data},
@@ -65,7 +101,7 @@ DeploymentSchedule_t deploymentSchedule[] =
 };
 
 uint32_t rollingMean(DeploymentSchedule_t* event, int duration){
-    
+
     int next = (duration - (int)event->meanDuration)/((int)event->measurementCount + 1);
     return (uint32_t) (event->meanDuration + next);
 }
@@ -81,17 +117,17 @@ STATES_e RideTask::run(void){
 
         SCH_getNextEvent(deploymentSchedule, &pNextEvent, &nextEventTime);
         {
-        
+
             while(millis() < nextEventTime)
             {
                 continue;
             }
-            
+
             pNextEvent->measure(pNextEvent);
             pNextEvent->meanDuration = rollingMean(pNextEvent, millis() - nextEventTime);
             pNextEvent->lastMeasurementTime = nextEventTime;
             pNextEvent->measurementCount++;
-        
+
             if(pSystemDesc->pWaterSensor->getLastStatus() == WATER_SENSOR_LOW_STATE)
             {
                 SF_OSAL_printf("Out of water!\n");
@@ -107,7 +143,7 @@ STATES_e RideTask::run(void){
             {
                 return STATE_UPLOAD;
             }
-        
+
         }
     }
 }
@@ -124,7 +160,7 @@ void RideTask::init()
     this->startTime = millis();
     SCH_initializeSchedule(deploymentSchedule, this->startTime);
     pSystemDesc->pRecorder->openSession();
-    
+
 }
 
 

@@ -1,8 +1,25 @@
 #include "scheduler.hpp"
 
+#ifndef TEST_SCHEDULER
+#include "Particle.h"
+#include "cli/conio.hpp"
 #include <algorithm>
+#else
+#include <cstdint>
+#include <chrono>
+#include <stdio.h>
+#include <cstdarg> 
+int SF_OSAL_printf(const char* fmt, ...) {
+    va_list vargs;
+    va_start(vargs, fmt);
+    int nBytes = vprintf(fmt, vargs); // Use vprintf which sends formatted output to stdout
+    va_end(vargs);
+    return nBytes;
+}
+#endif // TEST_SCHEDULER
 
 #define MIN_MEASUREMENT_SEPARATION 0
+#include <cstdint>
 
 void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment, system_tick_t startTime)
 {
@@ -52,7 +69,7 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable, DeploymentSchedule_t*
                 if (proposedEndTime > otherNextStartTime && nextStartTime < otherNextStartTime) {
                     willOverlap = true;
                     SF_OSAL_printf("Task %d: Will overlap with Task %d\n", i, j);
-                    
+
                     break;
                 }
             }
@@ -68,7 +85,7 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable, DeploymentSchedule_t*
     if (nextEvent == nullptr) {
         SF_OSAL_printf("No suitable event found, all events overlap or are delayed\n");
     } else {
-        SF_OSAL_printf("Next event to execute: Task %d at time %u\n", (int)(nextEvent - scheduleTable), minNextTime);
+        SF_OSAL_printf("Next event to execute: Task %c at time %u\n", nextEvent->tas, minNextTime);
     }
     *p_nextEvent = nextEvent;
     *p_nextTime = minNextTime;
