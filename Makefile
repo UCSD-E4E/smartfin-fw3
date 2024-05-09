@@ -10,7 +10,7 @@ TEST_DIR = tests
 SOURCES =  $(TEST_DIR)/scheduler_test_system.cpp $(SRC_DIR)/scheduler.cpp $(TEST_DIR)/scheduler_test.cpp
 
 
-OUTPUT = $(TEST_DIR)/test
+OUTPUT = $(TEST_DIR)/test.o
 
 all: $(OUTPUT)
 
