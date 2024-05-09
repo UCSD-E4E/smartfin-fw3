@@ -1,5 +1,6 @@
 DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 OUTPUTS_DIR="$DIR/outputs"
+mkdir -p "$OUTPUTS_DIR"
 TITLE="out" 
 NUM_RUNS=15
 declare -a NUM_LIST=()
