@@ -113,38 +113,41 @@ STATES_e RideTask::run(void){
     int counter = 0;
     while(1)
     {
+        
         RIDE_setFileName(this->startTime);
+        system_tick_t currentTime = millis();
+        SCH_getNextEvent(deploymentSchedule, &pNextEvent, &nextEventTime, &currentTime);
+        
 
-        SCH_getNextEvent(deploymentSchedule, &pNextEvent, &nextEventTime);
+        while(millis() < nextEventTime)
         {
-
-            while(millis() < nextEventTime)
-            {
-                continue;
-            }
-
-            pNextEvent->measure(pNextEvent);
-            pNextEvent->meanDuration = rollingMean(pNextEvent, millis() - nextEventTime);
-            pNextEvent->lastMeasurementTime = nextEventTime;
-            pNextEvent->measurementCount++;
-
-            if(pSystemDesc->pWaterSensor->getLastStatus() == WATER_SENSOR_LOW_STATE)
-            {
-                SF_OSAL_printf("Out of water!\n");
-                //return STATE_UPLOAD;
-            }
-
-            if(pSystemDesc->flags->batteryLow)
-            {
-                //SF_OSAL_printf("Low Battery!\n");
-                //return STATE_DEEP_SLEEP;
-            }
-            if (counter++ > 20)
-            {
-                return STATE_UPLOAD;
-            }
-
+            continue;
         }
+
+        pNextEvent->measure(pNextEvent);
+        pNextEvent->meanDuration = millis()-nextEventTime > 
+                                    pNextEvent->meanDuration ? 
+                                    millis()-nextEventTime:pNextEvent->meanDuration;
+        pNextEvent->lastMeasurementTime = nextEventTime;
+        pNextEvent->measurementCount++;
+
+        if(pSystemDesc->pWaterSensor->getLastStatus() == WATER_SENSOR_LOW_STATE)
+        {
+            SF_OSAL_printf("Out of water!\n");
+            //return STATE_UPLOAD;
+        }
+
+        if(pSystemDesc->flags->batteryLow)
+        {
+            //SF_OSAL_printf("Low Battery!\n");
+            //return STATE_DEEP_SLEEP;
+        }
+        if (counter++ > 20)
+        {
+            return STATE_UPLOAD;
+        }
+
+        
     }
 }
 

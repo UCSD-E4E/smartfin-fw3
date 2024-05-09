@@ -3,8 +3,10 @@
         {
             "name": "Particle",
             "includePath": [
-                "${workspaceFolder}\\src",
-                "~/.particle/toolchains/deviceOS/5.3.0/user/inc"
+                "${workspaceFolder}/src",
+                "~/.particle/toolchains/deviceOS/5.3.0/user/inc",
+                "/usr/include/x86_64-linux-gnu/c++/10",
+                "/usr/include/x86_64-linux-gnu"
             ],
             "defines": [
                 "_DEBUG",
@@ -12,7 +14,7 @@
                 "_UNICODE"
             ],
             "windowsSdkVersion": "10.0.22000.0",
-            "compilerPath": "~\\.particle\\toolchains\\gcc-arm\\10.2.1\\bin\\arm-none-eabi-gcc.exe",
+            "compilerPath": "/usr/bin/gcc",
             "intelliSenseMode": "windows-gcc-arm",
             "cStandard": "c11",
             "cppStandard": "c++11",
@@ -33,7 +35,8 @@
                     "~\\.particle\\toolchains\\deviceOS\\5.3.0\\third_party\\nrf5_sdk\\nrf5_sdk\\modules\\nrfx\\mdk",
                     "${workspaceFolder}\\src"
                 ]
-            }
+            },
+            "compilerArgs": []
         }
     ],
     "version": 4

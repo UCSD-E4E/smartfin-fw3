@@ -1,19 +1,15 @@
-#include <unistd.h>
-
-#include "../src/scheduler.hpp"
+#include "scheduler_test_system.hpp"
 #include <iostream>
+#include <unistd.h>
+#include <vector>
 
-
-void delay(uint32_t seconds)
-{
-    sleep(seconds);
+void delay(uint32_t seconds) {
+    //sleep(seconds);
 }
 static void SS_ensembleAInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment)
-{
+static void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment) {
     uint32_t d = 4;
-    if ( pDeployment->measurementCount == 1)
-    {
+    if ( pDeployment->measurementCount == 1) {
         d = 6;
     }
     delay(d);
@@ -23,11 +19,9 @@ static void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment)
 
 
 static void SS_ensembleBInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment)
-{
+static void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment) {
     uint32_t d = 2;
-    if ( pDeployment->measurementCount == 3)
-    {
+    if ( pDeployment->measurementCount == 3) {
         d = 4;
     }
     delay(d);
@@ -36,11 +30,9 @@ static void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment)
 }
 
 static void SS_ensembleCInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment)
-{
+static void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment) {
     uint32_t d = 6;
-    if ( pDeployment->measurementCount == 3)
-    {
+    if ( pDeployment->measurementCount == 3) {
         d = 15;
     }
     delay(d);
@@ -48,35 +40,63 @@ static void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment)
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
+    int cycles = 15;
     
-    uint32_t startTime = millis();
-    DeploymentSchedule_t deploymentSchedule[] = {
-        {SS_ensembleAFunc, SS_ensembleAInit, 1, startTime, 2000, UINT32_MAX, 0, 0, 0, nullptr,400,"A"},
-        {SS_ensembleBFunc, SS_ensembleBInit, 1, startTime, 2000, UINT32_MAX, 0, 0, 0, nullptr,200,"B"},
-        {SS_ensembleCFunc, SS_ensembleCInit, 1, startTime, 2000, UINT32_MAX, 0, 0, 0, nullptr,600,"C"},
+    if (argc >=2)
+    {
+        cycles = std::stoi(argv[1]);
+    }
+    
+    std::vector<uint32_t> delays(cycles,0);
+    
+    for (int i = 2; i < argc - 1; i += 2) {
+        delays[std::stoi(argv[i])] = delays[std::stoi(argv[i+1])];
+        int index = std::stoi(argv[i]);
+        int value = std::stoi(argv[i + 1]);
+        if (index >= 0 && index < delays.size()) {
+            delays[index] = value;
+        } else {
+            std::cerr << "Index out of bounds: " << index << "\n";
+        }
+    }
+    
+
+    uint32_t currentTime = 0;
+    DeploymentSchedule_t deploymentSchedule[] = { 
+        {SS_ensembleAFunc, SS_ensembleAInit, 1, currentTime, 2000, UINT32_MAX, 0, 0, 0, nullptr,400,(char) 65},
+        {SS_ensembleBFunc, SS_ensembleBInit, 1, currentTime, 2000, UINT32_MAX, 0, 0, 0, nullptr,200,(char) 66}, 
+        {SS_ensembleCFunc, SS_ensembleCInit, 1, currentTime, 2000, UINT32_MAX, 0, 0, 0, nullptr,600,(char) 67}, 
         {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr}
     };
 
-    SCH_initializeSchedule(deploymentSchedule, startTime);
+    SCH_initializeSchedule(deploymentSchedule, currentTime);
 
     DeploymentSchedule_t* nextEvent = nullptr;
     uint32_t nextEventTime = 0;
     int counter = 0;
 
-    while (counter < 5) {  
-        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    while (counter < cycles) {  
+        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime, &currentTime);
         if (nextEvent != nullptr) {
-            while(millis() < startTime)
-            {
-                delay(1);
+            
+            currentTime = nextEventTime;
+            uint32_t startTime = currentTime;
+            std::cout << "|" << currentTime;
+            
+            currentTime += nextEvent->meanDuration;
+           
+            if(delays[counter] != 0) {
+                currentTime += delays[counter];
             }
-            std::cout << "|" << millis();
-            nextEvent->measure(nextEvent);
-            std::cout << "|" << millis() << "\n";
-            nextEvent->lastMeasurementTime = nextEventTime;
-            nextEvent->measurementCount++;
+        
+            std::cout << "|" << currentTime << "\n";
+            
+            if (counter < 3) {
+                currentTime += 100;
+            }
         }
+        
         counter++;
     }
     

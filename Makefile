@@ -1,13 +1,13 @@
 
 CXX = g++
-CXXFLAGS = -std=c++17 -g -DTEST_VERSION=1
+CXXFLAGS = -std=c++17 -g -DTEST_VERSION=1 
 
 
 SRC_DIR = src
 TEST_DIR = tests
 
 
-SOURCES = $(SRC_DIR)/scheduler.cpp $(TEST_DIR)/scheduler_test.cpp
+SOURCES =  $(TEST_DIR)/scheduler_test_system.cpp $(SRC_DIR)/scheduler.cpp $(TEST_DIR)/scheduler_test.cpp
 
 
 OUTPUT = $(TEST_DIR)/test

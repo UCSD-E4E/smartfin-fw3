@@ -1,9 +1,8 @@
-#ifndef __SCHEDULER__HPP_
-#define __SCHEDULER__HPP_
+#ifndef __SCHEDULER__TEST__HPP_
+#define __SCHEDULER__TEST__HPP_
+#include <cstdint>
 
-#include <stddef.h>
-#include <Particle.h>
-
+typedef uint32_t system_tick_t;
 
 typedef struct DeploymentSchedule_ DeploymentSchedule_t;
 
@@ -47,11 +46,12 @@ struct DeploymentSchedule_{
     uint32_t deploymentStartTime;
     uint32_t measurementCount;
     void* pData;                        // Buffer to store measurements temporarily
-    uint32_t meanDuration = 0;          //store mean running time of measurement
-    const char * taskName;
+    uint32_t meanDuration;          //store mean running time of measurement
+    char taskName;
 };
 
 void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t, system_tick_t startTime);
-void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, system_tick_t* currentTime);
-
-#endif //__SCHEDULER__HPP_
+void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, uint32_t* currentTime);
+uint32_t millis();
+int SF_OSAL_printf(const char* fmt, ...);
+#endif //__SCHEDULER__TEST__HPP_
