@@ -52,14 +52,14 @@ int main(int argc, char *argv[]) {
     uint32_t counter = 0;
 
     while (counter < cycles) {  
-        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime, &currentTime);
+        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime, currentTime);
         if (nextEvent != nullptr) {
             
             currentTime = nextEventTime;
             uint32_t startTime = currentTime;
             std::cout << "|" << currentTime;
             
-            currentTime += nextEvent->meanDuration;
+            currentTime += nextEvent->maxDuration;
            
             if(delays[counter] != 0) {
                 currentTime += delays[counter];

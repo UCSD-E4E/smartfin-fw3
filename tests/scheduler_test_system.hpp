@@ -46,12 +46,12 @@ struct DeploymentSchedule_{
     uint32_t deploymentStartTime;
     uint32_t measurementCount;
     void* pData;                        // Buffer to store measurements temporarily
-    uint32_t meanDuration;          //store mean running time of measurement
+    uint32_t maxDuration;          //store mean running time of measurement
     char taskName;
 };
 
 void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t, system_tick_t startTime);
-void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, uint32_t* currentTime);
+void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, uint32_t currentTime);
 uint32_t millis();
 int SF_OSAL_printf(const char* fmt, ...);
 #endif //__SCHEDULER__TEST__HPP_

@@ -30,7 +30,7 @@ done
 
 
 
-cd "$DIR/../"
+cd "$DIR/"
 make clean
 make
 
