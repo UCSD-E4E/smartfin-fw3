@@ -5,37 +5,39 @@
 
 #else
 #include "../tests/scheduler_test_system.hpp"
-#define MIN_MEASUREMENT_SEPARATION 0
 #endif
 
 void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment, system_tick_t startTime) {
     while(pDeployment->init) {
-        pDeployment->ensembleDelay = 0;
+        pDeployment->deploymentStartTime = startTime;
+        //pDeployment->ensembleDelay = 0;
         pDeployment->lastMeasurementTime = 0;
         pDeployment->measurementCount = 0;
         pDeployment->init(pDeployment);
         pDeployment++;
     }
 }
-void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, uint32_t* currentTime) {
+void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, uint32_t currentTime) {
     
     uint32_t minNextTime = UINT32_MAX;
     DeploymentSchedule_t* nextEvent = nullptr;
-    
+    SF_OSAL_printf("Current time: %u\n", *currentTime);
     for (int i = 0; scheduleTable[i].measure; ++i)  {
         DeploymentSchedule_t* currentEvent = &scheduleTable[i];
-
         // Calculate the next scheduled start time
-        
         uint32_t nextStartTime = currentEvent->deploymentStartTime + currentEvent->ensembleDelay + (currentEvent->measurementCount * currentEvent->ensembleInterval);
-        
+        SF_OSAL_printf("Task %c: Start Time 1: %u\n", (char) (65+i), nextStartTime);
+        SF_OSAL_printf("\t%s: %u\n","deploymentStartTime", currentEvent->deploymentStartTime);
+        SF_OSAL_printf("\t%s: %u\n","ensembleDelay", currentEvent->ensembleDelay);
+        SF_OSAL_printf("\t%s: %u\n","measurementCount", currentEvent->measurementCount);
+        SF_OSAL_printf("\t%s: %u\n","ensembleInterval", currentEvent->ensembleInterval);
         // If  past scheduled start time and it's time for the next interval
-        if (*currentTime > nextStartTime)  {
-            nextStartTime = *currentTime;
+        if (currentTime > nextStartTime)  {
+            nextStartTime = currentTime;
         }
         
         // Calculate the expected end time if we started at the next start time
-        uint32_t proposedEndTime = nextStartTime + currentEvent->meanDuration;
+        uint32_t proposedEndTime = nextStartTime + currentEvent->maxDuration;
         
         // Check if running this event would overlap with any subsequent events
         bool willOverlap = false;
@@ -45,8 +47,8 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable, DeploymentSchedule_t*
                 DeploymentSchedule_t* otherEvent = &scheduleTable[j];
                 uint32_t otherNextStartTime = otherEvent->deploymentStartTime + otherEvent->ensembleDelay +
                                                    (otherEvent->measurementCount * otherEvent->ensembleInterval);
-                if (*currentTime > otherNextStartTime) {
-                    otherNextStartTime += ((*currentTime - otherNextStartTime) / otherEvent->ensembleInterval + 1) * otherEvent->ensembleInterval;
+                if (currentTime > otherNextStartTime) {
+                    otherNextStartTime += ((currentTime - otherNextStartTime) / otherEvent->ensembleInterval + 1) * otherEvent->ensembleInterval;
                 }
 
                 if (proposedEndTime > otherNextStartTime && nextStartTime < otherNextStartTime) {
@@ -57,7 +59,7 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable, DeploymentSchedule_t*
             }
         }
         // Check if ensemble will overlap with next time the same ensemble is scheduled
-        if (!willOverlap && currentEvent->measurementCount != 0) {
+        if ((!willOverlap)&& (currentEvent->measurementCount != 0)) {
             uint32_t nextScheduled = currentEvent->deploymentStartTime + currentEvent->ensembleDelay;
             uint32_t intendedMeasureCount = (nextStartTime - nextScheduled) / currentEvent->ensembleInterval + 1;
             nextScheduled += intendedMeasureCount * currentEvent->ensembleInterval;
@@ -65,13 +67,14 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable, DeploymentSchedule_t*
             {
                 currentEvent->measurementCount = intendedMeasureCount;
                 nextStartTime = nextScheduled;
+                
             }
         }
         // Prioritize tasks that can be executed on time and ensure no overlaps
-        if (!willOverlap && nextStartTime >= *currentTime && nextStartTime < minNextTime) {
+        if (!willOverlap && nextStartTime >= currentTime && nextStartTime < minNextTime) {
             minNextTime = nextStartTime;
             nextEvent = currentEvent;
-            
+
         }
     }
     if (nextEvent == nullptr) {
@@ -80,8 +83,8 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable, DeploymentSchedule_t*
         SF_OSAL_printf("%c",nextEvent->taskName);
         
     }
-    if(nextEvent->measurementCount == 0) {
-        nextEvent->ensembleDelay = minNextTime;
+    if(nextEvent->measurementCount == 0 && nextEvent->ensembleDelay == 0) {
+        nextEvent->ensembleDelay = minNextTime - nextEvent->deploymentStartTime;
     }
     nextEvent->lastMeasurementTime = minNextTime;
     nextEvent->measurementCount++;

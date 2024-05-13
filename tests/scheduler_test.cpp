@@ -3,41 +3,16 @@
 #include <unistd.h>
 #include <vector>
 
-void delay(uint32_t seconds) {
-    //sleep(seconds);
-}
+
 static void SS_ensembleAInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment) {
-    uint32_t d = 4;
-    if ( pDeployment->measurementCount == 1) {
-        d = 6;
-    }
-    delay(d);
-    
-    return;
-}
+static void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment) {return;}
 
 
 static void SS_ensembleBInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment) {
-    uint32_t d = 2;
-    if ( pDeployment->measurementCount == 3) {
-        d = 4;
-    }
-    delay(d);
-    
-    return;
-}
+static void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment) {return;}
 
 static void SS_ensembleCInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment) {
-    uint32_t d = 6;
-    if ( pDeployment->measurementCount == 3) {
-        d = 15;
-    }
-    delay(d);
-    return;
-}
+static void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment) {return;}
 
 
 int main(int argc, char *argv[]) {
@@ -74,7 +49,7 @@ int main(int argc, char *argv[]) {
 
     DeploymentSchedule_t* nextEvent = nullptr;
     uint32_t nextEventTime = 0;
-    int counter = 0;
+    uint32_t counter = 0;
 
     while (counter < cycles) {  
         SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime, &currentTime);

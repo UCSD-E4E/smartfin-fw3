@@ -38,7 +38,7 @@ if [ $hasargs -eq 0 ]; then
     
     $DIR/test.o 15 > "$OUTPUTS_DIR/log.txt"
     python3 "$DIR/scheduler_proccessor.py" "intended"
-    $DIR/test 17 3 200 8 800 13 800 > "$OUTPUTS_DIR/log.txt"
+    $DIR/test.o 17 3 200 8 800 13 800 > "$OUTPUTS_DIR/log.txt"
     python3 "$DIR/scheduler_proccessor.py" "delayed"
 else
     $DIR/test.o $NUM_RUNS "${NUM_LIST[@]}" > "$OUTPUTS_DIR/log.txt"

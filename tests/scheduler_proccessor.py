@@ -47,13 +47,18 @@ def plot_gantt(tasks, title):
 
 def parse_logs(filename):
     tasks = []
+    deployment_start_time = 0
     with open(filename, 'r') as file:
+        
         for line in file:
+            first_line_match = re.search(r'Deployment started at (\d+)', line)
+            if first_line_match:
+                deployment_start_time = int(first_line_match.group(1))
             match = re.search(r'(\w+)\|(\d+)\|(\d+)', line)
             if match:
                 label = match.group(1)
-                start_time = int(match.group(2))
-                end_time = int(match.group(3))
+                start_time = int(match.group(2)) - deployment_start_time
+                end_time = int(match.group(3)) - deployment_start_time
                 
                 duration = end_time - start_time
                 tasks.append({'label': label, 'start': start_time, 'duration': duration})
@@ -67,7 +72,7 @@ log_filename = str(os.path.dirname(os.path.abspath(__file__))) + '/outputs/log.t
 
 
 tasks = parse_logs(log_filename)
-title = "test.jpg"
+title = "test"
 if len(sys.argv) > 1:
     title = sys.argv[1]
 plot_gantt(tasks, title)

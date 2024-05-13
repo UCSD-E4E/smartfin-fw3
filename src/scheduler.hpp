@@ -47,11 +47,11 @@ struct DeploymentSchedule_{
     uint32_t deploymentStartTime;
     uint32_t measurementCount;
     void* pData;                        // Buffer to store measurements temporarily
-    uint32_t meanDuration = 0;          //store mean running time of measurement
-    const char * taskName;
+    uint32_t maxDuration = 0;           //store max running time of measurement
+    char taskName;
 };
 
 void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t, system_tick_t startTime);
-void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, system_tick_t* currentTime);
+void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, system_tick_t currentTime);
 
 #endif //__SCHEDULER__HPP_

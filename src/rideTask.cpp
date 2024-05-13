@@ -12,94 +12,37 @@
 
 static void RIDE_setFileName(system_tick_t startTime){return;}
 
-static void SS_ensemble10Func(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensemble10Init(DeploymentSchedule_t* pDeployment);
-
-static void SS_ensemble07Func(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensemble07Init(DeploymentSchedule_t* pDeployment);
-
-static void SS_ensemble08Func(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensemble08Init(DeploymentSchedule_t* pDeployment);
-
-static void SS_fwVerInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_fwVerFunc(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleAInit(DeploymentSchedule_t* pDeployment);
+static void SS_ensembleAInit(DeploymentSchedule_t* pDeployment){return;}
 static void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment)
 {
-    uint32_t d = 4;
-    if ( pDeployment->measurementCount == 1)
-    {
-        d = 6;
-    }
-    delay(d);
-
-    return;
+    delay(400);
+    
 }
 
-static void SS_ensembleBInit(DeploymentSchedule_t* pDeployment);
+
+static void SS_ensembleBInit(DeploymentSchedule_t* pDeployment){return;}
 static void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment)
 {
-    uint32_t d = 2;
-    if ( pDeployment->measurementCount == 3)
-    {
-        d = 11;
-    }
-    delay(d);
-    return;
+    delay(200);
+    
 }
 
-static void SS_ensembleCInit(DeploymentSchedule_t* pDeployment);
+static void SS_ensembleCInit(DeploymentSchedule_t* pDeployment){return;}
 static void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment)
 {
-    uint32_t d = 6;
-    if ( pDeployment->measurementCount == 3)
-    {
-        d = 8;
-    }
-    delay(d);
-    return;
+    
+    delay(600);
+    
 }
 
 
-typedef struct Ensemble10_eventData_
-{
-    double temperature;
-    int32_t water;
-    int32_t acc[3];
-    int32_t ang[3];
-    int32_t mag[3];
-    int32_t location[2];
-    uint8_t hasGPS;
-    uint32_t accumulateCount;
-}Ensemble10_eventData_t;
 
-typedef struct Ensemble07_eventData_
-{
-    float battVoltage;
-    uint32_t accumulateCount;
-}Ensemble07_eventData_t;
-
-typedef struct Ensemble08_eventData_
-{
-    double temperature;
-    int32_t water;
-
-    uint32_t accumulateCount;
-}Ensemble08_eventData_t;
-
-static Ensemble10_eventData_t ensemble10Data;
-static Ensemble07_eventData_t ensemble07Data;
-static Ensemble08_eventData_t ensemble08Data;
-
-DeploymentSchedule_t deploymentSchedule[] =
-{
-    {&SS_ensemble10Func, &SS_ensemble10Init, 1, 0, 1000, UINT32_MAX, 0, 0, 0, &ensemble10Data},
-    {&SS_ensemble07Func, &SS_ensemble07Init, 1, 0, 10000, UINT32_MAX, 0, 0, 0, &ensemble07Data},
-    {&SS_ensemble08Func, &SS_ensemble08Init, 1, 0, UINT32_MAX, UINT32_MAX, 0, 0, 0, &ensemble08Data},
-    {&SS_fwVerFunc, &SS_fwVerInit, 1, 0, UINT32_MAX, UINT32_MAX, 0, 0, 0, NULL},
-    {NULL, NULL, 0, 0, 0, 0, 0, 0, 0, NULL}
-};
-
+DeploymentSchedule_t deploymentSchedule[] = { 
+        {SS_ensembleAFunc, SS_ensembleAInit, 1, 100, 2000, UINT32_MAX, 0, 0, 0, nullptr,400,(char) 65},
+        {SS_ensembleBFunc, SS_ensembleBInit, 1, 600, 2000, UINT32_MAX, 0, 0, 0, nullptr,200,(char) 66}, 
+        {SS_ensembleCFunc, SS_ensembleCInit, 1, 900, 2000, UINT32_MAX, 0, 0, 0, nullptr,600,(char) 67}, 
+        {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr}
+    };
 uint32_t rollingMean(DeploymentSchedule_t* event, int duration){
 
     int next = (duration - (int)event->meanDuration)/((int)event->measurementCount + 1);
@@ -107,10 +50,14 @@ uint32_t rollingMean(DeploymentSchedule_t* event, int duration){
 }
 
 STATES_e RideTask::run(void){
+    
     SF_OSAL_printf("\nStarting RideTask::run\n");
     DeploymentSchedule_t* pNextEvent = NULL;
     system_tick_t nextEventTime;
     int counter = 0;
+    
+    uint32_t d;
+    SF_OSAL_printf("\nDeployment started at %u\n",millis());
     while(1)
     {
         
@@ -118,37 +65,49 @@ STATES_e RideTask::run(void){
         system_tick_t currentTime = millis();
         SCH_getNextEvent(deploymentSchedule, &pNextEvent, &nextEventTime, &currentTime);
         
-
+        d = 0;
+        int m = counter % 17;
+        if(m == 3)
+        {
+            d = 200; 
+        }
+        else if (m == 8 || m == 13)
+        {
+            d = 800;
+        }
         while(millis() < nextEventTime)
         {
             continue;
         }
-
+        
+        SF_OSAL_printf("|%u",(uint32_t) millis());
         pNextEvent->measure(pNextEvent);
-        pNextEvent->meanDuration = millis()-nextEventTime > 
+        delay(d);
+        SF_OSAL_printf("|%u\n", (uint32_t) millis());
+        /*pNextEvent->meanDuration = millis()-nextEventTime > 
                                     pNextEvent->meanDuration ? 
-                                    millis()-nextEventTime:pNextEvent->meanDuration;
+                                    millis()-nextEventTime:pNextEvent->meanDuration;*/
         pNextEvent->lastMeasurementTime = nextEventTime;
-        pNextEvent->measurementCount++;
 
-        if(pSystemDesc->pWaterSensor->getLastStatus() == WATER_SENSOR_LOW_STATE)
+        /*if(pSystemDesc->pWaterSensor->getLastStatus() == WATER_SENSOR_LOW_STATE)
         {
             SF_OSAL_printf("Out of water!\n");
-            //return STATE_UPLOAD;
+            return STATE_UPLOAD;
         }
 
         if(pSystemDesc->flags->batteryLow)
         {
-            //SF_OSAL_printf("Low Battery!\n");
-            //return STATE_DEEP_SLEEP;
-        }
-        if (counter++ > 20)
+            SF_OSAL_printf("Low Battery!\n");
+            return STATE_DEEP_SLEEP;
+        }*/
+        if (counter++ > 34)
         {
             return STATE_UPLOAD;
         }
 
         
     }
+    return STATE_UPLOAD;
 }
 
 void RideTask::init()
@@ -177,25 +136,4 @@ void RideTask::exit(void)
     //pSystemDesc->pIMU->close();
     //pSystemDesc->pGPS->gpsModuleStop();
 
-}
-static void SS_ensemble10Init(DeploymentSchedule_t* pDeployment)
-{
-    memset(&ensemble10Data, 0, sizeof(Ensemble10_eventData_t));
-    pDeployment->pData = &ensemble10Data;
-    SF_OSAL_printf("SS_ensemble10Init run at %u!\n", millis());
-}
-
-static void SS_ensemble07Init(DeploymentSchedule_t* pDeployment)
-{
-    memset(&ensemble07Data, 0, sizeof(Ensemble07_eventData_t));
-    pDeployment->pData = &ensemble07Data;
-    SF_OSAL_printf("SS_ensemble07Init run at %u!\n", millis());
-
-}
-
-static void SS_ensemble08Init(DeploymentSchedule_t* pDeployment)
-{
-    memset(&ensemble08Data, 0, sizeof(Ensemble08_eventData_t));
-    pDeployment->pData = &ensemble08Data;
-    SF_OSAL_printf("SS_ensemble08Init run at %u!\n", millis());
 }
