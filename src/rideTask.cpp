@@ -45,8 +45,8 @@ DeploymentSchedule_t deploymentSchedule[] = {
     };
 uint32_t rollingMean(DeploymentSchedule_t* event, int duration){
 
-    int next = (duration - (int)event->meanDuration)/((int)event->measurementCount + 1);
-    return (uint32_t) (event->meanDuration + next);
+    int next = (duration - (int)event->maxDuration)/((int)event->measurementCount + 1);
+    return (uint32_t) (event->maxDuration + next);
 }
 
 STATES_e RideTask::run(void){
@@ -63,7 +63,7 @@ STATES_e RideTask::run(void){
         
         RIDE_setFileName(this->startTime);
         system_tick_t currentTime = millis();
-        SCH_getNextEvent(deploymentSchedule, &pNextEvent, &nextEventTime, &currentTime);
+        SCH_getNextEvent(deploymentSchedule, &pNextEvent, &nextEventTime, currentTime);
         
         d = 0;
         int m = counter % 17;
@@ -84,9 +84,9 @@ STATES_e RideTask::run(void){
         pNextEvent->measure(pNextEvent);
         delay(d);
         SF_OSAL_printf("|%u\n", (uint32_t) millis());
-        /*pNextEvent->meanDuration = millis()-nextEventTime > 
-                                    pNextEvent->meanDuration ? 
-                                    millis()-nextEventTime:pNextEvent->meanDuration;*/
+        /*pNextEvent->maxDuration = millis()-nextEventTime > 
+                                    pNextEvent->maxDuration ? 
+                                    millis()-nextEventTime:pNextEvent->maxDuration;*/
         pNextEvent->lastMeasurementTime = nextEventTime;
 
         /*if(pSystemDesc->pWaterSensor->getLastStatus() == WATER_SENSOR_LOW_STATE)

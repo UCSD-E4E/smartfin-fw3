@@ -21,7 +21,7 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable, DeploymentSchedule_t*
     
     uint32_t minNextTime = UINT32_MAX;
     DeploymentSchedule_t* nextEvent = nullptr;
-    SF_OSAL_printf("Current time: %u\n", *currentTime);
+    SF_OSAL_printf("Current time: %u\n", currentTime);
     for (int i = 0; scheduleTable[i].measure; ++i)  {
         DeploymentSchedule_t* currentEvent = &scheduleTable[i];
         // Calculate the next scheduled start time
