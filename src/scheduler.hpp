@@ -2,7 +2,7 @@
 #define __SCHEDULER__HPP_
 
 #include <stddef.h>
-#include <Particle.h>
+
 
 
 typedef struct DeploymentSchedule_ DeploymentSchedule_t;
@@ -42,16 +42,22 @@ struct DeploymentSchedule_{
     uint32_t ensembleInterval;              // time between ensembles
 
     // State information
-    uint32_t nMeasurements;              // Total number of measurements to execute
+    uint32_t nMeasurements;         // Total number of measurements to execute
     uint32_t lastMeasurementTime;
     uint32_t deploymentStartTime;
     uint32_t measurementCount;
-    void* pData;                        // Buffer to store measurements temporarily
-    uint32_t maxDuration = 0;           //store max running time of measurement
+    void* pData;                    // Buffer to store measurements temporarily
+    uint32_t maxDuration = 0;       //store max running time of measurement
     char taskName;
 };
 
-void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t, system_tick_t startTime);
-void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, system_tick_t currentTime);
-
+void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t, 
+                                system_tick_t startTime);
+void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, 
+            DeploymentSchedule_t** p_nextEvent, 
+            system_tick_t* p_nextTime);
+bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i, 
+                    system_tick_t currentTime, uint32_t proposedEndTime,
+                    uint32_t nextStartTime);
 #endif //__SCHEDULER__HPP_
+

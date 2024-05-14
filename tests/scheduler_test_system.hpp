@@ -1,6 +1,6 @@
 #ifndef __SCHEDULER__TEST__HPP_
 #define __SCHEDULER__TEST__HPP_
-#include <cstdint>
+#include <stdint.h>
 
 typedef uint32_t system_tick_t;
 
@@ -31,7 +31,6 @@ typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
  */
 typedef void (*EnsembleProccess)(DeploymentSchedule_t* pDeployment);
 struct DeploymentSchedule_{
-
     EnsembleFunction measure;               // measurement function
     EnsembleInit init;                      // initialization function
     //EnsembleProccess process;             // processing function
@@ -50,8 +49,17 @@ struct DeploymentSchedule_{
     char taskName;
 };
 
-void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t, system_tick_t startTime);
-void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime, uint32_t currentTime);
+void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t, 
+                                system_tick_t startTime);
+void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, 
+                DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime);
+bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i, 
+                    system_tick_t currentTime, uint32_t proposedEndTime,
+                    uint32_t nextStartTime);
+static int testTime = 0;
+
+void addTime(uint32_t add);
+void setTime(uint32_t set);  
 uint32_t millis();
 int SF_OSAL_printf(const char* fmt, ...);
 #endif //__SCHEDULER__TEST__HPP_

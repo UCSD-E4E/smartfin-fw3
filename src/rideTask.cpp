@@ -9,47 +9,30 @@
 #include "util.hpp"
 #include "vers.hpp"
 #include "scheduler.hpp"
+#include "ensembles.hpp"
 
 static void RIDE_setFileName(system_tick_t startTime){return;}
 
-static void SS_ensembleAInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment)
+DeploymentSchedule_t deploymentSchedule[] = 
+{ 
+    {SS_ensembleAFunc, SS_ensembleAInit, 1, 100, 2000, UINT32_MAX, 0, 0, 0, 
+                                                        nullptr,400,(char) 65},
+    {SS_ensembleBFunc, SS_ensembleBInit, 1, 600, 2000, UINT32_MAX, 0, 0, 0, 
+                                                        nullptr,200,(char) 66}, 
+    {SS_ensembleCFunc, SS_ensembleCInit, 1, 900, 2000, UINT32_MAX, 0, 0, 0, 
+                                                        nullptr,600,(char) 67}, 
+    {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr}
+};
+uint32_t rollingMean(DeploymentSchedule_t* event, int duration)
 {
-    delay(400);
-    
-}
 
-
-static void SS_ensembleBInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment)
-{
-    delay(200);
-    
-}
-
-static void SS_ensembleCInit(DeploymentSchedule_t* pDeployment){return;}
-static void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment)
-{
-    
-    delay(600);
-    
-}
-
-
-
-DeploymentSchedule_t deploymentSchedule[] = { 
-        {SS_ensembleAFunc, SS_ensembleAInit, 1, 100, 2000, UINT32_MAX, 0, 0, 0, nullptr,400,(char) 65},
-        {SS_ensembleBFunc, SS_ensembleBInit, 1, 600, 2000, UINT32_MAX, 0, 0, 0, nullptr,200,(char) 66}, 
-        {SS_ensembleCFunc, SS_ensembleCInit, 1, 900, 2000, UINT32_MAX, 0, 0, 0, nullptr,600,(char) 67}, 
-        {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr}
-    };
-uint32_t rollingMean(DeploymentSchedule_t* event, int duration){
-
-    int next = (duration - (int)event->maxDuration)/((int)event->measurementCount + 1);
+    int next = (duration - (int)event->maxDuration) /
+    ((int)event->measurementCount + 1);
     return (uint32_t) (event->maxDuration + next);
 }
 
-STATES_e RideTask::run(void){
+STATES_e RideTask::run(void)
+{
     
     SF_OSAL_printf("\nStarting RideTask::run\n");
     DeploymentSchedule_t* pNextEvent = NULL;
@@ -62,8 +45,8 @@ STATES_e RideTask::run(void){
     {
         
         RIDE_setFileName(this->startTime);
-        system_tick_t currentTime = millis();
-        SCH_getNextEvent(deploymentSchedule, &pNextEvent, &nextEventTime, currentTime);
+        
+        SCH_getNextEvent(deploymentSchedule, &pNextEvent, &nextEventTime);
         
         d = 0;
         int m = counter % 17;
@@ -85,11 +68,12 @@ STATES_e RideTask::run(void){
         delay(d);
         SF_OSAL_printf("|%u\n", (uint32_t) millis());
         /*pNextEvent->maxDuration = millis()-nextEventTime > 
-                                    pNextEvent->maxDuration ? 
-                                    millis()-nextEventTime:pNextEvent->maxDuration;*/
+                            pNextEvent->maxDuration ? 
+                            millis()-nextEventTime:pNextEvent->maxDuration;*/
         pNextEvent->lastMeasurementTime = nextEventTime;
 
-        /*if(pSystemDesc->pWaterSensor->getLastStatus() == WATER_SENSOR_LOW_STATE)
+        /*if(pSystemDesc->pWaterSensor->getLastStatus() == 
+                            WATER_SENSOR_LOW_STATE)
         {
             SF_OSAL_printf("Out of water!\n");
             return STATE_UPLOAD;
