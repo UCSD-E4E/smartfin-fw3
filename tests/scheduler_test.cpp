@@ -1,3 +1,4 @@
+#include "../src/scheduler.hpp"
 #include "scheduler_test_system.hpp"
 #include <iostream>
 #include <unistd.h>
@@ -43,13 +44,22 @@ int main(int argc, char* argv[])
 
 
     setTime(0);
-    DeploymentSchedule_t deploymentSchedule[] =
+    DeploymentSchedule_t deploymentSchedule2[] =
     {{SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 2000, UINT32_MAX,
                                         0, 0, 0, nullptr,400,(char)65},
     {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 2000, UINT32_MAX, 
                                         0, 0, 0, nullptr,200,(char)66},
     {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 2000, UINT32_MAX, 
                                         0, 0, 0, nullptr,600,(char)67},
+    {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr}};
+
+    DeploymentSchedule_t deploymentSchedule[] =
+    {{SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 500, UINT32_MAX, 
+                                        0, 0, 0, nullptr,200,(char)65},
+    {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 200, UINT32_MAX, 
+                                        0, 0, 0, nullptr,100,(char)66},
+    {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 800, UINT32_MAX, 
+                                        0, 0, 0, nullptr,250,(char)67},
     {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr}};
 
     SCH_initializeSchedule(deploymentSchedule, millis());
@@ -68,21 +78,13 @@ int main(int argc, char* argv[])
             
             std::cout << "|" << millis();
 
-            //currentTime += ;
+            
             addTime(nextEvent->maxDuration);
-            if (delays[counter] != 0)
-            {
-                //currentTime += delays[counter];
-                addTime(delays[counter]);
-            }
+            
 
             std::cout << "|" << millis() << "\n";
 
-            if (counter < 3)
-            {
-                //currentTime += 100;
-                addTime(100);
-            }
+            
         }
         counter++;
     }

@@ -1,6 +1,6 @@
 
 CXX = g++
-CXXFLAGS = -std=c++17 -g -DTEST_VERSION=1 
+CXXFLAGS = -std=c++17 -g -DTEST_VERSION=1
 
 
 SRC_DIR = ../src

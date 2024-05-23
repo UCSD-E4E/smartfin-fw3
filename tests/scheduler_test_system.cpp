@@ -6,6 +6,8 @@ uint32_t millis()
 {
     return testTime;
 }
+
+
 int SF_OSAL_printf(const char* fmt, ...) 
 {
     va_list vargs;
@@ -21,4 +23,8 @@ void addTime(uint32_t add)
 void setTime(uint32_t set)
 {
     testTime = set;
+}
+void delay(uint32_t time)
+{
+    addTime(time);
 }

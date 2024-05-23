@@ -2,7 +2,8 @@
 #define __SCHEDULER__HPP_
 
 #include <stddef.h>
-
+#include <cstdint>
+typedef uint32_t system_tick_t;
 
 
 typedef struct DeploymentSchedule_ DeploymentSchedule_t;
