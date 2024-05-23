@@ -134,14 +134,14 @@ void FLOG_DisplayLog(void)
     uint32_t i;
     if (!FLOG_IsInitialized())
     {
-        SF_OSAL_printf("Fault Log not initialized!\n");
+        SF_OSAL_printf("Fault Log not initialized!"  __NL__);
         return;
     }
 
     i = 0;
     if (flogData.numEntries > FLOG_NUM_ENTRIES)
     {
-        SF_OSAL_printf("Fault Log overrun!\n");
+        SF_OSAL_printf("Fault Log overrun!"  __NL__);
         i = flogData.numEntries - FLOG_NUM_ENTRIES;
     }
 
@@ -152,7 +152,7 @@ void FLOG_DisplayLog(void)
             FLOG_FindMessage((FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
             flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
     }
-    SF_OSAL_printf("\n");
+    SF_OSAL_printf(""  __NL__);
 }
 void FLOG_ClearLog(void)
 {

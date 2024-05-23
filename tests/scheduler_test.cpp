@@ -4,15 +4,15 @@
 #include <unistd.h>
 #include <vector>
 
-static void SS_ensembleAInit(DeploymentSchedule_t* pDeployment) {return;}
-static void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment) {return;}
+void SS_ensembleAInit(DeploymentSchedule_t* pDeployment) {return;}
+void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment) {return;}
 
 
-static void SS_ensembleBInit(DeploymentSchedule_t* pDeployment) {return;}
-static void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment) {return;}
+void SS_ensembleBInit(DeploymentSchedule_t* pDeployment) {return;}
+void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment) {return;}
 
-static void SS_ensembleCInit(DeploymentSchedule_t* pDeployment) {return;}
-static void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment) {return;}
+void SS_ensembleCInit(DeploymentSchedule_t* pDeployment) {return;}
+void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment) {return;}
 
 
 int main(int argc, char* argv[])
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            std::cerr << "Index out of bounds: " << index << "\n";
+            std::cerr << "Index out of bounds: " << index << __NL__;
         }
     }
 
@@ -78,11 +78,11 @@ int main(int argc, char* argv[])
             
             std::cout << "|" << millis();
 
-            
+            SF_OSAL_printf("|")
             addTime(nextEvent->maxDuration);
             
 
-            std::cout << "|" << millis() << "\n";
+            std::cout << "|" << millis() << __NL__;
 
             
         }

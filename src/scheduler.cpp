@@ -6,6 +6,7 @@
 #include "../tests/scheduler_test_system.hpp"
 #endif
 #include "scheduler.hpp"
+#include "consts.hpp"
 void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
                             system_tick_t startTime) {
     uint32_t lastEndTime = 0;
@@ -88,7 +89,7 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     }
     if (nextEvent == nullptr) 
     {
-        SF_OSAL_printf("No suitable event found\n");
+        SF_OSAL_printf("No suitable event found"  __NL__);
     } 
     else 
     {
@@ -123,7 +124,7 @@ void altSCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     }
     if (nextEvent == nullptr) 
     {
-        SF_OSAL_printf("No suitable event found\n");
+        SF_OSAL_printf("No suitable event found"  __NL__);
     } 
     else 
     {
