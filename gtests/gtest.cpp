@@ -62,6 +62,7 @@ protected:
 
 };
 
+
 TEST_F(SchedulerTest, TestInitialization) {
     ASSERT_NE(nullptr, deploymentSchedule[0].init);
     ASSERT_NE(nullptr, deploymentSchedule[1].init);
@@ -115,8 +116,6 @@ TEST_F(SchedulerTest, DelayRunImmediately ) {
 
 TEST_F(SchedulerTest, DelayRunDuringIdle) {
 
-    
-
     SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
     setTime(nextEventTime);
     addTime(nextEvent->maxDuration);
@@ -164,7 +163,7 @@ TEST_F(SchedulerTest, DelayRunDuringIdle) {
 
 
 TEST_F(SchedulerTest, DelayAndSkip) {
-    setTime(0);
+    
     deploymentSchedule[0].ensembleDelay = 0;
     deploymentSchedule[1].ensembleDelay = 500;
     deploymentSchedule[2].ensembleDelay = 800;
@@ -202,24 +201,11 @@ TEST_F(SchedulerTest, DelayAndSkip) {
     }
 }
 
-TEST_F(SchedulerTest, NoOverlap) {
-    setTime(0);
-    // Task A runs from 0 to 300 ms
-    deploymentSchedule[0].deploymentStartTime = 0;
-    deploymentSchedule[0].ensembleDelay = 0;
-    deploymentSchedule[0].maxDuration = 300;
 
-    // Task B starts at 500 ms
-    deploymentSchedule[1].deploymentStartTime = 0;
-    deploymentSchedule[1].ensembleDelay = 500;
-
-    bool overlap = SCH_willOverlap(deploymentSchedule, 0, 0, 300, 0);
-    ASSERT_FALSE(overlap);
-}
 
 TEST_F(SchedulerTest, OverlapAtBoundary) {
     schedule2();
-    setTime(0);
+    
     
     deploymentSchedule[0].deploymentStartTime = 0;
     deploymentSchedule[0].ensembleDelay = 0;
@@ -232,7 +218,7 @@ TEST_F(SchedulerTest, OverlapAtBoundary) {
 
 TEST_F(SchedulerTest, ScheduleTooTight) {
     schedule3();
-    setTime(0);
+    
     std::vector<TestLog> actual, expected;
     while (millis() < 1500)
     {
@@ -263,7 +249,7 @@ TEST_F(SchedulerTest, ScheduleVeryTight) {
     schedule3();
     deploymentSchedule[1].ensembleInterval = 300;
     deploymentSchedule[2].maxDuration = 200;
-    setTime(0);
+    
     std::vector<TestLog> actual, expected;
     while (millis() < 2000)
     {
@@ -293,6 +279,187 @@ TEST_F(SchedulerTest, ScheduleVeryTight) {
 }
 
 
+/*
+A   ***********
+B                **********
+*/
+TEST_F(SchedulerTest, NoOverlapBefore) {
+    schedule2();
+    
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 0;
+    deploymentSchedule[0].maxDuration = 300;
+    deploymentSchedule[0].ensembleInterval = 1000;
+    
+    // Task B starts at 500 ms
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].maxDuration = 200;
+    deploymentSchedule[1].ensembleInterval = 1000;
+
+    int i = 1;
+    uint32_t start = deploymentSchedule[i].deploymentStartTime + 
+                deploymentSchedule[i].ensembleDelay;
+    uint32_t end = start + deploymentSchedule[i].maxDuration;
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    ASSERT_FALSE(overlap);
+}
+
+/*
+A   ***********
+B           **********
+*/
+TEST_F(SchedulerTest, OverlapBefore) {
+    schedule2();
+    
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 250;
+    deploymentSchedule[0].maxDuration = 300;
+    deploymentSchedule[0].ensembleInterval = 1000;
+    
+    // Task B starts at 500 ms
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].maxDuration = 200;
+    deploymentSchedule[1].ensembleInterval = 1000;
 
 
+    int i = 1;
+    uint32_t start = deploymentSchedule[i].deploymentStartTime + 
+                deploymentSchedule[i].ensembleDelay;
+    uint32_t end = start + deploymentSchedule[i].maxDuration;
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    ASSERT_TRUE(overlap);
+}
+/*
+A                             ***********
+B                 **********
+*/
+TEST_F(SchedulerTest, NoOverlapAfter) {
+    schedule2();
+    
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 800;
+    deploymentSchedule[0].maxDuration = 300;
+    deploymentSchedule[0].ensembleInterval = 1000;
+    
+    // Task B starts at 500 ms
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].maxDuration = 200;
+    deploymentSchedule[1].ensembleInterval = 1000;
 
+    int i = 1;
+    uint32_t start = deploymentSchedule[i].deploymentStartTime + 
+                deploymentSchedule[i].ensembleDelay;
+    uint32_t end = start + deploymentSchedule[i].maxDuration;
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    ASSERT_FALSE(overlap);
+}
+/*
+A                   ***********
+B           **********
+*/
+TEST_F(SchedulerTest, OverlapAfter) {
+    schedule2();
+    
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 650;
+    deploymentSchedule[0].maxDuration = 300;
+    deploymentSchedule[0].ensembleInterval = 1000;
+    
+    // Task B starts at 500 ms
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].maxDuration = 200;
+    deploymentSchedule[1].ensembleInterval = 1000;
+
+
+    int i = 1;
+    uint32_t start = deploymentSchedule[i].deploymentStartTime + 
+                deploymentSchedule[i].ensembleDelay;
+    uint32_t end = start + deploymentSchedule[i].maxDuration;
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    ASSERT_TRUE(overlap);
+}
+
+/*
+A                   ***********
+B           **********
+*/
+TEST_F(SchedulerTest, InsideOverlap) {
+    schedule2();
+    
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 0;
+    deploymentSchedule[0].maxDuration = 800;
+    deploymentSchedule[0].ensembleInterval = 1000;
+    
+    // Task B starts at 500 ms
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].maxDuration = 200;
+    deploymentSchedule[1].ensembleInterval = 1000;
+
+
+    int i = 1;
+    uint32_t start = deploymentSchedule[i].deploymentStartTime + 
+                deploymentSchedule[i].ensembleDelay;
+    uint32_t end = start + deploymentSchedule[i].maxDuration;
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    ASSERT_TRUE(overlap);
+}
+
+/*
+A  *********
+B           **********
+*/
+TEST_F(SchedulerTest, Boundary1) {
+    schedule2();
+    
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 0;
+    deploymentSchedule[0].maxDuration = 500;
+    deploymentSchedule[0].ensembleInterval = 1000;
+    
+    // Task B starts at 500 ms
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].maxDuration = 200;
+    deploymentSchedule[1].ensembleInterval = 1000;
+
+
+    int i = 1;
+    uint32_t start = deploymentSchedule[i].deploymentStartTime + 
+                deploymentSchedule[i].ensembleDelay;
+    uint32_t end = start + deploymentSchedule[i].maxDuration;
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    ASSERT_FALSE(overlap);
+}
+
+/*
+A                     *********
+B           **********
+*/
+TEST_F(SchedulerTest, Boundary2) {
+    schedule2();
+    
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 700;
+    deploymentSchedule[0].maxDuration = 300;
+    deploymentSchedule[0].ensembleInterval = 1000;
+    
+    // Task B starts at 500 ms
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].maxDuration = 200;
+    deploymentSchedule[1].ensembleInterval = 1000;
+
+
+    int i = 1;
+    uint32_t start = deploymentSchedule[i].deploymentStartTime + 
+                deploymentSchedule[i].ensembleDelay;
+    uint32_t end = start + deploymentSchedule[i].maxDuration;
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    ASSERT_FALSE(overlap);
+}

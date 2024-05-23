@@ -1,8 +1,10 @@
 #include "../src/scheduler.hpp"
+#include "../src/consts.hpp"
 #include "scheduler_test_system.hpp"
 #include <iostream>
 #include <unistd.h>
 #include <vector>
+#include <inttypes.h>
 
 void SS_ensembleAInit(DeploymentSchedule_t* pDeployment) {return;}
 void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment) {return;}
@@ -78,11 +80,11 @@ int main(int argc, char* argv[])
             
             std::cout << "|" << millis();
 
-            SF_OSAL_printf("|")
+            SF_OSAL_printf("|");
             addTime(nextEvent->maxDuration);
             
-
-            std::cout << "|" << millis() << __NL__;
+            SF_OSAL_printf("| %" PRIu32 __NL__, millis());
+            
 
             
         }
