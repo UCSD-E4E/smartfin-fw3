@@ -20,14 +20,14 @@
 
 class RideTask : public Task
 {
-    public:
-        void init(void);
-        STATES_e run(void);
-        void exit(void);
-    private:
-        LEDStatus ledStatus;
-        bool gpsLocked;
-        system_tick_t startTime;
+public:
+    void init(void);
+    STATES_e run(void);
+    void exit(void);
+private:
+    LEDStatus ledStatus;
+    bool gpsLocked;
+    system_tick_t startTime;
 
 };
 

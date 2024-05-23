@@ -6,15 +6,33 @@
 #include <vector>
 #include <inttypes.h>
 
-void SS_ensembleAInit(DeploymentSchedule_t* pDeployment) {return;}
-void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment) {return;}
+void SS_ensembleAInit(DeploymentSchedule_t* pDeployment)
+{
+    return;
+}
+void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment)
+{
+    return;
+}
 
 
-void SS_ensembleBInit(DeploymentSchedule_t* pDeployment) {return;}
-void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment) {return;}
+void SS_ensembleBInit(DeploymentSchedule_t* pDeployment)
+{
+    return;
+}
+void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment)
+{
+    return;
+}
 
-void SS_ensembleCInit(DeploymentSchedule_t* pDeployment) {return;}
-void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment) {return;}
+void SS_ensembleCInit(DeploymentSchedule_t* pDeployment)
+{
+    return;
+}
+void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment)
+{
+    return;
+}
 
 
 int main(int argc, char* argv[])
@@ -47,22 +65,22 @@ int main(int argc, char* argv[])
 
     setTime(0);
     DeploymentSchedule_t deploymentSchedule2[] =
-    {{SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 2000, UINT32_MAX,
+    { {SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 2000, UINT32_MAX,
                                         0, 0, 0, nullptr,400,(char)65},
-    {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 2000, UINT32_MAX, 
+    {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 2000, UINT32_MAX,
                                         0, 0, 0, nullptr,200,(char)66},
-    {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 2000, UINT32_MAX, 
+    {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 2000, UINT32_MAX,
                                         0, 0, 0, nullptr,600,(char)67},
-    {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr}};
+    {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr} };
 
     DeploymentSchedule_t deploymentSchedule[] =
-    {{SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 500, UINT32_MAX, 
+    { {SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 500, UINT32_MAX,
                                         0, 0, 0, nullptr,200,(char)65},
-    {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 200, UINT32_MAX, 
+    {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 200, UINT32_MAX,
                                         0, 0, 0, nullptr,100,(char)66},
-    {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 800, UINT32_MAX, 
+    {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 800, UINT32_MAX,
                                         0, 0, 0, nullptr,250,(char)67},
-    {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr}};
+    {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr} };
 
     SCH_initializeSchedule(deploymentSchedule, millis());
 
@@ -77,16 +95,16 @@ int main(int argc, char* argv[])
         {
 
             setTime(nextEventTime);
-            
+
             std::cout << "|" << millis();
 
             SF_OSAL_printf("|");
             addTime(nextEvent->maxDuration);
-            
-            SF_OSAL_printf("| %" PRIu32 __NL__, millis());
-            
 
-            
+            SF_OSAL_printf("| %" PRIu32 __NL__, millis());
+
+
+
         }
         counter++;
     }

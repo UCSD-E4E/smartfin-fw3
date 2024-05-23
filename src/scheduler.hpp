@@ -32,7 +32,8 @@ typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
  * @brief Records and writes ensemble
  */
 typedef void (*EnsembleProccess)(DeploymentSchedule_t* pDeployment);
-struct DeploymentSchedule_{
+struct DeploymentSchedule_
+{
 
     EnsembleFunction measure;               // measurement function
     EnsembleInit init;                      // initialization function
@@ -52,12 +53,12 @@ struct DeploymentSchedule_{
     char taskName;
 };
 
-void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t, 
+void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t,
                                 system_tick_t startTime);
-void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t, 
-            DeploymentSchedule_t** p_nextEvent, 
+void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t,
+            DeploymentSchedule_t** p_nextEvent,
             system_tick_t* p_nextTime);
-bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i, 
+bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i,
                     system_tick_t currentTime, uint32_t proposedEndTime,
                     uint32_t nextStartTime);
 #endif //__SCHEDULER__HPP_

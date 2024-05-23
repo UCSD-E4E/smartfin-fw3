@@ -1,14 +1,14 @@
 #include "./scheduler_test_system.hpp"
 #include <chrono>
 #include <stdio.h>
-#include <stdarg.h> 
-uint32_t millis() 
+#include <stdarg.h>
+uint32_t millis()
 {
     return testTime;
 }
 
 
-int SF_OSAL_printf(const char* fmt, ...) 
+int SF_OSAL_printf(const char* fmt, ...)
 {
     va_list vargs;
     va_start(vargs, fmt);
