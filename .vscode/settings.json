@@ -79,5 +79,7 @@
     "C_Cpp.vcFormat.indent.preserveWithinParentheses": true,
     "C_Cpp.vcFormat.indent.preprocessor": "oneLeft",
     "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.vcFormat.wrap.preserveBlocks": "never",
+    "C_Cpp.vcFormat.newLine.beforeOpenBrace.function": "newLine",
 
 }
