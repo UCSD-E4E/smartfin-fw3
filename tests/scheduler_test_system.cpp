@@ -1,11 +1,11 @@
 #include "./scheduler_test_system.hpp"
+#include "../src/cli/conio.hpp"
 #include <chrono>
-#include <stdio.h>
+
 #include <stdarg.h>
-uint32_t millis()
-{
-    return testTime;
-}
+#include <string>
+#include <cstdio>
+
 
 
 int SF_OSAL_printf(const char* fmt, ...)
@@ -15,6 +15,11 @@ int SF_OSAL_printf(const char* fmt, ...)
     int nBytes = vprintf(fmt, vargs);
     va_end(vargs);
     return nBytes;
+}
+
+uint32_t millis()
+{
+    return testTime;
 }
 void addTime(uint32_t add)
 {

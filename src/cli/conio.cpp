@@ -23,7 +23,7 @@ char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
 extern "C"
 {
     // Determines if key has been pressed
-    int kbhit(void) 
+    int kbhit(void)
     {
         return Serial.available();
     }
@@ -41,7 +41,7 @@ extern "C"
     // Write character
     int putch(int ch)
     {
-        Serial.print((char) ch);
+        Serial.print((char)ch);
         return ch;
     }
 
@@ -56,31 +56,33 @@ extern "C"
             if (kbhit())
             {
                 userInput = getch();
-                switch(userInput)
+                switch (userInput)
                 {
-                    case '\b':
-                        i--;
-                        putch('\b');
-                        putch(' ');
-                        putch('\b');
-                        break;
-                    default:
-                        buffer[i++] = userInput;
-                        putch(userInput);
-                        break;
-                    case '\r':
-                        buffer[i++] = 0;
-                        putch('\r');
-                        putch('\n');
-                        return i;
+                case '\b':
+                    i--;
+                    putch('\b');
+                    putch(' ');
+                    putch('\b');
+                    break;
+                default:
+                    buffer[i++] = userInput;
+                    putch(userInput);
+                    break;
+                case '\r':
+                    buffer[i++] = 0;
+                    putch('\r');
+                    putch('\n');
+                    return i;
                 }
             }
         }
         return i;
     }
-    
+
+
     // Print char array to terminal
-    int SF_OSAL_printf(const char* fmt, ...) {
+    int SF_OSAL_printf(const char* fmt, ...)
+    {
         va_list vargs;
         int nBytes = 0;
         va_start(vargs, fmt);
@@ -89,4 +91,5 @@ extern "C"
         Serial.write(SF_OSAL_printfBuffer);
         return nBytes;
     }
+
 }

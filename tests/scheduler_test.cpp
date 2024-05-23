@@ -1,38 +1,14 @@
 #include "../src/scheduler.hpp"
 #include "../src/consts.hpp"
+#include "../src/ensembles.hpp"
+#include "../src/cli/conio.hpp"
 #include "scheduler_test_system.hpp"
-#include <iostream>
 #include <unistd.h>
 #include <vector>
 #include <inttypes.h>
-
-void SS_ensembleAInit(DeploymentSchedule_t* pDeployment)
-{
-    return;
-}
-void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment)
-{
-    return;
-}
+#include  <cstdlib>
 
 
-void SS_ensembleBInit(DeploymentSchedule_t* pDeployment)
-{
-    return;
-}
-void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment)
-{
-    return;
-}
-
-void SS_ensembleCInit(DeploymentSchedule_t* pDeployment)
-{
-    return;
-}
-void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment)
-{
-    return;
-}
 
 
 int main(int argc, char* argv[])
@@ -42,23 +18,19 @@ int main(int argc, char* argv[])
     if (argc >= 2)
 
     {
-        cycles = std::stoi(argv[1]);
+        cycles = atoi(argv[1]);
     }
 
     std::vector<uint32_t> delays(cycles, 0);
 
     for (int i = 2; i < argc - 1; i += 2)
     {
-        delays[std::stoi(argv[i])] = delays[std::stoi(argv[i + 1])];
-        int index = std::stoi(argv[i]);
-        int value = std::stoi(argv[i + 1]);
+        delays[atoi(argv[i])] = delays[atoi(argv[i + 1])];
+        int index = atoi(argv[i]);
+        int value = atoi(argv[i + 1]);
         if (index >= 0 && index < delays.size())
         {
             delays[index] = value;
-        }
-        else
-        {
-            std::cerr << "Index out of bounds: " << index << __NL__;
         }
     }
 
@@ -96,9 +68,9 @@ int main(int argc, char* argv[])
 
             setTime(nextEventTime);
 
-            std::cout << "|" << millis();
+            SF_OSAL_printf("|%" PRIu32"|", millis());
 
-            SF_OSAL_printf("|");
+
             addTime(nextEvent->maxDuration);
 
             SF_OSAL_printf("%" PRIu32"|" __NL__, millis());

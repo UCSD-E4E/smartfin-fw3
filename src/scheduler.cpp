@@ -1,10 +1,10 @@
 #ifndef TEST_VERSION
 #include "Particle.h"
-#include "cli/conio.hpp"
-#include "ensembles.hpp"
 #else
 #include "../tests/scheduler_test_system.hpp"
 #endif
+#include "cli/conio.hpp"
+#include "ensembles.hpp"
 #include "scheduler.hpp"
 #include "consts.hpp"
 void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,

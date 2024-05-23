@@ -9,7 +9,7 @@ void addTime(uint32_t add);
 void setTime(uint32_t set);
 void delay(uint32_t add);
 uint32_t millis();
-int SF_OSAL_printf(const char* fmt, ...);
+
 struct TestLog
 {
     char name;
