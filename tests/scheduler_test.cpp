@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
             SF_OSAL_printf("|");
             addTime(nextEvent->maxDuration);
 
-            SF_OSAL_printf("| %" PRIu32 __NL__, millis());
+            SF_OSAL_printf("%" PRIu32"|" __NL__, millis());
 
 
 
