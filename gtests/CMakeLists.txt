@@ -4,15 +4,19 @@ project(TestScheduler)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(-DTEST_VERSION=1 -DGTESTING=1)
-include_directories($ENV{HOME}/local/include)
-link_directories($ENV{HOME}/local/lib)
+add_compile_definitions(TEST_VERSION=1 GTESTING=1)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../external/googletest ${CMAKE_CURRENT_BINARY_DIR}/googletest)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../external/googletest/include)
 
 set(SOURCE_FILES
-    ../tests/scheduler_test_system.cpp
-    ../src/scheduler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../tests/scheduler_test_system.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/scheduler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scheduler_functions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gtest.cpp)
 
-add_executable(test_scheduler.o ${SOURCE_FILES})
-target_link_libraries(test_scheduler.o gtest gtest_main pthread)
+
+add_executable(test_scheduler ${SOURCE_FILES})
+
+
+target_link_libraries(test_scheduler gtest gtest_main pthread)

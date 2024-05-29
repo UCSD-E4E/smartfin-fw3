@@ -106,41 +106,7 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     }
 
 }
-/*
-void altSCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
-                DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime)
-{
 
-    uint32_t minNextTime = UINT32_MAX;
-    DeploymentSchedule_t* nextEvent = nullptr;
-    system_tick_t currentTime = millis();
-
-    for (int i = 0; scheduleTable[i].measure; ++i)
-    {
-        bool skipped = true;
-        if (currentTime - scheduleTable[i]->lastMeasurementTime > scheduleTable[i]->ensembleInterval)
-        {
-            skipped = true;
-        }
-    }
-    if (nextEvent == nullptr)
-    {
-        SF_OSAL_printf("No suitable event found"  __NL__);
-    }
-    else
-    {
-        //SF_OSAL_printf("%c",nextEvent->taskName);
-        if(nextEvent->measurementCount == 0 && nextEvent->ensembleDelay == 0)
-        {
-            nextEvent->ensembleDelay = minNextTime - nextEvent->deploymentStartTime;
-        }
-        nextEvent->lastMeasurementTime = minNextTime;
-        nextEvent->measurementCount++;
-        *p_nextEvent = nextEvent;
-        *p_nextTime = minNextTime;
-    }
-
-}*/
 bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i,
                     system_tick_t currentTime, uint32_t proposedEndTime,
                     uint32_t nextStartTime)

@@ -43,7 +43,7 @@ STATES_e RideTask::run(void)
     int counter = 0;
 
     uint32_t d;
-    SF_OSAL_printf("\nDeployment started at %" PRId32  __NL__, millis());
+    SF_OSAL_printf( __NL__ "Deployment started at %" PRId32  __NL__, millis());
     while (1)
     {
 
