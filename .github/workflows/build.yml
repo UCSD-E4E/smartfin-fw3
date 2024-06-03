@@ -48,8 +48,7 @@ jobs:
           
 
       - name: Build and run tests
-        run: |
-          ls -alh external/   
+        run: | 
           mkdir -p tests/build
           cd tests/build
           cmake ..

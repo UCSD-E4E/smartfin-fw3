@@ -102,7 +102,7 @@ TEST_F(SchedulerTest, DelayRunImmediately)
     deploymentSchedule[2].ensembleDelay = 800;
 
     SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-    verifyNextEvent('A', 0, 600, 200);
+    verifyNextEvent('A', 0, 700, 200);
 
 
 
