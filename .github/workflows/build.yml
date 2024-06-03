@@ -40,15 +40,16 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update && sudo apt-get install -y cmake g++
+      - name: add googletest
+        run: | 
           git submodule init
           git submodule update
+         
           
 
       - name: Build and run tests
         run: |
-          git submodule init
-          git submodule update
-          ls external
+          ls -alh external/   
           mkdir -p tests/build
           cd tests/build
           cmake ..
