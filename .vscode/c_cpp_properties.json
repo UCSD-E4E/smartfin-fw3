@@ -50,11 +50,10 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "windowsSdkVersion": "10.0.22000.0",
             "compilerPath": "/usr/bin/gcc",
             "intelliSenseMode": "linux-gcc-arm",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
+            "cStandard": "c14",
+            "cppStandard": "c++14",
             "configurationProvider": "particle.particle-vscode-core",
             "mergeConfigurations": true,
             "browse": 
