@@ -28,17 +28,20 @@ jobs:
     needs: [compile]
     runs-on: ubuntu-latest
     steps:
+      - name: Create folder
+        run: mkdir -p external/ 
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Create folder
-        run: mkdir -p external/
+      
+      
       - name: Set up environment
         run: sudo apt-get update && sudo apt-get install -y cmake g++
 
       - name: Build and run tests
         run: |
+          echo $PWD
           mkdir -p tests/build
           cd tests/build
           cmake ..
