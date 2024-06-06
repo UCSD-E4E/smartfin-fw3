@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_definitions(TEST_VERSION=1 GTESTING=1)
 
 add_subdirectory(../external/googletest ./googletest)
-include_directories(../external/googletest/include  ../src/)
+include_directories(../external/googletest/include  ../src/ ../src/cli/)
 
 set(GTEST_SOURCE_FILES
     scheduler_test_system.cpp

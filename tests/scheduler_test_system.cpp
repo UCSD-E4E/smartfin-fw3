@@ -1,5 +1,5 @@
 #include "scheduler_test_system.hpp"
-#include "../src/cli/conio.hpp"
+#include "conio.hpp"
 #include <chrono>
 
 #include <stdarg.h>

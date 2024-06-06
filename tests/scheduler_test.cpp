@@ -1,7 +1,7 @@
-#include "../src/scheduler.hpp"
-#include "../src/consts.hpp"
-#include "../src/ensembles.hpp"
-#include "../src/cli/conio.hpp"
+#include "scheduler.hpp"
+#include "consts.hpp"
+#include "ensembles.hpp"
+#include "conio.hpp"
 #include "scheduler_test_system.hpp"
 #include <unistd.h>
 #include <vector>
