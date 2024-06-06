@@ -84,6 +84,14 @@
                 "version": "1.0.1",
                 "debugger": "generic-cmsis-dap"
             }
+        },
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/tests/build/googletests.o",
+            "name": "Google Tests Debugger",
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": "Compile Google Tests"
         }
     ]
 }
