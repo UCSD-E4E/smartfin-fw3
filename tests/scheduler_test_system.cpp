@@ -1,4 +1,4 @@
-#include "./scheduler_test_system.hpp"
+#include "scheduler_test_system.hpp"
 #include "../src/cli/conio.hpp"
 #include <chrono>
 
@@ -7,6 +7,12 @@
 #include <cstdio>
 
 
+bool TestLog::operator==(const TestLog& rhs)
+{
+    return  (name == rhs.name) &&
+        (start == rhs.start) &&
+        (end == rhs.end);
+};
 
 int SF_OSAL_printf(const char* fmt, ...)
 {

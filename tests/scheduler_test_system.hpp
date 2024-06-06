@@ -14,15 +14,9 @@ struct TestLog
 {
     char name;
     uint32_t start, end;
-    TestLog(char name, uint32_t start, uint32_t end) : name(name), start(start), end(end)
-    {
-    }
+    TestLog(char name, uint32_t start, uint32_t end) : name(name), 
+                                    start(start), end(end){}
 
-    bool operator==(const TestLog& rhs)
-    {
-        return  (name == rhs.name) &&
-            (start == rhs.start) &&
-            (end == rhs.end);
-    };
+    bool operator==(const TestLog& rhs);
 };
 #endif //__SCHEDULER__TEST__HPP_
