@@ -1,7 +1,7 @@
 #ifndef TEST_VERSION
 #include "Particle.h"
 #else
-#include "../tests/scheduler_test_system.hpp"
+#include "scheduler_test_system.hpp"
 #endif
 #include "cli/conio.hpp"
 #include "ensembles.hpp"

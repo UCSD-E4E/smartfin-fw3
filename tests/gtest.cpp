@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../tests/scheduler_test_system.hpp"
+#include "scheduler_test_system.hpp"
 #include "scheduler_functions.hpp"
 class SchedulerTest : public ::testing::Test
 {
