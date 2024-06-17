@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/c++,linux,macos,python,windows,particle,cmake
-# Edit at https://www.toptal.com/developers/gitignore?templates=c++,linux,macos,python,windows,particle,cmake
+# Created by https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,windows,particle,doxygen
+# Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake,linux,macos,python,windows,particle,doxygen
 
 ### C++ ###
 # Prerequisites
@@ -51,6 +51,10 @@ _deps
 ### CMake Patch ###
 # External projects
 *-prefix/
+
+### Doxygen ###
+html
+latex
 
 ### Linux ###
 *~
@@ -304,7 +308,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/c++,linux,macos,python,windows,particle,cmake
+# End of https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,windows,particle,doxygen
 smartfin-fw3.cpp
 target/
 *.bin
