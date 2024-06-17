@@ -1,11 +1,21 @@
+/**
+ * @file scheduler.hpp
+ * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @brief Header file for scheduler defined in @ref scheduler.cpp
+ * @version 1
+ */
 #ifndef __SCHEDULER__HPP_
 #define __SCHEDULER__HPP_
 
 #include <stddef.h>
 #include <cstdint>
-typedef uint32_t system_tick_t;
+#ifndef TEST_VERSION
+#include "Particle.h"
+#else
+#include "scheduler_test_system.hpp"
+#endif
 
-
+/** @todo Add documentation*/
 typedef struct DeploymentSchedule_ DeploymentSchedule_t;
 
 /**
@@ -49,12 +59,29 @@ struct DeploymentSchedule_
     uint32_t deploymentStartTime;
     uint32_t measurementCount;
     void* pData;                    // Buffer to store measurements temporarily
-    uint32_t maxDuration = 0;       //store max running time of measurement
+    uint32_t maxDuration;       //store max running time of measurement
     char taskName;
 };
-
+/**
+ * @brief Initializes ensemble variables within the DeploymentSchedule_t
+ * 
+ * @param ScheduleTable_t 
+ * @param startTime 
+ */
 void SCH_initializeSchedule(DeploymentSchedule_t* ScheduleTable_t,
                                 system_tick_t startTime);
+
+/**
+ * @brief sets p_nextEvent and p_nextTime to next scheduled task and time
+ * 
+ * @param ScheduleTable_t 
+ * @param p_nextEvent 
+ * @param p_nextTime 
+ * @see 
+ * @details
+ * Handles all the scheduler logic, focusing on maininting task intervals with 
+ * respect to the initial measurement. See expected behaivor in tests/gtests.cpp
+ */
 void SCH_getNextEvent(DeploymentSchedule_t* ScheduleTable_t,
             DeploymentSchedule_t** p_nextEvent,
             system_tick_t* p_nextTime);
