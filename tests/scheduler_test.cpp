@@ -1,12 +1,13 @@
+/** @todo Add documentation*/
 #include "scheduler.hpp"
 #include "consts.hpp"
-#include "ensembles.hpp"
 #include "conio.hpp"
 #include "scheduler_test_system.hpp"
 #include <unistd.h>
 #include <vector>
 #include <inttypes.h>
-#include  <cstdlib>
+#include <cstdlib>
+#include "test_ensembles.hpp"
 
 
 
@@ -46,13 +47,11 @@ int main(int argc, char* argv[])
     {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr} };
 
     DeploymentSchedule_t deploymentSchedule[] =
-    { {SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 500, UINT32_MAX,
-                                        0, 0, 0, nullptr,200,(char)65},
-    {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 200, UINT32_MAX,
-                                        0, 0, 0, nullptr,100,(char)66},
-    {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 800, UINT32_MAX,
-                                        0, 0, 0, nullptr,250,(char)67},
-    {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr} };
+    { 
+    {SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 500, UINT32_MAX, 0, 0, 0, nullptr, 200, 'A'},
+    {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 200, UINT32_MAX, 0, 0, 0, nullptr, 100, 'B'},
+    {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 800, UINT32_MAX, 0, 0, 0, nullptr, 250, 'C'},
+    {nullptr,          nullptr,          0, 0,        0,   0,          0, 0, 0, nullptr, 0,   '\0'} };
 
     SCH_initializeSchedule(deploymentSchedule, millis());
 

@@ -1,37 +1,39 @@
+/**
+ * @file gtest.cpp
+ * @author Charlie Kushelevsky ckushelevsky@ucsd.edu
+ * @brief Google Tests for scheduler.cpp
+ */
 #include <gtest/gtest.h>
 #include "scheduler_test_system.hpp"
-#include "scheduler_functions.hpp"
+#include "test_ensembles.hpp"
 class SchedulerTest : public ::testing::Test
 {
 protected:
     DeploymentSchedule_t deploymentSchedule[4];
     DeploymentSchedule_t* nextEvent;
     uint32_t nextEventTime;
+    /** @todo Add documentation*/
     SchedulerTest()
     {
-        deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1,
-                millis(), 2000, UINT32_MAX, 0, 0, 0, nullptr, 400, (char)65 };
-        deploymentSchedule[1] = { SS_ensembleBFunc, SS_ensembleBInit, 1,
-                millis(), 2000, UINT32_MAX, 0, 0, 0, nullptr, 200, (char)66 };
-        deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1,
-                millis(), 2000, UINT32_MAX, 0, 0, 0, nullptr, 600, (char)67 };
-        deploymentSchedule[3] = { nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0,
-                nullptr };
+        deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 2000, UINT32_MAX, 0, 0, 0, nullptr, 400, 'A' };
+        deploymentSchedule[1] = { SS_ensembleBFunc, SS_ensembleBInit, 1, 0, 2000, UINT32_MAX, 0, 0, 0, nullptr, 200, 'B' };
+        deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 2000, UINT32_MAX, 0, 0, 0, nullptr, 600, 'C' };
+        deploymentSchedule[3] = { nullptr,          nullptr, 0,       0, 0, 0,    0,          0, 0, nullptr,    0,   '\0' };
     }
+    /** @todo Add documentation*/
     void schedule2()
     {
         deploymentSchedule[2] = { nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0,
             nullptr };
     }
+    /** @todo Add documentation*/
     void schedule3()
     {
-        deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1,
-                millis(), 500, UINT32_MAX, 0, 0, 0, nullptr,200,(char)65 };
-        deploymentSchedule[1] = { SS_ensembleBFunc, SS_ensembleBInit, 1,
-                millis(), 200, UINT32_MAX, 0, 0, 0, nullptr,100,(char)66 };
-        deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1,
-                millis(), 800, UINT32_MAX, 0, 0, 0, nullptr,250,(char)67 };
+        deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 500, UINT32_MAX, 0, 0, 0, nullptr,200, 'A'};
+        deploymentSchedule[1] = { SS_ensembleBFunc, SS_ensembleBInit, 1, 0, 200, UINT32_MAX, 0, 0, 0, nullptr,100, 'B' };
+        deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 800, UINT32_MAX, 0, 0, 0, nullptr,250, 'C' };
     }
+    /** @todo Add documentation*/
     void SetUp() override
     {
         nextEvent = nullptr;
@@ -44,6 +46,7 @@ protected:
     void TearDown() override
     {
     }
+    /** @todo Add documentation*/
     void runAndCheckEventWithDelay(char expectedTaskName,
                                     uint32_t expectedStart,
                                     uint32_t expectedEnd,
@@ -56,6 +59,7 @@ protected:
         addTime(additionalTime);
         ASSERT_EQ(expectedEnd, millis());
     }
+    /** @todo Add documentation*/
     void runAndCheckEvent(char expectedTaskName,
                                     uint32_t expectedStart,
                                     uint32_t expectedEnd)
@@ -66,6 +70,7 @@ protected:
         addTime(nextEvent->maxDuration);
         ASSERT_EQ(expectedEnd, millis());
     }
+    /** @todo Add documentation*/
     void runNextEvent(DeploymentSchedule_t* ScheduleTable_t,
             DeploymentSchedule_t** p_nextEvent,
             system_tick_t* p_nextTime)
@@ -144,6 +149,7 @@ TEST_F(SchedulerTest, DelayRunImmediately)
         setTime(nextEventTime + nextEvent->maxDuration);
     }
 }
+/** @todo Add documentation*/
 /**
  * @brief Task C runs 900ms long, delaying second run of task A. Task A would
  * now delay Task B so A is run during idle time after task C is run again.
@@ -188,7 +194,7 @@ TEST_F(SchedulerTest, DelayRunDuringIdle)
         addTime(nextEvent->maxDuration);
     }
 }
-
+/** @todo Add documentation*/
 /**
  * @brief Task B runs 900ms longer. Because task C has not been run yet, 
  * its ensemble delay is pushed back and it is run after the second run of B.
@@ -261,7 +267,7 @@ TEST_F(SchedulerTest, ScheduleTooTight)
     }
 
 }
-
+/** @todo Add documentation*/
 /**
  * @brief Ensembles A, B, and C have intervals that dont allow all of 
  * them to be run every interval. C is able to run very infrequently.
@@ -301,13 +307,12 @@ TEST_F(SchedulerTest, ScheduleVeryTight)
 }
 
 
-/*
-A   ***********
-B                **********
-*/
+
 /**
  * @brief Testing no overlap with A before B
  * 
+ * A   ***********
+ * B                **********
  */
 TEST_F(SchedulerTest, NoOverlapBefore)
 {
@@ -335,12 +340,13 @@ TEST_F(SchedulerTest, NoOverlapBefore)
 
 
 /*
-A   ***********
-B           **********
+
 */
 /**
  * @brief Testing overlap with end of A and start of B
  * 
+ * A   ***********
+ * B           **********
  */
 TEST_F(SchedulerTest, OverlapBefore)
 {
@@ -396,13 +402,12 @@ TEST_F(SchedulerTest, NoOverlapAfter)
     bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
     ASSERT_FALSE(overlap);
 }
-/*
-A                   ***********
-B           **********
-*/
+
 /**
  * @brief Testing overlap with end of B and start of A
  * 
+ * A                   ***********
+ * B           **********
  */
 TEST_F(SchedulerTest, OverlapAfter)
 {
@@ -428,12 +433,12 @@ TEST_F(SchedulerTest, OverlapAfter)
     ASSERT_TRUE(overlap);
 }
 
-/*
-A           *****************
-B              **********
-*/
+
 /**
  * @brief Testing for overlap when B starts after A starts and before A ends
+ * 
+ * A           *****************
+ * B              **********
  * 
  */
 TEST_F(SchedulerTest, InsideOverlap)
@@ -460,13 +465,12 @@ TEST_F(SchedulerTest, InsideOverlap)
     ASSERT_TRUE(overlap);
 }
 
-/*
-A  *********
-B           **********
-*/
+
 /**
  * @brief Testing no overlap edge case when B starts as A ends
  * 
+ * A  *********
+ * B           **********
  */
 TEST_F(SchedulerTest, Boundary1)
 {
@@ -491,13 +495,12 @@ TEST_F(SchedulerTest, Boundary1)
     ASSERT_FALSE(overlap);
 }
 
-/*
-A                     *********
-B           **********
-*/
+
 /**
  * @brief Testing no overlap edge case when A starts as B ends
  * 
+ * A                     *********
+ * B           **********
  */
 TEST_F(SchedulerTest, Boundary2)
 {

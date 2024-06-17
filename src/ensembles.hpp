@@ -1,8 +1,11 @@
+/**
+ * @file ensembles.hpp
+ * @brief Header file to declare various ensembles
+ */
+
+#ifndef __ENSEMBLES_HPP__
+#define __ENSEMBLES_HPP__
+
 #include "scheduler.hpp"
 
-void SS_ensembleAInit(DeploymentSchedule_t* pDeployment);
-void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment);
-void SS_ensembleBInit(DeploymentSchedule_t* pDeployment);
-void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment);
-void SS_ensembleCInit(DeploymentSchedule_t* pDeployment);
-void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment);
+#endif
