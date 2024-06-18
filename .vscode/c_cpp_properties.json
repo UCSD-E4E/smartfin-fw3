@@ -34,6 +34,47 @@
                     "${workspaceFolder}\\src"
                 ]
             }
+        },
+        {
+            "name": "Particle_nix",
+            "includePath": 
+            [
+                "${workspaceFolder}/src",
+                "~/.particle/toolchains/deviceOS/5.3.0/user/inc",
+                "/usr/include/"
+
+            ],
+            "defines": 
+            [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "intelliSenseMode": "linux-gcc-arm",
+            "cStandard": "c14",
+            "cppStandard": "c++14",
+            "configurationProvider": "particle.particle-vscode-core",
+            "mergeConfigurations": true,
+            "browse": 
+            {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": 
+                [
+                    "${default}",
+                    "~/.particle/toolchains/deviceOS/5.3.0/user/inc",
+                    "~/.particle/toolchains/deviceOS/5.3.0/hal/inc",
+                    "~/.particle/toolchains/deviceOS/5.3.0/hal/shared",
+                    "~/.particle/toolchains/deviceOS/5.3.0/hal/src/gcc",
+                    "~/.particle/toolchains/deviceOS/5.3.0/hal/src/nRF52840/posix",
+                    "~/.particle/toolchains/deviceOS/5.3.0/services/inc",
+                    "~/.particle/toolchains/deviceOS/5.3.0/system",
+                    "~/.particle/toolchains/deviceOS/5.3.0/wiring",
+                    "~/.particle/toolchains/deviceOS/5.3.0/third_party/nrf5_sdk/nrf5_sdk/modules/nrfx/mdk",
+                    "${workspaceFolder}/src"
+                ]
+            },
+            "compilerArgs": []
         }
     ],
     "version": 4

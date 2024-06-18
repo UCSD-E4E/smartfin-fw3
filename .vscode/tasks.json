@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+        "type": "shell",
+        "label": "Compile Google Tests",
+        "command": "cmake .. && make",
+        "options": {
+            "cwd": "${workspaceRoot}/tests/build"
+        },
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        }
+        }
+    ]
+}
