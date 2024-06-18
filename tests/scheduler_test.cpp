@@ -46,13 +46,11 @@ int main(int argc, char* argv[])
 
     setTime(0);
     DeploymentSchedule_t deploymentSchedule2[] =
-    { {SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 2000, UINT32_MAX,
-                                        0, 0, 0, nullptr,400,(char)65},
-    {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 2000, UINT32_MAX,
-                                        0, 0, 0, nullptr,200,(char)66},
-    {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 2000, UINT32_MAX,
-                                        0, 0, 0, nullptr,600,(char)67},
-    {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr} };
+    { 
+    {SS_ensembleAFunc, SS_ensembleAInit, 1, millis(), 2000, UINT32_MAX, 0, 0, 0, nullptr, 400, 'A'},
+    {SS_ensembleBFunc, SS_ensembleBInit, 1, millis(), 2000, UINT32_MAX, 0, 0, 0, nullptr, 200, 'B'},
+    {SS_ensembleCFunc, SS_ensembleCInit, 1, millis(), 2000, UINT32_MAX, 0, 0, 0, nullptr, 600, 'C'},
+    {nullptr,          nullptr,          0, 0,        0,    0,          0, 0, 0, nullptr, 0,  '\0'} };
 
     DeploymentSchedule_t deploymentSchedule[] =
     { 
