@@ -84,35 +84,37 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             }
         }
         bool on_interval = true;
-        // Calculate the next scheduled start time
+        //! Calculate the next scheduled start time
         uint32_t nextStartTime = currentEvent.deploymentStartTime +
             currentEvent.ensembleDelay +
             (currentEvent.measurementCount *
             currentEvent.ensembleInterval);
-        // If  past scheduled start time and it's time for the next interval
+        //! If  past scheduled start time 
         if (currentTime > nextStartTime)
         {
             nextStartTime = currentTime;
             on_interval = false;
         }
-        // Calculate the expected end time if we started at the next start time
+        //! Calculate the expected end time if we started at the next start time
         uint32_t proposedEndTime = nextStartTime + currentEvent.maxDuration;
-        // Check if running this event would overlap with any subsequent events
+        //! Check if running this event would overlap with any subsequent events
         bool willOverlap = SCH_willOverlap(scheduleTable, idx, currentTime,
                                             proposedEndTime, nextStartTime);
         if (willOverlap && !on_interval)
         {
             continue;
         }
-        // Check for overlap with next time the same ensemble is scheduled
+        //! Check for overlap with next time the same ensemble is scheduled
         uint32_t nextScheduled = currentEvent.deploymentStartTime +
             currentEvent.ensembleDelay;
+        //! Update intendedMeasureCount
         uint32_t intendedMeasureCount = (nextStartTime - nextScheduled) /
             currentEvent.ensembleInterval + 1;
         nextScheduled += intendedMeasureCount * currentEvent.ensembleInterval;
+        //! if past measurement was skipped
         if (nextScheduled < proposedEndTime)
         {
-            //update measurementCount if past measurement was skipped
+            //update measurementCount 
             currentEvent.measurementCount = intendedMeasureCount;
             nextStartTime = nextScheduled;
         }
@@ -135,14 +137,17 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             nextEvent->ensembleDelay = minNextTime -
                 nextEvent->deploymentStartTime;
         }
+        //! Sets ensemble variable lastMeasurementTime to next time it will run
         nextEvent->lastMeasurementTime = minNextTime;
+        //! Incraments ensemble variable lastMeasurementTime measurementCount
         nextEvent->measurementCount++;
+        //! Sets next event pointer to the next event
         *p_nextEvent = nextEvent;
+        //! Sets next time pointer to the next event time
         *p_nextTime = minNextTime;
     }
 
 }
-/** @todo Add documentation*/
 
 /**
  * @brief Determines if a task will overlap with other scheduled tasks.

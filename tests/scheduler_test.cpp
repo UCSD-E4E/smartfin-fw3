@@ -1,4 +1,12 @@
-/** @todo Add documentation*/
+/**
+ * @file scheduler_test.cpp
+ * @brief runs test scenarios for visualization with scheduler_proccessor.py
+ * @version 0.1
+ * @date 2024-06-17
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 #include "scheduler.hpp"
 #include "consts.hpp"
 #include "conio.hpp"
@@ -73,9 +81,6 @@ int main(int argc, char* argv[])
             addTime(nextEvent->maxDuration);
 
             SF_OSAL_printf("%" PRIu32"|" __NL__, millis());
-
-
-
         }
         counter++;
     }

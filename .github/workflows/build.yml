@@ -53,7 +53,7 @@ jobs:
           cd tests/build
           cmake ..
           make
-          ./googletests.o        
+          ./googletests   
   release:
     needs: [compile]
     runs-on: ubuntu-latest

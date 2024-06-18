@@ -1,6 +1,6 @@
 /**
  * @file gtest.cpp
- * @author Charlie Kushelevsky ckushelevsky@ucsd.edu
+ * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  * @brief Google Tests for scheduler.cpp
  */
 #include <gtest/gtest.h>
@@ -9,10 +9,20 @@
 class SchedulerTest : public ::testing::Test
 {
 protected:
+    //! holds the deployment schedule created in @ref SchedulerTest()
     DeploymentSchedule_t deploymentSchedule[4];
+    //! pointer for next event in deploymentSchedule
     DeploymentSchedule_t* nextEvent;
+    //! next time any event will be run
     uint32_t nextEventTime;
-    /** @todo Add documentation*/
+    /**
+    * @brief Construct a new Scheduler Test object
+    * 
+    * Creates a deployment schedule with three ensembles: 
+    * Ensemble A runs every 2000ms with a max duration of 400ms
+    * Ensemble B runs every 2000ms with a max duration of 200ms
+    * Ensemble C runs every 2000ms with a max duration of 600ms
+    */
     SchedulerTest()
     {
         deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 2000, UINT32_MAX, 0, 0, 0, nullptr, 400, 'A' };
@@ -20,33 +30,59 @@ protected:
         deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 2000, UINT32_MAX, 0, 0, 0, nullptr, 600, 'C' };
         deploymentSchedule[3] = { nullptr,          nullptr, 0,       0, 0, 0,    0,          0, 0, nullptr,    0,   '\0' };
     }
-    /** @todo Add documentation*/
+    /** 
+    * @brief Modifies the constructed scheduler
+    *  Creates a deployment schedule with one ensemble: 
+    *  Ensemble A runs every 2000ms with a max duration of 400ms
+    */
     void schedule2()
     {
-        deploymentSchedule[2] = { nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0,
-            nullptr };
+        deploymentSchedule[2] = { nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr };
     }
-    /** @todo Add documentation*/
+    /** 
+    * @brief Modifies the constructed scheduler
+    * Creates a deployment schedule with three ensembles: 
+    * Ensemble A runs every 500ms with a max duration of 200ms
+    * Ensemble B runs every 200ms with a max duration of 100ms
+    * Ensemble C runs every 800ms with a max duration of 250ms
+    */
     void schedule3()
     {
         deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 500, UINT32_MAX, 0, 0, 0, nullptr,200, 'A'};
         deploymentSchedule[1] = { SS_ensembleBFunc, SS_ensembleBInit, 1, 0, 200, UINT32_MAX, 0, 0, 0, nullptr,100, 'B' };
         deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 800, UINT32_MAX, 0, 0, 0, nullptr,250, 'C' };
     }
-    /** @todo Add documentation*/
+    /**
+     * @brief setup function that recreates environment for every test
+     * 
+     */
     void SetUp() override
     {
-        nextEvent = nullptr;
-        nextEventTime = 0;
-        setTime(0);
+        nextEvent = nullptr; //ensures that first call to scheduler is correct
+        nextEventTime = 0; //time handling
+        setTime(0); //!< time handling see @ref tests/scheduler_test_system.cpp
         SCH_initializeSchedule(deploymentSchedule, millis());
 
     }
-
+    /**
+     * @brief Cleans the test envirnoment
+     * 
+     */
     void TearDown() override
     {
     }
-    /** @todo Add documentation*/
+    /**
+     * @brief Run task and update time with delay and check values
+     * 
+     * This function checks the correct task is being run, and the start time
+     * and end time is correct. The delay is added after the task is run.
+     * 
+     * 
+     * @param expectedTaskName expected task name character
+     * @param expectedStart time to check start time with
+     * @param expectedEnd time to check end time with
+     * @param additionalTime the amount of delay to add
+     */
     void runAndCheckEventWithDelay(char expectedTaskName,
                                     uint32_t expectedStart,
                                     uint32_t expectedEnd,
@@ -59,7 +95,18 @@ protected:
         addTime(additionalTime);
         ASSERT_EQ(expectedEnd, millis());
     }
-    /** @todo Add documentation*/
+
+    /**
+     * @brief Run task and update time and check values
+     * 
+     * This function checks the correct task is being run, and the start time
+     * and end time is correct
+     * 
+     * 
+     * @param expectedTaskName expected task name character
+     * @param expectedStart time to check start time with
+     * @param expectedEnd time to check end time with
+     */
     void runAndCheckEvent(char expectedTaskName,
                                     uint32_t expectedStart,
                                     uint32_t expectedEnd)
@@ -70,7 +117,14 @@ protected:
         addTime(nextEvent->maxDuration);
         ASSERT_EQ(expectedEnd, millis());
     }
-    /** @todo Add documentation*/
+
+    /**
+     * @brief Runs the next event and updates clock
+     * 
+     * @param ScheduleTable_t contains ensemble table
+     * @param p_nextEvent  pointer to next event
+     * @param p_nextTime pointer to next time to run
+     */
     void runNextEvent(DeploymentSchedule_t* ScheduleTable_t,
             DeploymentSchedule_t** p_nextEvent,
             system_tick_t* p_nextTime)
@@ -149,7 +203,7 @@ TEST_F(SchedulerTest, DelayRunImmediately)
         setTime(nextEventTime + nextEvent->maxDuration);
     }
 }
-/** @todo Add documentation*/
+
 /**
  * @brief Task C runs 900ms long, delaying second run of task A. Task A would
  * now delay Task B so A is run during idle time after task C is run again.
@@ -194,7 +248,7 @@ TEST_F(SchedulerTest, DelayRunDuringIdle)
         addTime(nextEvent->maxDuration);
     }
 }
-/** @todo Add documentation*/
+
 /**
  * @brief Task B runs 900ms longer. Because task C has not been run yet, 
  * its ensemble delay is pushed back and it is run after the second run of B.
@@ -267,7 +321,7 @@ TEST_F(SchedulerTest, ScheduleTooTight)
     }
 
 }
-/** @todo Add documentation*/
+
 /**
  * @brief Ensembles A, B, and C have intervals that dont allow all of 
  * them to be run every interval. C is able to run very infrequently.
@@ -338,10 +392,6 @@ TEST_F(SchedulerTest, NoOverlapBefore)
 
 
 
-
-/*
-
-*/
 /**
  * @brief Testing overlap with end of A and start of B
  * 

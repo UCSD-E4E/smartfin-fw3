@@ -1,6 +1,6 @@
 /**
  *  @file   rideTask.cpp
- *  @brief  Contains definitions for functions defined in @ref RideTask.hpp
+ *  @brief  Contains definitions for functions defined in @ref rideTask.hpp
  *  @version 1
  */
 #include "rideTask.hpp"
@@ -17,8 +17,10 @@
 #include "ensembles.hpp"
 
 /**
+ * @brief creates file name for log
  * @todo implement RIDE_setFileName
-*/
+ * @param startTime 
+ */
 static void RIDE_setFileName(system_tick_t startTime)
 {
     return;

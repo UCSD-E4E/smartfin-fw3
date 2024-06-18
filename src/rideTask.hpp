@@ -25,6 +25,7 @@ public:
     /**
      * @brief runs tasks given by scheduler
      * 
+     * @return the next state to change to.
      */
     STATES_e run(void);
     /**
@@ -34,7 +35,6 @@ public:
 private:
     
     LEDStatus ledStatus; /**< manages led behavior*/
-    bool gpsLocked; /** @todo add documentation*/
     system_tick_t startTime; /**< start time at initialization */
 
 };

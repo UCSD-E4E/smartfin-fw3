@@ -1,23 +1,46 @@
 /**
  * @file ensembles.hpp
- * @brief Header file to declare various ensembles
+ * @brief Header file to declare various dummy ensembles
  */
 
 #ifndef __TEST_ENSEMBLES_HPP__
 #define __TEST_ENSEMBLES_HPP__
 
 #include "scheduler.hpp"
-/** @todo Add documentation*/
+/**
+ * @brief dummy ensemble init function
+ * @param pDeployment schedule table
+ */
 void SS_ensembleAInit(DeploymentSchedule_t* pDeployment);
-/** @todo Add documentation*/
+
+/**
+ * @brief dummy ensemble function
+ * @param pDeployment schedule table
+ */
 void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment);
-/** @todo Add documentation*/
+
+/**
+ * @brief dummy ensemble init function
+ * @param pDeployment schedule table
+ */
 void SS_ensembleBInit(DeploymentSchedule_t* pDeployment);
-/** @todo Add documentation*/
+
+/**
+ * @brief dummy ensemble function
+ * @param pDeployment schedule table
+ */
 void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment);
-/** @todo Add documentation*/
+
+/**
+ * @brief dummy ensemble init function
+ * @param pDeployment schedule table
+ */
 void SS_ensembleCInit(DeploymentSchedule_t* pDeployment);
-/** @todo Add documentation*/
+
+/**
+ * @brief dummy ensemble function
+ * @param pDeployment schedule table
+ */
 void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment);
 
 

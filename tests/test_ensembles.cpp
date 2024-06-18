@@ -1,45 +1,58 @@
 /**
  * @file ensembles.cpp
- * @author your name (you@domain.com)
- * @brief 
- * @version 0.1
- * @date 2024-06-10
- * 
- * @copyright Copyright (c) 2024
+ * @brief function definitions for test_ensembles.hpp
  * 
  */
 #include "test_ensembles.hpp"
 #include "scheduler_test_system.hpp"
 
-/**@todo Add documentation*/
+/**
+ * @brief dummy ensemble init function
+ * @param pDeployment schedule table
+ */
 void SS_ensembleAInit(DeploymentSchedule_t* pDeployment)
 {
     return;
 }
-/**@todo Add documentation*/
+/**
+ * @brief dummy measurement function that delays for 400 ms
+ * @param pDeployment schedule table
+ */
 void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment)
 {
     delay(400);
 }
 
-/**@todo Add documentation*/
+/**
+ * @brief dummy ensemble init function
+ * @param pDeployment schedule table
+ */
 void SS_ensembleBInit(DeploymentSchedule_t* pDeployment)
 {
     return;
 }
-/**@todo Add documentation*/
+/**
+ * @brief dummy measurement function that delays for 200 ms
+ * @param pDeployment schedule table
+ */
 void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment)
 {
     delay(200);
 
 }
 
-/**@todo Add documentation*/
+/**
+ * @brief dummy ensemble init function
+ * @param pDeployment schedule table
+ */
 void SS_ensembleCInit(DeploymentSchedule_t* pDeployment)
 {
     return;
 }
-/**@todo Add documentation*/
+/**
+ * @brief dummy measurement function that delays for 600 ms
+ * @param pDeployment schedule table
+ */
 void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment)
 {
     delay(600);
