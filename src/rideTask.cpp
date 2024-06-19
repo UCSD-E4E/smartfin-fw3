@@ -15,7 +15,7 @@
 #include "vers.hpp"
 #include "scheduler.hpp"
 #include "ensembles.hpp"
-#include "flog.hpp"
+#include "cli/flog.hpp"
 #include "scheduler.hpp"
 /**
  * @brief creates file name for log
