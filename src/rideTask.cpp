@@ -15,7 +15,8 @@
 #include "vers.hpp"
 #include "scheduler.hpp"
 #include "ensembles.hpp"
-
+#include "flog.hpp"
+#include "scheduler.hpp"
 /**
  * @brief creates file name for log
  * @todo implement RIDE_setFileName
@@ -71,11 +72,14 @@ STATES_e RideTask::run(void)
 
         RIDE_setFileName(this->startTime);
 
-        SCH_getNextEvent(deploymentSchedule, &pNextEvent, &nextEventTime);
+        uint32_t retval = SCH_getNextEvent(deploymentSchedule,
+                                                    &pNextEvent, 
+                                                    &nextEventTime);
         //Check if scheduler failed to find nextEvent
-        if (pNextEvent == nullptr)
+        if (TASK_SEARCH_FAIL == retval)
         {
-            SF_OSAL_printf("getNextEvent is null! Exiting RideTask..."  __NL__);
+            SF_OSAL_printf("getNextEvent is null! Exiting RideTask..." __NL__);
+            FLOG_AddError(FLOG_SCHEDULER_FAILED, TASK_SEARCH_FAIL);
             return STATE_UPLOAD;
         }
         delay(nextEventTime - millis());

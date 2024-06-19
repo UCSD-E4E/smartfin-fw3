@@ -14,6 +14,11 @@
 #else
 #include "scheduler_test_system.hpp"
 #endif
+typedef enum error_
+{
+    SUCCESS,
+    TASK_SEARCH_FAIL,
+}error_e;
 
 /**
  * @brief defines type for DeploymentSchedule_ struct below.
@@ -88,7 +93,7 @@ void SCH_initializeSchedule(DeploymentSchedule_t* scheduleTable,
  * respect to the initial measurement. See expected behaivor in 
  * @ref tests/gtests.cpp
  */
-void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
+int SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             DeploymentSchedule_t** p_nextEvent,
             system_tick_t* p_nextTime);
 

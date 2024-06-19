@@ -14,6 +14,7 @@
 #include "ensembles.hpp"
 #include "scheduler.hpp"
 #include "consts.hpp"
+
 /**
  * @brief Initializes ensembles within schedule table.
  * 
@@ -46,7 +47,8 @@ void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
  * @param p_nextTime Pointer to the time of the next scheduled event
  * 
  * @see tests/gtest.cpp for intended behavior
- * @note For scheduler documentation, task and ensemble will be interchangeable
+ * @note For scheduler documentation, the terms "task" and "ensemble" will
+ *  be interchangeably used
  * 
  * This scheduler minimizes delays in tasks with respect to their original 
  *  start time. 
@@ -68,7 +70,7 @@ void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
  *  schedule table will be run. If multiple tasks do not overlap with another
  *  task, the earliest ensemble that does not overlap will be run.
  */
-void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
+int SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
                 DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime)
 {
 
@@ -82,7 +84,7 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
         DeploymentSchedule_t& currentEvent = scheduleTable[idx];
         if (currentEvent.measurementCount == 0)
         {
-
+            //! Check for no overlap or if it's the first task
             if (!idx || !SCH_willOverlap(scheduleTable, idx, currentTime,
                 currentTime + currentEvent.maxDuration, currentTime))
             {
@@ -128,7 +130,7 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             currentEvent.measurementCount = intendedMeasureCount;
             nextStartTime = nextScheduled;
         }
-        // Prioritize tasks that can be executed on time and ensure no overlaps
+        //! Prioritize tasks that can execute on time and ensure no overlaps
         if ((nextStartTime >= currentTime) && (nextStartTime < minNextTime))
         {
             minNextTime = nextStartTime;
@@ -137,7 +139,9 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     }
     if (nextEvent == nullptr)
     {
+        
         SF_OSAL_printf("No suitable event found"  __NL__);
+        return TASK_SEARCH_FAIL;
     }
     else
     {
@@ -155,6 +159,7 @@ void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
         *p_nextEvent = nextEvent;
         //! Sets next time pointer to the next event time
         *p_nextTime = minNextTime;
+        return SUCCESS;
     }
 
 }
@@ -179,26 +184,30 @@ bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int idx,
 {
     for (int other_idx = 0; scheduleTable[other_idx].measure; ++other_idx)
     {
+        //! Skip  current task 
         if (idx != other_idx)
         {
             DeploymentSchedule_t& otherEvent = scheduleTable[other_idx];
+            //! Calculate next start time for the other task
             uint32_t otherNextStartTime = otherEvent.deploymentStartTime +
                 otherEvent.ensembleDelay +
                 (otherEvent.measurementCount *
                 otherEvent.ensembleInterval);
+            //! Adjust next start time if current time is beyond it
             if (currentTime > otherNextStartTime)
             {
                 otherNextStartTime += ((currentTime - otherNextStartTime) /
                 otherEvent.ensembleInterval + 1) *
                     otherEvent.ensembleInterval;
             }
+            // Calculate proposed end time for the other task
             uint32_t otherProposedEndTime = otherNextStartTime +
                 otherEvent.maxDuration;
-            // Check for overlap
+            //! Check for overlap
             if (!((proposedEndTime <= otherNextStartTime) ||
                 (otherProposedEndTime <= nextStartTime)))
             {
-                return true;
+                return true; // Overlap detected
             }
 
 
