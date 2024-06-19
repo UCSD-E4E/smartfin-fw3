@@ -151,6 +151,11 @@ TEST_F(SchedulerTest, TestInitialization)
 /**
  * @brief Checks that events with no delays are fetched and executed properly.
  *
+ * This test  runs through expected behaivor with no delays and enough 
+ * time for all the functions to run by themselves in order.
+ * 
+ * Setup:
+ * 
  */
 TEST_F(SchedulerTest, TestIdeal)
 {

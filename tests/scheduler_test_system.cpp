@@ -1,6 +1,7 @@
 /**
  * @file scheduler_test_system.cpp
- * @brief implements functions for testing declared in @ref scheduler_test_system.hpp
+ * @brief implements functions for testing declared in @ref 
+ * scheduler_test_system.hpp
  * 
  */
 #include "scheduler_test_system.hpp"

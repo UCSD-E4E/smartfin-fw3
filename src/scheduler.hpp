@@ -85,7 +85,8 @@ void SCH_initializeSchedule(DeploymentSchedule_t* scheduleTable,
  * @param p_nextTime time next event will run
  * 
  * Handles all the scheduler logic, focusing on maininting task intervals with 
- * respect to the initial measurement. See expected behaivor in @ref tests/gtests.cpp
+ * respect to the initial measurement. See expected behaivor in 
+ * @ref tests/gtests.cpp
  */
 void SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             DeploymentSchedule_t** p_nextEvent,
