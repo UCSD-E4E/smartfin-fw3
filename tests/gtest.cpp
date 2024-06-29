@@ -6,6 +6,11 @@
 #include <gtest/gtest.h>
 #include "scheduler_test_system.hpp"
 #include "test_ensembles.hpp"
+#include <iostream>
+#include <string>
+#include <fstream>
+
+
 class SchedulerTest : public ::testing::Test
 {
 protected:
@@ -15,10 +20,24 @@ protected:
     DeploymentSchedule_t* nextEvent;
     //! next time any event will be run
     uint32_t nextEventTime;
+    //! holds actual values for testing
+    std::vector<TestLog> actual;
+    //! holds expected values for testing
+    std::vector<TestLog> expected;
+
+    //! output file for expected values
+    std::ofstream expectedFile;
+    //! output file for actual values
+    std::ofstream actualFile;
+    //! output file directory
+    std::string dir;
+    //! for writing test output
+    bool useCompareLogs;
+
     /**
     * @brief Construct a new Scheduler Test object
-    * 
-    * Creates a deployment schedule with three ensembles: 
+    *
+    * Creates a deployment schedule with three ensembles:
     * Ensemble A runs every 2000ms with a max duration of 400ms
     * Ensemble B runs every 2000ms with a max duration of 200ms
     * Ensemble C runs every 2000ms with a max duration of 600ms
@@ -30,54 +49,100 @@ protected:
         deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 2000, UINT32_MAX, 0, 0, 0, nullptr, 600, 'C' };
         deploymentSchedule[3] = { nullptr,          nullptr, 0,       0, 0, 0,    0,          0, 0, nullptr,    0,   '\0' };
     }
-    /** 
+    /**
     * @brief Modifies the constructed scheduler
-    *  Creates a deployment schedule with one ensemble: 
+    *  Creates a deployment schedule with one ensemble:
     *  Ensemble A runs every 2000ms with a max duration of 400ms
     */
     void schedule2()
     {
-        deploymentSchedule[2] = { nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr };
+        deploymentSchedule[2] = { nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr};
     }
-    /** 
+    /**
     * @brief Modifies the constructed scheduler
-    * Creates a deployment schedule with three ensembles: 
+    * Creates a deployment schedule with three ensembles:
     * Ensemble A runs every 500ms with a max duration of 200ms
     * Ensemble B runs every 200ms with a max duration of 100ms
     * Ensemble C runs every 800ms with a max duration of 250ms
     */
     void schedule3()
     {
-        deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 500, UINT32_MAX, 0, 0, 0, nullptr,200, 'A'};
-        deploymentSchedule[1] = { SS_ensembleBFunc, SS_ensembleBInit, 1, 0, 200, UINT32_MAX, 0, 0, 0, nullptr,100, 'B' };
-        deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 800, UINT32_MAX, 0, 0, 0, nullptr,250, 'C' };
+        deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 500, UINT32_MAX, 0, 0, 0, nullptr, 200, 'A' };
+        deploymentSchedule[1] = { SS_ensembleBFunc, SS_ensembleBInit, 1, 0, 200, UINT32_MAX, 0, 0, 0, nullptr, 100, 'B' };
+        deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 800, UINT32_MAX, 0, 0, 0, nullptr, 250, 'C' };
+    }
+    /**
+    * @brief Modifies the constructed scheduler
+    * Creates a deployment schedule with three ensembles:
+    * Ensemble A runs every 200ms with a max duration of 150ms
+    */
+    void schedule4()
+    {   
+        deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 200, UINT32_MAX, 0, 0, 0, nullptr, 150, 'A' };
+        deploymentSchedule[1] = { nullptr,          nullptr, 0,       0, 0, 0,    0,          0, 0, nullptr, 0,   '\0' };
     }
     /**
      * @brief setup function that recreates environment for every test
-     * 
+     *
      */
+    void appendExpectedFile(char taskname, uint32_t start, uint32_t end)
+    {
+        #ifdef SCRIPT_BUILD
+            expectedFile << taskname << "|" << start << "|" << end << "\n";
+            std::cout << "\rExpected: "<< taskname << "|" << start << "|" << end << "\n";
+        #endif
+    }
+    void appendActualFile(char taskname, uint32_t start, uint32_t end )
+    {
+        #ifdef SCRIPT_BUILD
+            actualFile << taskname << "|" << start << "|" << end << "\n";
+            std::cout << "\rActual: "<< taskname << "|" << start << "|" << end << "\n";
+        #endif
+    }
     void SetUp() override
     {
+        
         nextEvent = nullptr; //ensures that first call to scheduler is correct
         nextEventTime = 0; //time handling
         setTime(0); //!< time handling see @ref tests/scheduler_test_system.cpp
         SCH_initializeSchedule(deploymentSchedule, millis());
-
+        useCompareLogs = false;
+        #ifdef SCRIPT_BUILD
+            const ::testing::TestInfo* const test_info =
+            ::testing::UnitTest::GetInstance()->current_test_info();
+            dir = "./outputs/googletests/"+std::string(test_info->name()) + "/";
+            std::string expectedFileName = dir+"expected.txt";
+            std::string actualFileName = dir+"actual.txt";
+            expectedFile.open(expectedFileName);
+            actualFile.open(actualFileName);
+            ASSERT_TRUE(expectedFile.is_open())<<"Failed to open output file.";
+            ASSERT_TRUE(actualFile.is_open())<<"Failed to open output file.";
+        #endif
     }
     /**
      * @brief Cleans the test envirnoment
-     * 
+     *
      */
     void TearDown() override
     {
+        if (expectedFile.is_open())
+        {
+            expectedFile.close();
+        }
+        if (actualFile.is_open())
+        {
+            actualFile.close();
+        }
+        actual.clear();
+        expected.clear();
     }
     /**
      * @brief Run task and update time with delay and check values
-     * 
+     *
      * This function checks the correct task is being run, and the start time
      * and end time is correct. The delay is added after the task is run.
-     * 
-     * 
+     *
+     *
      * @param expectedTaskName expected task name character
      * @param expectedStart time to check start time with
      * @param expectedEnd time to check end time with
@@ -88,21 +153,44 @@ protected:
                                     uint32_t expectedEnd,
                                     uint32_t additionalTime)
     {
-        ASSERT_EQ(expectedTaskName, nextEvent->taskName);
+        
+        ASSERT_NE(nextEvent, nullptr) << "Scheduler returned nullptr.";
+        
+        
+        ASSERT_EQ(expectedTaskName, nextEvent->taskName)
+            << "runAndCheckEvent failed:\n"
+            <<"Expected \t Actual\n"
+            <<expectedTaskName << "\t\t" << nextEvent->taskName  << "\n"
+            <<expectedStart << "\t\t" << nextEventTime  << "\n"
+            <<expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration;
         setTime(nextEventTime);
-        ASSERT_EQ(expectedStart, nextEventTime);
+        ASSERT_EQ(expectedStart, nextEventTime)
+            << "runAndCheckEvent failed:\n"
+            <<"Expected \t Actual\n"
+            <<expectedTaskName << "\t\t" << nextEvent->taskName  << "\n"
+            <<expectedStart << "\t\t" << nextEventTime  << "\n"
+            <<expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration;
         addTime(nextEvent->maxDuration);
         addTime(additionalTime);
-        ASSERT_EQ(expectedEnd, millis());
+        ASSERT_EQ(expectedEnd, millis())
+            << "runAndCheckEvent failed:\n"
+            <<"Expected \t Actual\n"
+            <<expectedTaskName << "\t\t" << nextEvent->taskName  << "\n"
+            <<expectedStart << "\t\t" << nextEventTime  << "\n"
+            <<expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration;
+        appendExpectedFile(expectedTaskName, expectedStart,expectedEnd);
+        appendActualFile(nextEvent->taskName,nextEventTime,millis());
+        
+        
     }
 
     /**
      * @brief Run task and update time and check values
-     * 
+     *
      * This function checks the correct task is being run, and the start time
      * and end time is correct
-     * 
-     * 
+     *
+     *
      * @param expectedTaskName expected task name character
      * @param expectedStart time to check start time with
      * @param expectedEnd time to check end time with
@@ -111,16 +199,36 @@ protected:
                                     uint32_t expectedStart,
                                     uint32_t expectedEnd)
     {
-        ASSERT_EQ(expectedTaskName, nextEvent->taskName);
+        ASSERT_NE(nextEvent, nullptr) << "Scheduler returned nullptr.";
+        
+        
+        ASSERT_EQ(expectedTaskName, nextEvent->taskName)
+            << "runAndCheckEvent failed:\n"
+            <<"Expected \t Actual\n"
+            <<expectedTaskName << "\t\t" << nextEvent->taskName  << "\n"
+            <<expectedStart << "\t\t" << nextEventTime  << "\n"
+            <<expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration;
         setTime(nextEventTime);
-        ASSERT_EQ(expectedStart, nextEventTime);
+        ASSERT_EQ(expectedStart, nextEventTime)
+            << "runAndCheckEvent failed:\n"
+            <<"Expected \t Actual\n"
+            <<expectedTaskName << "\t\t" << nextEvent->taskName  << "\n"
+            <<expectedStart << "\t\t" << nextEventTime  << "\n"
+            <<expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration;
         addTime(nextEvent->maxDuration);
-        ASSERT_EQ(expectedEnd, millis());
+        ASSERT_EQ(expectedEnd, millis())
+            << "runAndCheckEvent failed:\n"
+            <<"Expected \t Actual\n"
+            <<expectedTaskName << "\t\t" << nextEvent->taskName  << "\n"
+            <<expectedStart << "\t\t" << nextEventTime  << "\n"
+            <<expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration;
+        appendExpectedFile(expectedTaskName, expectedStart,expectedEnd);
+        appendActualFile(nextEvent->taskName,nextEventTime,millis());
     }
 
     /**
      * @brief Runs the next event and updates clock
-     * 
+     *
      * @param ScheduleTable_t contains ensemble table
      * @param p_nextEvent  pointer to next event
      * @param p_nextTime pointer to next time to run
@@ -129,16 +237,104 @@ protected:
             DeploymentSchedule_t** p_nextEvent,
             system_tick_t* p_nextTime)
     {
+        
         SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+        ASSERT_NE(nextEvent, nullptr) << "Scheduler returned nullptr.";
+        if (nextEvent == nullptr) return;
         setTime(nextEventTime);
         addTime(nextEvent->maxDuration);
+        if(!useCompareLogs)
+        {
+            appendExpectedFile(nextEvent->taskName,nextEventTime,millis());
+            appendActualFile(nextEvent->taskName,nextEventTime,millis());
+        }
     }
 
+    void checkIdeal(uint32_t end)
+    {
+        useCompareLogs = true;
+        if (end > 10000)
+        {
+            end = 10000;
+        }
+        expected.emplace_back('A', 0, 400);
+        expected.emplace_back('B', 400, 600);
+        expected.emplace_back('C', 600, 1200);
 
+        expected.emplace_back('A', 2000, 2400);
+        expected.emplace_back('B', 2400, 2600);
+        expected.emplace_back('C', 2600, 3200);
+
+        expected.emplace_back('A', 4000, 4400);
+        expected.emplace_back('B', 4400, 4600);
+        expected.emplace_back('C', 4600, 5200);
+        
+        expected.emplace_back('A', 6000, 6400);
+        expected.emplace_back('B', 6400, 6600);
+        expected.emplace_back('C', 6600, 7200);
+
+        expected.emplace_back('A', 8000, 8400);
+        expected.emplace_back('B', 8400, 8600);
+        expected.emplace_back('C', 8600, 9200);
+
+        while (millis() > expected.front().start)
+        {
+            expected.erase(expected.begin());
+        }
+        while (millis() < end)
+        {
+            runNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+            if (nextEvent == nullptr) return;
+            actual.emplace_back(nextEvent->taskName, nextEventTime, millis());
+        }
+        compareLogs();
+    }
+    void compareLogs()
+    {
+        for (int i = 0; i < (expected.size() > actual.size() ?
+            actual.size() : expected.size()); i++)
+        {
+            appendExpectedFile(expected[i].name, expected[i].start,
+                                                expected[i].end);
+            appendActualFile(actual[i].name, actual[i].start,
+                                                actual[i].end);
+            EXPECT_TRUE(expected[i] == actual[i]) 
+                << "test log failed:\n"
+                <<"Expected \t Actual\n"
+                <<expected[i].name << "\t\t" << actual[i].name  << "\n"
+                <<expected[i].start << "\t\t" << actual[i].start  << "\n"
+                <<expected[i].end << "\t\t" << actual[i].end  ;
+        }
+    }
+    void singleEventStart()
+    {
+        schedule4();
+        //! ideal behaivor
+        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+        runAndCheckEvent('A', 0, 150);
+        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+        runAndCheckEvent('A', 200, 350);
+        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+        runAndCheckEvent('A', 400, 550);
+    }
+    void singleEventEndCheck()
+    {
+        schedule4();
+        //! ideal behaivor
+        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+        runAndCheckEvent('A', 0, 150);
+        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+        runAndCheckEvent('A', 200, 350);
+        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+        runAndCheckEvent('A', 400, 550);
+    }
 };
 
+
 /**
- * @brief Tests if all deployment schedules are properly initialized with
+ * @brief Tests initialization of deployment schedule
+ * 
+ * Tests if all deployment schedules are properly initialized with
  * non-null init functions and the system time is correctly reset to zero.
  */
 TEST_F(SchedulerTest, TestInitialization)
@@ -148,46 +344,184 @@ TEST_F(SchedulerTest, TestInitialization)
     ASSERT_NE(nullptr, deploymentSchedule[2].init);
     ASSERT_EQ(millis(), 0);
 }
+
+
+/**
+ * @brief Checks ideal behaivor for single task
+ */
+TEST_F(SchedulerTest, SingleEventIdeal)
+{
+    schedule4();
+    //! ideal behaivor
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 0, 150);
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 200, 350);
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 400, 550);
+}
+/** 
+ * @brief Boundary delay case for single event schedule
+ * 
+ * task end delayed to when second event is supposed to start, so schedule 
+ * unchanged
+ */
+TEST_F(SchedulerTest, SingleEvent_DelayToSecondStart)
+{
+    singleEventStart();
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEventWithDelay('A', 600, 800, 50);
+    //! last task ended at 800ms, should not impact next task
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 800, 950);
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 1000, 1150);
+    
+}
+/** 
+* @brief Seccond iteration starts late with enough time to run
+
+* task end delayed past when second event is supposed to start, but leaves
+* enough time to run before third task 
+*/
+TEST_F(SchedulerTest, SingleEvent_SecondDelayedNoImpact)
+{
+    singleEventStart();
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEventWithDelay('A', 600, 810, 60);
+    //! last task ended at 810 ms, this task should be run immediately
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 810, 960);
+    //! task not delayed, should run as normal
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 1000, 1150);
+
+
+}
+/** 
+* @brief Seccond iteration starts late with enough time to run 
+
+* task end delayed past when second event start, but leaves
+* enough time to run and end when third task starts
+*/
+TEST_F(SchedulerTest, SingleEvent_SecondEndAtThirdStart)
+{
+    singleEventStart();
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEventWithDelay('A', 600, 850, 100);
+    //! last task ended at 2050 ms, this task should be run immediately
+    //! as it will now end when the next task is supposed to start
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 850, 1000);
+    //! task not delayed, should run as normal
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 1000, 1150);
+    
+
+}
+/** 
+ * @brief Seccond iteration starts late without enough time to run 
+ * 
+* task end delayed past when second event is supposed to start, second
+* event would now overlap with third run time, so second event is skipped
+*/
+TEST_F(SchedulerTest, SingleEvent_SecondEndAfterThirdStart)
+{    
+    
+    singleEventStart();
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEventWithDelay('A', 600, 860, 110);
+    //! second event skipped running third task
+    //! task not delayed, should run as normal
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 1000, 1150);
+
+
+}
+
+/** 
+* @brief Seccond iteration ends when third iteration woas supposed to end time
+* task end delayed past when second event is supposed to start, second
+* event would now start when third run would start, 
+* so second event is skipped
+*/
+TEST_F(SchedulerTest, SingleEvent_ExactOverlap)
+{ 
+    singleEventStart();
+    uint32_t count = deploymentSchedule[0].measurementCount;
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEventWithDelay('A', 600, 1000, 250);
+    //! second event skipped running third task
+    //! task not delayed, should run as normal
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 1000, 1150);
+    //! check only two runs
+    ASSERT_EQ(deploymentSchedule[0].measurementCount - count, 2);
+
+
+}
+/** 
+ * @brief Seccond iteration ends after third iteration start time
+ * 
+* task end delayed past ends 50 ms after third task should run
+* second task skipped, third task still runs
+*/
+TEST_F(SchedulerTest, SingleEvent_DelayPastThirdStart)
+{ 
+    
+    singleEventStart();
+    uint32_t count = deploymentSchedule[0].measurementCount;
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEventWithDelay('A', 600, 1050 , 300);
+    //! second event skipped running third task
+    //! task not delayed, should run as normal
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 1050, 1200);
+    //! check only two runs
+    ASSERT_EQ(deploymentSchedule[0].measurementCount - count, 2);
+
+
+}
+/** 
+* task end delayed past ends 60 ms after third task should run
+* second task skipped, third task will be skipped as well
+*/
+TEST_F(SchedulerTest, SingleEvent_SkipSecondAndThird)
+{ 
+    
+    singleEventStart();
+    uint32_t count = deploymentSchedule[0].measurementCount;
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEventWithDelay('A', 600, 1060 , 310);
+    //! second event skipped running third task
+    //! task not delayed, should run as normal
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 1200, 1350);
+    //! check only two runs
+    ASSERT_EQ(deploymentSchedule[0].measurementCount - count, 2);
+}
+
+
 /**
  * @brief Checks that events with no delays are fetched and executed properly.
  *
- * This test  runs through expected behaivor with no delays and enough 
+ * This test  runs through expected behaivor with no delays and enough
  * time for all the functions to run by themselves in order.
- * 
- * Setup:
- * 
+ *
  */
 TEST_F(SchedulerTest, TestIdeal)
 {
-
-    for (int i = 0; i < 10; i++)
-    {
-        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-
-
-        ASSERT_EQ(nextEvent->taskName, deploymentSchedule[i % 3].taskName);
-        if (nextEvent != nullptr)
-        {
-            setTime(nextEventTime);
-            ASSERT_EQ((nextEventTime - nextEvent->ensembleDelay) %
-                                        nextEvent->ensembleInterval, 0);
-            addTime(nextEvent->maxDuration);
-        }
-    }
+    checkIdeal(8000);
 }
 
 /**
  * @brief First task starts with 200ms delay, next tasks run immediately after
  * and the future tasks are still run from their respective ensemble delays
+ * without changing those ensemble delays
  *
  */
-
 TEST_F(SchedulerTest, DelayRunImmediately)
 {
-
-    deploymentSchedule[0].ensembleDelay = 0;
-    deploymentSchedule[1].ensembleDelay = 500;
-    deploymentSchedule[2].ensembleDelay = 800;
 
     SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
     runAndCheckEventWithDelay('A', 0, 600, 200);
@@ -197,16 +531,12 @@ TEST_F(SchedulerTest, DelayRunImmediately)
 
     SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
     runAndCheckEvent('C', 800, 1400);
+    //! ensure ensemble delays unchanged
     ASSERT_EQ(deploymentSchedule[0].ensembleDelay, 0);
-    ASSERT_EQ(deploymentSchedule[1].ensembleDelay, 600);
-    ASSERT_EQ(deploymentSchedule[2].ensembleDelay, 800);
-    //verify no cascades
-    for (int i = 3; i < 10; i++)
-    {
-        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-        ASSERT_EQ(nextEvent->taskName, deploymentSchedule[i % 3].taskName);
-        setTime(nextEventTime + nextEvent->maxDuration);
-    }
+    ASSERT_EQ(deploymentSchedule[1].ensembleDelay, 0);
+    ASSERT_EQ(deploymentSchedule[2].ensembleDelay, 0);
+    
+    checkIdeal(10000);
 }
 
 /**
@@ -222,91 +552,68 @@ TEST_F(SchedulerTest, DelayRunDuringIdle)
     runNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
 
     SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-    runAndCheckEventWithDelay('C',600,2100,900);
-   
-
-
-    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-    runAndCheckEvent('B',2400,2600);
-
-    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);//C runs
-    setTime(nextEventTime);
-    addTime(nextEvent->maxDuration);
+    runAndCheckEventWithDelay('C', 600, 2100, 900);
 
 
 
     SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-    runAndCheckEvent('A', 3200, 3600);
-
+    runAndCheckEvent('A', 2100, 2500);
     SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-    ASSERT_EQ('A', nextEvent->taskName);
-    setTime(nextEventTime);
-    ASSERT_EQ(4000, nextEventTime);
+    runAndCheckEvent('B', 2500, 2700);
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('C', 2700, 3300);
 
-    for (int i = 1; i < 10; i++)
-    {
-        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-        ASSERT_EQ(nextEvent->taskName, deploymentSchedule[i % 3].taskName);
-        setTime(nextEventTime);
-        ASSERT_EQ((nextEventTime - nextEvent->ensembleDelay)
-            % nextEvent->ensembleInterval, 0);
-        addTime(nextEvent->maxDuration);
-    }
+    
+
+    checkIdeal(10000);
 }
 
 /**
- * @brief Task B runs 900ms longer. Because task C has not been run yet, 
- * its ensemble delay is pushed back and it is run after the second run of B.
- * 
+ * @brief Task B runs 900ms longer. Because task C has not been run yet,
+ *  it is run after the second run of B.
+ *
  */
 TEST_F(SchedulerTest, DelayAndSkip)
 {
 
-    deploymentSchedule[0].ensembleDelay = 0;
-    deploymentSchedule[1].ensembleDelay = 500;
-    deploymentSchedule[2].ensembleDelay = 800;
-
     runNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
     runNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-    addTime(900);       //delay
-
+    addTime(900); //delay
+    
+    ASSERT_TRUE(SCH_willOverlap(deploymentSchedule, 2, millis(), millis()));
     SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-    runAndCheckEvent('A',2000,2400);
-
-    ASSERT_TRUE(SCH_willOverlap(deploymentSchedule, 2, millis(), millis()
-        + 600, millis()));
-    runNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 2000, 2400);
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('B', 2400, 2600);
+    
+    
     SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);//C runs
-    ASSERT_EQ('C', nextEvent->taskName);
-    setTime(nextEventTime);
-    ASSERT_EQ(2600, nextEventTime);
-    addTime(nextEvent->maxDuration);
-    for (int i = 0; i < 10; i++)
-    {
-        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-        ASSERT_EQ(nextEvent->taskName, deploymentSchedule[i % 3].taskName);
-        setTime(nextEventTime);
-        ASSERT_EQ((nextEventTime - nextEvent->ensembleDelay)
-            % nextEvent->ensembleInterval, 0);
-        addTime(nextEvent->maxDuration);
-    }
+    runAndCheckEvent('C', 2600, 3200);
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 4000, 4400);
+
+    //! check for cascades
+    checkIdeal(10000);
+    
+   
 }
 
 
 /**
- * @brief Ensembles A, B, and C have intervals that dont allow all of 
- * them to be run every interval. C is supposed to run every 250 seconds but 
+ * @brief Ensembles A, B, and C have intervals that dont allow all of
+ * them to be run every interval. C is supposed to run every 250 seconds but
  * tasks A and B do not leave any idle time for it to run.
- * 
  */
 TEST_F(SchedulerTest, ScheduleTooTight)
 {
     schedule3();
-
-    std::vector<TestLog> actual, expected;
+    useCompareLogs = true;
+    
     while (millis() < 1500)
     {
         runNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+        ASSERT_NE(nextEvent, nullptr) << "Scheduler returned nullptr.";
+        if (nextEvent == nullptr) return;
         actual.emplace_back(nextEvent->taskName, nextEventTime, millis());
     }
     expected.emplace_back('A', 0, 200);
@@ -317,61 +624,140 @@ TEST_F(SchedulerTest, ScheduleTooTight)
     expected.emplace_back('B', 800, 900);
     expected.emplace_back('A', 1000, 1200);
     expected.emplace_back('B', 1200, 1300);
-    expected.emplace_back('B', 1300, 1400);
     expected.emplace_back('B', 1400, 1500);
-    for (int i = 0; i < (expected.size() > actual.size() ?
-        actual.size() : expected.size()); i++)
-    {
-        EXPECT_TRUE(expected[i] == actual[i]);
-    }
+    compareLogs();
 
+}
+
+
+
+
+
+
+/**
+ * @brief Testing back-to-back scheduling without overlap
+ *
+ * A  *********
+ * B            **********
+ * C                      **********
+ */
+TEST_F(SchedulerTest, BackToBackScheduling)
+{
+    
+
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 0;
+    deploymentSchedule[0].maxDuration = 500;
+    deploymentSchedule[0].ensembleInterval = 1500;
+
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].maxDuration = 500;
+    deploymentSchedule[1].ensembleInterval = 1500 ;
+
+    deploymentSchedule[2].ensembleInterval = 1500;
+    deploymentSchedule[2].maxDuration = 500;
+
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 0, 500);
+
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('B', 500, 1000);
+
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('C', 1000, 1500);
 }
 
 /**
- * @brief Ensembles A, B, and C have intervals that dont allow all of 
- * them to be run every interval. C is able to run very infrequently.
+ * @brief Testing idle periods where no tasks run
+ *
+ * A  *********
+ * B               **********
  * 
  */
-TEST_F(SchedulerTest, ScheduleVeryTight)
+TEST_F(SchedulerTest, IdlePeriod)
 {
-    schedule3();
-    deploymentSchedule[1].ensembleInterval = 300;
-    deploymentSchedule[2].maxDuration = 200;
+    schedule2();
 
-    std::vector<TestLog> actual, expected;
-    while (millis() < 2000)
-    {
-        runNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
-        actual.emplace_back(nextEvent->taskName, nextEventTime, millis());
-    }
-    expected.emplace_back('A', 0, 200);
-    expected.emplace_back('B', 200, 300);
-    expected.emplace_back('C', 300, 500);
-    expected.emplace_back('A', 500, 700);
-    expected.emplace_back('B', 700, 800);
-    expected.emplace_back('B', 800, 900);
-    expected.emplace_back('A', 1000, 1200);
-    expected.emplace_back('B', 1200, 1300);
-    expected.emplace_back('B', 1400, 1500);
-    expected.emplace_back('A', 1500, 1700);
-    expected.emplace_back('B', 1700, 1800);
-    expected.emplace_back('C', 1900, 2100);
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 0;
+    deploymentSchedule[0].maxDuration = 500;
+    deploymentSchedule[0].ensembleInterval = 2000;
 
-    for (int i = 0; i < (expected.size() > actual.size() 
-                    ? actual.size() : expected.size()); i++)
-    {
-        EXPECT_TRUE(expected[i] == actual[i]);
-    }
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 1000;
+    deploymentSchedule[1].maxDuration = 500;
+    deploymentSchedule[1].ensembleInterval = 2000;
 
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 0, 500);
+
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('B', 1000, 1500);
+
+    // Ensure that no event is scheduled during the idle period
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    ASSERT_EQ(nextEventTime, 2000);
 }
 
+/**
+ * @brief Testing when maximum durations span multiple intervals
+ *
+*/
+TEST_F(SchedulerTest, MaximumDurationSpan)
+{
+    schedule2();
+
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 0;
+    deploymentSchedule[0].maxDuration = 1500;
+    deploymentSchedule[0].ensembleInterval = 3000;
+
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 0;
+    deploymentSchedule[1].maxDuration = 100;
+    deploymentSchedule[1].ensembleInterval = 500;
+
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 0, 1500);
+
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('B', 1500, 1600);
+}
+
+
+/**
+ * @brief Testing tasks with large intervals and small durations
+ *
+ */
+TEST_F(SchedulerTest, LargeIntervalsSmallDurations)
+{
+    schedule2();
+
+    deploymentSchedule[0].deploymentStartTime = 0;
+    deploymentSchedule[0].ensembleDelay = 0;
+    deploymentSchedule[0].maxDuration = 100;
+    deploymentSchedule[0].ensembleInterval = 1000;
+
+    deploymentSchedule[1].deploymentStartTime = 0;
+    deploymentSchedule[1].ensembleDelay = 800;
+    deploymentSchedule[1].maxDuration = 100;
+    deploymentSchedule[1].ensembleInterval = 1000;
+
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 0, 100);
+
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    ASSERT_EQ(nextEventTime, 800);
+    runAndCheckEvent('B', 800, 900);
+}
 
 
 /**
  * @brief Testing no overlap with A before B
- * 
+ *
  * A   ***********
- * B                **********
+ * B                  **********
  */
 TEST_F(SchedulerTest, NoOverlapBefore)
 {
@@ -391,7 +777,7 @@ TEST_F(SchedulerTest, NoOverlapBefore)
     uint32_t start = deploymentSchedule[i].deploymentStartTime +
         deploymentSchedule[i].ensembleDelay;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, start);
     ASSERT_FALSE(overlap);
 }
 
@@ -399,31 +785,30 @@ TEST_F(SchedulerTest, NoOverlapBefore)
 
 /**
  * @brief Testing overlap with end of A and start of B
- * 
+ *
  * A   ***********
- * B           **********
+ * B          ***********
  */
 TEST_F(SchedulerTest, OverlapBefore)
 {
     schedule2();
 
     deploymentSchedule[0].deploymentStartTime = 0;
-    deploymentSchedule[0].ensembleDelay = 250;
+    deploymentSchedule[0].nextRunTime = 250;
     deploymentSchedule[0].maxDuration = 300;
     deploymentSchedule[0].ensembleInterval = 1000;
 
-    
+
     deploymentSchedule[1].deploymentStartTime = 0;
-    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].nextRunTime = 500;
     deploymentSchedule[1].maxDuration = 200;
     deploymentSchedule[1].ensembleInterval = 1000;
 
 
     int i = 1;
-    uint32_t start = deploymentSchedule[i].deploymentStartTime +
-        deploymentSchedule[i].ensembleDelay;
+    uint32_t start = deploymentSchedule[i].nextRunTime;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, start);
     ASSERT_TRUE(overlap);
 }
 
@@ -434,7 +819,7 @@ B                 **********
 */
 /**
  * @brief Testing no overlap with A after B
- * 
+ *
  */
 TEST_F(SchedulerTest, NoOverlapAfter)
 {
@@ -454,13 +839,13 @@ TEST_F(SchedulerTest, NoOverlapAfter)
     uint32_t start = deploymentSchedule[i].deploymentStartTime +
         deploymentSchedule[i].ensembleDelay;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, start);
     ASSERT_FALSE(overlap);
 }
 
 /**
  * @brief Testing overlap with end of B and start of A
- * 
+ *
  * A                   ***********
  * B           **********
  */
@@ -469,61 +854,59 @@ TEST_F(SchedulerTest, OverlapAfter)
     schedule2();
 
     deploymentSchedule[0].deploymentStartTime = 0;
-    deploymentSchedule[0].ensembleDelay = 650;
+    deploymentSchedule[0].nextRunTime = 650;
     deploymentSchedule[0].maxDuration = 300;
     deploymentSchedule[0].ensembleInterval = 1000;
 
-    
+
     deploymentSchedule[1].deploymentStartTime = 0;
-    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].nextRunTime = 500;
     deploymentSchedule[1].maxDuration = 200;
     deploymentSchedule[1].ensembleInterval = 1000;
 
 
     int i = 1;
-    uint32_t start = deploymentSchedule[i].deploymentStartTime +
-        deploymentSchedule[i].ensembleDelay;
+    uint32_t start = deploymentSchedule[i].nextRunTime;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, start);
     ASSERT_TRUE(overlap);
 }
 
 
 /**
  * @brief Testing for overlap when B starts after A starts and before A ends
- * 
+ *
  * A           *****************
  * B              **********
- * 
+ *
  */
 TEST_F(SchedulerTest, InsideOverlap)
 {
     schedule2();
 
     deploymentSchedule[0].deploymentStartTime = 0;
-    deploymentSchedule[0].ensembleDelay = 0;
+    deploymentSchedule[0].nextRunTime = 0;
     deploymentSchedule[0].maxDuration = 800;
     deploymentSchedule[0].ensembleInterval = 1000;
 
-    
+
     deploymentSchedule[1].deploymentStartTime = 0;
-    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].nextRunTime = 500;
     deploymentSchedule[1].maxDuration = 200;
     deploymentSchedule[1].ensembleInterval = 1000;
 
 
     int i = 1;
-    uint32_t start = deploymentSchedule[i].deploymentStartTime +
-        deploymentSchedule[i].ensembleDelay;
+    uint32_t start = deploymentSchedule[i].nextRunTime;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, start);
     ASSERT_TRUE(overlap);
 }
 
 
 /**
  * @brief Testing no overlap edge case when B starts as A ends
- * 
+ *
  * A  *********
  * B           **********
  */
@@ -532,28 +915,27 @@ TEST_F(SchedulerTest, Boundary1)
     schedule2();
 
     deploymentSchedule[0].deploymentStartTime = 0;
-    deploymentSchedule[0].ensembleDelay = 0;
+    deploymentSchedule[0].nextRunTime = 0;
     deploymentSchedule[0].maxDuration = 500;
     deploymentSchedule[0].ensembleInterval = 1000;
 
     deploymentSchedule[1].deploymentStartTime = 0;
-    deploymentSchedule[1].ensembleDelay = 500;
+    deploymentSchedule[1].nextRunTime = 500;
     deploymentSchedule[1].maxDuration = 200;
     deploymentSchedule[1].ensembleInterval = 1000;
 
 
     int i = 1;
-    uint32_t start = deploymentSchedule[i].deploymentStartTime +
-        deploymentSchedule[i].ensembleDelay;
+    uint32_t start = deploymentSchedule[i].nextRunTime;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, start);
     ASSERT_FALSE(overlap);
 }
 
 
 /**
  * @brief Testing no overlap edge case when A starts as B ends
- * 
+ *
  * A                     *********
  * B           **********
  */
@@ -566,7 +948,7 @@ TEST_F(SchedulerTest, Boundary2)
     deploymentSchedule[0].maxDuration = 300;
     deploymentSchedule[0].ensembleInterval = 1000;
 
-    
+
     deploymentSchedule[1].deploymentStartTime = 0;
     deploymentSchedule[1].ensembleDelay = 500;
     deploymentSchedule[1].maxDuration = 200;
@@ -577,6 +959,10 @@ TEST_F(SchedulerTest, Boundary2)
     uint32_t start = deploymentSchedule[i].deploymentStartTime +
         deploymentSchedule[i].ensembleDelay;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, end, start);
+    bool overlap = SCH_willOverlap(deploymentSchedule, i, 0, start);
     ASSERT_FALSE(overlap);
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('B', 500, 700);
+    SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+    runAndCheckEvent('A', 700, 1000);
 }
