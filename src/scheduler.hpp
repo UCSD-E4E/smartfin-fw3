@@ -72,6 +72,7 @@ struct DeploymentSchedule_
     void* pData;               //!< Buffer to store measurements temporarily
     uint32_t maxDuration;       //!< store max running time of measurement
     char taskName;  //!< task name of ensemble
+    uint32_t nextRunTime;
 };
 /**
  * @brief Initializes ensemble variables
@@ -92,8 +93,9 @@ void SCH_initializeSchedule(DeploymentSchedule_t* scheduleTable,
  * Handles all the scheduler logic, focusing on maininting task intervals with 
  * respect to the initial measurement. See expected behaivor in 
  * @ref tests/gtests.cpp
+ * @return outcome enum from
  */
-int SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
+uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             DeploymentSchedule_t** p_nextEvent,
             system_tick_t* p_nextTime);
 
@@ -107,12 +109,10 @@ int SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
  * @param scheduleTable The table containing all scheduled tasks.
  * @param idx The index of the current task in the schedule table.
  * @param currentTime The current system time.
- * @param proposedEndTime The proposed end time of the current task.
  * @param nextStartTime The proposed start time of the current task.
  * @return True if there is an overlap with another task; false otherwise.
  */
 bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i,
-                    system_tick_t currentTime, uint32_t proposedEndTime,
-                    uint32_t nextStartTime);
+                    system_tick_t currentTime, uint32_t nextStartTime);
 #endif //__SCHEDULER__HPP_
 
