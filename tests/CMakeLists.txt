@@ -4,10 +4,20 @@ project(TestScheduler)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+if(NOT DEFINED SCRIPT_BUILD)
+    set(SCRIPT_BUILD OFF CACHE BOOL "Build from script" FORCE)
+endif()
+
+
 add_compile_definitions(TEST_VERSION=1 GTESTING=1)
 
+if(SCRIPT_BUILD)
+    add_compile_definitions(SCRIPT_BUILD=1)
+endif()
+
 add_subdirectory(../external/googletest ./binary_dir)
-include_directories(../external/googletest/include  ../src/ ../src/cli/ ../tests)
+include_directories(../external/googletest/include ../src/ ../src/cli/ ../tests)
 
 set(GTEST_SOURCE_FILES
     scheduler_test_system.cpp

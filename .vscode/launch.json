@@ -88,10 +88,10 @@
         {
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/tests/build/googletests.o",
+            "program": "${workspaceRoot}/tests/build/googletests",
             "name": "Google Tests Debugger",
             "cwd": "${workspaceRoot}",
-            "preLaunchTask": "Compile Google Tests"
+            "preLaunchTask": "Compile Google Tests From Script"
         }
     ]
 }

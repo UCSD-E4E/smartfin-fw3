@@ -1,0 +1,328 @@
+#!/usr/bin/env bash 
+
+
+compute_hash() {
+    local file=$1
+    if command -v md5sum > /dev/null; then
+        md5sum "$file" | awk '{ print $1 }'
+    elif command -v md5 > /dev/null; then
+        md5 -q "$file"
+    else
+        echo "Error: No MD5 hash command found" >&2
+        exit 1
+    fi
+}
+
+
+
+# Parse command-line options
+no_graphs=false
+list_tests=false
+output_dirs=false
+run_tests=false
+compile_only=false
+debug_compile=false
+use_clang=false
+TO_RUN=()
+
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        -n|--no-graphs)
+            no_graphs=true
+            ;;
+        -l|--list-tests)
+            list_tests=true
+            ;;
+        -d|--output-dirs)
+            output_dirs=true
+            ;;
+        -b|--build-only)
+            compile_only=true
+            ;;
+        
+        -c|--clang)
+            use_clang=true
+            ;;
+        --debug)
+            debug_compile=true
+            ;;  
+        -t|--run-tests)
+            run_tests=true
+            shift # Move to the next parameter which should be the list of tests
+            while [[ "$#" -gt 0 && ! "$1" =~ ^- ]]; do
+                TO_RUN+=("$1") # Add test to the list
+                shift # Move to the next test
+            done
+            continue
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+    shift # Move to the next parameter
+done
+
+DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+TEST_FILE="$DIR/gtest.cpp"
+OUTPUTS_DIR="$DIR/outputs/googletests"
+VARS_DIR="$DIR/build/vars"
+EXECUTABLE_FILE="$DIR/build/googletests"
+MAKEFILE="$DIR/build/Makefile"
+rm -rf "$OUTPUTS_DIR"
+mkdir -p "$OUTPUTS_DIR"
+mkdir -p "$VARS_DIR"
+touch "$MAKEFILE"
+
+CMAKE_OPTS=()
+CLANG_OPTS=( "-DCMAKE_C_COMPILER=clang" "-DCMAKE_CXX_COMPILER=clang++" )
+DEBUG_OPTS=( "-DCMAKE_BUILD_TYPE=Debug" )
+LAST_MODE_FILE="$VARS_DIR/last_mode.txt"
+LAST_FILE_HASH="$VARS_DIR/last_file_hash.txt"
+LAST_FILE_EXE_HASH="$VARS_DIR/last_executable_hash.txt"
+LAST_MAKEFILE_HASH_FILE="$VARS_DIR/last_makefile_hash.txt"
+LAST_DEBUG_MODE_HASH_FILE="$VARS_DIR/last_debug_mode_hash.txt"
+LAST_COMPILER_HASH_FILE="$VARS_DIR/last_compiler_hash.txt"
+
+#SET MODE
+if [[ $no_graphs == true ]]; then
+    MODE="NOGRAPH"
+else
+    MODE="GRAPH"
+fi
+
+DIFFERENT_MODE=false
+#check if graph output mode is different
+if [[ -f "$LAST_MODE_FILE" ]]; then
+    LAST_MODE=$(cat "$LAST_MODE_FILE")
+    if [[ "$LAST_MODE" != "$MODE" ]]; then
+       DIFFERENT_MODE=true
+    fi
+fi
+#get debugging mode from command line args
+CURRENT_DEBUG_MODE="OFF"
+if [ $debug_compile == true ]; then
+    CMAKE_OPTS+=" ${DEBUG_OPTS[@]} "
+    CURRENT_DEBUG_MODE="ON"
+fi
+#check if debugging mode is different
+if [[ -f "$LAST_DEBUG_MODE_HASH_FILE" ]]; then
+    LAST_DEBUG_MODE=$(cat "$LAST_DEBUG_MODE_HASH_FILE")
+    if [[ "$LAST_DEBUG_MODE" != "$CURRENT_DEBUG_MODE" ]]; then
+        DIFFERENT_MODE=true
+    fi
+fi
+
+echo "${CMAKE_OPTS[@]}"
+#get compiler type from command line args
+CURRENT_COMPILER="GCC"
+if [ $use_clang == true ]; then
+    CMAKE_OPTS+=" ${CLANG_OPTS[@]} "
+    CURRENT_COMPILER="CLANG"
+fi
+#check if compiler is different
+if [[ -f "$LAST_COMPILER_HASH_FILE" ]]; then
+    LAST_COMPILER=$(cat "$LAST_COMPILER_HASH_FILE")
+    if [[ "$LAST_COMPILER" != "$CURRENT_COMPILER" ]]; then
+        DIFFERENT_MODE=true
+    fi
+fi
+
+echo "${CMAKE_OPTS[@]}"
+
+#check if MakeFile made by cmake has changed
+MAKEFILE_CHANGED=true
+if [[ -f $LAST_FILE_HASH ]]; then
+    LAST_MAKEFILE_HASH=$(cat $LAST_MAKEFILE_HASH_FILE)
+    CURRENT_MAKEFILE_HASH=$(compute_hash "$MAKEFILE")
+    if [[ "$LAST_MAKEFILE_HASH" == "$CURRENT_MAKEFILE_HASH" ]]; then
+        MAKEFILE_CHANGED=false
+    fi
+else
+    CURRENT_MAKEFILE_HASH=$(compute_hash "$MAKEFILE")
+fi
+#check if gtest.cpp file has changed
+FILE_CHANGED=true
+if [[ -f $LAST_FILE_HASH ]]; then
+    LAST_HASH=$(cat $LAST_FILE_HASH)
+    CURRENT_HASH=$(compute_hash "$TEST_FILE")
+    if [[ "$LAST_HASH" == "$CURRENT_HASH" ]]; then
+        FILE_CHANGED=false
+    fi
+else
+    CURRENT_HASH=$(compute_hash "$TEST_FILE")
+fi
+
+#check if executable file has changed
+EXE_CHANGED=true
+if [[ -f $LAST_FILE_EXE_HASH ]]; then
+    LAST_EXE_HASH=$(cat $LAST_FILE_EXE_HASH)
+    CURRENT_EXE_HASH=$(compute_hash "$EXECUTABLE_FILE")
+    if [[ "$LAST_EXE_HASH" == "$CURRENT_EXE_HASH" ]]; then
+        EXE_CHANGED=false
+    fi
+else
+    CURRENT_EXE_HASH=$(compute_hash "$EXECUTABLE_FILE")
+fi
+
+RUN_CMAKE=false
+if [[ $DIFFERENT_MODE == true || $MAKEFILE_CHANGED == true ]]; then
+    RUN_CMAKE=true
+fi
+
+RUN_MAKE=false
+if [[ $FILE_CHANGED == true || $EXE_CHANGED == true ]]; then
+    RUN_MAKE=true
+fi
+
+
+echo $MODE > "$LAST_MODE_FILE"
+echo "$CURRENT_HASH" > "$LAST_FILE_HASH"
+echo "$CURRENT_DEBUG_MODE" >  "$LAST_DEBUG_MODE_HASH_FILE"
+echo "$CURRENT_COMPILER" > "$LAST_COMPILER_HASH_FILE"
+
+
+#echo "$LAST_DEBUG_MODE"
+#echo "$CURRENT_DEBUG_MODE"
+#echo "$LAST_COMPILER"
+#echo "$CURRENT_COMPILER"
+#echo "LAST_MODE=\"$LAST_MODE\"" 
+#echo "MODE=\"$MODE\"" 
+echo "DIFFERENT_MODE=\"$DIFFERENT_MODE\"" 
+#echo ""
+#echo "LAST_HASH=\"$LAST_HASH\"" 
+#echo "CURRENT_HASH=\"$CURRENT_HASH\"" 
+echo "FILE_CHANGED=\"$FILE_CHANGED\"" 
+echo ""
+echo "LAST_MAKEFILE_HASH=\"$LAST_MAKEFILE_HASH\"" 
+echo "CURRENT_MAKEFILE_HASH=\"$CURRENT_MAKEFILE_HASH\"" 
+echo "MAKEFILE_CHANGED=\"$MAKEFILE_CHANGED\"" 
+
+#echo "RUN_CMAKE=\"$RUN_CMAKE\"" 
+#echo "RUN_MAKE=\"$RUN_MAKE\"" 
+
+TESTS=()
+if [[ $run_tests == true ]]; then
+    TESTS=("${TO_RUN[@]}")
+else
+    while read; do
+        TESTS+=( "$REPLY" )
+    done < <(grep -E '\s*TEST_F\s*\(SchedulerTest\s*,\s*' "$TEST_FILE")
+fi
+
+NUM_TESTS=${#TESTS[@]}
+TEST_DIRS=()
+for (( i=0; i<$NUM_TESTS; i++ ));
+do
+    
+  TEST_VAL=${TESTS[$i]}
+  TEST_VAL=$(sed 's/.*,\s*//g' <<<"$TEST_VAL")
+  TEST_VAL=$(sed 's/\s*)\s*//g' <<<"$TEST_VAL")
+  TEST_VAL=$(awk '{$1=$1};1' <<<"$TEST_VAL")
+  TEST_DIR="${OUTPUTS_DIR}/${TEST_VAL}"
+  
+  TEST_DIRS+=($TEST_DIR)
+  if [[ $output_dirs == true || $no_graphs == false ]]; then
+    mkdir -p "${TEST_DIR}" 
+    
+    
+  fi
+done
+
+
+if [[ $list_tests == true ]]; then
+    for (( i=0; i<$NUM_TESTS; i++ )); do 
+        echo "${NUM_TESTS} tests"
+        echo "$(basename ${TEST_DIRS[$i]})"
+    done
+    exit 
+fi
+
+mkdir -p "$DIR/build"
+cd "$DIR/build"
+
+
+if [[ $RUN_CMAKE == true ]]; then
+    echo "running cmake"
+    if [[ $no_graphs == true ]]; then
+        cmake -U SCRIPT_BUILD . 1> /dev/null
+        cmake "${CMAKE_OPTS[@]}" .. 
+        if [ $? -ne 0 ]; then
+            echo "cmake failed"
+            cd "${DIR}/build"
+            exit 1
+        fi
+        echo "cmake ${CMAKE_OPTS[@]} .. "
+        pwd
+    else
+        cmake -DSCRIPT_BUILD=ON  "${CMAKE_OPTS[@]}" ..
+        if [ $? -ne 0 ]; then
+            echo "cmake failed"
+            cd "${DIR}/build"
+            cmake -U SCRIPT_BUILD . 1> /dev/null
+            exit 1
+        fi
+        
+    fi
+fi
+
+
+if [[ $RUN_MAKE == true || $RUN_CMAKE == true ]]; then
+    echo "Running make"
+    make
+    if [ $? -ne 0 ]; then
+        echo "make failed"
+        cd "${DIR}/build"
+        cmake -U SCRIPT_BUILD . 1> /dev/null
+        exit 1;
+    fi
+    
+fi
+CURRENT_MAKEFILE_HASH=$(compute_hash "$MAKEFILE")
+echo "$CURRENT_MAKEFILE_HASH" > "$LAST_MAKEFILE_HASH_FILE"
+echo "$CURRENT_EXE_HASH" > "$LAST_FILE_EXE_HASH"
+
+cp  "$MAKEFILE" "${MAKEFILE}.tmp"
+cmake -U SCRIPT_BUILD . 1> /dev/null
+mv "${MAKEFILE}.tmp" "$MAKEFILE"
+
+if [[ $compile_only == true ]]; then
+    exit 0
+fi
+
+cd "$DIR"
+if [[ $run_tests == true ]]; then
+    PREFIXED=("${TO_RUN[@]/#/SchedulerTest.}")
+    DELIMED=$(IFS=: ; echo "${PREFIXED[*]}")
+    "$EXECUTABLE_FILE" --gtest_filter="$DELIMED"
+else 
+    "$EXECUTABLE_FILE"
+fi
+#echo $run_tests
+#echo $no_graphs
+#echo $RUN_CMAKE
+#exit
+#python setup
+
+
+#create graphs
+if [[ $no_graphs == false ]]; then
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt 1> /dev/null
+    for (( i=0; i<$NUM_TESTS; i++ ));
+    do
+        #echo ${TEST_DIRS[$i]}
+        if [ -s "${TEST_DIRS[$i]}/expected.txt" ]; then
+            printf "\rCreating graphs: "
+            python3 scheduler_proccessor.py "${TEST_DIRS[$i]}" 1> /dev/null
+            printf "%f%%" $(bc <<< "scale=2; $i/${NUM_TESTS} * 100")
+        else
+            rm -rf ${TEST_DIRS[$i]}
+        fi
+        
+    done
+
+    
+    printf "\rCreating graphs: 100.\n"
+fi

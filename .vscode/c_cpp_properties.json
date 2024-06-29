@@ -15,7 +15,7 @@
             "compilerPath": "~\\.particle\\toolchains\\gcc-arm\\10.2.1\\bin\\arm-none-eabi-gcc.exe",
             "intelliSenseMode": "windows-gcc-arm",
             "cStandard": "c11",
-            "cppStandard": "c++11",
+            "cppStandard": "c++14",
             "configurationProvider": "particle.particle-vscode-core",
             "mergeConfigurations": true,
             "browse": {
@@ -37,30 +37,26 @@
         },
         {
             "name": "Particle_nix",
-            "includePath": 
-            [
+            "includePath": [
                 "${workspaceFolder}/src",
                 "~/.particle/toolchains/deviceOS/5.3.0/user/inc",
-                "/usr/include/"
-
+                "/usr/include/",
+                "/usr/include/x86_64-linux-gnu/bits"
             ],
-            "defines": 
-            [
+            "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
             "compilerPath": "/usr/bin/gcc",
-            "intelliSenseMode": "linux-gcc-arm",
-            "cStandard": "c14",
+            "intelliSenseMode": "linux-gcc-x64",
+            "cStandard": "c11",
             "cppStandard": "c++14",
             "configurationProvider": "particle.particle-vscode-core",
             "mergeConfigurations": true,
-            "browse": 
-            {
+            "browse": {
                 "limitSymbolsToIncludedHeaders": true,
-                "path": 
-                [
+                "path": [
                     "${default}",
                     "~/.particle/toolchains/deviceOS/5.3.0/user/inc",
                     "~/.particle/toolchains/deviceOS/5.3.0/hal/inc",
@@ -71,7 +67,8 @@
                     "~/.particle/toolchains/deviceOS/5.3.0/system",
                     "~/.particle/toolchains/deviceOS/5.3.0/wiring",
                     "~/.particle/toolchains/deviceOS/5.3.0/third_party/nrf5_sdk/nrf5_sdk/modules/nrfx/mdk",
-                    "${workspaceFolder}/src"
+                    "${workspaceFolder}/src",
+                    "/usr/include/x86_64-linux-gnu/bits"
                 ]
             },
             "compilerArgs": []
