@@ -5,7 +5,7 @@ The folder `tests` contains tests monatomic tests for the scheduler in the
 
 # File Descriptions
 ## `tests/run_gtests` 
-This should be used to run all test cases. This Bash script automates the build and testing process for the smartfin project using Google Test. It provides a command-line interface for managing compilation, testing, and graphical outputs.
+This should be used to run all test cases. This Bash script automates the build and testing process for the smartfin project using Google Test. It provides a command-line interface for managing compilation, testing, and graphical outputs in `tests/outputs/`.
 
 ## Features
 
