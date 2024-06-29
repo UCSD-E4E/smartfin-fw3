@@ -43,23 +43,24 @@ void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
 
 
 /**
- * @brief Retrieves the next scheduled event 
- * 
- * This function iterates through a schedule table to find the event that 
+ * @brief Retrieves the next scheduled event
+ *
+ * This function iterates through a schedule table to find the event that
  * should run next based on the current system time.
- * It ensures that no overlapping events are scheduled by checking with 
+ * It ensures that no overlapping events are scheduled by checking with
  * @ref SCH_willOverlap().
- * 
+ *
  * @see tests/gtest.cpp for intended behavior
- * 
- * @param scheduleTable Pointer to the first element of an array of 
+ *
+ * @param scheduleTable Pointer to the first element of an array of
  * DeploymentSchedule_t, which contains the scheduling information.
- * @param p_nextEvent Pointer to a pointer where the next event to be executed 
+ * @param p_nextEvent Pointer to a pointer where the next event to be executed
  * will be stored.
- * @param p_nextTime Pointer to where the time for the next event will 
+ * @param p_nextTime Pointer to where the time for the next event will
  * be stored.
- * 
- * @return Returns SUCCESS if a suitable event is found, TASK_SEARCH_FAIL otherwise.
+ *
+ * @return Returns SUCCESS if a suitable event is found,
+ * TASK_SEARCH_FAIL otherwise.
  */
 
 uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
@@ -75,13 +76,14 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     for (int idx = 0; scheduleTable[idx].measure; ++idx)
     {
         //! Reference to current event in the schedule
-        DeploymentSchedule_t& currentEvent = scheduleTable[idx]; 
+        DeploymentSchedule_t& currentEvent = scheduleTable[idx];
         //! Reset the next run time for the current event
         currentEvent.nextRunTime = UINT32_MAX;
         //! Variable to store the calculated start time of the next event.
-        uint32_t nextStartTime; 
+        uint32_t nextStartTime;
         //! Calculate first start time after delay.
-        uint32_t firstStartTime = currentEvent.deploymentStartTime + currentEvent.ensembleDelay; 
+        uint32_t firstStartTime = currentEvent.deploymentStartTime +
+            currentEvent.ensembleDelay;
 
         //! check if first event
         if (currentTime <= firstStartTime)
@@ -103,15 +105,15 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             currentEvent.ensembleInterval;
         uint32_t nextInterval = lastInterval + currentEvent.ensembleInterval;
 
-        
+
 
 
 
         //! check if measurement is late
-        if ((currentEvent.lastMeasurementTime < lastInterval) || 
-            ((currentEvent.lastMeasurementTime == firstStartTime) && 
-            (firstStartTime < currentTime) && 
-            (currentEvent.measurementCount == 0)))
+        if ((currentEvent.lastMeasurementTime < lastInterval) ||
+            ((currentEvent.lastMeasurementTime == firstStartTime) &&
+                (firstStartTime < currentTime) &&
+                (currentEvent.measurementCount == 0)))
         {
 
             if (currentTime + currentEvent.maxDuration > nextInterval)
@@ -131,7 +133,7 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
         if (!SCH_willOverlap(scheduleTable, idx, currentTime, nextStartTime))
         {
             currentEvent.nextRunTime = nextStartTime;
-            if (nextStartTime < minNextTime )
+            if (nextStartTime < minNextTime)
             {
                 nextEvent = &currentEvent;
                 minNextTime = nextStartTime;
@@ -148,8 +150,8 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     }
     else
     {
-        
-        
+
+
         //! Sets ensemble variable lastMeasurementTime to next time it will run
         nextEvent->lastMeasurementTime = minNextTime;
         //! Incraments ensemble variable lastMeasurementTime measurementCount

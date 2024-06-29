@@ -65,7 +65,7 @@ struct DeploymentSchedule_
     uint32_t ensembleInterval;              //!< time between ensembles
 
     // State information
-    uint32_t nMeasurements;         //!< Total number of measurements to execute
+    uint32_t nMeasurements;     //!< Total number of measurements to execute
     uint32_t lastMeasurementTime;   //!< last time measurement was scheduled
     uint32_t deploymentStartTime;   //!< when schedule was initialized
     uint32_t measurementCount;      //!< how many times ensemble was scheduled
