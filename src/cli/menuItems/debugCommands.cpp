@@ -203,7 +203,7 @@ void CLI_monitorIMU(void)
 
 
    setupICM();
-   SF_OSAL_printf(__NL__ "    ax    \t    ay    \t   az   \t    mx    \t    my    \t    mz    \t    gx    \t    gy    \t    gz" __NL__);
+   SF_OSAL_printf(__NL__ "    ax    \t    ay    \t   az   \t    gx    \t    gy    \t    gz    \t    mx    \t    my    \t    mz" __NL__);
    while(1)
    {
        if(kbhit())
