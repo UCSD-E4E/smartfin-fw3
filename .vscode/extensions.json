@@ -2,6 +2,7 @@
     "recommendations": [
         "ms-vscode.cpptools",
         "particle.particle-vscode-core",
-        "cschlosser.doxdocgen"
+        "cschlosser.doxdocgen",
+        "jebbs.plantuml"
     ]
 }
