@@ -16,21 +16,21 @@ if(SCRIPT_BUILD)
     add_compile_definitions(SCRIPT_BUILD=1)
 endif()
 
-add_subdirectory(../external/googletest ./binary_dir)
-include_directories(../external/googletest/include ../src/ ../src/cli/ ../tests)
+add_subdirectory(external/googletest tests/binary_dir)
+include_directories(external/googletest/include src/ src/cli/ tests)
 
 set(GTEST_SOURCE_FILES
-    scheduler_test_system.cpp
-    test_ensembles.cpp
-    ../src/scheduler.cpp
-    gtest.cpp)
+    tests/scheduler_test_system.cpp
+    tests/test_ensembles.cpp
+    src/scheduler.cpp
+    tests/gtest.cpp)
 
 set(TEST_SOURCE_FILES
-    scheduler_test_system.cpp
-    test_ensembles.cpp
-    ../src/scheduler.cpp
-    ../src/ensembles.cpp
-    scheduler_test.cpp
+    tests/scheduler_test_system.cpp
+    tests/test_ensembles.cpp
+    src/scheduler.cpp
+    src/ensembles.cpp
+    tests/scheduler_test.cpp
 )
 
 add_executable(googletests ${GTEST_SOURCE_FILES})
