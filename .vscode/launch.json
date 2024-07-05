@@ -90,7 +90,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/tests/build/googletests",
             "name": "Google Tests Debugger",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceRoot}/tests",
             "preLaunchTask": "Compile Google Tests From Script"
         }
     ]
