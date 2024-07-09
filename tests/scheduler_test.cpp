@@ -67,7 +67,8 @@ int main(int argc, char* argv[])
 
     while (counter < cycles)
     {
-        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime);
+        SCH_getNextEvent(deploymentSchedule, &nextEvent, &nextEventTime, 
+                                                            millis());
         if (nextEvent != nullptr)
         {
 

@@ -97,7 +97,8 @@ void SCH_initializeSchedule(DeploymentSchedule_t* scheduleTable,
  */
 uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             DeploymentSchedule_t** p_nextEvent,
-            system_tick_t* p_nextTime);
+            system_tick_t* p_nextTime,
+            system_tick_t currentTime);
 
 /**
  * @brief Determines if a task will overlap with other scheduled tasks.

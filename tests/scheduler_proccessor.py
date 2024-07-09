@@ -7,40 +7,48 @@ import os
 import sys
 import os.path
 import cv2
+import json
+from pathlib import Path
 
+def comparelogs():
+    actual_json, expected_json = parse_logs()
 
-def comparelogs(dir):
-    expected_file = open(str(dir) + "/expected.txt", "r")
-    actual_file = open(str(dir) + "/actual.txt", "r")
-    expected = expected_file.readlines()
-    actual = actual_file.readlines()
-    same = False
-    if len(expected) == len(actual):
-        same = True
-        for i in range(len(expected)):
-            if expected[i] != actual[i]:
-                same = False
-                break
-    if same:
-        tasks = parse_logs(str(dir) + "/expected.txt")
-        plot_gantt(tasks, "out", dir)
-    else:
-        
-        expected_tasks, max1 = parse_logs(str(dir) + "/expected.txt",True)
-        
-        actual_tasks, max2 = parse_logs(str(dir) + "/actual.txt",True)
-        max_duration = max(max1, max2)
-        tasks_len = max(len(actual_tasks),len(expected_tasks))
-        print(max1,max2,max_duration)
-        
-        plot_gantt(expected_tasks, "expected", dir, max_duration,tasks_len)
-        plot_gantt(actual_tasks, "actual", dir, max_duration,tasks_len)
-        img1 = cv2.imread(str(dir) + "/expected.png")
-        img2 = cv2.imread(str(dir) + "/actual.png")
-        print(img1.shape[:2])
-        print(img2.shape[:2])
-        im_v = cv2.vconcat([img1, img2]) 
-        cv2.imwrite(str(dir) + '/out.jpg', im_v)
+    for k in expected_json.keys():
+        expected = expected_json[k]
+        actual = actual_json[k]
+        same = False
+        if actual == expected:
+            same = True
+        dir = "outputs/" + str(k) + "/"
+        if len(expected) > 0:
+            Path(dir).mkdir(parents=True, exist_ok=True)
+            
+            if same:
+                if len(expected) > 0:
+                    plot_gantt(expected, "out", dir)
+            else:
+            
+                max_end = 0
+                for v in expected:
+                    if v.end_time > max_end:
+                        max_end = v.end_time
+                for v in actual:
+                    if v.end_time > max_end:
+                        max_end = v.end_time
+                tasks_len = max(len(actual), len(expected))
+                
+                
+                
+                plot_gantt(expected, "expected", dir, max_end, tasks_len)
+                
+                plot_gantt(actual, "actual", dir, max_end, tasks_len)
+                
+                img1 = cv2.imread(str(dir) + "/expected.png")
+                img2 = cv2.imread(str(dir) + "/actual.png")
+                print(img1.shape[:2])
+                print(img2.shape[:2])
+                im_v = cv2.vconcat([img1, img2]) 
+                cv2.imwrite(str(dir) + '/out.jpg', im_v)
 
 
 
@@ -83,50 +91,55 @@ def plot_gantt(tasks, title, dir='/outputs/', max_duration=0,tasks_len=0):
     ax.grid(True)
 
     plt.subplots_adjust(bottom=0.15)
-    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), \
-                               dir, title + ".png")
+    output_path = os.path.join(dir, title + ".png")
+    
+
     plt.savefig(output_path)
-    print(f"Plot saved to {output_path}")
+    plt.close()
+    
+   
 
 
-def parse_logs(filename,return_max=False):
+def parse_logs(return_max=False):
     tasks = []
-    deployment_start_time = 0
-    max_end_time = 0
-    with open(filename, 'r') as file:
-        for line in file:
-            first_line_match = re.search(r'Deployment started at (\d+)', line)
-            if first_line_match:
-                deployment_start_time = int(first_line_match.group(1))
-            match = re.search(r'(\w+)\|(\d+)\|(\d+)', line)
-            if match:
-                label = match.group(1)
-                start_time = int(match.group(2)) - deployment_start_time
-                end_time = int(match.group(3)) - deployment_start_time
+    
+    with open('expected.log') as f:
+        expected_json = json.load(f)
+    with open('actual.log') as f:
+        actual_json = json.load(f)
 
-                duration = end_time - start_time
-                tasks.append({'label': label, 'start': start_time, \
+    for k in expected_json.keys():
+        expected_raw = expected_json[k]
+        actual_raw = actual_json[k]
+        expected_json[k] = []
+        actual_json[k] = []
+        for v in expected_raw:
+            l = v.split('|')
+            label = l[0]
+            start_time = int(l[1])
+            end_time = int(l[2])
+            duration = end_time - start_time
+            expected_json[k].append({'label': label, 'start': start_time, \
                               'duration': duration})
-                if end_time > max_end_time:
-                    max_end_time = end_time
-    if return_max:
-        return tasks, max_end_time
-    return tasks
+        for v in actual_raw:
+            l = v.split('|')
+            label = l[0]
+            start_time = int(l[1])
+            end_time = int(l[2])
+            duration = end_time - start_time
+            actual_json[k].append({'label': label, 'start': start_time, \
+                              'duration': duration})
+        
+    return actual_json, expected_json
 
 
-title = "test"
-log_file = str(os.path.dirname(os.path.abspath(__file__))) + '/outputs/log.txt'
-dir_arg = False
-if len(sys.argv) > 1:
-    if os.path.isdir(sys.argv[1]):
-        dir_arg = True
-        comparelogs(sys.argv[1])
-    else:
-        log_file = str(os.path.dirname(os.path.abspath(__file__))) + \
-            '/' + sys.argv[1]
-        title = os.path.splitext(os.path.basename(log_file))[0]
-if not dir_arg:
-    print(log_file)
-    print(title)
-    tasks = parse_logs(log_file)
-    plot_gantt(tasks, title)
+            
+        
+        
+        
+comparelogs()
+
+
+
+#plot_gantt(tasks)
+    

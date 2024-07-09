@@ -64,12 +64,13 @@ void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
  */
 
 uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
-                DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime)
+                DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime,
+                system_tick_t currentTime)
 {
 
     uint32_t minNextTime = UINT32_MAX;
     DeploymentSchedule_t* nextEvent = nullptr;
-    system_tick_t currentTime = millis();
+    
 
 
     //! Iterate through each event in the schedule table.

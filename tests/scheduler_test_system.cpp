@@ -25,6 +25,12 @@ bool TestLog::operator==(const TestLog& rhs)
         (start == rhs.start) &&
         (end == rhs.end);
 };
+std::ostream& operator<<(std::ostream &strm, const TestLog &value) {
+    return strm << "\"" << value.name << "|"
+                << value.start << "|" << value.end << "\"";
+}
+
+
 /**
  * @brief prints to stdout
  * 
@@ -81,3 +87,4 @@ void delay(uint32_t time)
 {
     addTime(time);
 }
+

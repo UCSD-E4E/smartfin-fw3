@@ -5,7 +5,9 @@
 #ifndef __SCHEDULER__TEST__HPP_
 #define __SCHEDULER__TEST__HPP_
 #include <stdint.h>
-
+#include <vector>
+#include <string>
+#include <iostream>
 
 typedef uint32_t system_tick_t;//!< time unit required by Particle
 
@@ -65,4 +67,7 @@ struct TestLog
      */
     bool operator==(const TestLog& rhs);
 };
+
+std::ostream& operator<<(std::ostream &strm, const TestLog &value);
+
 #endif //__SCHEDULER__TEST__HPP_

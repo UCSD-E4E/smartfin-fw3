@@ -74,7 +74,8 @@ STATES_e RideTask::run(void)
 
         uint32_t retval = SCH_getNextEvent(deploymentSchedule,
                                                     &pNextEvent, 
-                                                    &nextEventTime);
+                                                    &nextEventTime,
+                                                    millis());
         //Check if scheduler failed to find nextEvent
         if (TASK_SEARCH_FAIL == retval)
         {

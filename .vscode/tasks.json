@@ -4,26 +4,17 @@
         {
         "type": "shell",
         "label": "Compile Google Tests",
-        "command": "cmake .. -DCMAKE_BUILD_TYPE=Debug && make",
+        "command": "cmake ../ -Bbuild -DCMAKE_BUILD_TYPE=Debug && make -Cbuild",
         "options": {
-            "cwd": "${workspaceRoot}/tests/build"
+            "cwd": "${workspaceRoot}/tests"
         },
         "group": {
             "kind": "build",
             "isDefault": true
-        }
+            }
         },
-        {
-            "type": "shell",
-            "label": "Compile Google Tests From Script",
-            "command": "../run_gtests --debug -b",
-            "options": {
-                "cwd": "${workspaceRoot}/tests/build"
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-            }
+        
+        
+        
     ]
 }
