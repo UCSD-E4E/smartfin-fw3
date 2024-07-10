@@ -12,4 +12,3 @@ source venv/bin/activate
 pip install -r requirements.txt 1> /dev/null
 python3 scheduler_proccessor.py
 
-printf "\rCreating graphs: 100.\n"

@@ -43,10 +43,10 @@ def comparelogs():
                 
                 plot_gantt(actual, "actual", dir, max_end, tasks_len)
                 
-                img1 = cv2.imread(str(dir) + "/expected.png")
-                img2 = cv2.imread(str(dir) + "/actual.png")
-                print(img1.shape[:2])
-                print(img2.shape[:2])
+                img1 = cv2.imread(str(dir) + "/expected.jpg")
+                img2 = cv2.imread(str(dir) + "/actual.jpg")
+                #print(img1.shape[:2])
+                #print(img2.shape[:2])
                 im_v = cv2.vconcat([img1, img2]) 
                 cv2.imwrite(str(dir) + '/out.jpg', im_v)
 
@@ -91,7 +91,7 @@ def plot_gantt(tasks, title, dir='/outputs/', max_duration=0,tasks_len=0):
     ax.grid(True)
 
     plt.subplots_adjust(bottom=0.15)
-    output_path = os.path.join(dir, title + ".png")
+    output_path = os.path.join(dir, title + ".jpg")
     
 
     plt.savefig(output_path)
@@ -138,8 +138,12 @@ def parse_logs(return_max=False):
         
         
 comparelogs()
-
-
-
-#plot_gantt(tasks)
     
+root = 'outputs/'
+folders = list(os.walk(root))[1:]
+
+for folder in folders:
+    
+    
+    if not folder[2]:
+        os.rmdir(folder[0])
