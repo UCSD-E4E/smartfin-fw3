@@ -121,6 +121,7 @@ static void CLI_monitorSensors(void) {
     float gyroData[3] = {0,0,0};
     float magData[3] = {0,0,0};
     float tmpData = 0;
+    float wdData = 0;
 
     setupICM();
     SF_OSAL_printf(__NL__);
@@ -129,13 +130,14 @@ static void CLI_monitorSensors(void) {
     bool g = false;
     bool m = false;
     bool t = false;
+    bool w = false;
     
     SF_OSAL_printf("Enter delay time: ");
     char dt[SF_CLI_MAX_CMD_LEN];
     getline(dt, SF_CLI_MAX_CMD_LEN);
     int delayTime = atoi(dt);
     while (true) {
-        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t), d to quit: ");
+        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w), d to quit: ");
         ch = getch();
         SF_OSAL_printf("%c", ch); 
         SF_OSAL_printf(__NL__);
@@ -149,6 +151,8 @@ static void CLI_monitorSensors(void) {
             m = true;
         } else if (ch == 't') {
             t = true;
+        }  else if (ch == 'w') {
+            w = true;
         } else {
              SF_OSAL_printf("invalid input" __NL__);
         }
@@ -173,6 +177,10 @@ static void CLI_monitorSensors(void) {
     if (t) {
         headers.push_back("temp");
     }
+    if (w) {
+        headers.push_back("wet/dry");
+    }
+
 
     
     int count = 0;
@@ -193,6 +201,7 @@ static void CLI_monitorSensors(void) {
         getMagnetometer(magData, magData + 1, magData + 2);
         //this is from temp sensor not imu temp
         tmpData = pSystemDesc->pTempSensor->getTemp();
+        wdData = pSystemDesc->pWaterSensor->getLastReading();
         std::map<std::string, float> sensorData = {
         {"ax", accelData[0]},
         {"ay", accelData[1]},
@@ -203,7 +212,8 @@ static void CLI_monitorSensors(void) {
         {"mx", magData[0]},
         {"my", magData[1]},
         {"mz", magData[2]},
-        {"temp", tmpData}
+        {"temp", tmpData},
+        {"wet/dry", wdData}
     };
         if (count % 10 == 0) {
             for (const auto& header : headers) {
