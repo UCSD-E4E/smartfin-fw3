@@ -51,6 +51,7 @@ static void CLI_sleepSetSleepBehavior(void);
 static void CLI_sleepGetSleepBehavior(void);
 static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
+static void CLI_testTime(void);
 
 const Menu_t CLI_menu[] =
 {
@@ -70,6 +71,7 @@ const Menu_t CLI_menu[] =
     {14, "Recorder Test Menu", {.pMenu=Recorder_debug_menu}, MENU_SUBMENU},
     {15, "Session Test Menu", {.pMenu=Session_debug_menu}, MENU_SUBMENU},
     {16, "Display all sensors", &CLI_monitorSensors, MENU_CMD},
+    {17, "Test Sampling Time for Sensors", &CLI_testTime, MENU_CMD},
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
@@ -113,6 +115,36 @@ STATES_e CLI::run(void)
 void CLI::exit() 
 {
     pSystemDesc->pChargerCheck->stop();
+}
+static void CLI_testTime(void) {
+    //float gyroData[3] = {0,0,0};
+    //float magData[3] = {0,0,0};
+    //float accelData[3] = {0,0,0};
+    LocationPoint point;
+    LocationService& instance= LocationService::instance();
+    
+    //     getAccelerometer(accelData, accelData + 1, accelData + 2);
+    //pSystemDesc->pTempSensor->getTemp();
+     SF_OSAL_printf("gps initial 1 sample: %lu", millis());
+     instance.getLocation(point);
+     SF_OSAL_printf("gps final 1 sample: %lu", millis());
+    SF_OSAL_printf("starting gps timing runs..." __NL__);
+    unsigned long it = 0;
+    unsigned long ft = 0;
+    unsigned long diff = 0;
+    for (int i = 0; i < 100; i++) {
+        it = millis();
+        for (int i = 0; i < 1000; i++) {
+            instance.getLocation(point);
+        }
+        ft = millis();
+        diff = ft-it;
+        SF_OSAL_printf("%lu" __NL__, diff);
+    }
+    
+
+    
+
 }
 static void CLI_monitorSensors(void) {
     char ch;
