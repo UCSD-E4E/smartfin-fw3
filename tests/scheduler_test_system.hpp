@@ -9,9 +9,9 @@
 #include <string>
 #include <iostream>
 
-typedef uint32_t system_tick_t;//!< time unit required by Particle
+typedef uint32_t system_tick_t;// time unit required by Particle
 
-static int testTime = 0;//!< simulates current time
+static int testTime = 0;// simulates current time
 /**
  * @brief adds time to the current time
  *

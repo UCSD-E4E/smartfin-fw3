@@ -73,20 +73,20 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     
 
 
-    //! Iterate through each event in the schedule table.
+    // Iterate through each event in the schedule table.
     for (int idx = 0; scheduleTable[idx].measure; ++idx)
     {
-        //! Reference to current event in the schedule
+        // Reference to current event in the schedule
         DeploymentSchedule_t& currentEvent = scheduleTable[idx];
-        //! Reset the next run time for the current event
+        // Reset the next run time for the current event
         currentEvent.nextRunTime = UINT32_MAX;
-        //! Variable to store the calculated start time of the next event.
+        // Variable to store the calculated start time of the next event.
         uint32_t nextStartTime;
-        //! Calculate first start time after delay.
+        // Calculate first start time after delay.
         uint32_t firstStartTime = currentEvent.deploymentStartTime +
             currentEvent.ensembleDelay;
 
-        //! check if first event
+        // check if first event
         if (currentTime <= firstStartTime)
         {
             if (firstStartTime < minNextTime &&
@@ -99,7 +99,7 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             }
             continue;
         }
-        //! Calculate intended count 
+        // Calculate intended count 
         uint32_t intendedCount = (currentTime - firstStartTime - 1) /
             currentEvent.ensembleInterval + 1;
         uint32_t lastInterval = firstStartTime + (intendedCount - 1) *
@@ -110,7 +110,7 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
 
 
 
-        //! check if measurement is late
+        // check if measurement is late
         if ((currentEvent.lastMeasurementTime < lastInterval) ||
             ((currentEvent.lastMeasurementTime == firstStartTime) &&
                 (firstStartTime < currentTime) &&
@@ -153,13 +153,13 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     {
 
 
-        //! Sets ensemble variable lastMeasurementTime to next time it will run
+        // Sets ensemble variable lastMeasurementTime to next time it will run
         nextEvent->lastMeasurementTime = minNextTime;
-        //! Incraments ensemble variable lastMeasurementTime measurementCount
+        // Incraments ensemble variable lastMeasurementTime measurementCount
         nextEvent->measurementCount++;
-        //! Sets next event pointer to the next event
+        // Sets next event pointer to the next event
         *p_nextEvent = nextEvent;
-        //! Sets next time pointer to the next event time
+        // Sets next time pointer to the next event time
         *p_nextTime = minNextTime;
         return SUCCESS;
     }
@@ -171,8 +171,8 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
  * @brief Determines if a task will overlap with other scheduled tasks.
  *
  * This function checks if the proposed start and end times of a task
- * overlap with any other tasks in the schedule table. It ensures that
- * tasks are scheduled without conflicts.
+ * overlap with any preceding tasks in the schedule table (defined earlier). 
+ * It ensures that tasks are scheduled without conflicts.
  *
  * @param scheduleTable The table containing all scheduled tasks.
  * @param idx The index of the current task in the schedule table.
@@ -190,14 +190,14 @@ bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int idx,
     {
 
         DeploymentSchedule_t& otherEvent = scheduleTable[other_idx];
-        //! Calculate next start time for the other task
+        // Calculate next start time for the other task
         uint32_t otherNextStartTime = otherEvent.nextRunTime;
         if (otherNextStartTime == UINT32_MAX)
             continue;
         // Calculate proposed end time for the other task
         uint32_t otherProposedEndTime = otherNextStartTime +
             otherEvent.maxDuration;
-        //! Check for overlap
+        // Check for overlap
         if (!((proposedEndTime <= otherNextStartTime) ||
             (otherProposedEndTime <= nextStartTime)))
         {
