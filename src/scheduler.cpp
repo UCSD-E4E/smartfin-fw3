@@ -24,9 +24,35 @@
   * @param startTime sets start time as given in RideTask.cpp
   *
   */
-void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
+  //pDeployment is pointer to array with deployment schedules for all tasks, ordered by priority
+Task_* SCH_initializeSchedule(DeploymentSchedule_t* pDeployment, int numTask;
                             system_tick_t startTime)
 {
+    Task_ task[numTask];
+    for(int i=0; i<numTask; i++){
+        DeploymentSchedule_t* deployInfo=pDeployment+i;
+        int taskStart=startTime;
+        if(i!=0){
+            DeploymentSchedule_t* previous=deployInfo-1;
+            taskStart=(previous->startDelay)+(previous->maxDuration);
+        }
+        EnsembleFunction* func=deployInfo->measure;
+        EnsembleInit* init=deployInfo->init;
+        task[i]=Task_{deployInfo->taskName,taskStart, deployInfo->ensembleInterval,func, init };
+
+
+    /*
+    char taskName;
+    uint32_t nextRunTime;
+    uint32_t interval;
+    EnsembleFunction * measure;               
+    EnsembleInit * init;*/
+
+
+    }
+    return task;
+    
+    /*
     uint32_t lastEndTime = 0;
     while (pDeployment->init)
     {
@@ -38,6 +64,7 @@ void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
         pDeployment->init(pDeployment);
         pDeployment++;
     }
+    */
 }
 
 

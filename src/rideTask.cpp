@@ -34,6 +34,8 @@ DeploymentSchedule_t deploymentSchedule[] =
     {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr, 0, '\0'}
 };
 
+int numTask=0;
+
 /**
  * @brief initialize ride task
  * Sets LEDs  and initializes schedule
@@ -51,7 +53,7 @@ void RideTask::init()
 
 
     this->startTime = millis();
-    SCH_initializeSchedule(deploymentSchedule, this->startTime);
+    this->tasks=SCH_initializeSchedule(deploymentSchedule, numTask, this->startTime);
     pSystemDesc->pRecorder->openSession();
 
 }
@@ -61,7 +63,41 @@ void RideTask::init()
 */
 STATES_e RideTask::run(void)
 {
+   while(1){
+        bool inTask=false;
+         if(pSystemDesc->pWaterSensor->getLastStatus() ==
+                            WATER_SENSOR_LOW_STATE)
+        {
+            SF_OSAL_printf("Out of water!"  __NL__);
+            return STATE_UPLOAD;
+        }
 
+        if(pSystemDesc->flags->batteryLow)
+        {
+            SF_OSAL_printf("Low Battery!"  __NL__);
+            return STATE_DEEP_SLEEP;
+        }
+        for(int i=0;i<numTask; i++){
+            Task_* task= tasks+i;
+            if(millis()==task->nextRunTime){
+                inTask=true;
+                &(task->measure);
+                task->nextRunTime+=task->interval;
+            }
+            if(millis()>task->nextRunTime){
+                inTask=true;
+                int delay=millis()-(task->nextRunTime);
+                Delay delay={task->nextRunTime, millis(), task};
+                task->nextRunTime+=(task->interval + delay);
+            }
+
+
+        }
+
+   }
+    return STATE_UPLOAD;
+
+/*
     
     DeploymentSchedule_t* pNextEvent = NULL;
     system_tick_t nextEventTime;
@@ -107,6 +143,7 @@ STATES_e RideTask::run(void)
 
     }
     return STATE_UPLOAD;
+    */
 }
 
 

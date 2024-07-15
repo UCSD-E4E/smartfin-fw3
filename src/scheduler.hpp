@@ -1,6 +1,6 @@
 /**
  * @file scheduler.hpp
- * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @author Antara Chugh (antarachugh@g.ucla.edu)
  * @brief Header file for scheduler defined in @ref scheduler.cpp
  * @version 1
  */
@@ -25,12 +25,6 @@ typedef enum error_
  * @brief defines type for DeploymentSchedule_ struct below.
 
  */
-
-
-
-
-
-
 
 
 typedef struct DeploymentSchedule_ DeploymentSchedule_t;
@@ -62,7 +56,7 @@ typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
  * @param pDeployment the schedule table
  */
 typedef void (*EnsembleProccess)(DeploymentSchedule_t* pDeployment);
-//might have to be a class
+
 class  DeploymentSchedule_
 public {
 
@@ -72,32 +66,36 @@ public {
     //EnsembleProccess process;             //!< processing function
 
     uint32_t measurementsToAccumulate;      //!< measurements before processing
-    uint32_t ensembleDelay;                 //!< delay after deployment start
+    uint32_t startDelay;                 //!< delay after deployment start
     uint32_t ensembleInterval;              //!< time between ensembles
 
     // State information
     uint32_t nMeasurements;     //!< Total number of measurements to execute
     //uint32_t lastMeasurementTime;   //!< last time measurement was scheduled
-    uint32_t deploymentStartTime;   //!< when schedule was initialized
+    //uint32_t deploymentStartTime;   //!< when schedule was initialized
     //uint32_t measurementCount;      //!< how many times ensemble was scheduled
     void* pData;               //!< Buffer to store measurements temporarily
     uint32_t maxDuration;       //!< store max running time of measurement
-    //char taskName;  //!< task name of ensemble
+    char taskName;  //!< task name of ensemble
     //uint32_t nextRunTime;
 };
 
 struct Delay{
     uint32_t oldRunTime;
     uint32_t newRunTime;
+    Task_* task;
+    
 }
 struct Task_{
+    char taskName;
     uint32_t nextRunTime;
     uint32_t interval;
-    Delay delaylist [5];
+    EnsembleFunction * measure;               
+    EnsembleInit * init;
+
 
 }
 
-//allocate x amount of event nodes
 
 
 
