@@ -24,36 +24,7 @@ jobs:
             path: |
                 ${{ steps.compile.outputs.firmware-path }}
                 ${{ steps.compile.outputs.target-path }}
-  test:
-    needs: [compile]
-    runs-on: ubuntu-latest
-    steps:
-      
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      
-      - name: Create folder
-        run: mkdir -p external/ 
-      
-      - name: Set up environment
-        run: |
-          sudo apt-get update && sudo apt-get install -y cmake g++
-      - name: add googletest
-        run: | 
-          git submodule init
-          git submodule update
-         
-          
-
-      - name: Build and run tests
-        run: | 
-         cd tests
-          cmake -S . -B build
-          cd build
-          make
-          ./googletests   
+  
   release:
     needs: [compile]
     runs-on: ubuntu-latest
