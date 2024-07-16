@@ -47,7 +47,29 @@ typedef void (*EnsembleFunction)(DeploymentSchedule_t* pDeployment);
  * @param pDeployment the schedule table
  */
 typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
+/**
+* @brief contains stat information for each ensemble
+*/
 
+struct StateInformation
+{
+    //! Total number of measurements to execute
+    uint32_t nMeasurements;    
+    //! last time measurement was scheduled 
+    uint32_t lastMeasurementTime;
+    //! when schedule was initialized   
+    uint32_t deploymentStartTime;
+    //! how many times ensemble was scheduled
+    uint32_t measurementCount; 
+    //! Buffer to store measurements temporarily  
+    void* pData;
+    
+    //! store the next time the task should run
+    uint32_t nextRunTime;
+    //! store the zeroth run time
+    uint32_t firstRunTime;
+    
+};
 /**
  * @brief Records and writes ensemble
  * @param pDeployment the schedule table
@@ -63,16 +85,16 @@ struct DeploymentSchedule_
     uint32_t measurementsToAccumulate;      //!< measurements before processing
     uint32_t ensembleDelay;                 //!< delay after deployment start
     uint32_t ensembleInterval;              //!< time between ensembles
-
-    // State information
-    uint32_t nMeasurements;     //!< Total number of measurements to execute
-    uint32_t lastMeasurementTime;   //!< last time measurement was scheduled
-    uint32_t deploymentStartTime;   //!< when schedule was initialized
-    uint32_t measurementCount;      //!< how many times ensemble was scheduled
-    void* pData;               //!< Buffer to store measurements temporarily
-    uint32_t maxDuration;       //!< store max running time of measurement
-    char taskName;  //!< task name of ensemble
-    uint32_t nextRunTime;
+    //! store max running time of measurement        
+    uint32_t maxDuration;               
+    //! maximum delay before throwing flag and resetting
+    uint32_t maxDelay;
+    //! task name of ensemble
+    const char*  taskName;
+    //! state information
+    StateInformation state;
+    
+    
 };
 /**
  * @brief Initializes ensemble variables
@@ -92,7 +114,7 @@ void SCH_initializeSchedule(DeploymentSchedule_t* scheduleTable,
  * 
  * Handles all the scheduler logic, focusing on maininting task intervals with 
  * respect to the initial measurement. See expected behaivor in 
- * @ref tests/gtests.cpp
+ * @ref tests/fixed_google_tests.cpp
  * @return outcome enum from
  */
 uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
