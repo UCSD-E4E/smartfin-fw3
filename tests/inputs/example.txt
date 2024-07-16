@@ -6,10 +6,10 @@ ENSEMBLES #taskname|interval|duration or taskname|interval|duration|maxDelay
 A|2000|200
 B|2000|400|1000
 C|500|100
-DELAYS #"taskname|iteration|delay" or "taskname|iteration|delay|before" (after implied)
+DELAYS #0 indexed: "taskname|iteration|delay" or "taskname|iteration|delay|before" (after implied)
 A|0|100|before
 B|3|200
-EXPECTED #"taskname|start|end|
-A|0|200
+EXPECTED #"taskname|start|end"
+A|100|300
 B|300|700
 C|700|800

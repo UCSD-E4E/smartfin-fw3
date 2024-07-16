@@ -1,12 +1,6 @@
 /**
  * @file ensembles.cpp
- * @author your name (you@domain.com)
- * @brief 
- * @version 1
- * @date 2024-06-10
- * 
- * @copyright Copyright (c) 2024
- * 
+ * @brief Contains efinitions of ensembles
  */
 #include "ensembles.hpp"
 #ifndef TEST_VERSION

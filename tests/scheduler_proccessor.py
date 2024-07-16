@@ -9,7 +9,7 @@ import os.path
 import cv2
 import json
 from pathlib import Path
-
+import glob
 def comparelogs():
     actual_json, expected_json = parse_logs()
 
@@ -101,39 +101,43 @@ def plot_gantt(tasks, title, dir='/outputs/', max_duration=0,tasks_len=0):
 
 
 def parse_logs(return_max=False):
-    tasks = []
     
-    with open('expected.log') as f:
-        expected_json = json.load(f)
-    with open('actual.log') as f:
-        actual_json = json.load(f)
+    root = 'outputs/'
+    pattern = 'actual_' 
+    for filepath in glob.iglob('outputs/actual*.log'):
+        with open(filepath.replace("actual","expected")) as f:
+            expected_json = json.load(f)
+        with open(filepath) as f:
+            actual_json = json.load(f)
+    
+    
 
-    for k in expected_json.keys():
-        expected_raw = expected_json[k]
-        actual_raw = actual_json[k]
-        expected_json[k] = []
-        actual_json[k] = []
-        for v in expected_raw:
-            l = v.split('|')
-            label = l[0]
-            start_time = int(l[1])
-            end_time = int(l[2])
-            duration = end_time - start_time
-            expected_json[k].append({'label': label, 'start': start_time, \
-                              'duration': duration})
-        for v in actual_raw:
-            l = v.split('|')
-            label = l[0]
-            start_time = int(l[1])
-            end_time = int(l[2])
-            duration = end_time - start_time
-            actual_json[k].append({'label': label, 'start': start_time, \
-                              'duration': duration})
-        
+        for k in expected_json.keys():
+            expected_raw = expected_json[k]
+            actual_raw = actual_json[k]
+            expected_json[k] = []
+            actual_json[k] = []
+            for v in expected_raw:
+                l = v.split('|')
+                label = l[0]
+                start_time = int(l[1])
+                end_time = int(l[2])
+                duration = end_time - start_time
+                expected_json[k].append({'label': label, 'start': start_time, \
+                                'duration': duration})
+            for v in actual_raw:
+                l = v.split('|')
+                label = l[0]
+                start_time = int(l[1])
+                end_time = int(l[2])
+                duration = end_time - start_time
+                actual_json[k].append({'label': label, 'start': start_time, \
+                                'duration': duration})
+            
     return actual_json, expected_json
 
 
-            
+
         
         
         

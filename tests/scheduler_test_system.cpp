@@ -30,6 +30,14 @@ std::ostream& operator<<(std::ostream &strm, const TestLog &value) {
                 << value.start << "|" << value.end << "\"";
 }
 
+int SF_OSAL_sprintf(char* buffer, size_t size, const char* fmt, ...)
+{
+    va_list vargs;
+    va_start(vargs, fmt);
+    int nBytes = vsnprintf(buffer, size, fmt, vargs);
+    va_end(vargs);
+    return nBytes;
+}
 
 /**
  * @brief prints to stdout
@@ -88,3 +96,85 @@ void delay(uint32_t time)
     addTime(time);
 }
 
+FileWriter::FileWriter(std::string expectedFileName, std::string actualFileName)
+{
+    this->expectedFileName = expectedFileName;
+    this->actualFileName = actualFileName;
+    std::ofstream expectedFile(expectedFileName,std::ios::out | 
+    std::ios::trunc);
+
+    std::ofstream actualFile(actualFileName,std::ios::out |
+        std::ios::trunc);
+    
+    if (actualFile.is_open() && expectedFile.is_open())
+    {
+        actualFile << "{";
+        expectedFile << "{";
+    }
+    actualFile.close();
+    expectedFile.close();
+}
+void FileWriter::writeTest(std::string testName, 
+    std::vector<TestLog> expected,std::vector<TestLog> actual)
+{
+    std::ofstream actualFile(actualFileName, std::ios::out | 
+                                std::ios::app);
+    std::ofstream expectedFile(expectedFileName, std::ios::out |
+        std::ios::app);
+    static bool firstTest = true;
+    if (firstTest == false)
+    {
+        expectedFile << ",";
+        actualFile << ",";
+    }
+    else
+    {
+        firstTest = false;
+    }
+    expectedFile << "\n\t\"" << testName << "\": [";
+    if (!expected.empty())
+    {
+
+
+        for (int i = 0; i < expected.size() - 1; i++)
+        {
+            expectedFile << expected[i] << ", ";
+        }
+        expectedFile << expected.back();
+    }
+    expectedFile << "]";
+
+    expectedFile.close();
+
+
+    actualFile << "\n\t\"" << testName << "\": [";
+    if (!expected.empty())
+    {
+
+
+        for (int i = 0; i < expected.size() - 1; i++)
+        {
+            actualFile << expected[i] << ", ";
+        }
+        actualFile << expected.back();
+    }
+    actualFile << "]";
+    actualFile.close();
+}
+void FileWriter::closeFiles()
+{
+    std::ofstream actualFile(actualFileName, std::ios::out | 
+                                std::ios::app);
+    std::ofstream expectedFile(expectedFileName, std::ios::out |
+        std::ios::app);
+
+    if (actualFile.is_open() && expectedFile.is_open())
+    {
+        actualFile << "\n}";
+        expectedFile << "\n}";
+    }
+
+    actualFile.close();
+    expectedFile.close();
+}
+EnsembleInput::EnsembleInput(std::string taskName,uint32_t interval, uint32_t duration, uint32_t delay) : taskName(taskName), interval(interval), duration(duration), delay(delay){};

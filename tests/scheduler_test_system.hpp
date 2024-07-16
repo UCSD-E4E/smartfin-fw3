@@ -8,10 +8,25 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <fstream>
 
-typedef uint32_t system_tick_t;// time unit required by Particle
 
-static int testTime = 0;// simulates current time
+//! time unit required by Particle
+typedef uint32_t system_tick_t;
+
+/**
+ * @brief prints to stdout
+ * 
+ * @param buffer destination for formatted string
+ * @param fmt format to print
+ * @param  variables to print
+ * @return number of characters if successful
+ * @return ferror if error occurs
+ */
+int SF_OSAL_sprintf(char* buffer, size_t size, const char* fmt, ...);
+
+static int testTime = 0;//! simulates current time
 /**
  * @brief adds time to the current time
  *
@@ -46,7 +61,7 @@ uint32_t millis();
  */
 struct TestLog
 {
-    char name; //!< name of the task
+    std::string  name; //!< name of the task
     uint32_t start; //!< expected start time
     uint32_t end; //!< expected end time
     /**
@@ -56,8 +71,8 @@ struct TestLog
      * @param start expected start time
      * @param end expected end time
      */
-    TestLog(char name, uint32_t start, uint32_t end) : name(name), 
-                                    start(start), end(end){}
+    TestLog(std::string name, uint32_t start, uint32_t end) : name(name), 
+                                                    start(start), end(end){}
     /**
      * @brief comparator for google tests EXPECT_TRUE
      * 
@@ -68,6 +83,74 @@ struct TestLog
     bool operator==(const TestLog& rhs);
 };
 
+struct Delay
+{
+    std::string taskName; //!< name of the task
+    uint32_t iteration;
+    uint32_t delay;
+    bool isBefore;
+    
+};
+struct EnsembleInput
+{
+    EnsembleInput(std::string taskName,uint32_t interval, uint32_t duration, uint32_t delay);
+    std::string taskName; //!< name of the task
+    uint32_t interval;
+    uint32_t duration;
+    uint32_t delay;
+};
+struct TestInput
+{
+    uint32_t start;
+    uint32_t end;
+    std::vector<EnsembleInput> ensembles;
+    std::vector<TestLog> expectedValues;
+    std::vector<Delay> delays;
+    std::string serialize() const {
+        std::stringstream ss;
+        ss << "TestInput: { Start: " << start << ", End: " << end << "\n";
+
+        ss << "  Ensembles: [\n";
+        for (const auto& ensemble : ensembles) {
+            ss << "    { TaskName: " << ensemble.taskName
+               << ", Interval: " << ensemble.interval
+               << ", Duration: " << ensemble.duration
+               << ", Delay: " << ensemble.delay << " }\n";
+        }
+        ss << "  ]\n";
+
+        ss << "  ExpectedValues: [\n";
+        for (const auto& exp : expectedValues) {
+            ss << "    { Name: " << exp.name
+               << ", Start: " << exp.start
+               << ", End: " << exp.end << " }\n";
+        }
+        ss << "  ]\n";
+
+        ss << "  Delays: [\n";
+        for (const auto& delay : delays) {
+            ss << "    { TaskName: " << delay.taskName
+               << ", Iteration: " << delay.iteration
+               << ", Delay: " << delay.delay
+               << ", IsBefore: " << (delay.isBefore ? "true" : "false") << " }\n";
+        }
+        ss << "  ]\n";
+
+        ss << "}";
+        return ss.str();
+    }
+
+};
 std::ostream& operator<<(std::ostream &strm, const TestLog &value);
 
+struct FileWriter
+{
+    std::string expectedFileName;
+    std::string actualFileName;
+    
+    FileWriter(std::string expectedFileName, std::string actualFileName);
+    void writeTest(std::string testName, 
+            std::vector<TestLog> expected, std::vector<TestLog> actual);
+    void closeFiles();
+};
 #endif //__SCHEDULER__TEST__HPP_

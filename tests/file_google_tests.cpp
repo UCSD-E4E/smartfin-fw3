@@ -173,7 +173,7 @@ protected:
             {
                 if(!strcmp(nextEvent->taskName, 
                             input.delays[i].taskName.c_str()) &&
-                        (nextEvent->state.measurementCount == 
+                        (nextEvent->state.measurementCount - 1 == 
                         input.delays[i].iteration))
                 {
                     if (input.delays[i].isBefore)
@@ -328,21 +328,10 @@ protected:
     }
 
     
-    /**
-     * @brief Run task and update time with delay and check values
-     *
-     * This function checks the correct task is being run, and the start time
-     * and end time is correct. The delay is added after the task is run.
-     *
-     *
-     * @param expectedTaskName expected task name character
-     * @param expectedStart time to check start time with
-     * @param expectedEnd time to check end time with
-     * @param additionalTime the amount of delay to add
-     */
+    
     
     /**
-     * @brief Run task and update time and check values
+     * @brief Run task, update time, and check values
      *
      * This function checks the correct task is being run, and the start time
      * and end time is correct
