@@ -57,8 +57,8 @@ typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
  */
 typedef void (*EnsembleProccess)(DeploymentSchedule_t* pDeployment);
 
-class  DeploymentSchedule_
-public {
+struct  DeploymentSchedule_
+ {
 
     int priority;
     EnsembleFunction measure;               //!< measurement function
@@ -96,6 +96,22 @@ struct Task_{
 
 }
 
+class Scheduler{
+
+    public:
+        Scheduler(DeploymentSchedule_ d[], int num, int startTime);
+       
+        void SCH_runSchedule();
+
+    private:
+        int numTasks;
+        Tasks_ task[numTask];
+        int numDelays;
+        unsigned long totalDelay;
+
+
+}
+
 
 
 
@@ -107,6 +123,7 @@ struct Task_{
  */
 void SCH_initializeSchedule(DeploymentSchedule_t* scheduleTable,
                                 system_tick_t startTime);
+void SCH_runSchedule(Tasks_ tasks[], int numTask);
 
 /**
  * @brief sets next scheduled task and time
@@ -140,5 +157,6 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
  */
 bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i,
                     system_tick_t currentTime, uint32_t nextStartTime);
+
 #endif //__SCHEDULER__HPP_
 

@@ -25,32 +25,78 @@
   *
   */
   //pDeployment is pointer to array with deployment schedules for all tasks, ordered by priority
-Task_* SCH_initializeSchedule(DeploymentSchedule_t* pDeployment, int numTask;
-                            system_tick_t startTime)
-{
-    Task_ task[numTask];
+Scheduler::Scheduler(DeploymentSchedule_ d[], int num, int startTime){
+    numTask=num;
     for(int i=0; i<numTask; i++){
-        DeploymentSchedule_t* deployInfo=pDeployment+i;
+        DeploymentSchedule_t deployInfo=d[i];
         int taskStart=startTime;
         if(i!=0){
-            DeploymentSchedule_t* previous=deployInfo-1;
-            taskStart=(previous->startDelay)+(previous->maxDuration);
+            DeploymentSchedule_t previous=d[i-1];
+            taskStart=(previous.startDelay)+(previous.maxDuration);
         }
-        EnsembleFunction* func=deployInfo->measure;
-        EnsembleInit* init=deployInfo->init;
-        task[i]=Task_{deployInfo->taskName,taskStart, deployInfo->ensembleInterval,func, init };
+        EnsembleFunction* func=deployInfo.measure;
+        EnsembleInit* init=deployInfo.init;
+        task[i]=Task_{deployInfo.taskName,taskStart, deployInfo.ensembleInterval,func, init};
+
+    }
+    numDelays=0;
+    totalDelay=0;
+
+}
+void Scheduler::SCH_runSchedule(){
+    for(int i=0;i<numTask; i++){
+            Task_ task=task[i];
+            if(task.nextRunTime>=(int)millis()){
+            int n=i-1;
+            //check for an overlap, can change to only check for IMU
+            while(n>=0){
+                    if(((int)millis()+ task.interval)>task[n].nextRunTime){
+                        break;
+                    }
+                    n--;
+
+                }
+                if(n>0){
+                    break;
+                }
+            if((int)millis()==task.nextRunTime){
+                inTask=true;
+                &(task.measure); //change
+                task.nextRunTime+=task.interval;
+            }else if((int)millis()>task.nextRunTime){
+                inTask=true;
+                int delay=(int)millis()-(task.nextRunTime);
+               //set FLOG
+                task.nextRunTime+=(task.interval + delay);
+                numDelays++;
+                totalDelay+=(unsigned long)delay;
+            }
+            }
 
 
-    /*
-    char taskName;
-    uint32_t nextRunTime;
-    uint32_t interval;
-    EnsembleFunction * measure;               
-    EnsembleInit * init;*/
+        }
+
+
+}
+
+void SCH_initializeSchedule(DeploymentSchedule_t pDeployment[], int numTask, Task_ task[],
+                            system_tick_t startTime)
+{
+   
+    for(int i=0; i<numTask; i++){
+        DeploymentSchedule_t deployInfo=pDeployment[i];
+        int taskStart=startTime;
+        if(i!=0){
+            DeploymentSchedule_t previous=pDeployment[i-1];
+            taskStart=(previous.startDelay)+(previous.maxDuration);
+        }
+        EnsembleFunction* func=deployInfo.measure;
+        EnsembleInit* init=deployInfo.init;
+        task[i]=Task_{deployInfo.taskName,taskStart, deployInfo.ensembleInterval,func, init};
 
 
     }
-    return task;
+    
     
     /*
     uint32_t lastEndTime = 0;
@@ -66,6 +112,44 @@ Task_* SCH_initializeSchedule(DeploymentSchedule_t* pDeployment, int numTask;
     }
     */
 }
+
+void SCH_runSchedule(Tasks_ tasks[], int numTask){
+     for(int i=0;i<numTask; i++){
+            Task_ task=tasks[i];
+            if(task.nextRunTime>=(int)millis()){
+            int n=i-1;
+            //check for an overlap, can change to only check for IMU
+            while(n>=0){
+                    if(((int)millis()+ task.interval)>tasks[n].nextRunTime){
+                        break;
+                    }
+                    n--;
+
+                }
+                if(n>0){
+                    break;
+                }
+            if((int)millis()==task.nextRunTime){
+                inTask=true;
+                &(task.measure); //change
+                task.nextRunTime+=task.interval;
+            }else if((int)millis()>task.nextRunTime){
+                inTask=true;
+                int delay=(int)millis()-(task.nextRunTime);
+               //set FLOG
+                task.nextRunTime+=(task.interval + delay);
+            }
+            }
+
+
+        }
+
+
+
+
+}
+
+
 
 
 
@@ -90,7 +174,7 @@ Task_* SCH_initializeSchedule(DeploymentSchedule_t* pDeployment, int numTask;
  * TASK_SEARCH_FAIL otherwise.
  */
 
-uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
+/*uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
                 DeploymentSchedule_t** p_nextEvent, system_tick_t* p_nextTime,
                 system_tick_t currentTime)
 {
@@ -208,7 +292,7 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
  * @param nextStartTime The proposed start time of the current task.
  * @return True if there is an overlap with another task; false otherwise.
  */
-bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int idx,
+/*bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int idx,
                     system_tick_t currentTime, uint32_t nextStartTime)
 {
     DeploymentSchedule_t& currentEvent = scheduleTable[idx];
@@ -233,5 +317,5 @@ bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int idx,
 
     }
     return false;
-}
+} */
 

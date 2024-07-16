@@ -34,7 +34,7 @@ DeploymentSchedule_t deploymentSchedule[] =
     {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr, 0, '\0'}
 };
 
-int numTask=0;
+
 
 /**
  * @brief initialize ride task
@@ -53,7 +53,9 @@ void RideTask::init()
 
 
     this->startTime = millis();
-    this->tasks=SCH_initializeSchedule(deploymentSchedule, numTask, this->startTime);
+    numTask=3; //does this need to be changed?
+    s=Scheduler(deploymentSchedule, numTask, startTime);
+    
     pSystemDesc->pRecorder->openSession();
 
 }
@@ -65,6 +67,7 @@ STATES_e RideTask::run(void)
 {
    while(1){
         bool inTask=false;
+        
          if(pSystemDesc->pWaterSensor->getLastStatus() ==
                             WATER_SENSOR_LOW_STATE)
         {
@@ -77,22 +80,8 @@ STATES_e RideTask::run(void)
             SF_OSAL_printf("Low Battery!"  __NL__);
             return STATE_DEEP_SLEEP;
         }
-        for(int i=0;i<numTask; i++){
-            Task_* task= tasks+i;
-            if(millis()==task->nextRunTime){
-                inTask=true;
-                &(task->measure);
-                task->nextRunTime+=task->interval;
-            }
-            if(millis()>task->nextRunTime){
-                inTask=true;
-                int delay=millis()-(task->nextRunTime);
-                Delay delay={task->nextRunTime, millis(), task};
-                task->nextRunTime+=(task->interval + delay);
-            }
-
-
-        }
+        SCH_runSchedule(tasks, numTask);
+        s.SCH_runSchedule();
 
    }
     return STATE_UPLOAD;

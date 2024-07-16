@@ -36,7 +36,8 @@ private:
     
     LEDStatus ledStatus; /**< manages led behavior*/
     system_tick_t startTime; /**< start time at initialization */
-    Task_* tasks;
+    int numTask;
+    Scheduler s;
 
 };
 
