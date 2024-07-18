@@ -182,3 +182,77 @@ static void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
         memset(pData, 0, sizeof(Ensemble10_eventData_t));
     }
 }
+
+static void SS_ensemble07Func(DeploymentSchedule_t* pDeployment)
+{
+    float battVoltage;
+    Ensemble07_eventData_t* pData = (Ensemble07_eventData_t*) pDeployment->state.pData;
+    #pragma pack(push, 1)
+    struct{
+        EnsembleHeader_t header;
+        Ensemble07_data_t data;
+    }ensData;
+    #pragma pack(pop)
+
+    // obtain measurements
+    battVoltage = pSystemDesc->pBattery->getVCell();
+
+    // accumulate measurements
+    pData->battVoltage += battVoltage;
+    pData->accumulateCount++;
+
+    // Report accumulated measurements
+    if(pData->accumulateCount == pDeployment->measurementsToAccumulate)
+    {
+        ensData.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.deploymentStartTime);
+        ensData.header.ensembleType = ENS_BATT;
+        ensData.data.batteryVoltage = N_TO_B_ENDIAN_2((pData->battVoltage / pData->accumulateCount) * 1000);
+
+        pSystemDesc->pRecorder->putData(ensData);
+        memset(pData, 0, sizeof(Ensemble07_eventData_t));
+    }
+
+}
+
+static void SS_ensemble08Func(DeploymentSchedule_t* pDeployment)
+{
+    float temp;
+    uint8_t water;
+
+    Ensemble08_eventData_t* pData = (Ensemble08_eventData_t*) pDeployment->state.pData;
+    #pragma pack(push, 1)
+    struct{
+        EnsembleHeader_t header;
+        Ensemble08_data_t ensData;
+    }ens;
+    #pragma pack(pop)
+
+    // obtain measurements
+    temp = pSystemDesc->pTempSensor->getTemp();
+    water = pSystemDesc->pWaterSensor->getCurrentReading();
+
+    // accumulate measurements
+    pData->temperature += temp;
+    pData->water += water;
+    pData->accumulateCount++;
+
+    // Report accumulated measurements
+    if(pData->accumulateCount == pDeployment->measurementsToAccumulate)
+    {
+        water = pData->water / pDeployment->measurementsToAccumulate;
+        temp = pData->temperature / pDeployment->measurementsToAccumulate;
+        if(water == false)
+        {
+            temp -= 100;
+        }
+        
+        
+        ens.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.deploymentStartTime);
+        ens.header.ensembleType = ENS_TEMP_TIME;
+        ens.ensData.rawTemp = N_TO_B_ENDIAN_2(temp / 0.0078125);
+
+        pSystemDesc->pRecorder->putData(ens);
+        memset(pData, 0, sizeof(Ensemble08_eventData_t));
+    }
+
+}
