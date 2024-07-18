@@ -102,7 +102,7 @@ static void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
     #pragma pack(pop)
 
 
-    // Obtain measurements - all <S16 Little Endianess 
+    // Obtain measurements 
     temp = pSystemDesc->pTempSensor->getTemp();
     water = pSystemDesc->pWaterSensor->getCurrentReading();
     getAccelerometer(accelData, accelData + 1, accelData + 2);
@@ -110,35 +110,32 @@ static void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
     getMagnetometer(magData, magData + 1, magData + 2);
     LocationPoint point;
     LocationService& instance= LocationService::instance();
-    lat = point.latitude;
-    lng = point.longitude;
-    //TODO: handling gps underwater
-
-    // if(pSystemDesc->pGPS->location.isValid() && pSystemDesc->pGPS->location.isUpdated() && (pSystemDesc->pGPS->location.age() < GPS_AGE_VALID_MS))
-    // {
-    //     hasGPS = true;
-    //     lat = pSystemDesc->pGPS->location.lat_int32();
-    //     lng = pSystemDesc->pGPS->location.lng_int32();
-    // }
-    // else
-    // {
-    //     hasGPS = false;
-    //     lat = pData->location[0];
-    //     lng = pData->location[1];
-    // }
+    instance.getLocation(point);
+    if(point.locked == 1 && point.satsInView > 4)
+        {
+            hasGPS = true;
+            lat = point.latitude;
+            lng = point.longitude;
+        }
+        else
+        {
+            hasGPS = false;
+            lat = pData->location[0];
+            lng = pData->location[1];
+        }
 
     // Accumulate measurements
     pData->temperature += temp;
     pData->water += water;
-    pData->acc[0] += accelData[0];
-    pData->acc[1] += accelData[1];
-    pData->acc[2] += accelData[2];
-    pData->ang[0] += gyroData[0];
-    pData->ang[1] += gyroData[1];
-    pData->ang[2] += gyroData[2];
-    pData->mag[0] += magData[0];
-    pData->mag[1] += magData[1];
-    pData->mag[2] += magData[2];
+    pData->acc[0] += B_TO_N_ENDIAN_2(accelData[0]);
+    pData->acc[1] += B_TO_N_ENDIAN_2(accelData[1]);
+    pData->acc[2] += B_TO_N_ENDIAN_2(accelData[2]);
+    pData->ang[0] += B_TO_N_ENDIAN_2(gyroData[0]);
+    pData->ang[1] += B_TO_N_ENDIAN_2(gyroData[1]);
+    pData->ang[2] += B_TO_N_ENDIAN_2(gyroData[2]);
+    pData->mag[0] += B_TO_N_ENDIAN_2(magData[0]);
+    pData->mag[1] += B_TO_N_ENDIAN_2(magData[1]);
+    pData->mag[2] += B_TO_N_ENDIAN_2(magData[2]);
     pData->location[0] += lat;
     pData->location[1] += lng;
     pData->hasGPS += hasGPS ? 1 : 0;
