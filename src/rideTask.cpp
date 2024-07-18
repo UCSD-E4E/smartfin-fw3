@@ -80,7 +80,7 @@ STATES_e RideTask::run(void)
             SF_OSAL_printf("Low Battery!"  __NL__);
             return STATE_DEEP_SLEEP;
         }
-        SCH_runSchedule(tasks, numTask);
+        
         s.SCH_runSchedule();
 
    }

@@ -34,6 +34,7 @@ Scheduler::Scheduler(DeploymentSchedule_ d[], int num, int startTime){
             DeploymentSchedule_t previous=d[i-1];
             taskStart=(previous.startDelay)+(previous.maxDuration);
         }
+        deployInfo.startDelay=taskStart;
         EnsembleFunction* func=deployInfo.measure;
         EnsembleInit* init=deployInfo.init;
         task[i]=Task_{deployInfo.taskName,taskStart, deployInfo.ensembleInterval,func, init};
@@ -66,7 +67,7 @@ void Scheduler::SCH_runSchedule(){
             }else if((int)millis()>task.nextRunTime){
                 inTask=true;
                 int delay=(int)millis()-(task.nextRunTime);
-               //set FLOG
+                SF_OSAL_printf(task.taskName + " |%" PRId32  __NL__, (uint32_t)millis());
                 task.nextRunTime+=(task.interval + delay);
                 numDelays++;
                 totalDelay+=(unsigned long)delay;
@@ -90,6 +91,7 @@ void SCH_initializeSchedule(DeploymentSchedule_t pDeployment[], int numTask, Tas
             DeploymentSchedule_t previous=pDeployment[i-1];
             taskStart=(previous.startDelay)+(previous.maxDuration);
         }
+        deployInfo.startDelay=taskStart;
         EnsembleFunction* func=deployInfo.measure;
         EnsembleInit* init=deployInfo.init;
         task[i]=Task_{deployInfo.taskName,taskStart, deployInfo.ensembleInterval,func, init};

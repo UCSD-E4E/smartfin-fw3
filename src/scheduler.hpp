@@ -59,7 +59,6 @@ typedef void (*EnsembleProccess)(DeploymentSchedule_t* pDeployment);
 
 struct  DeploymentSchedule_
  {
-
     int priority;
     EnsembleFunction measure;               //!< measurement function
     EnsembleInit init;                      //!< initialization function
@@ -74,7 +73,7 @@ struct  DeploymentSchedule_
     //uint32_t lastMeasurementTime;   //!< last time measurement was scheduled
     //uint32_t deploymentStartTime;   //!< when schedule was initialized
     //uint32_t measurementCount;      //!< how many times ensemble was scheduled
-    void* pData;               //!< Buffer to store measurements temporarily
+    //void* pData;               //!< Buffer to store measurements temporarily
     uint32_t maxDuration;       //!< store max running time of measurement
     char taskName;  //!< task name of ensemble
     //uint32_t nextRunTime;
@@ -85,16 +84,17 @@ struct Delay{
     uint32_t newRunTime;
     Task_* task;
     
-}
+};
 struct Task_{
     char taskName;
     uint32_t nextRunTime;
     uint32_t interval;
     EnsembleFunction * measure;               
     EnsembleInit * init;
+    void* pData;
 
 
-}
+};
 
 class Scheduler{
 
@@ -105,12 +105,12 @@ class Scheduler{
 
     private:
         int numTasks;
-        Tasks_ task[numTask];
+        Task_ task[numTask];
         int numDelays;
         unsigned long totalDelay;
 
 
-}
+};
 
 
 
@@ -123,7 +123,7 @@ class Scheduler{
  */
 void SCH_initializeSchedule(DeploymentSchedule_t* scheduleTable,
                                 system_tick_t startTime);
-void SCH_runSchedule(Tasks_ tasks[], int numTask);
+void SCH_runSchedule(Task_ tasks[], int numTask);
 
 /**
  * @brief sets next scheduled task and time
