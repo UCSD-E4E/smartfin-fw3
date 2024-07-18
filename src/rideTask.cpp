@@ -65,10 +65,10 @@ void RideTask::init()
 */
 STATES_e RideTask::run(void)
 {
-   while(1){
-        bool inTask=false;
+   while(millis()<15000){
+       
         
-         if(pSystemDesc->pWaterSensor->getLastStatus() ==
+         /*if(pSystemDesc->pWaterSensor->getLastStatus() ==
                             WATER_SENSOR_LOW_STATE)
         {
             SF_OSAL_printf("Out of water!"  __NL__);
@@ -79,7 +79,7 @@ STATES_e RideTask::run(void)
         {
             SF_OSAL_printf("Low Battery!"  __NL__);
             return STATE_DEEP_SLEEP;
-        }
+        }*/
         
         s.SCH_runSchedule();
 
@@ -143,6 +143,7 @@ void RideTask::exit(void)
 {
     SF_OSAL_printf("Closing session"  __NL__);
     pSystemDesc->pRecorder->closeSession();
+    
     // Deinitialize sensors
     //pSystemDesc->pTempSensor->stop();
     //pSystemDesc->pCompass->close();
@@ -150,3 +151,9 @@ void RideTask::exit(void)
     //pSystemDesc->pGPS->gpsModuleStop();
 
 }
+
+void RideTask::printRunTimes(){
+
+
+}
+

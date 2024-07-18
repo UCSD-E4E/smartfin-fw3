@@ -37,11 +37,12 @@ Scheduler::Scheduler(DeploymentSchedule_ d[], int num, int startTime){
         deployInfo.startDelay=taskStart;
         EnsembleFunction* func=deployInfo.measure;
         EnsembleInit* init=deployInfo.init;
-        task[i]=Task_{deployInfo.taskName,taskStart, deployInfo.ensembleInterval,func, init};
+        task[i]=Task_{deployInfo.taskName,taskStart, deployInfo.ensembleInterval,0,func, init};
 
     }
     numDelays=0;
     totalDelay=0;
+    
 
 }
 void Scheduler::SCH_runSchedule(){
@@ -61,9 +62,10 @@ void Scheduler::SCH_runSchedule(){
                     break;
                 }
             if((int)millis()==task.nextRunTime){
-                inTask=true;
                 &(task.measure); //change
                 task.nextRunTime+=task.interval;
+                runTimes[i][task.numRuns]=(int)millis();
+                task.numRuns++;
             }else if((int)millis()>task.nextRunTime){
                 inTask=true;
                 int delay=(int)millis()-(task.nextRunTime);
@@ -71,6 +73,9 @@ void Scheduler::SCH_runSchedule(){
                 task.nextRunTime+=(task.interval + delay);
                 numDelays++;
                 totalDelay+=(unsigned long)delay;
+                runTimes[i][task.numRuns]=(int)millis();
+                task.numRuns++;
+                
             }
             }
 
@@ -79,6 +84,7 @@ void Scheduler::SCH_runSchedule(){
 
 
 }
+
 
 void SCH_initializeSchedule(DeploymentSchedule_t pDeployment[], int numTask, Task_ task[],
                             system_tick_t startTime)

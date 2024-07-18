@@ -64,7 +64,7 @@ struct  DeploymentSchedule_
     EnsembleInit init;                      //!< initialization function
     //EnsembleProccess process;             //!< processing function
 
-    uint32_t measurementsToAccumulate;      //!< measurements before processing
+    //uint32_t measurementsToAccumulate;      //!< measurements before processing
     uint32_t startDelay;                 //!< delay after deployment start
     uint32_t ensembleInterval;              //!< time between ensembles
 
@@ -79,16 +79,12 @@ struct  DeploymentSchedule_
     //uint32_t nextRunTime;
 };
 
-struct Delay{
-    uint32_t oldRunTime;
-    uint32_t newRunTime;
-    Task_* task;
-    
-};
+
 struct Task_{
     char taskName;
     uint32_t nextRunTime;
     uint32_t interval;
+    uint32_t numRuns;
     EnsembleFunction * measure;               
     EnsembleInit * init;
     void* pData;
@@ -100,12 +96,13 @@ class Scheduler{
 
     public:
         Scheduler(DeploymentSchedule_ d[], int num, int startTime);
+        int runTimes[numTasks][500];
        
         void SCH_runSchedule();
 
     private:
         int numTasks;
-        Task_ task[numTask];
+        Task_ task[numTasks];
         int numDelays;
         unsigned long totalDelay;
 

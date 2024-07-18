@@ -32,6 +32,7 @@ public:
      * @brief exits ride state
      */
     void exit(void);
+    void printRunTimes();
 private:
     
     LEDStatus ledStatus; /**< manages led behavior*/
