@@ -256,3 +256,25 @@ static void SS_ensemble08Func(DeploymentSchedule_t* pDeployment)
     }
 
 }
+
+static void SS_fwVerInit(DeploymentSchedule_t* pDeployment)
+{
+    (void) pDeployment;
+}
+static void SS_fwVerFunc(DeploymentSchedule_t* pDeployment)
+{
+#pragma pack(push, 1)
+    struct textEns{
+        EnsembleHeader_t header;
+        uint8_t nChars;
+        char verBuf[32];
+    } ens;
+#pragma pack(pop)
+
+    ens.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.deploymentStartTime);
+    ens.header.ensembleType = ENS_TEXT;
+
+   // ens.nChars = snprintf(ens.verBuf, 32, "FW%d.%d.%d%s", FW_MAJOR_VERSION, FW_MINOR_VERSION, FW_BUILD_NUM, FW_BRANCH);
+    pSystemDesc->pRecorder->putBytes(&ens, sizeof(EnsembleHeader_t) + sizeof(uint8_t) + ens.nChars);
+
+}
