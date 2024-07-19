@@ -1,7 +1,7 @@
 START #only one number
 0
 END #only one number
-10000
+1000000
 ENSEMBLES #taskname|interval|duration or taskname|interval|duration|maxDelay
 A|2000|200
 B|2000|400|1000
