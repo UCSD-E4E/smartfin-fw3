@@ -33,21 +33,15 @@ static void SS_fwVerFunc(DeploymentSchedule_t* pDeployment);
 //define ensemble structs
 typedef struct Ensemble10_eventData_
 {
-    double temperature;
-    int32_t water;
-    int32_t acc[3];
-    int32_t ang[3];
-    int32_t mag[3];
+    int16_t temperature;
+    int16_t water;
+    int16_t acc[3];
+    int16_t ang[3];
+    int16_t mag[3];
     int32_t location[2];
     uint8_t hasGPS;
     uint32_t accumulateCount;
 }Ensemble10_eventData_t;
-
-typedef struct Ensemble07_eventData_
-{
-    float battVoltage;
-    uint32_t accumulateCount;
-}Ensemble07_eventData_t;
 
 typedef struct Ensemble08_eventData_
 {
@@ -56,6 +50,12 @@ typedef struct Ensemble08_eventData_
 
     uint32_t accumulateCount;
 }Ensemble08_eventData_t;
+
+typedef struct Ensemble07_eventData_
+{
+    uint16_t battVoltage;
+    uint32_t accumulateCount;
+}Ensemble07_eventData_t;
 
 typedef struct Ensemble01_eventData_
 {

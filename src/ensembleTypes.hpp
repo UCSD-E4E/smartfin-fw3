@@ -33,6 +33,19 @@ typedef struct EnsembleHeader_
 }EnsembleHeader_t;
 
 /**
+ * @brief Ensemble 01 - Temperature
+ * 
+ */
+typedef struct Ensemble01_data_
+{
+    /**
+     * @brief Temp Sensor Temp 
+     * 
+     */
+    uint16_t rawTemp;
+}Ensemble01_data_t;
+
+/**
  * @brief Ensemble 07 - Battery
  * 
  */
