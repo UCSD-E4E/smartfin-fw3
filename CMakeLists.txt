@@ -20,7 +20,8 @@ set(GTEST_SOURCE_FILES
     tests/fixed_google_tests.cpp
     tests/file_google_tests.cpp
     tests/overlap_google_tests.cpp
-    )
+    tests/scheduler_test_flog.cpp
+)
 
 
 
