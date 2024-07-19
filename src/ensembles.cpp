@@ -24,6 +24,9 @@ static void SS_ensemble07Init(DeploymentSchedule_t* pDeployment);
 static void SS_ensemble08Func(DeploymentSchedule_t* pDeployment);
 static void SS_ensemble08Init(DeploymentSchedule_t* pDeployment);
 
+static void SS_ensemble01Func(DeploymentSchedule_t* pDeployment);
+static void SS_ensemble01Init(DeploymentSchedule_t* pDeployment);
+
 static void SS_fwVerInit(DeploymentSchedule_t* pDeployment);
 static void SS_fwVerFunc(DeploymentSchedule_t* pDeployment);
 
@@ -54,9 +57,17 @@ typedef struct Ensemble08_eventData_
     uint32_t accumulateCount;
 }Ensemble08_eventData_t;
 
+typedef struct Ensemble01_eventData_
+{
+    double temperature;
+
+    uint32_t accumulateCount;
+}Ensemble01_eventData_t;
+
 static Ensemble10_eventData_t ensemble10Data;
 static Ensemble07_eventData_t ensemble07Data;
 static Ensemble08_eventData_t ensemble08Data;
+static Ensemble01_eventData_t ensemble01Data;
 
 static void SS_ensemble10Init(DeploymentSchedule_t* pDeployment)
 {
@@ -74,6 +85,12 @@ static void SS_ensemble08Init(DeploymentSchedule_t* pDeployment)
 {
     memset(&ensemble08Data, 0, sizeof(Ensemble08_eventData_t));
     pDeployment->state.pData = &ensemble08Data;
+}
+
+static void SS_ensemble01Init(DeploymentSchedule_t* pDeployment)
+{
+    memset(&ensemble01Data, 0, sizeof(Ensemble01_eventData_t));
+    pDeployment->state.pData = &ensemble01Data;
 }
 
 static void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
@@ -256,7 +273,38 @@ static void SS_ensemble08Func(DeploymentSchedule_t* pDeployment)
     }
 
 }
+static void SS_ensemble01Func(DeploymentSchedule_t* pDeployment)
+{
+    float temp;
 
+    Ensemble01_eventData_t* pData = (Ensemble01_eventData_t*) pDeployment->state.pData;
+    #pragma pack(push, 1)
+    struct{
+        EnsembleHeader_t header;
+        Ensemble08_data_t ensData;
+    }ens;
+    #pragma pack(pop)
+
+    // obtain measurements
+    temp = pSystemDesc->pTempSensor->getTemp();
+
+    // accumulate measurements
+    pData->temperature += temp;
+    pData->accumulateCount++;
+
+    // Report accumulated measurements
+    if(pData->accumulateCount == pDeployment->measurementsToAccumulate)
+    {
+        temp = pData->temperature / pDeployment->measurementsToAccumulate;
+        
+        ens.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.deploymentStartTime);
+        ens.header.ensembleType = ENS_TEMP_TIME;
+        ens.ensData.rawTemp = N_TO_B_ENDIAN_2(temp / 0.0078125);
+
+        pSystemDesc->pRecorder->putData(ens);
+        memset(pData, 0, sizeof(Ensemble01_eventData_t));
+    }
+}
 static void SS_fwVerInit(DeploymentSchedule_t* pDeployment)
 {
     (void) pDeployment;
