@@ -47,7 +47,7 @@ typedef struct Ensemble08_eventData_
 {
     double temperature;
     int32_t water;
-
+    
     uint32_t accumulateCount;
 }Ensemble08_eventData_t;
 
@@ -60,7 +60,7 @@ typedef struct Ensemble07_eventData_
 typedef struct Ensemble01_eventData_
 {
     double temperature;
-
+    int16_t water;
     uint32_t accumulateCount;
 }Ensemble01_eventData_t;
 
@@ -276,7 +276,7 @@ static void SS_ensemble08Func(DeploymentSchedule_t* pDeployment)
 static void SS_ensemble01Func(DeploymentSchedule_t* pDeployment)
 {
     float temp;
-
+    uint8_t water;
     Ensemble01_eventData_t* pData = (Ensemble01_eventData_t*) pDeployment->state.pData;
     #pragma pack(push, 1)
     struct{
@@ -295,7 +295,12 @@ static void SS_ensemble01Func(DeploymentSchedule_t* pDeployment)
     // Report accumulated measurements
     if(pData->accumulateCount == pDeployment->measurementsToAccumulate)
     {
+        water = pData->water / pDeployment->measurementsToAccumulate;
         temp = pData->temperature / pDeployment->measurementsToAccumulate;
+        if(water == false)
+        {
+            temp -= 100;
+        }
         
         ens.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.deploymentStartTime);
         ens.header.ensembleType = ENS_TEMP_TIME;

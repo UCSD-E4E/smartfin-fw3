@@ -69,6 +69,20 @@ typedef struct Ensemble08_data_
 }Ensemble08_data_t;
 
 /**
+ * @brief Ensemble 9: IMU
+ * 
+ * Acceleration (x,y,z)
+ * Angular Velocity (x,y,z)
+ * Magnetic Field (x,y,z)
+ */
+typedef struct Ensemble09_data_
+{
+    int16_t rawAcceleration[3];
+    int16_t rawAngularVel[3];
+    int16_t rawMagField[3];
+}Ensemble09_data_t;
+
+/**
  * @brief Ensemble 10:
  * 
  * Temperature
