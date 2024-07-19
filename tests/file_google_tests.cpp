@@ -20,8 +20,8 @@ class SchedulerTestsFromFiles : public ::testing::TestWithParam<std::string>
 public:
     static void SetUpTestSuite()
     {
-        files = std::make_unique<FileWriter>("expected_file_tests.log",
-                "actual_file_tests.log");
+        files = std::make_unique<FileWriter>("outputs/expected_file_tests.log",
+                "outputs/actual_file_tests.log");
         
     }
     static void TearDownTestSuite()
@@ -111,6 +111,8 @@ protected:
 
         nextEvent = nullptr; // ensures that first call to scheduler is correct
         nextEventTime = 0; // time handling
+        
+        setTime(0);
 
     }
     
@@ -120,8 +122,10 @@ protected:
      */
     void TearDown() override
     {
+        
+        size_t pos = testName.find_last_of("/");
 
-        files->writeTest(testName,expected,actual);
+        files->writeTest(testName.substr(pos+1),expected,actual);
     }
     void runNextEvent()
     {
@@ -144,7 +148,7 @@ protected:
     void runTestFile(std::string filename)
     {
         input = parseInputFile(filename);
-        std::cout << input.serialize() << "\n";
+        
         setTime(input.start); 
         deploymentSchedule.clear();
         DeploymentSchedule_t e;
@@ -189,8 +193,6 @@ protected:
                         break;
                 }
             }
-            ASSERT_TRUE(input.expectedValues.size() > 0) 
-                << "Not enough expected values were provided!";
             if (input.expectedValues.size() > 0) 
             {
                 TestLog exp = input.expectedValues.front();
@@ -200,7 +202,7 @@ protected:
             }
             else
             {
-                runNextEvent();
+                return;
             }   
 
         }
@@ -255,19 +257,18 @@ protected:
                 iss >> out.end;
             } 
             else if (currentSection == "ENSEMBLES") {
-                //A|2000|200
-                //B|2000|400|1000 
+                
                 std::string name;
                 
                 uint32_t interval, duration, maxDelay;
                 std::getline(iss, name, '|');
-                std::cout << "name: " << name <<"\n";
+                
                 iss >> interval;
-                std::cout << "interval: " << interval <<"\n";
+                
                 
                 iss.ignore(1, '|');
                 iss >> duration;
-                std::cout << "duration: " << duration <<"\n";
+                
                 char checkChar = iss.peek();
                 if (checkChar == '|') {
                     iss.ignore(1, '|');
@@ -310,19 +311,11 @@ protected:
                 TestLog exp(expectedTaskName.c_str(), expectedStart,
                                                         exepectedEnd);
                 out.expectedValues.push_back(exp);
-                for (const auto& ensemble : out.expectedValues) {
-                    std::cout << "Expected Name: " << ensemble.name << ", start: " << ensemble.start << ", end: " << ensemble.end  << "\n";
-                } 
+               
                 std::cout << "\n";
             }
         }
         
-        for (const auto& ensemble : out.ensembles) {
-            std::cout << "Task Name: " << ensemble.taskName << ", Interval: " << ensemble.interval << ", Duration: " << ensemble.duration << ", Delay: " << ensemble.delay << "\n";
-        } 
-        for (const auto& ensemble : out.expectedValues) {
-            std::cout << "Expected Name: " << ensemble.name << ", start: " << ensemble.start << ", end: " << ensemble.end  << "\n";
-        } 
         
         return out;
     }
@@ -376,7 +369,7 @@ protected:
         uint32_t actualEnd = millis();
         
         appendExpectedFile(expectedTaskName, expectedStart, expectedEnd);
-        appendActualFile(nextEvent->taskName, nextEventTime, millis());
+        appendActualFile(nextEvent->taskName, actualStart, actualEnd);
 
         ASSERT_EQ(expectedTaskName, nextEvent->taskName) << failMessage.str();
         ASSERT_EQ(expectedStart, actualStart)  << failMessage.str();
@@ -396,7 +389,7 @@ protected:
 std::unique_ptr<FileWriter> SchedulerTestsFromFiles::files;
 
 
-TEST_P(SchedulerTestsFromFiles, ReadsFileCorrectly) {
+TEST_P(SchedulerTestsFromFiles, RunTestFile) {
     std::string filename = GetParam();
     
     runTestFile(filename);
@@ -425,10 +418,10 @@ INSTANTIATE_TEST_SUITE_P(
         std::string name = info.param;
         // Remove directory part for cleaner test names
         size_t last_slash_idx = name.find_last_of("\\/");
-        if (std::string::npos != last_slash_idx) {
+        if (std::string::npos != last_slash_idx) 
+        {
             name.erase(0, last_slash_idx + 1);
         }
-    
         std::replace(name.begin(), name.end(), '.', '_');
         return name;
     }

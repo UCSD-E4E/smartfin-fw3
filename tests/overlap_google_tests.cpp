@@ -49,8 +49,8 @@ protected:
 
     static void SetUpTestSuite()
     {
-        files = std::make_unique<FileWriter>("expected_overlap_tests.log", 
-                    "actual_overlap_tests.log");
+        files = std::make_unique<FileWriter>("outputs/expected_overlap_tests.log", 
+                    "outputs/actual_overlap_tests.log");
     }
     static void TearDownTestSuite()
     {

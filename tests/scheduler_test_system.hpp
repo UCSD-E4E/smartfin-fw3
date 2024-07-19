@@ -132,7 +132,8 @@ struct TestInput
             ss << "    { TaskName: " << delay.taskName
                << ", Iteration: " << delay.iteration
                << ", Delay: " << delay.delay
-               << ", IsBefore: " << (delay.isBefore ? "true" : "false") << " }\n";
+               << ", IsBefore: " << (delay.isBefore ? "true" : "false") 
+               << " }\n";
         }
         ss << "  ]\n";
 
@@ -147,7 +148,7 @@ struct FileWriter
 {
     std::string expectedFileName;
     std::string actualFileName;
-    
+    bool firstTest;
     FileWriter(std::string expectedFileName, std::string actualFileName);
     void writeTest(std::string testName, 
             std::vector<TestLog> expected, std::vector<TestLog> actual);

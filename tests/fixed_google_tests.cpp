@@ -12,7 +12,7 @@
 #include <filesystem>
 #include <sstream>
 #include <memory>
-
+#include "flog.hpp"
 
 
 class SchedulerFixedTests : public ::testing::Test
@@ -51,8 +51,9 @@ protected:
 
     static void SetUpTestSuite()
     {
-        files = std::make_unique<FileWriter>("expected_fixed_tests.log", 
-                    "actual_fixed_tests.log");
+        files = std::make_unique<FileWriter>("outputs/expected_fixed_tests.log", 
+                    "outputs/actual_fixed_tests.log");
+        FLOG_Initialize();
     }
     static void TearDownTestSuite()
     {
@@ -473,7 +474,7 @@ TEST_F(SchedulerFixedTests, SingleEvent_SecondEndAfterThirdStart)
 }
 
 /**
-* @brief Seccond iteration ends when third iteration woas supposed to end time
+* @brief Seccond iteration ends when third iteration was supposed to end time
 * task end delayed past when second event is supposed to start, second
 * event would now start when third run would start,
 * so second event is skipped
@@ -624,27 +625,31 @@ TEST_F(SchedulerFixedTests, DelayAndSkip)
 
     runNextEvent();
     runNextEvent();
-    addTime(900); //delay
+    runNextEvent();
 
+    runNextEvent();
+    runNextEvent();
+    addTime(900); //delay
     ASSERT_TRUE(SCH_willOverlap(deploymentSchedule.data(), 2, 
                                 millis(), millis()));
     SCH_getNextEvent(deploymentSchedule.data(), &nextEvent,
                                 &nextEventTime, millis());
-    runAndCheckEvent("A", 2000, 2400);
+    runAndCheckEvent("A", 4000, 4400);
     SCH_getNextEvent(deploymentSchedule.data(), &nextEvent,
                                 &nextEventTime, millis());
-    runAndCheckEvent("B", 2400, 2600);
+    runAndCheckEvent("B", 4400, 4600);
 
 
     SCH_getNextEvent(deploymentSchedule.data(), &nextEvent,
                             &nextEventTime, millis());//C runs
-    runAndCheckEvent("C", 2600, 3200);
+    runAndCheckEvent("C", 4600, 5200);
     SCH_getNextEvent(deploymentSchedule.data(), &nextEvent,
                             &nextEventTime, millis());
-    runAndCheckEvent("A", 4000, 4400);
+    runAndCheckEvent("A", 6000, 6400);
 
     //  check for cascades
     checkIdeal(10000);
+    FLOG_DisplayLog();
 
 
 }

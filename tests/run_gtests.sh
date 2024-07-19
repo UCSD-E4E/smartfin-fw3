@@ -2,8 +2,9 @@
 
 cmake  .. -Bbuild/
 make -Cbuild/
-./build/googletests 
 mkdir -p outputs
+./build/googletests 
+
 
 
 #create graphs

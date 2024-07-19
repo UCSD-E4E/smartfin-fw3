@@ -14,6 +14,7 @@
 #include "ensembles.hpp"
 #include "scheduler.hpp"
 #include "consts.hpp"
+#include <cli/flog.hpp>
 #include <string.h>
 
 
@@ -36,8 +37,6 @@ void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
         pDeployment->state.deploymentStartTime = startTime;
         pDeployment->state.firstRunTime = UINT32_MAX;
         pDeployment->state.nMeasurements = UINT32_MAX;
-        pDeployment->state.nMeasurements = UINT32_MAX;
-
         pDeployment->init(pDeployment);
         pDeployment++;
     }
@@ -82,29 +81,36 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     {
         // Reference to current event in the schedule
         DeploymentSchedule_t& currentEvent = scheduleTable[idx];
+        // Reference to current event in the schedule
+        StateInformation& s = scheduleTable[idx].state;
         // Reset the next run time for the current event
-        currentEvent.state.nextRunTime = UINT32_MAX;
+        s.nextRunTime = UINT32_MAX;
         // Variable to store the calculated start time of the next event.
         uint32_t nextStartTime;
         // Calculate first start time after delay.
-        uint32_t firstStartTime = currentEvent.state.deploymentStartTime +
+        uint32_t firstStartTime = s.deploymentStartTime +
             currentEvent.ensembleDelay;
+        if ( s.firstRunTime != UINT32_MAX)
+        {
+            firstStartTime = s.firstRunTime;
+        }
+
 
         // check if first event
         if (currentTime <= firstStartTime)
         {
+            s.firstRunTime = firstStartTime;
             if (firstStartTime < minNextTime &&
                                             !SCH_willOverlap(scheduleTable,
                                             idx, currentTime, firstStartTime))
             {
                 minNextTime = firstStartTime;
                 nextEvent = &currentEvent;
-
             }
             continue;
         }
         // Calculate intended count 
-        uint32_t intendedCount = (currentTime - firstStartTime - 1) /
+        uint32_t intendedCount = (currentTime - s.firstRunTime - 1) /
             currentEvent.ensembleInterval + 1;
         uint32_t lastInterval = firstStartTime + (intendedCount - 1) *
             currentEvent.ensembleInterval;
@@ -115,10 +121,10 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
 
 
         // check if measurement is late
-        if ((currentEvent.state.lastMeasurementTime < lastInterval) ||
-            ((currentEvent.state.lastMeasurementTime == firstStartTime) &&
+        if ((s.lastMeasurementTime < lastInterval) ||
+            ((s.lastMeasurementTime == firstStartTime) &&
                 (firstStartTime < currentTime) &&
-                (currentEvent.state.measurementCount == 0)))
+                (s.measurementCount == 0)))
         {
 
             if (currentTime + currentEvent.maxDuration > nextInterval)
@@ -137,11 +143,20 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
 
         if (!SCH_willOverlap(scheduleTable, idx, currentTime, nextStartTime))
         {
-            currentEvent.state.nextRunTime = nextStartTime;
+            s.nextRunTime = nextStartTime;
             if (nextStartTime < minNextTime)
             {
                 nextEvent = &currentEvent;
                 minNextTime = nextStartTime;
+                if (nextStartTime - s.lastMeasurementTime > 
+                                        currentEvent.maxDelay)
+                {
+                    s.firstRunTime = minNextTime;
+                    FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
+                                            s.measurementCount);
+                    SF_OSAL_printf("Task %s skipped at time %zu"  __NL__ ,
+                            currentEvent.taskName,currentTime);
+                }
             }
         }
 
@@ -156,7 +171,10 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     else
     {
 
-
+        if (nextEvent->state.firstRunTime == UINT32_MAX)
+        {
+            nextEvent->state.firstRunTime = minNextTime;
+        }
         // Sets ensemble variable lastMeasurementTime to next time it will run
         nextEvent->state.lastMeasurementTime = minNextTime;
         // Incraments ensemble variable lastMeasurementTime measurementCount

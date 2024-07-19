@@ -8,8 +8,6 @@
 
 
 
-
-
 typedef struct FLOG_Entry_
 {
     uint32_t timestamp_ms;
@@ -65,6 +63,8 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_ICM_FAIL, "ICM Fail"},
 
     {FLOG_RIDE_INIT_TIMEOUT, "Ride init Timeout"},
+    {FLOG_SCHEDULER_FAILED, "Scheduler failed"},
+    {FLOG_SCHEDULER_DELAY_EXCEEDED,"Ensemble skipped"},
 
     {FLOG_UPLOAD_NO_UPLOAD, "Upload - No Upload Flag set"},
     {FLOG_UPL_BATT_LOW, "Upload Battery low"},
@@ -114,7 +114,8 @@ void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
         FLOG_Initialize();
     }
 
-    pEntry = &flogData.flogEntries[(flogData.numEntries) & (FLOG_NUM_ENTRIES - 1)];
+    pEntry = &flogData.flogEntries[(flogData.numEntries) & 
+        (FLOG_NUM_ENTRIES - 1)];
     pEntry->timestamp_ms = millis();
     pEntry->errorCode = errorCode;
     pEntry->param = parameter;
@@ -142,8 +143,7 @@ void FLOG_DisplayLog(void)
     {
         SF_OSAL_printf("%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT __NL__,
             flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
-            FLOG_FindMessage((FLOG_CODE_e)
-            flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
+            FLOG_FindMessage((FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
             flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
     }
     SF_OSAL_printf(""  __NL__);
