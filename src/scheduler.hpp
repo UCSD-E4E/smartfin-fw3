@@ -12,7 +12,7 @@
 #ifndef TEST_VERSION
 #include "Particle.h"
 #else
-#include "scheduler_test_system.hpp"
+#include "../tests/scheduler_test_system.hpp"
 #endif
 
 typedef enum error_
@@ -27,7 +27,7 @@ typedef enum error_
  */
 
 
-typedef struct DeploymentSchedule_ DeploymentSchedule_t;
+//typedef struct DeploymentSchedule_ DeploymentSchedule_t;
 
 /**
  * @brief Ensemble function.
@@ -42,26 +42,26 @@ typedef struct DeploymentSchedule_ DeploymentSchedule_t;
  * 
  * @param pDeployment the schedule table
  */
-typedef void (*EnsembleFunction)(DeploymentSchedule_t* pDeployment);
+//typedef void (*EnsembleFunction)(DeploymentSchedule_t* pDeployment);
 /**
  * @brief Ensemble initialization function.
  *
  * This function is executed once when all of the
  * @param pDeployment the schedule table
  */
-typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
+//typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
 
 /**
  * @brief Records and writes ensemble
  * @param pDeployment the schedule table
  */
-typedef void (*EnsembleProccess)(DeploymentSchedule_t* pDeployment);
+//typedef void (*EnsembleProccess)(DeploymentSchedule_t* pDeployment);
 
 struct  DeploymentSchedule_
  {
     int priority;
-    EnsembleFunction measure;               //!< measurement function
-    EnsembleInit init;                      //!< initialization function
+    void (*measure)();               //!< measurement function
+    //void (*init)();                       //!< initialization function
     //EnsembleProccess process;             //!< processing function
 
     //uint32_t measurementsToAccumulate;      //!< measurements before processing
@@ -69,7 +69,7 @@ struct  DeploymentSchedule_
     uint32_t ensembleInterval;              //!< time between ensembles
 
     // State information
-    uint32_t nMeasurements;     //!< Total number of measurements to execute
+    //uint32_t nMeasurements;     //!< Total number of measurements to execute
     //uint32_t lastMeasurementTime;   //!< last time measurement was scheduled
     //uint32_t deploymentStartTime;   //!< when schedule was initialized
     //uint32_t measurementCount;      //!< how many times ensemble was scheduled
@@ -81,28 +81,24 @@ struct  DeploymentSchedule_
 
 
 struct Task_{
-    char taskName;
+    
     uint32_t nextRunTime;
     uint32_t interval;
     uint32_t numRuns;
-    EnsembleFunction * measure;               
-    EnsembleInit * init;
-    void* pData;
-
-
+    DeploymentSchedule_ * info;
 };
 
 class Scheduler{
 
     public:
         Scheduler(DeploymentSchedule_ d[], int num, int startTime);
-        int runTimes[numTasks][500];
+        int runTimes[3][500];
        
         void SCH_runSchedule();
 
     private:
         int numTasks;
-        Task_ task[numTasks];
+        Task_ task[3];
         int numDelays;
         unsigned long totalDelay;
 
@@ -112,17 +108,17 @@ class Scheduler{
 
 
 
-/**
+/*
  * @brief Initializes ensemble variables
  * 
  * @param scheduleTable  the schedule table
  * @param startTime the start time of the deployment
  */
-void SCH_initializeSchedule(DeploymentSchedule_t* scheduleTable,
-                                system_tick_t startTime);
-void SCH_runSchedule(Task_ tasks[], int numTask);
+//void SCH_initializeSchedule(DeploymentSchedule_t* scheduleTable,
+                               // system_tick_t startTime);
+//void SCH_runSchedule(Task_ tasks[], int numTask);
 
-/**
+/*
  * @brief sets next scheduled task and time
  * 
  * @param scheduleTable the schedule table
@@ -134,12 +130,12 @@ void SCH_runSchedule(Task_ tasks[], int numTask);
  * @ref tests/gtests.cpp
  * @return outcome enum from
  */
-uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
+/*uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             DeploymentSchedule_t** p_nextEvent,
             system_tick_t* p_nextTime,
-            system_tick_t currentTime);
+            system_tick_t currentTime);*/
 
-/**
+/*
  * @brief Determines if a task will overlap with other scheduled tasks.
  * 
  * This function checks if the proposed start and end times of a task
@@ -152,8 +148,8 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
  * @param nextStartTime The proposed start time of the current task.
  * @return True if there is an overlap with another task; false otherwise.
  */
-bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i,
-                    system_tick_t currentTime, uint32_t nextStartTime);
+/*bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i,
+                    system_tick_t currentTime, uint32_t nextStartTime);*/
 
 #endif //__SCHEDULER__HPP_
 

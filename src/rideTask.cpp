@@ -4,7 +4,11 @@
  *  @version 1
  */
 #include "rideTask.hpp"
+#ifndef TEST_VERSION
 #include "Particle.h"
+#else
+#include "../tests/scheduler_test_system.hpp"
+#endif
 #include <time.h>
 #include "cli/conio.hpp"
 #include "consts.hpp"
@@ -29,10 +33,10 @@ static void RIDE_setFileName(system_tick_t startTime)
 /** @brief deployment schedule of ensembles to run
  * @see SCH_getNextEvent
 */
-DeploymentSchedule_t deploymentSchedule[] =
+/*DeploymentSchedule_t deploymentSchedule[] =
 {
     {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr, 0, '\0'}
-};
+};*/
 
 
 
@@ -40,6 +44,12 @@ DeploymentSchedule_t deploymentSchedule[] =
  * @brief initialize ride task
  * Sets LEDs  and initializes schedule
 */
+RideTask::RideTask(DeploymentSchedule_ deploymentSchedule[], int num){
+    int numTasks=num;
+    tasks=deploymentSchedule;
+
+}
+
 void RideTask::init()
 {
     SF_OSAL_printf("Entering STATE_DEPLOYED"  __NL__);
@@ -48,15 +58,16 @@ void RideTask::init()
     this->ledStatus.setPattern(RIDE_RGB_LED_PATTERN_GPS);
     this->ledStatus.setPeriod(RIDE_RGB_LED_PERIOD_GPS);
     this->ledStatus.setPriority(RIDE_RGB_LED_PRIORITY);
-    this->ledStatus.setActive();
+    this->ledStatus.setActive();*/
 
 
 
     this->startTime = millis();
-    numTask=3; //does this need to be changed?
-    s=Scheduler(deploymentSchedule, numTask, startTime);
+    
+   
     
     pSystemDesc->pRecorder->openSession();
+  
 
 }
 
@@ -65,6 +76,8 @@ void RideTask::init()
 */
 STATES_e RideTask::run(void)
 {
+   uint32_t startTime=millis();
+   Scheduler s=Scheduler(tasks, numTasks, startTime);
    while(millis()<15000){
        
         
@@ -153,6 +166,9 @@ void RideTask::exit(void)
 }
 
 void RideTask::printRunTimes(){
+
+    
+
 
 
 }

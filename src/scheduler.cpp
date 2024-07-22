@@ -8,7 +8,7 @@
 #ifndef TEST_VERSION
 #include "Particle.h"
 #else
-#include "scheduler_test_system.hpp"
+#include "../tests/scheduler_test_system.hpp"
 #endif
 #include "cli/conio.hpp"
 #include "ensembles.hpp"
@@ -26,18 +26,22 @@
   */
   //pDeployment is pointer to array with deployment schedules for all tasks, ordered by priority
 Scheduler::Scheduler(DeploymentSchedule_ d[], int num, int startTime){
-    numTask=num;
-    for(int i=0; i<numTask; i++){
-        DeploymentSchedule_t deployInfo=d[i];
-        int taskStart=startTime;
+    numTasks=num;
+    for(int i=0; i<numTasks; i++){
+        DeploymentSchedule_ deployInfo=d[i];
+        u_int32_t taskStart=startTime;
         if(i!=0){
-            DeploymentSchedule_t previous=d[i-1];
+            DeploymentSchedule_ previous=d[i-1];
             taskStart=(previous.startDelay)+(previous.maxDuration);
         }
         deployInfo.startDelay=taskStart;
-        EnsembleFunction* func=deployInfo.measure;
-        EnsembleInit* init=deployInfo.init;
-        task[i]=Task_{deployInfo.taskName,taskStart, deployInfo.ensembleInterval,0,func, init};
+        Task_ t;
+        t.nextRunTime=taskStart;
+        t.interval=deployInfo.ensembleInterval;
+        t.numRuns=0;
+        t.info=&(deployInfo);
+        
+        task[i]=t;
 
     }
     numDelays=0;
@@ -46,13 +50,13 @@ Scheduler::Scheduler(DeploymentSchedule_ d[], int num, int startTime){
 
 }
 void Scheduler::SCH_runSchedule(){
-    for(int i=0;i<numTask; i++){
-            Task_ task=task[i];
-            if(task.nextRunTime>=(int)millis()){
+    for(int i=0;i<numTasks; i++){
+            Task_ t=task[i];
+            if(t.nextRunTime>=(u_int32_t)millis()){
             int n=i-1;
             //check for an overlap, can change to only check for IMU
             while(n>=0){
-                    if(((int)millis()+ task.interval)>task[n].nextRunTime){
+                    if(((u_int32_t)millis()+ t.interval)>task[n].nextRunTime){
                         break;
                     }
                     n--;
@@ -61,20 +65,20 @@ void Scheduler::SCH_runSchedule(){
                 if(n>0){
                     break;
                 }
-            if((int)millis()==task.nextRunTime){
-                &(task.measure); //change
-                task.nextRunTime+=task.interval;
-                runTimes[i][task.numRuns]=(int)millis();
-                task.numRuns++;
-            }else if((int)millis()>task.nextRunTime){
-                inTask=true;
-                int delay=(int)millis()-(task.nextRunTime);
-                SF_OSAL_printf(task.taskName + " |%" PRId32  __NL__, (uint32_t)millis());
-                task.nextRunTime+=(task.interval + delay);
+            if((u_int32_t)millis()==t.nextRunTime){
+                t.info->measure; //change
+                t.nextRunTime+=t.interval;
+                runTimes[i][t.numRuns]=(int)millis();
+                t.numRuns++;
+            }else if((u_int32_t)millis()>t.nextRunTime){
+                
+                int delay=(int)millis()-(t.nextRunTime);
+                //SF_OSAL_printf(" |%" PRId32  __NL__, (uint32_t)millis());
+                t.nextRunTime+=(t.interval + delay);
                 numDelays++;
                 totalDelay+=(unsigned long)delay;
-                runTimes[i][task.numRuns]=(int)millis();
-                task.numRuns++;
+                runTimes[i][t.numRuns]=(u_int32_t)millis();
+                t.numRuns++;
                 
             }
             }
@@ -86,7 +90,7 @@ void Scheduler::SCH_runSchedule(){
 }
 
 
-void SCH_initializeSchedule(DeploymentSchedule_t pDeployment[], int numTask, Task_ task[],
+/*void SCH_initializeSchedule(DeploymentSchedule_t pDeployment[], int numTask, Task_ task[],
                             system_tick_t startTime)
 {
    
@@ -106,21 +110,8 @@ void SCH_initializeSchedule(DeploymentSchedule_t pDeployment[], int numTask, Tas
     }
     
     
-    /*
-    uint32_t lastEndTime = 0;
-    while (pDeployment->init)
-    {
-        pDeployment->deploymentStartTime = startTime;
-        pDeployment->lastMeasurementTime = 0;
-        pDeployment->measurementCount = 0;
-        lastEndTime += pDeployment->maxDuration;
-
-        pDeployment->init(pDeployment);
-        pDeployment++;
-    }
-    */
-}
-
+}*/
+/*
 void SCH_runSchedule(Tasks_ tasks[], int numTask){
      for(int i=0;i<numTask; i++){
             Task_ task=tasks[i];
@@ -156,7 +147,7 @@ void SCH_runSchedule(Tasks_ tasks[], int numTask){
 
 
 }
-
+*/
 
 
 

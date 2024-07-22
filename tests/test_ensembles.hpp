@@ -6,42 +6,42 @@
 #ifndef __TEST_ENSEMBLES_HPP__
 #define __TEST_ENSEMBLES_HPP__
 
-#include "scheduler.hpp"
-/**
- * @brief dummy ensemble init function
- * @param pDeployment schedule table
- */
-void SS_ensembleAInit(DeploymentSchedule_t* pDeployment);
-
-/**
- * @brief dummy ensemble function
- * @param pDeployment schedule table
- */
-void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment);
 
 /**
  * @brief dummy ensemble init function
  * @param pDeployment schedule table
  */
-void SS_ensembleBInit(DeploymentSchedule_t* pDeployment);
+void SS_ensembleAInit();
 
 /**
  * @brief dummy ensemble function
  * @param pDeployment schedule table
  */
-void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment);
+void SS_ensembleAFunc();
 
 /**
  * @brief dummy ensemble init function
  * @param pDeployment schedule table
  */
-void SS_ensembleCInit(DeploymentSchedule_t* pDeployment);
+void SS_ensembleBInit();
 
 /**
  * @brief dummy ensemble function
  * @param pDeployment schedule table
  */
-void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment);
+void SS_ensembleBFunc();
+
+/**
+ * @brief dummy ensemble init function
+ * @param pDeployment schedule table
+ */
+void SS_ensembleCInit();
+
+/**
+ * @brief dummy ensemble function
+ * @param pDeployment schedule table
+ */
+void SS_ensembleCFunc();
 
 
 #endif //__TEST_ENSEMBLES_HPP__
