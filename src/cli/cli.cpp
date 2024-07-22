@@ -19,6 +19,8 @@
 #include "menuItems/gpsCommands.hpp"
 #include "debug/recorder_debug.hpp"
 #include "debug/session_debug.hpp"
+#include "imu/imu.hpp"
+#include "menuItems/debugCommands.hpp"
 
 #include "states.hpp"
 #include "util.hpp"
@@ -33,6 +35,8 @@
 #include <bits/stdc++.h>
 
 #include "Particle.h"
+#include <string>
+#include <iostream>
 
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
@@ -46,6 +50,7 @@ static void CLI_displayNVRAM(void);
 static void CLI_sleepSetSleepBehavior(void);
 static void CLI_sleepGetSleepBehavior(void);
 static void CLI_displayResetReason(void);
+static void CLI_monitorSensors(void);
 
 const Menu_t CLI_menu[] =
 {
@@ -64,6 +69,7 @@ const Menu_t CLI_menu[] =
     {13, "upload", &CLI_doUpload, MENU_CMD},
     {14, "Recorder Test Menu", {.pMenu=Recorder_debug_menu}, MENU_SUBMENU},
     {15, "Session Test Menu", {.pMenu=Session_debug_menu}, MENU_SUBMENU},
+    {16, "Display all sensors", &CLI_monitorSensors, MENU_CMD},
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
@@ -109,6 +115,121 @@ void CLI::exit()
     pSystemDesc->pChargerCheck->stop();
 }
 
+static void CLI_monitorSensors(void) {
+    char ch;
+
+    float accelData[3] = {0,0,0};
+    float gyroData[3] = {0,0,0};
+    float magData[3] = {0,0,0};
+    float tmpData = 0;
+    float wdData = 0;
+
+    setupICM();
+    SF_OSAL_printf(__NL__);
+    
+    bool a = false;
+    bool g = false;
+    bool m = false;
+    bool t = false;
+    bool w = false;
+    
+    SF_OSAL_printf("Enter delay time: ");
+    char dt[SF_CLI_MAX_CMD_LEN];
+    getline(dt, SF_CLI_MAX_CMD_LEN);
+    int delayTime = atoi(dt);
+    while (true) {
+        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w), d to quit: ");
+        ch = getch();
+        SF_OSAL_printf("%c", ch); 
+        SF_OSAL_printf(__NL__);
+        if (ch == 'd') {
+            break;
+        } else if (ch == 'a') {
+            a = true;
+        } else if (ch == 'g') {
+            g = true;
+        } else if (ch == 'm') {
+            m = true;
+        } else if (ch == 't') {
+            t = true;
+        }  else if (ch == 'w') {
+            w = true;
+        } else {
+             SF_OSAL_printf("invalid input" __NL__);
+        }
+    }
+     SF_OSAL_printf(__NL__);
+    std::vector<std::string> headers;
+    if (a) {
+        headers.push_back("ax");
+        headers.push_back("ay");
+        headers.push_back("az");
+    }
+    if (g) {
+        headers.push_back("gx");
+        headers.push_back("gy");
+        headers.push_back("gz");
+    }
+    if (m) {
+        headers.push_back("mx");
+        headers.push_back("my");
+        headers.push_back("mz");
+    }
+    if (t) {
+        headers.push_back("temp");
+    }
+    if (w) {
+        headers.push_back("wet/dry");
+    }
+
+
+    
+    int count = 0;
+   
+    while(1)
+    {
+        if(kbhit()) 
+        {
+            ch = getch();
+
+            if('q' == ch) 
+            {
+                break;
+            } 
+        }
+        getAccelerometer(accelData, accelData + 1, accelData + 2);
+        getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+        getMagnetometer(magData, magData + 1, magData + 2);
+        //this is from temp sensor not imu temp
+        tmpData = pSystemDesc->pTempSensor->getTemp();
+        wdData = pSystemDesc->pWaterSensor->getLastReading();
+        std::map<std::string, float> sensorData = {
+        {"ax", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelData[0]))},
+        {"ay", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelData[1]))},
+        {"az", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelData[2]))},
+        {"gx", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(gyroData[0]))},
+        {"gy", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(gyroData[1]))},
+        {"gz", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(gyroData[2]))},
+        {"mx", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(magData[0]))},
+        {"my", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(magData[1]))},
+        {"mz", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(magData[2]))},
+        {"temp", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(tmpData))},
+        {"wet/dry", wdData}
+    };
+        if (count % 10 == 0) {
+            for (const auto& header : headers) {
+            SF_OSAL_printf("|   %s    |\t", header.c_str());
+            }
+            SF_OSAL_printf(__NL__);
+        }
+        for (const auto& header : headers) {
+        SF_OSAL_printf(" %8.4f\t", sensorData.at(header));
+        }
+        SF_OSAL_printf(__NL__);
+        count++;
+        delay(delayTime);
+    }
+}
 void CLI_displayMenu(void)
 {
     MNU_displayMenu(CLI_menu);
