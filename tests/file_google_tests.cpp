@@ -14,6 +14,8 @@
 #include <memory>
 #include <dirent.h>
 #include <algorithm>
+#include <utility>
+
 
 class SchedulerTestsFromFiles : public ::testing::TestWithParam<std::string>
 {
@@ -155,11 +157,11 @@ protected:
         for(size_t i = 0; i < input.ensembles.size(); i++)
         {
             e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 
-                                                input.ensembles[i].interval,
-                                                input.ensembles[i].duration, 
-                                                input.ensembles[i].delay, 
-                                                input.ensembles[i].taskName.c_str(), 
-                                                {0} };
+                                            input.ensembles[i].interval,
+                                            input.ensembles[i].duration, 
+                                            input.ensembles[i].delay, 
+                                            input.ensembles[i].taskName.c_str(), 
+                                            {0} };
             deploymentSchedule.emplace_back(e);
         }
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
@@ -199,6 +201,16 @@ protected:
                 runAndCheckEventWithDelays(exp.name, exp.start, exp.end, 
                                         beforeDelay,afterDelay);
                 input.expectedValues.erase(input.expectedValues.begin());
+                for(size_t i = 0; i < input.resets.size(); i++)
+                {
+                    if(!strcmp(nextEvent->taskName, 
+                                input.resets[i].first.c_str()) &&
+                            (nextEvent->state.measurementCount - 1 == 
+                            input.resets[i].second))
+                    {
+                        ASSERT_EQ(nextEvent->state.firstRunTime, UINT32_MAX);
+                    }
+                }
             }
             else
             {
@@ -217,8 +229,9 @@ protected:
         int start = 0;
         int end;
         
-        std::vector<TestLog> expectedValues;
-        std::vector<Delay> delays;
+        
+       
+        
         TestInput out;
         while (getline(file, line)) {
             
@@ -236,24 +249,33 @@ protected:
             if (line == "START") {
                 currentSection = "START";
                 continue;
-            } else if (line == "END") {
+            } 
+            else if (line == "END") {
                 currentSection = "END";
                 continue;
-            } else if (line == "ENSEMBLES") {
+            } 
+            else if (line == "ENSEMBLES") {
                 currentSection = "ENSEMBLES";
                 continue;
-            } else if (line == "DELAYS") {
+            } 
+            else if (line == "DELAYS") {
                 currentSection = "DELAYS";
                 continue; 
-            } else if (line == "EXPECTED") {
+            } 
+            else if (line == "EXPECTED") {
                 currentSection = "EXPECTED";
+                continue;
+            }
+            else if (line == "RESETS") {
+                currentSection = "RESETS";
                 continue;
             }
 
             std::istringstream iss(line);
             if (currentSection == "START") {
                 iss >> out.start;
-            } else if (currentSection == "END") {
+            } 
+            else if (currentSection == "END") {
                 iss >> out.end;
             } 
             else if (currentSection == "ENSEMBLES") {
@@ -299,12 +321,11 @@ protected:
                     if (position == "before") d.isBefore = true;
                 }
                 out.delays.emplace_back(d);
-            } else if (currentSection == "EXPECTED") {
-                
+            }
+            else if (currentSection == "EXPECTED") {
                 std::string expectedTaskName;
                 uint32_t expectedStart, exepectedEnd;
                 std::getline(iss, expectedTaskName, '|');
-                
                 iss >> expectedStart;
                 iss.ignore(1, '|');
                 iss >> exepectedEnd;
@@ -314,6 +335,14 @@ protected:
                
                 std::cout << "\n";
             }
+            else if (currentSection == "RESETS") {
+                
+                std::string resetName;
+                uint32_t iteration;
+                std::getline(iss, resetName, '|');
+                iss >> iteration;
+                out.resets.emplace_back(std::make_pair(resetName, iteration));
+            } 
         }
         
         
@@ -352,15 +381,16 @@ protected:
         failMessage << "runAndCheckEvent failed:\n"
             << "Expected \tActual\n"
             << expectedTaskName << "\t\t" << nextEvent->taskName << "\n"
-            << expectedStart << "\t\t" << nextEventTime + preceedingDelay 
+            << expectedStart << "\t\t" << nextEventTime 
             << "\n"
-            << expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration;
+            << expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration
+                                        + trailingDelay;
         
     
         
         
         setTime(nextEventTime);
-        addTime(preceedingDelay);
+        
         uint32_t actualStart = millis();
         
 

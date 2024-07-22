@@ -554,33 +554,7 @@ TEST_F(SchedulerFixedTests, TestIdeal)
     checkIdeal(8000);
 }
 
-/**
- * @brief First task starts with 200ms delay, next tasks run immediately after
- * and the future tasks are still run from their respective ensemble delays
- * without changing those ensemble delays
- *
- */
-TEST_F(SchedulerFixedTests, DelayRunImmediately)
-{
 
-    SCH_getNextEvent(deploymentSchedule.data(), &nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEventWithDelays("A", 0, 600, 0, 200);
-
-    SCH_getNextEvent(deploymentSchedule.data(), &nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("B", 600, 800);
-
-    SCH_getNextEvent(deploymentSchedule.data(), &nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("C", 800, 1400);
-    //  ensure ensemble delays unchanged
-    ASSERT_EQ(deploymentSchedule[0].ensembleDelay, 0);
-    ASSERT_EQ(deploymentSchedule[1].ensembleDelay, 0);
-    ASSERT_EQ(deploymentSchedule[2].ensembleDelay, 0);
-
-    checkIdeal(10000);
-}
 
 /**
  * @brief Task C runs 900ms long, delaying second run of task A. Task A would

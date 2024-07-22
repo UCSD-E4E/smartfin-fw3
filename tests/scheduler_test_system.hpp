@@ -10,6 +10,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <utility>
+
 
 
 //! time unit required by Particle
@@ -106,6 +108,7 @@ struct TestInput
     std::vector<EnsembleInput> ensembles;
     std::vector<TestLog> expectedValues;
     std::vector<Delay> delays;
+    std::vector<std::pair<std::string,uint32_t>> resets;
     std::string serialize() const {
         std::stringstream ss;
         ss << "TestInput: { Start: " << start << ", End: " << end << "\n";

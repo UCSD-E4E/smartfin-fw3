@@ -37,6 +37,7 @@ void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
         pDeployment->state.deploymentStartTime = startTime;
         pDeployment->state.firstRunTime = UINT32_MAX;
         pDeployment->state.nMeasurements = UINT32_MAX;
+        pDeployment->state.lastMeasurementTime = UINT32_MAX;
         pDeployment->init(pDeployment);
         pDeployment++;
     }
@@ -90,7 +91,11 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
         // Calculate first start time after delay.
         uint32_t firstStartTime = s.deploymentStartTime +
             currentEvent.ensembleDelay;
-        if ( s.firstRunTime != UINT32_MAX)
+        if (s.firstRunTime == UINT32_MAX && s.lastMeasurementTime != UINT32_MAX)
+        {
+            s.firstRunTime = s.lastMeasurementTime;
+        }
+        if (s.firstRunTime != UINT32_MAX)
         {
             firstStartTime = s.firstRunTime;
         }
@@ -99,7 +104,7 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
         // check if first event
         if (currentTime <= firstStartTime)
         {
-            s.firstRunTime = firstStartTime;
+            
             if (firstStartTime < minNextTime &&
                                             !SCH_willOverlap(scheduleTable,
                                             idx, currentTime, firstStartTime))
@@ -110,7 +115,7 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             continue;
         }
         // Calculate intended count 
-        uint32_t intendedCount = (currentTime - s.firstRunTime - 1) /
+        uint32_t intendedCount = (currentTime - firstStartTime - 1) /
             currentEvent.ensembleInterval + 1;
         uint32_t lastInterval = firstStartTime + (intendedCount - 1) *
             currentEvent.ensembleInterval;
@@ -136,6 +141,10 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
                 nextStartTime = currentTime;
             }
         }
+        else if(s.lastMeasurementTime == UINT32_MAX)
+        {
+            nextStartTime = currentTime;
+        }
         else
         {
             nextStartTime = nextInterval;
@@ -151,7 +160,7 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
                 if (nextStartTime - s.lastMeasurementTime > 
                                         currentEvent.maxDelay)
                 {
-                    s.firstRunTime = minNextTime;
+                    s.firstRunTime = UINT32_MAX;
                     FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
                                             s.measurementCount);
                     SF_OSAL_printf("Task %s skipped at time %zu"  __NL__ ,
@@ -171,10 +180,7 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     else
     {
 
-        if (nextEvent->state.firstRunTime == UINT32_MAX)
-        {
-            nextEvent->state.firstRunTime = minNextTime;
-        }
+        
         // Sets ensemble variable lastMeasurementTime to next time it will run
         nextEvent->state.lastMeasurementTime = minNextTime;
         // Incraments ensemble variable lastMeasurementTime measurementCount
