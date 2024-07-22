@@ -204,16 +204,16 @@ static void CLI_monitorSensors(void) {
         tmpData = pSystemDesc->pTempSensor->getTemp();
         wdData = pSystemDesc->pWaterSensor->getLastReading();
         std::map<std::string, float> sensorData = {
-        {"ax", accelData[0]},
-        {"ay", accelData[1]},
-        {"az", accelData[2]},
-        {"gx", gyroData[0]},
-        {"gy", gyroData[1]},
-        {"gz", gyroData[2]},
-        {"mx", magData[0]},
-        {"my", magData[1]},
-        {"mz", magData[2]},
-        {"temp", tmpData},
+        {"ax", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelData[0]))},
+        {"ay", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelData[1]))},
+        {"az", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelData[2]))},
+        {"gx", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(gyroData[0]))},
+        {"gy", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(gyroData[1]))},
+        {"gz", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(gyroData[2]))},
+        {"mx", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(magData[0]))},
+        {"my", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(magData[1]))},
+        {"mz", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(magData[2]))},
+        {"temp", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(tmpData))},
         {"wet/dry", wdData}
     };
         if (count % 10 == 0) {
