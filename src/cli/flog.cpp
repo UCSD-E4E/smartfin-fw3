@@ -72,6 +72,8 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_ICM_FAIL, "ICM Fail"},
 
     {FLOG_RIDE_INIT_TIMEOUT, "Ride init Timeout"},
+    {FLOG_SCHEDULER_FAILED, "Scheduler failed"},
+    {FLOG_SCHEDULER_DELAY_EXCEEDED,"Ensemble skipped"},
 
     {FLOG_UPLOAD_NO_UPLOAD, "Upload - No Upload Flag set"},
     {FLOG_UPL_BATT_LOW, "Upload Battery low"},

@@ -2,8 +2,13 @@
 
 cmake  .. -Bbuild/
 make -Cbuild/
-./build/googletests 
 mkdir -p outputs
+mkdir -p inputs
+mkdir -p no_check_outputs
+mkdir -p no_check_inputs
+
+./build/googletests 
+./build/examine_behaivor
 
 
 #create graphs

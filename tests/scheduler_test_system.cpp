@@ -6,6 +6,7 @@
  */
 #include "scheduler_test_system.hpp"
 #include "conio.hpp"
+#include "flog.hpp"
 #include <chrono>
 
 #include <stdarg.h>
@@ -98,6 +99,7 @@ void delay(uint32_t time)
 
 FileWriter::FileWriter(std::string expectedFileName, std::string actualFileName)
 {
+    this->firstTest = true;
     this->expectedFileName = expectedFileName;
     this->actualFileName = actualFileName;
     std::ofstream expectedFile(expectedFileName,std::ios::out | 
@@ -121,7 +123,7 @@ void FileWriter::writeTest(std::string testName,
                                 std::ios::app);
     std::ofstream expectedFile(expectedFileName, std::ios::out |
         std::ios::app);
-    static bool firstTest = true;
+    
     if (firstTest == false)
     {
         expectedFile << ",";
@@ -148,15 +150,15 @@ void FileWriter::writeTest(std::string testName,
 
 
     actualFile << "\n\t\"" << testName << "\": [";
-    if (!expected.empty())
+    if (!actual.empty())
     {
 
 
-        for (int i = 0; i < expected.size() - 1; i++)
+        for (int i = 0; i < actual.size() - 1; i++)
         {
-            actualFile << expected[i] << ", ";
+            actualFile << actual[i] << ", ";
         }
-        actualFile << expected.back();
+        actualFile << actual.back();
     }
     actualFile << "]";
     actualFile.close();

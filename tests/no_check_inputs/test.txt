@@ -1,21 +1,12 @@
 START #only one number
 0
 END #only one number
-1000000
+10000
 ENSEMBLES #taskname|interval|duration or taskname|interval|duration|maxDelay
 A|2000|200
 B|2000|400|1000
 C|500|100|100
 DELAYS #0 based indexing: "taskname|iteration|delay"
 B|1|1000
-EXPECTED #"taskname|start|end"
-A|0|200
-B|200|600
-C|600|700
-C|1100|1200
-C|1600|1700
-A|2000|2200
-B|2200|3600
-C|3600|3700
 RESETS # "taskname|iteration" check when task is skipped or delayed too much
 C|3

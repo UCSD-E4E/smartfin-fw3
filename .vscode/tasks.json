@@ -2,17 +2,15 @@
     "version": "2.0.0",
     "tasks": [
         {
-        "type": "shell",
-        "label": "Compile Google Tests",
-        "command": "cmake ../ -Bbuild -DCMAKE_BUILD_TYPE=Debug && make -Cbuild",
-        "options": {
-            "cwd": "${workspaceRoot}/tests"
-        },
-        "group": {
-            "kind": "build",
-            "isDefault": true
-            }
-        },
+            "type": "shell",
+            "label": "clean",
+            "command": "cmake --build ${workspaceFolder}/build --target clean",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": []
+        }
         
         
         

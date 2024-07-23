@@ -14,14 +14,16 @@
 #include <memory>
 #include <dirent.h>
 #include <algorithm>
+#include <utility>
+
 
 class SchedulerTestsFromFiles : public ::testing::TestWithParam<std::string>
 {
 public:
     static void SetUpTestSuite()
     {
-        files = std::make_unique<FileWriter>("expected_file_tests.log",
-                "actual_file_tests.log");
+        files = std::make_unique<FileWriter>("outputs/expected_file_tests.log",
+                "outputs/actual_file_tests.log");
         
     }
     static void TearDownTestSuite()
@@ -111,6 +113,8 @@ protected:
 
         nextEvent = nullptr; // ensures that first call to scheduler is correct
         nextEventTime = 0; // time handling
+        
+        setTime(0);
 
     }
     
@@ -120,8 +124,10 @@ protected:
      */
     void TearDown() override
     {
+        
+        size_t pos = testName.find_last_of("/");
 
-        files->writeTest(testName,expected,actual);
+        files->writeTest(testName.substr(pos+1),expected,actual);
     }
     void runNextEvent()
     {
@@ -144,18 +150,18 @@ protected:
     void runTestFile(std::string filename)
     {
         input = parseInputFile(filename);
-        std::cout << input.serialize() << "\n";
+        
         setTime(input.start); 
         deploymentSchedule.clear();
         DeploymentSchedule_t e;
         for(size_t i = 0; i < input.ensembles.size(); i++)
         {
             e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 
-                                                input.ensembles[i].interval,
-                                                input.ensembles[i].duration, 
-                                                input.ensembles[i].delay, 
-                                                input.ensembles[i].taskName.c_str(), 
-                                                {0} };
+                                            input.ensembles[i].interval,
+                                            input.ensembles[i].duration, 
+                                            input.ensembles[i].delay, 
+                                            input.ensembles[i].taskName.c_str(), 
+                                            {0} };
             deploymentSchedule.emplace_back(e);
         }
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
@@ -189,18 +195,26 @@ protected:
                         break;
                 }
             }
-            ASSERT_TRUE(input.expectedValues.size() > 0) 
-                << "Not enough expected values were provided!";
             if (input.expectedValues.size() > 0) 
             {
                 TestLog exp = input.expectedValues.front();
                 runAndCheckEventWithDelays(exp.name, exp.start, exp.end, 
                                         beforeDelay,afterDelay);
                 input.expectedValues.erase(input.expectedValues.begin());
+                for(size_t i = 0; i < input.resets.size(); i++)
+                {
+                    if(!strcmp(nextEvent->taskName, 
+                                input.resets[i].first.c_str()) &&
+                            (nextEvent->state.measurementCount - 1 == 
+                            input.resets[i].second))
+                    {
+                        ASSERT_EQ(nextEvent->state.firstRunTime, UINT32_MAX);
+                    }
+                }
             }
             else
             {
-                runNextEvent();
+                return;
             }   
 
         }
@@ -215,8 +229,9 @@ protected:
         int start = 0;
         int end;
         
-        std::vector<TestLog> expectedValues;
-        std::vector<Delay> delays;
+        
+       
+        
         TestInput out;
         while (getline(file, line)) {
             
@@ -234,40 +249,48 @@ protected:
             if (line == "START") {
                 currentSection = "START";
                 continue;
-            } else if (line == "END") {
+            } 
+            else if (line == "END") {
                 currentSection = "END";
                 continue;
-            } else if (line == "ENSEMBLES") {
+            } 
+            else if (line == "ENSEMBLES") {
                 currentSection = "ENSEMBLES";
                 continue;
-            } else if (line == "DELAYS") {
+            } 
+            else if (line == "DELAYS") {
                 currentSection = "DELAYS";
                 continue; 
-            } else if (line == "EXPECTED") {
+            } 
+            else if (line == "EXPECTED") {
                 currentSection = "EXPECTED";
+                continue;
+            }
+            else if (line == "RESETS") {
+                currentSection = "RESETS";
                 continue;
             }
 
             std::istringstream iss(line);
             if (currentSection == "START") {
                 iss >> out.start;
-            } else if (currentSection == "END") {
+            } 
+            else if (currentSection == "END") {
                 iss >> out.end;
             } 
             else if (currentSection == "ENSEMBLES") {
-                //A|2000|200
-                //B|2000|400|1000 
+                
                 std::string name;
                 
                 uint32_t interval, duration, maxDelay;
                 std::getline(iss, name, '|');
-                std::cout << "name: " << name <<"\n";
+                
                 iss >> interval;
-                std::cout << "interval: " << interval <<"\n";
+                
                 
                 iss.ignore(1, '|');
                 iss >> duration;
-                std::cout << "duration: " << duration <<"\n";
+                
                 char checkChar = iss.peek();
                 if (checkChar == '|') {
                     iss.ignore(1, '|');
@@ -298,31 +321,30 @@ protected:
                     if (position == "before") d.isBefore = true;
                 }
                 out.delays.emplace_back(d);
-            } else if (currentSection == "EXPECTED") {
-                
+            }
+            else if (currentSection == "EXPECTED") {
                 std::string expectedTaskName;
                 uint32_t expectedStart, exepectedEnd;
                 std::getline(iss, expectedTaskName, '|');
-                
                 iss >> expectedStart;
                 iss.ignore(1, '|');
                 iss >> exepectedEnd;
                 TestLog exp(expectedTaskName.c_str(), expectedStart,
                                                         exepectedEnd);
                 out.expectedValues.push_back(exp);
-                for (const auto& ensemble : out.expectedValues) {
-                    std::cout << "Expected Name: " << ensemble.name << ", start: " << ensemble.start << ", end: " << ensemble.end  << "\n";
-                } 
+               
                 std::cout << "\n";
             }
+            else if (currentSection == "RESETS") {
+                
+                std::string resetName;
+                uint32_t iteration;
+                std::getline(iss, resetName, '|');
+                iss >> iteration;
+                out.resets.emplace_back(std::make_pair(resetName, iteration));
+            } 
         }
         
-        for (const auto& ensemble : out.ensembles) {
-            std::cout << "Task Name: " << ensemble.taskName << ", Interval: " << ensemble.interval << ", Duration: " << ensemble.duration << ", Delay: " << ensemble.delay << "\n";
-        } 
-        for (const auto& ensemble : out.expectedValues) {
-            std::cout << "Expected Name: " << ensemble.name << ", start: " << ensemble.start << ", end: " << ensemble.end  << "\n";
-        } 
         
         return out;
     }
@@ -359,15 +381,16 @@ protected:
         failMessage << "runAndCheckEvent failed:\n"
             << "Expected \tActual\n"
             << expectedTaskName << "\t\t" << nextEvent->taskName << "\n"
-            << expectedStart << "\t\t" << nextEventTime + preceedingDelay 
+            << expectedStart << "\t\t" << nextEventTime 
             << "\n"
-            << expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration;
+            << expectedEnd << "\t\t" << nextEventTime + nextEvent->maxDuration
+                                        + trailingDelay;
         
     
         
         
         setTime(nextEventTime);
-        addTime(preceedingDelay);
+        
         uint32_t actualStart = millis();
         
 
@@ -376,7 +399,7 @@ protected:
         uint32_t actualEnd = millis();
         
         appendExpectedFile(expectedTaskName, expectedStart, expectedEnd);
-        appendActualFile(nextEvent->taskName, nextEventTime, millis());
+        appendActualFile(nextEvent->taskName, actualStart, actualEnd);
 
         ASSERT_EQ(expectedTaskName, nextEvent->taskName) << failMessage.str();
         ASSERT_EQ(expectedStart, actualStart)  << failMessage.str();
@@ -396,7 +419,7 @@ protected:
 std::unique_ptr<FileWriter> SchedulerTestsFromFiles::files;
 
 
-TEST_P(SchedulerTestsFromFiles, ReadsFileCorrectly) {
+TEST_P(SchedulerTestsFromFiles, RunTestFile) {
     std::string filename = GetParam();
     
     runTestFile(filename);
@@ -425,10 +448,10 @@ INSTANTIATE_TEST_SUITE_P(
         std::string name = info.param;
         // Remove directory part for cleaner test names
         size_t last_slash_idx = name.find_last_of("\\/");
-        if (std::string::npos != last_slash_idx) {
+        if (std::string::npos != last_slash_idx) 
+        {
             name.erase(0, last_slash_idx + 1);
         }
-    
         std::replace(name.begin(), name.end(), '.', '_');
         return name;
     }

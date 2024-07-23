@@ -10,6 +10,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <utility>
+
 
 
 //! time unit required by Particle
@@ -106,6 +108,7 @@ struct TestInput
     std::vector<EnsembleInput> ensembles;
     std::vector<TestLog> expectedValues;
     std::vector<Delay> delays;
+    std::vector<std::pair<std::string,uint32_t>> resets;
     std::string serialize() const {
         std::stringstream ss;
         ss << "TestInput: { Start: " << start << ", End: " << end << "\n";
@@ -132,7 +135,8 @@ struct TestInput
             ss << "    { TaskName: " << delay.taskName
                << ", Iteration: " << delay.iteration
                << ", Delay: " << delay.delay
-               << ", IsBefore: " << (delay.isBefore ? "true" : "false") << " }\n";
+               << ", IsBefore: " << (delay.isBefore ? "true" : "false") 
+               << " }\n";
         }
         ss << "  ]\n";
 
@@ -147,7 +151,7 @@ struct FileWriter
 {
     std::string expectedFileName;
     std::string actualFileName;
-    
+    bool firstTest;
     FileWriter(std::string expectedFileName, std::string actualFileName);
     void writeTest(std::string testName, 
             std::vector<TestLog> expected, std::vector<TestLog> actual);

@@ -79,5 +79,13 @@
     "C_Cpp.vcFormat.indent.preserveWithinParentheses": true,
     "C_Cpp.vcFormat.indent.preprocessor": "oneLeft",
     "C_Cpp.errorSquiggles": "enabled",
-
+    "cmake.generator": "Ninja",
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    
+    "cmake.configureArgs": [
+        "-DTEST=ON",
+        "-DCMAKE_BUILD_TYPE=Debug"
+    ]
+    
 }
