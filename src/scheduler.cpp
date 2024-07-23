@@ -161,10 +161,13 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
                                         currentEvent.maxDelay)
                 {
                     s.firstRunTime = UINT32_MAX;
-                    FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
+                    if (nextEvent->state.measurementCount != 0)
+                    {
+                        FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
                                             s.measurementCount);
-                    SF_OSAL_printf("Task %s skipped at time %zu"  __NL__ ,
-                            currentEvent.taskName,currentTime);
+                        SF_OSAL_printf("Task %s skipped at time %zu"  __NL__ ,
+                                currentEvent.taskName,currentTime);
+                    }
                 }
             }
         }

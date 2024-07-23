@@ -1,0 +1,12 @@
+START #only one number
+0
+END #only one number
+10000
+ENSEMBLES #taskname|interval|duration or taskname|interval|duration|maxDelay
+A|2000|200
+B|2000|400|1000
+C|500|100|100
+DELAYS #0 based indexing: "taskname|iteration|delay"
+B|1|1000
+RESETS # "taskname|iteration" check when task is skipped or delayed too much
+C|3

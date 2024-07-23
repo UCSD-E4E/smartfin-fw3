@@ -22,8 +22,16 @@ set(GTEST_SOURCE_FILES
     tests/overlap_google_tests.cpp
     tests/scheduler_test_flog.cpp
 )
+set(EXAMINE_BEHAIVOR_SOURCE_FILES
+    tests/scheduler_test_system.cpp
+    tests/test_ensembles.cpp
+    src/scheduler.cpp
+    tests/scheduler_test_flog.cpp
+    tests/examine_behaivor.cpp)
 
 
 
 add_executable(googletests ${GTEST_SOURCE_FILES})
 target_link_libraries(googletests gtest gtest_main pthread)
+
+add_executable(examine_behaivor ${EXAMINE_BEHAIVOR_SOURCE_FILES})

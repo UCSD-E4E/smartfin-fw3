@@ -125,6 +125,34 @@
                 "trace": false,
                 "traceResponse": false
             }
+        },
+        {
+            "name": "Examine Behavior Debugger",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}tests/build/examine_behaivor",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tests",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "CMake: build",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "logging": {
+                "moduleLoad": false,
+                "programOutput": true,
+                "engineLogging": false,
+                "trace": false,
+                "traceResponse": false
+            }
         }
         
     ]
