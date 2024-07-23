@@ -26,6 +26,8 @@ private:
     system_tick_t startTime; /**< start time at initialization */
     int numTasks;
     DeploymentSchedule_ * tasks;
+    int ** runtimes; 
+    int records;
     
 
 };

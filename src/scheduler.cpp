@@ -46,6 +46,7 @@ Scheduler::Scheduler(DeploymentSchedule_ d[], int num, int startTime){
     }
     numDelays=0;
     totalDelay=0;
+    recordRuns=500;
     
 
 }

@@ -93,6 +93,7 @@ class Scheduler{
     public:
         Scheduler(DeploymentSchedule_ d[], int num, int startTime);
         int runTimes[3][500];
+        int recordRuns;
        
         void SCH_runSchedule();
 
