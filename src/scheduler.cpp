@@ -51,7 +51,8 @@ Scheduler::Scheduler(DeploymentSchedule_ d[], int num, int startTime){
 
 }
 void Scheduler::SCH_runSchedule(){
-    for(int i=0;i<numTasks; i++){
+    int i=0;
+    while(i<numTasks){
             Task_ t=task[i];
             if(t.nextRunTime>=(u_int32_t)millis()){
             int n=i-1;
@@ -82,6 +83,11 @@ void Scheduler::SCH_runSchedule(){
                 t.numRuns++;
                 
             }
+            }
+            if(i<numTasks-1){
+                i++;
+            }else{
+                i=0;
             }
 
 
