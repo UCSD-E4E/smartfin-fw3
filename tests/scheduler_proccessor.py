@@ -72,7 +72,7 @@ def plot_gantt(tasks, title, dir='/outputs/', max_duration=0,tasks_len=0):
             ha = 'left' if start - last_end < 300 else 'center'
             va = 'top' if start - last_end < 300 else 'bottom'
 
-            # Debugging print statements
+            
             if len(task_dict.keys()) > 1:
                 ax.text(start + duration / 2, i, \
                         f"{label} ({start} - {start + duration})", \
@@ -209,7 +209,7 @@ def plot_gantt(tasks, title, dir='/outputs/', max_duration=0,tasks_len=0):
             ha = 'left' if start - last_end < 300 else 'center'
             va = 'top' if start - last_end < 300 else 'bottom'
 
-            # Debugging print statements
+            
             if len(task_dict.keys()) > 1:
                 ax.text(start + duration / 2, i, \
                         f"{label} ({start} - {start + duration})", \
@@ -253,7 +253,6 @@ def plot_examine_gantt(tasks, title, dir='/outputs/', tasks_len=0):
 
     for i, (label, segments) in enumerate(task_dict.items()):
         for start, duration in segments:
-            print(f'adding {label} from {start} to {duration}')
             ax.barh(i, duration, left=start, color=colors[color_idx % len(colors)])
             ax.text(start + duration / 2, i, f"{label} ({start} - {start + duration})", 
                     verticalalignment='center', horizontalalignment='center', color='black')

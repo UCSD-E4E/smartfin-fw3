@@ -6,7 +6,11 @@
  */
 #ifndef __SCHEDULER__HPP_
 #define __SCHEDULER__HPP_
-
+#define CHARLIE_VERSION 0
+#define ANTARA_VERSION 1
+#ifndef SCHEDULER_VERSION
+#define SCHEDULER_VERSION  CHARLIE_VERSION
+#endif
 #include <stddef.h>
 #include <cstdint>
 #ifndef TEST_VERSION
@@ -14,11 +18,18 @@
 #else
 #include "scheduler_test_system.hpp"
 #endif
+
+#if SCHEDULER_VERSION == ANTARA_VERSION
+
+
+#else
+
+
 typedef enum error_
 {
     SUCCESS,
     TASK_SEARCH_FAIL,
-}error_e;
+}SCH_error_e;
 
 /**
  * @brief defines type for DeploymentSchedule_ struct below.
@@ -137,5 +148,8 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
  */
 bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int i,
                     system_tick_t currentTime, uint32_t nextStartTime);
+#endif            
+
+       
 #endif //__SCHEDULER__HPP_
 

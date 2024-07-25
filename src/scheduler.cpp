@@ -17,7 +17,8 @@
 #include <cli/flog.hpp>
 #include <string.h>
 
-
+#if SCHEDULER_VERSION == ANTARA_VERSION
+#else
  /**
   * @brief Initializes ensembles within schedule table.
   *
@@ -176,8 +177,8 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     if (nextEvent == nullptr)
     {
         SF_OSAL_printf("No suitable event found"  __NL__);
-        *p_nextEvent = nextEvent;
-        *p_nextTime = 0;
+        p_nextEvent = nullptr;
+        p_nextTime = nullptr;
         return TASK_SEARCH_FAIL;
     }
     else
@@ -239,3 +240,4 @@ bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int idx,
     return false;
 }
 
+#endif
