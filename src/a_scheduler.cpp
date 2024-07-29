@@ -1,6 +1,3 @@
-
-
-
 #include "a_scheduler.hpp"
 
 
@@ -72,9 +69,6 @@ int Scheduler:: getNextTask(const DeploymentSchedule_t* p_next_task, std::uint32
        tasks[0].nextRuntime+=delay+tasks[0].ensembleInterval;
        
        return runTime;
-
-
-        
 
 
 }
