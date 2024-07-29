@@ -1,15 +1,16 @@
 #ifndef __ABSTRACT_SCHEDULER_HPP__
 #define __ABSTRACT_SCHEDULER_HPP__
+#include "a_deploymentSchedule.hpp"
 #include <cstdint>
 
 typedef struct DeploymentSchedule_ DeploymentSchedule_t;
 
 class AbstractScheduler {
-    AbstractScheduler(DeploymentSchedule_t schedule[]) = 0;
+    AbstractScheduler(DeploymentSchedule_t schedule[]){};
     /**
      * Creates and initializes the schedule
      */
-    void initializeScheduler(void) = 0;
+    void initializeScheduler(void);
 
 
 
@@ -24,7 +25,7 @@ class AbstractScheduler {
      * @return 0 if successful, otherwise error code to be defined by
      * implementation
      */
-    int getNextTask(const DeploymentSchedule_t* p_next_task,
+    virtual int getNextTask(const DeploymentSchedule_t* p_next_task,
                     std::uint32_t* p_next_runtime,
                     std::uint32_t current_time) = 0;
 };
