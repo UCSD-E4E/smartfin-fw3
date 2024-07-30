@@ -17,10 +17,10 @@
 #include "sleepTask.hpp"
 #include "util.hpp"
 #include "vers.hpp"
-#include "scheduler.hpp"
+#include "old_schedule.hpp"
 #include "ensembles.hpp"
 #include "cli/flog.hpp"
-#include "scheduler.hpp"
+#include "old_schedule.hpp"
 /**
  * @brief creates file name for log
  * @todo implement RIDE_setFileName

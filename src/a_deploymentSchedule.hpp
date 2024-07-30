@@ -1,7 +1,7 @@
 
 
 
-struct  DeploymentSchedule_t
+struct  DeploymentSchedule_
  {
     //Ensemble properties
     int priority;

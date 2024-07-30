@@ -1,7 +1,7 @@
 /**
  *  @file   scheduler.cpp
  *  @brief  Contains definitions for functions defined in @ref scheduler.hpp
- *  @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ *  @author Antara Chugh (antarachugh@g.ucla.edu)
  *  @version 1
  */
 
@@ -12,7 +12,7 @@
 #endif
 #include "cli/conio.hpp"
 #include "ensembles.hpp"
-#include "scheduler.hpp"
+#include "old_schedule.hpp"
 #include "consts.hpp"
 
 

@@ -8,7 +8,7 @@
 
 
 #include "task.hpp"
-#include "scheduler.hpp"
+#include "old_schedule.hpp"
 #include "product.hpp"
 #ifndef TEST_VERSION
 #include "Particle.h"
