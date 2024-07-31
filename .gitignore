@@ -328,3 +328,4 @@ nul
 out/docs/application/Service Diagram.png
 out/docs/fw_flow/Firmware Flowchart.png
 tests/googletest
+*.jpg
