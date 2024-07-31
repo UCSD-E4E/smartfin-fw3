@@ -319,8 +319,11 @@ def examine_logs():
                 
             plot_examine_gantt(actual, str(k), dir, len(actual) )
         
-comparelogs()
-examine_logs()
+# comparelogs()
+# examine_logs()
+            
+parse_examine_logs()
+
 root = 'outputs/'
 folders = list(os.walk(root))[1:]
 
