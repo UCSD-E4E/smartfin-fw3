@@ -1,10 +1,11 @@
 #include "a_scheduler.hpp"
 
 
-Scheduler:: Scheduler(DeploymentSchedule_t schedule[], int length): AbstractScheduler(schedule){
+Scheduler:: Scheduler(DeploymentSchedule_t schedule[]){
     tasks=schedule;
-    numTasks=length;
-   for(int i=0; i<numTasks; i++){
+    
+    int i=0;
+   for(; tasks[i].measure; i++){
         if(i=0){
         tasks[i].startDelay=0;
         }else {
@@ -14,6 +15,7 @@ Scheduler:: Scheduler(DeploymentSchedule_t schedule[], int length): AbstractSche
         }
 
     }
+    int numTasks=i-1;
 
 }
 

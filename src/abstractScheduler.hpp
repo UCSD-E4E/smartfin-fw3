@@ -10,7 +10,7 @@
 
 class AbstractScheduler {
     public:
-    AbstractScheduler(DeploymentSchedule_t schedule[]);
+   
     /**
      * Creates and initializes the schedule
      */
@@ -33,7 +33,5 @@ class AbstractScheduler {
                     std::uint32_t* p_next_runtime,
                     std::uint32_t current_time) = 0;
 };
-inline AbstractScheduler::AbstractScheduler(DeploymentSchedule_t *schedule){
 
-}
 #endif // __ABSTRACT_SCHEDULER_HPP__
