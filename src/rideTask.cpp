@@ -13,10 +13,10 @@
 #include "sleepTask.hpp"
 #include "util.hpp"
 #include "vers.hpp"
-#include "scheduler.hpp"
+#include "charlie_scheduler.hpp"
 #include "ensembles.hpp"
 #include "cli/flog.hpp"
-#include "scheduler.hpp"
+
 /**
  * @brief creates file name for log
  * @todo implement RIDE_setFileName

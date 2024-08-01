@@ -10,15 +10,18 @@
 #include <algorithm>
 #include <utility>
 #include <string.h>
+#include <chrono>
 
-struct ExamineBehaivor
+class ExamineBehavior
 {
+    public:
+    
     static std::unique_ptr<FileWriter> files;
     static void SetUpTestSuite()
     {
         files = std::make_unique<FileWriter>(
                 "/dev/null",
-                "no_check_outputs/actual_file_tests.log");
+                "tests/no_check_outputs/actual_file_tests.log");
 
     }
     static void TearDownTestSuite()
@@ -49,6 +52,7 @@ struct ExamineBehaivor
 
     //! for writing test output
     bool useCompareLogs;
+    std::unique_ptr<Scheduler> scheduler;
     
 
 
@@ -86,7 +90,7 @@ struct ExamineBehaivor
 
         
         testName = filename;
-
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         nextEvent = nullptr; // ensures that first call to scheduler is correct
         nextEventTime = 0; // time handling
 
@@ -131,12 +135,12 @@ struct ExamineBehaivor
         }
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
         deploymentSchedule.emplace_back(e);
-        SCH_initializeSchedule(deploymentSchedule.data(), millis());
+        
+        scheduler->initializeScheduler();
 
         while (millis() < input.end)
         {
-            SCH_getNextEvent(deploymentSchedule.data(),
-                                    &nextEvent, &nextEventTime,
+            scheduler->getNextTask(nextEvent, &nextEventTime,
                                     millis());
             uint32_t beforeDelay = 0;
             uint32_t afterDelay = 0;
@@ -345,13 +349,19 @@ struct ExamineBehaivor
     }
 
 };
-std::unique_ptr<FileWriter> ExamineBehaivor::files = nullptr;
+std::unique_ptr<FileWriter> ExamineBehavior::files = nullptr;
 
 
 int main(int argc, char const* argv[])
 {
-    ExamineBehaivor e;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+
+    ExamineBehavior e;
     e.runTests();
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
 
 
     

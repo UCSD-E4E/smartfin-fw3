@@ -6,7 +6,7 @@
 #ifndef __TEST_ENSEMBLES_HPP__
 #define __TEST_ENSEMBLES_HPP__
 
-#include "scheduler.hpp"
+#include "charlie_scheduler.hpp"
 /**
  * @brief dummy ensemble init function
  * @param pDeployment schedule table

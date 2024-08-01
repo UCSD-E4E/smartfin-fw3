@@ -13,7 +13,7 @@ Use the following code from the `tests` directory:
     mkdir -p no_check_outputs
     mkdir -p no_check_inputs
     ./build/googletests 
-    ./build/examine_behaivor
+    ./build/examine_behavior
     #create graphs
     python3 -m venv .venv
     source .venv/bin/activate

@@ -1,5 +1,5 @@
-#include "flog.hpp"
-#include "conio.hpp"
+#include "cli/flog.hpp"
+#include "cli/conio.hpp"
 #include "consts.hpp"
 #include "scheduler_test_system.hpp"
 #include <stdlib.h>

@@ -22,8 +22,8 @@ class SchedulerTestsFromFiles : public ::testing::TestWithParam<std::string>
 public:
     static void SetUpTestSuite()
     {
-        files = std::make_unique<FileWriter>("outputs/expected_file_tests.log",
-                "outputs/actual_file_tests.log");
+        files = std::make_unique<FileWriter>("tests/outputs/expected_file_tests.log",
+                "tests/outputs/actual_file_tests.log");
         
     }
     static void TearDownTestSuite()
@@ -62,6 +62,7 @@ protected:
     bool useCompareLogs;
     static std::unique_ptr<FileWriter> files;
 
+    std::unique_ptr<Scheduler> scheduler;
     
 
     /**
@@ -108,9 +109,9 @@ protected:
 
         const ::testing::TestInfo* const test_info =
             ::testing::UnitTest::GetInstance()->current_test_info();
-
+        
         testName = std::string(test_info->name());
-
+        
         nextEvent = nullptr; // ensures that first call to scheduler is correct
         nextEventTime = 0; // time handling
         
@@ -132,8 +133,7 @@ protected:
     void runNextEvent()
     {
 
-        SCH_getNextEvent(deploymentSchedule.data(),
-                            &nextEvent,
+        scheduler->getNextTask(nextEvent,
                             &nextEventTime,
                             millis());
         ASSERT_NE(nextEvent, nullptr) << "Scheduler returned nullptr.";
@@ -166,12 +166,11 @@ protected:
         }
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
         deploymentSchedule.emplace_back(e);
-        SCH_initializeSchedule(deploymentSchedule.data(), millis());
+        scheduler->initializeScheduler();
         
         while(millis() < input.end)
         {
-            SCH_getNextEvent(deploymentSchedule.data(), 
-                                    &nextEvent,&nextEventTime,
+            scheduler->getNextTask(nextEvent,&nextEventTime,
                                     millis());
             uint32_t beforeDelay = 0;
             uint32_t afterDelay = 0;
@@ -442,7 +441,7 @@ std::vector<std::string> GetFilesInDirectory(const std::string& directory) {
 INSTANTIATE_TEST_SUITE_P(
     Files,
     SchedulerTestsFromFiles,
-    ::testing::ValuesIn(GetFilesInDirectory("inputs/")),
+    ::testing::ValuesIn(GetFilesInDirectory("tests/inputs/")),
     [](const testing::TestParamInfo<SchedulerTestsFromFiles::ParamType>& info) {
         
         std::string name = info.param;

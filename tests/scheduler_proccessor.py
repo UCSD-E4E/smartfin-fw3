@@ -19,7 +19,7 @@ def comparelogs():
         same = False
         if actual == expected:
             same = True
-        dir = "outputs/" + str(k) + "/"
+        dir = "tests/outputs/" + str(k) + "/"
         if len(expected) > 0:
             Path(dir).mkdir(parents=True, exist_ok=True)
             
@@ -100,7 +100,7 @@ def plot_gantt(tasks, title, dir='/outputs/', max_duration=0,tasks_len=0):
 
 def parse_logs(return_max=False):
     
-    root = 'outputs/'
+    root = 'tests/outputs/'
     
     expected_json = {}
     actual_json = {}
@@ -320,11 +320,9 @@ def examine_logs():
         
 comparelogs()
 examine_logs()
-root = 'outputs/'
+root = 'tests/outputs/'
 folders = list(os.walk(root))[1:]
 
 for folder in folders:
-    
-    
     if not folder[2]:
         os.rmdir(folder[0])

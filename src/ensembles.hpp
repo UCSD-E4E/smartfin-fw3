@@ -6,6 +6,6 @@
 #ifndef __ENSEMBLES_HPP__
 #define __ENSEMBLES_HPP__
 
-#include "scheduler.hpp"
+#include "charlie_scheduler.hpp"
 
 #endif

@@ -39,7 +39,7 @@ protected:
     std::string actualFileName;
     //! holds test name across functions
     std::string testName;
-    
+    std::unique_ptr<Scheduler> scheduler;
 
 
     //! for writing test output
@@ -49,8 +49,8 @@ protected:
 
     static void SetUpTestSuite()
     {
-        files = std::make_unique<FileWriter>("outputs/expected_overlap_tests.log", 
-                    "outputs/actual_overlap_tests.log");
+        files = std::make_unique<FileWriter>("tests/outputs/expected_overlap_tests.log", 
+                    "tests/outputs/actual_overlap_tests.log");
     }
     static void TearDownTestSuite()
     {
@@ -130,7 +130,7 @@ protected:
         nextEvent = nullptr; // ensures that first call to scheduler is correct
         nextEventTime = 0; // time handling
         setTime(0); // time handling see @ref tests/scheduler_test_system.cpp
-        SCH_initializeSchedule(deploymentSchedule.data(), millis());
+        scheduler->initializeScheduler();
         useCompareLogs = false;
         
 
@@ -232,7 +232,7 @@ TEST_F(SchedulerOverlapTests, NoOverlapBefore)
     uint32_t start = deploymentSchedule[i].state.deploymentStartTime +
         deploymentSchedule[i].ensembleDelay;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule.data(), i, 0, start);
+    bool overlap = scheduler->willOverlap(i, 0, start);
     ASSERT_FALSE(overlap);
 }
 
@@ -263,7 +263,7 @@ TEST_F(SchedulerOverlapTests, OverlapBefore)
     int i = 1;
     uint32_t start = deploymentSchedule[i].state.nextRunTime;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule.data(), i, 0, start);
+    bool overlap = scheduler->willOverlap(i, 0, start);
     ASSERT_TRUE(overlap);
 }
 
@@ -293,7 +293,7 @@ TEST_F(SchedulerOverlapTests, NoOverlapAfter)
     uint32_t start = deploymentSchedule[i].state.deploymentStartTime +
         deploymentSchedule[i].ensembleDelay;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule.data(), i, 0, start);
+    bool overlap = scheduler->willOverlap(i, 0, start);
     ASSERT_FALSE(overlap);
 }
 
@@ -321,7 +321,7 @@ TEST_F(SchedulerOverlapTests, OverlapAfter)
     int i = 1;
     uint32_t start = deploymentSchedule[i].state.nextRunTime;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule.data(), i, 0, start);
+    bool overlap = scheduler->willOverlap(i, 0, start);
     ASSERT_TRUE(overlap);
 }
 
@@ -351,7 +351,7 @@ TEST_F(SchedulerOverlapTests, InsideOverlap)
     int i = 1;
     uint32_t start = deploymentSchedule[i].state.nextRunTime;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule.data(), i, 0, start);
+    bool overlap = scheduler->willOverlap(i, 0, start);
     ASSERT_TRUE(overlap);
 }
 
@@ -378,7 +378,7 @@ TEST_F(SchedulerOverlapTests, Boundary1)
     int i = 1;
     uint32_t start = deploymentSchedule[i].state.nextRunTime;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule.data(), i, 0, start);
+    bool overlap = scheduler->willOverlap(i, 0, start);
     ASSERT_FALSE(overlap);
 }
 
@@ -408,12 +408,12 @@ TEST_F(SchedulerOverlapTests, Boundary2)
     uint32_t start = deploymentSchedule[i].state.deploymentStartTime +
         deploymentSchedule[i].ensembleDelay;
     uint32_t end = start + deploymentSchedule[i].maxDuration;
-    bool overlap = SCH_willOverlap(deploymentSchedule.data(), i, 0, start);
+    bool overlap = scheduler->willOverlap(i, 0, start);
     ASSERT_FALSE(overlap);
-    SCH_getNextEvent(deploymentSchedule.data(), &nextEvent,
+    scheduler->getNextTask(nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("B", 500, 700);
-    SCH_getNextEvent(deploymentSchedule.data(), &nextEvent,
+    scheduler->getNextTask(nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 700, 1000);
 }

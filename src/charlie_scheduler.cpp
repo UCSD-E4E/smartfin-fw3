@@ -12,34 +12,36 @@
 #endif
 #include "cli/conio.hpp"
 #include "ensembles.hpp"
-#include "scheduler.hpp"
+#include "charlie_scheduler.hpp"
 #include "consts.hpp"
 #include <cli/flog.hpp>
 #include <string.h>
 
-#if SCHEDULER_VERSION == ANTARA_VERSION
-#else
+
+#if SCHEDULER_VERSION == CHARLIE_VERSION
+Scheduler::Scheduler(DeploymentSchedule_t schedule[])
+    :  scheduleTable(schedule
+    )
+    {
+        SF_OSAL_printf("Using Charlie's Version\n");
+    }
  /**
   * @brief Initializes ensembles within schedule table.
   *
-  *
-  * @param pDeployment contains schedule table, see @ref scheduler.hpp
-  * @param startTime sets start time as given in RideTask.cpp
-  *
   */
-void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
-                            system_tick_t startTime)
+void Scheduler::initializeScheduler()
 {
+    DeploymentSchedule_t* pDeployment = scheduleTable;
     uint32_t lastEndTime = 0;
     while (pDeployment->init)
     {
         memset(&(pDeployment->state), 0, 
             sizeof(StateInformation));
-        pDeployment->state.deploymentStartTime = startTime;
+        pDeployment->state.deploymentStartTime = UINT32_MAX;
         pDeployment->state.firstRunTime = UINT32_MAX;
         pDeployment->state.nMeasurements = UINT32_MAX;
         pDeployment->state.lastMeasurementTime = UINT32_MAX;
-        pDeployment->init(pDeployment);
+        pDeployment->init (pDeployment);
         pDeployment++;
     }
 }
@@ -67,16 +69,12 @@ void SCH_initializeSchedule(DeploymentSchedule_t* pDeployment,
  * TASK_SEARCH_FAIL otherwise.
  */
 
-uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
-                DeploymentSchedule_t** p_nextEvent, 
-                system_tick_t* p_nextTime,
-                system_tick_t currentTime)
+int Scheduler::getNextTask(const DeploymentSchedule_t* p_nextEvent, 
+                           system_tick_t* p_nextTime,
+                           system_tick_t currentTime)
 {
-
     uint32_t minNextTime = UINT32_MAX;
     DeploymentSchedule_t* nextEvent = nullptr;
-    
-    bool ensembleSkipped;
     
     // Iterate through each event in the schedule table.
     for (int idx = 0; scheduleTable[idx].measure; ++idx)
@@ -85,6 +83,10 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
         DeploymentSchedule_t& currentEvent = scheduleTable[idx];
         // Reference to current event in the schedule
         StateInformation& s = scheduleTable[idx].state;
+        if (s.deploymentStartTime == UINT32_MAX)
+        {
+            s.deploymentStartTime = currentTime;
+        }
         // Reset the next run time for the current event
         s.nextRunTime = UINT32_MAX;
         // Variable to store the calculated start time of the next event.
@@ -100,15 +102,16 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
         {
             firstStartTime = s.firstRunTime;
         }
-
+        if (s.nMeasurements == s.measurementCount)
+        {
+            continue;
+        }
 
         // check if first event
         if (currentTime <= firstStartTime)
         {
-            
             if (firstStartTime < minNextTime &&
-                                            !SCH_willOverlap(scheduleTable,
-                                            idx, currentTime, firstStartTime))
+                                !willOverlap(idx, currentTime, firstStartTime))
             {
                 minNextTime = firstStartTime;
                 nextEvent = &currentEvent;
@@ -122,17 +125,12 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             currentEvent.ensembleInterval;
         uint32_t nextInterval = lastInterval + currentEvent.ensembleInterval;
 
-
-
-
-
         // check if measurement is late
         if ((s.lastMeasurementTime < lastInterval) ||
             ((s.lastMeasurementTime == firstStartTime) &&
                 (firstStartTime < currentTime) &&
                 (s.measurementCount == 0)))
         {
-
             if (currentTime + currentEvent.maxDuration > nextInterval)
             {
                 nextStartTime = nextInterval;
@@ -151,7 +149,7 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
             nextStartTime = nextInterval;
         }
 
-        if (!SCH_willOverlap(scheduleTable, idx, currentTime, nextStartTime))
+        if (willOverlap(idx, currentTime, nextStartTime))
         {
             s.nextRunTime = nextStartTime;
             if (nextStartTime < minNextTime)
@@ -172,8 +170,8 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
                 }
             }
         }
-
     }
+
     if (nextEvent == nullptr)
     {
         SF_OSAL_printf("No suitable event found"  __NL__);
@@ -183,19 +181,20 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
     }
     else
     {
-
-        
         // Sets ensemble variable lastMeasurementTime to next time it will run
         nextEvent->state.lastMeasurementTime = minNextTime;
-        // Incraments ensemble variable lastMeasurementTime measurementCount
+        // Increments ensemble variable lastMeasurementTime measurementCount
         nextEvent->state.measurementCount++;
         // Sets next event pointer to the next event
-        *p_nextEvent = nextEvent;
+        p_nextEvent = nextEvent;
         // Sets next time pointer to the next event time
         *p_nextTime = minNextTime;
+        SF_OSAL_printf("next event: %s\n", nextEvent->taskName);
+        SF_OSAL_printf("p_nextEvent: %s\n", p_nextEvent->taskName);
         return SUCCESS;
     }
 }
+
 
 
 
@@ -213,15 +212,18 @@ uint32_t SCH_getNextEvent(DeploymentSchedule_t* scheduleTable,
  * @param nextStartTime The proposed start time of the current task.
  * @return True if there is an overlap with another task; false otherwise.
  */
-bool SCH_willOverlap(DeploymentSchedule_t* scheduleTable, int idx,
-                    system_tick_t currentTime, uint32_t nextStartTime)
+bool Scheduler::willOverlap(uint32_t idx, system_tick_t currentTime, uint32_t nextStartTime)
 {
     DeploymentSchedule_t& currentEvent = scheduleTable[idx];
     uint32_t proposedEndTime = nextStartTime + currentEvent.maxDuration;
     for (int other_idx = 0; other_idx < idx; ++other_idx)
     {
-
+        
         DeploymentSchedule_t& otherEvent = scheduleTable[other_idx];
+        if (otherEvent.state.nMeasurements == otherEvent.state.measurementCount)
+        {
+            continue;
+        }
         // Calculate next start time for the other task
         uint32_t otherNextStartTime = otherEvent.state.nextRunTime;
         if (otherNextStartTime == UINT32_MAX)

@@ -9,7 +9,10 @@
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "CHARLIE_VERSION=0",
+                "ANTARA_VERSION=1",
+                "SCHEDULER_VERSION=CHARLIE_VERSION"
             ],
             "windowsSdkVersion": "10.0.22000.0",
             "compilerPath": "~\\.particle\\toolchains\\gcc-arm\\10.2.1\\bin\\arm-none-eabi-gcc.exe",
