@@ -8,11 +8,11 @@
 struct DeploymentSchedule_
 {
     // Ensemble properties
-    int priority;
+    //int priority;
     void (*measure)();               //!< measurement function
     void (*init)();                  //!< initialization function
     // EnsembleProccess process;      //!< processing function
-    uint32_t startDelay;             //!< delay after deployment start
+              //!< delay after deployment start
     uint32_t ensembleInterval;       //!< time between ensembles
     // void* pData;                  //!< Buffer to store measurements temporarily
     uint32_t maxDuration;            //!< store max running time of measurement
@@ -20,6 +20,7 @@ struct DeploymentSchedule_
     uint32_t maxDelay;
 
     // State Information
+    uint32_t startDelay;
     uint32_t nextRunTime;
 };
 
