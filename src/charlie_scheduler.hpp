@@ -4,9 +4,10 @@
  * @brief Header file for scheduler defined in @ref scheduler.cpp
  * @version 1
  */
+#ifndef __CHARLIE_SCHEDULER__HPP__
+#define __CHARLIE_SCHEDULER__HPP__
 #if SCHEDULER_VERSION == CHARLIE_VERSION
-#ifndef __SCHEDULER__HPP__
-#define __SCHEDULER__HPP__
+
 
 #include <stddef.h>
 #include <cstdint>
@@ -143,6 +144,6 @@ typedef enum error_
          
 
        
-#endif //__SCHEDULER__HPP_
+#endif 
 
-#endif
+#endif //__CHARLIE_SCHEDULER__HPP__
