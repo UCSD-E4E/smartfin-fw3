@@ -3,13 +3,7 @@ project(TestScheduler)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SCHEDULER_VERSION "CHARLIE" CACHE STRING "Version of scheduler to use (ANTARA or CHARLIE)")
 
-if(SCHEDULER_VERSION STREQUAL "ANTARA")
-    add_compile_definitions(SCHEDULER_VERSION=1)
-elseif(SCHEDULER_VERSION STREQUAL "CHARLIE")
-    add_compile_definitions(SCHEDULER_VERSION=0)
-endif()
 
 if(NOT DEFINED SCRIPT_BUILD)
     set(SCRIPT_BUILD OFF CACHE BOOL "Build from script" FORCE)
