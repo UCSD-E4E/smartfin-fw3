@@ -16,7 +16,7 @@ struct DeploymentSchedule_
     uint32_t ensembleInterval;       //!< time between ensembles
     // void* pData;                  //!< Buffer to store measurements temporarily
     uint32_t maxDuration;            //!< store max running time of measurement
-    char taskName;                   //!< task name of ensemble
+    const char* taskName;            //!< task name of ensemble
     uint32_t maxDelay;
 
     // State Information
