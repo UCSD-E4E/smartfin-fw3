@@ -1,7 +1,8 @@
 #include "product.hpp"
+#ifndef __ANTARA_SCHEDULER__HPP__
+#define __ANTARA_SCHEDULER__HPP__
 #if SCHEDULER_VERSION == ANTARA_VERSION
-#ifndef __SCHEDULER__HPP__
-#define __SCHEDULER__HPP__
+
 #include "abstractScheduler.hpp"
 #include "deploymentSchedule.hpp"
 struct DeploymentSchedule_
@@ -34,4 +35,4 @@ public:
                     std::uint32_t current_time);
 };
 #endif
-#endif
+#endif //__ANTARA_SCHEDULER__HPP__
