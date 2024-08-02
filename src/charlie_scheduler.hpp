@@ -6,12 +6,13 @@
  */
 #ifndef __CHARLIE_SCHEDULER__HPP__
 #define __CHARLIE_SCHEDULER__HPP__
+#include "product.hpp"
 #if SCHEDULER_VERSION == CHARLIE_VERSION
 
 
 #include <stddef.h>
 #include <cstdint>
-#include "product.hpp"
+
 #include "deploymentSchedule.hpp"
 #include "abstractScheduler.hpp"
 #ifndef TEST_VERSION
