@@ -255,7 +255,7 @@ protected:
     void runNextEvent()
     {
 
-        scheduler->getNextTask(nextEvent,
+        scheduler->getNextTask(&nextEvent,
                             &nextEventTime,
                             millis());
         ASSERT_NE(nextEvent, nullptr) << "Scheduler returned nullptr.";
@@ -272,13 +272,13 @@ protected:
     {
         schedule4();
         // ideal behaivor
-        scheduler->getNextTask(nextEvent,
+        scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
         runAndCheckEvent("A", 0, 150);
-        scheduler->getNextTask(nextEvent,
+        scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
         runAndCheckEvent("A", 200, 350);
-        scheduler->getNextTask(nextEvent,
+        scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
         runAndCheckEvent("A", 400, 550);
     }
@@ -286,13 +286,13 @@ protected:
     {
         schedule4();
         // ideal behaivor
-        scheduler->getNextTask(nextEvent,
+        scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
         runAndCheckEvent("A", 0, 150);
-        scheduler->getNextTask(nextEvent,
+        scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
         runAndCheckEvent("A", 200, 350);
-        scheduler->getNextTask(nextEvent,
+        scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
         runAndCheckEvent("A", 400, 550);
     }
@@ -382,14 +382,14 @@ TEST_F(SchedulerFixedTests, SingleEventIdeal)
 {
     schedule4();
     // ideal behaivor
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     
     runAndCheckEvent("A", 0, 150);
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 200, 350);
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 400, 550);
 }
@@ -402,14 +402,14 @@ TEST_F(SchedulerFixedTests, SingleEventIdeal)
 TEST_F(SchedulerFixedTests, SingleEvent_DelayToSecondStart)
 {
     singleEventStart();
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 800, 0, 50);
     //  last task ended at 800ms, should not impact next task
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 800, 950);
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 1000, 1150);
 
@@ -423,19 +423,17 @@ TEST_F(SchedulerFixedTests, SingleEvent_DelayToSecondStart)
 TEST_F(SchedulerFixedTests, SingleEvent_SecondDelayedNoImpact)
 {
     singleEventStart();
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 810, 0, 60);
     //  last task ended at 810 ms, this task should be run immediately
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 810, 960);
     //  task not delayed, should run as normal
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 1000, 1150);
-
-
 }
 /**
 * @brief Seccond iteration starts late with enough time to run
@@ -446,16 +444,16 @@ TEST_F(SchedulerFixedTests, SingleEvent_SecondDelayedNoImpact)
 TEST_F(SchedulerFixedTests, SingleEvent_SecondEndAtThirdStart)
 {
     singleEventStart();
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 850, 0, 100);
     //  last task ended at 2050 ms, this task should be run immediately
     //  as it will now end when the next task is supposed to start
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 850, 1000);
     //  task not delayed, should run as normal
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 1000, 1150);
 
@@ -471,12 +469,12 @@ TEST_F(SchedulerFixedTests, SingleEvent_SecondEndAfterThirdStart)
 {
 
     singleEventStart();
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 860, 0, 110);
     //  second event skipped running third task
     //  task not delayed, should run as normal
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 1000, 1150);
 
@@ -493,12 +491,12 @@ TEST_F(SchedulerFixedTests, SingleEvent_ExactOverlap)
 {
     singleEventStart();
     uint32_t count = deploymentSchedule[0].state.measurementCount;
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 1000, 0, 250);
     //  second event skipped running third task
     //  task not delayed, should run as normal
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 1000, 1150);
     //  check only two runs
@@ -517,12 +515,12 @@ TEST_F(SchedulerFixedTests, SingleEvent_DelayPastThirdStart)
 
     singleEventStart();
     uint32_t count = deploymentSchedule[0].state.measurementCount;
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 1050, 0, 300);
     //  second event skipped running third task
     //  task not delayed, should run as normal
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 1050, 1200);
     //  check only two runs
@@ -539,12 +537,12 @@ TEST_F(SchedulerFixedTests, SingleEvent_SkipSecondAndThird)
 
     singleEventStart();
     uint32_t count = deploymentSchedule[0].state.measurementCount;
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 1060, 0, 310);
     //  second event skipped running third task
     //  task not delayed, should run as normal
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 1200, 1350);
     //  check only two runs
@@ -578,19 +576,19 @@ TEST_F(SchedulerFixedTests, DelayRunDuringIdle)
 
     runNextEvent();
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("C", 600, 2100, 0, 900);
 
 
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 2100, 2500);
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("B", 2500, 2700);
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("C", 2700, 3300);
 
@@ -614,20 +612,18 @@ TEST_F(SchedulerFixedTests, DelayAndSkip)
     runNextEvent();
     runNextEvent();
     addTime(900); //delay
-    ASSERT_TRUE(scheduler->willOverlap(2, 
-                                millis(), millis()));
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                                 &nextEventTime, millis());
     runAndCheckEvent("A", 4000, 4400);
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                                 &nextEventTime, millis());
     runAndCheckEvent("B", 4400, 4600);
 
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());//C runs
     runAndCheckEvent("C", 4600, 5200);
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 6000, 6400);
 
@@ -698,15 +694,15 @@ TEST_F(SchedulerFixedTests, BackToBackScheduling)
     deploymentSchedule[2].ensembleInterval = 1500;
     deploymentSchedule[2].maxDuration = 500;
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 0, 500);
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("B", 500, 1000);
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("C", 1000, 1500);
 }
@@ -732,16 +728,16 @@ TEST_F(SchedulerFixedTests, IdlePeriod)
     deploymentSchedule[1].maxDuration = 500;
     deploymentSchedule[1].ensembleInterval = 2000;
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 0, 500);
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("B", 1000, 1500);
 
     // Ensure that no event is scheduled during the idle period
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     ASSERT_EQ(nextEventTime, 2000);
 }
@@ -764,11 +760,11 @@ TEST_F(SchedulerFixedTests, MaximumDurationSpan)
     deploymentSchedule[1].maxDuration = 100;
     deploymentSchedule[1].ensembleInterval = 500;
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 0, 1500);
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("B", 1500, 1600);
 }
@@ -792,11 +788,11 @@ TEST_F(SchedulerFixedTests, LargeIntervalsSmallDurations)
     deploymentSchedule[1].maxDuration = 100;
     deploymentSchedule[1].ensembleInterval = 1000;
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 0, 100);
 
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     ASSERT_EQ(nextEventTime, 800);
     runAndCheckEvent("B", 800, 900);

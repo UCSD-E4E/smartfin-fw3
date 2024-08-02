@@ -25,7 +25,7 @@ class AbstractScheduler {
      * @return 0 if successful, otherwise error code to be defined by
      * implementation
      */
-    virtual int getNextTask(const DeploymentSchedule_t* p_next_task,
+    virtual int getNextTask(DeploymentSchedule_t** p_next_task,
                     std::uint32_t* p_next_runtime,
                     std::uint32_t current_time) = 0;
 };

@@ -140,7 +140,7 @@ class ExamineBehavior
 
         while (millis() < input.end)
         {
-            scheduler->getNextTask(nextEvent, &nextEventTime,
+            scheduler->getNextTask(&nextEvent, &nextEventTime,
                                     millis());
             uint32_t beforeDelay = 0;
             uint32_t afterDelay = 0;
@@ -326,8 +326,12 @@ class ExamineBehavior
         std::vector<std::string> filesInDir;
         DIR* dirp = opendir(directory.c_str());
         struct dirent* dp;
-        while ((dp = readdir(dirp)) != nullptr) {
-            if (dp->d_type == DT_REG) {  
+        dp = readdir(dirp);
+        std::cout << directory << "\n";
+    
+        while (dp != nullptr) {
+            if (dp->d_type == DT_REG) {
+                std::cout << directory + "/" + std::string(dp->d_name) << "\n";
                 filesInDir.push_back(directory + "/" + std::string(dp->d_name));
             }
         }
@@ -337,7 +341,8 @@ class ExamineBehavior
     void runTests()
     {
         SetUpTestSuite();
-        std::vector<std::string> filesInDir = GetFilesInDirectory("no_check_inputs/");
+        std::vector<std::string> filesInDir = GetFilesInDirectory(
+                "tests/no_check_inputs/");
         for (const auto& file : filesInDir)
         {
             SetUp(file);

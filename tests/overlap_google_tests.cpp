@@ -3,6 +3,7 @@
  * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  * @brief Google Tests for scheduler.cpp
  */
+#if SCHEDULER_VERSION == CHARLIE_VERSION
 #include <gtest/gtest.h>
 #include "scheduler_test_system.hpp"
 #include "test_ensembles.hpp"
@@ -82,6 +83,8 @@ protected:
         {SS_ensembleBFunc, SS_ensembleBInit, 1, 0, 2000, 200, UINT32_MAX, "B",{0}},
         { nullptr,          nullptr,          0, 0, 0,    0,   0,          "", {0}}
         };
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
+        scheduler->initializeScheduler();
     }
    
     
@@ -126,11 +129,11 @@ protected:
             ::testing::UnitTest::GetInstance()->current_test_info();
 
         testName = std::string(test_info->name());
-
+        
         nextEvent = nullptr; // ensures that first call to scheduler is correct
         nextEventTime = 0; // time handling
         setTime(0); // time handling see @ref tests/scheduler_test_system.cpp
-        scheduler->initializeScheduler();
+        
         useCompareLogs = false;
         
 
@@ -410,11 +413,12 @@ TEST_F(SchedulerOverlapTests, Boundary2)
     uint32_t end = start + deploymentSchedule[i].maxDuration;
     bool overlap = scheduler->willOverlap(i, 0, start);
     ASSERT_FALSE(overlap);
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("B", 500, 700);
-    scheduler->getNextTask(nextEvent,
+    scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEvent("A", 700, 1000);
 }
 
+#endif

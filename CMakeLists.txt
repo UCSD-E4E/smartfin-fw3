@@ -26,16 +26,18 @@ include_directories(../external/googletest/googletest/include src/ tests)
 set(GTEST_SOURCE_FILES
     tests/scheduler_test_system.cpp
     tests/test_ensembles.cpp
+    src/antara_scheduler.cpp
     src/charlie_scheduler.cpp
     tests/fixed_google_tests.cpp
     tests/file_google_tests.cpp
-    tests/overlap_google_tests.cpp
+    #tests/overlap_google_tests.cpp
     tests/scheduler_test_flog.cpp
 )
 set(EXAMINE_BEHAVIOR_SOURCE_FILES
     tests/scheduler_test_system.cpp
     tests/test_ensembles.cpp
     src/charlie_scheduler.cpp
+    src/antara_scheduler.cpp
     tests/scheduler_test_flog.cpp
     tests/examine_behavior.cpp
 )

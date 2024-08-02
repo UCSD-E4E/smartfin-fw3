@@ -6,7 +6,11 @@
 #ifndef __TEST_ENSEMBLES_HPP__
 #define __TEST_ENSEMBLES_HPP__
 
+#if SCHEDULER_VERSION == CHARLIE_VERSION
 #include "charlie_scheduler.hpp"
+#else
+#include "antara_scheduler.hpp"
+#endif
 /**
  * @brief dummy ensemble init function
  * @param pDeployment schedule table

@@ -4,8 +4,9 @@
  * @brief Header file for scheduler defined in @ref scheduler.cpp
  * @version 1
  */
-#ifndef __SCHEDULER__HPP_
-#define __SCHEDULER__HPP_
+#if SCHEDULER_VERSION == CHARLIE_VERSION
+#ifndef __SCHEDULER__HPP__
+#define __SCHEDULER__HPP__
 
 #include <stddef.h>
 #include <cstdint>
@@ -117,7 +118,7 @@ class Scheduler : public AbstractScheduler {
      * @param nextStartTime The proposed start time of the current task.
      * @return True if there is an overlap with another task; false otherwise.
      */
-    int getNextTask(const DeploymentSchedule_t* p_next_task,
+    int getNextTask(DeploymentSchedule_t** p_next_task,
                     uint32_t* p_next_runtime,
                     uint32_t current_time);
 
@@ -144,3 +145,4 @@ typedef enum error_
        
 #endif //__SCHEDULER__HPP_
 
+#endif

@@ -69,7 +69,7 @@ void Scheduler::initializeScheduler()
  * TASK_SEARCH_FAIL otherwise.
  */
 
-int Scheduler::getNextTask(const DeploymentSchedule_t* p_nextEvent, 
+int Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent, 
                            system_tick_t* p_nextTime,
                            system_tick_t currentTime)
 {
@@ -149,7 +149,7 @@ int Scheduler::getNextTask(const DeploymentSchedule_t* p_nextEvent,
             nextStartTime = nextInterval;
         }
 
-        if (willOverlap(idx, currentTime, nextStartTime))
+        if (!willOverlap(idx, currentTime, nextStartTime))
         {
             s.nextRunTime = nextStartTime;
             if (nextStartTime < minNextTime)
@@ -186,11 +186,9 @@ int Scheduler::getNextTask(const DeploymentSchedule_t* p_nextEvent,
         // Increments ensemble variable lastMeasurementTime measurementCount
         nextEvent->state.measurementCount++;
         // Sets next event pointer to the next event
-        p_nextEvent = nextEvent;
+        *p_nextEvent = nextEvent;
         // Sets next time pointer to the next event time
         *p_nextTime = minNextTime;
-        SF_OSAL_printf("next event: %s\n", nextEvent->taskName);
-        SF_OSAL_printf("p_nextEvent: %s\n", p_nextEvent->taskName);
         return SUCCESS;
     }
 }

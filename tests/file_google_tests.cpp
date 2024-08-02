@@ -133,7 +133,7 @@ protected:
     void runNextEvent()
     {
 
-        scheduler->getNextTask(nextEvent,
+        scheduler->getNextTask(&nextEvent,
                             &nextEventTime,
                             millis());
         ASSERT_NE(nextEvent, nullptr) << "Scheduler returned nullptr.";
@@ -166,11 +166,12 @@ protected:
         }
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
         deploymentSchedule.emplace_back(e);
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();
         
         while(millis() < input.end)
         {
-            scheduler->getNextTask(nextEvent,&nextEventTime,
+            scheduler->getNextTask(&nextEvent,&nextEventTime,
                                     millis());
             uint32_t beforeDelay = 0;
             uint32_t afterDelay = 0;

@@ -13,9 +13,13 @@
 #include "sleepTask.hpp"
 #include "util.hpp"
 #include "vers.hpp"
-#include "charlie_scheduler.hpp"
 #include "ensembles.hpp"
 #include "cli/flog.hpp"
+#if SCHEDULER_VERSION == CHARLIE_VERSION
+#include "charlie_scheduler.hpp"
+#else
+#include "antara_scheduler.hpp"
+#endif
 
 /**
  * @brief creates file name for log
