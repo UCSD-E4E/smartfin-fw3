@@ -17,9 +17,9 @@ Scheduler::Scheduler(DeploymentSchedule_t schedule[], int numTasks)
 {
     SF_OSAL_printf("Using Antara's Version\n");
     tasks = schedule;
-    this->numTasks = numTasks;
-
-    for (int i = 0; i < numTasks; i++)
+    
+    this->numTasks=numTasks;
+    for (int i = 0; i<numTasks; i++)
     {
         if (i == 0)
         {
@@ -53,10 +53,10 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
         if (delay == tasks[i].maxDelay)
         {
             *p_next_task = &(tasks[i]);
-            tasks[i].nextRunTime += delay + tasks[i].ensembleInterval;
+            tasks[i].nextRunTime = runTime + tasks[i].ensembleInterval;
             return runTime;
         }
-        int completion = runTime + tasks[i].ensembleInterval;
+        int completion = runTime + tasks[i].maxDuration;
         int j = 0;
         while (j < i && canSet)
         {
