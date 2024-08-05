@@ -27,7 +27,8 @@ Scheduler::Scheduler(DeploymentSchedule_t schedule[], int numTasks)
         }
         else
         {
-            tasks[i].startDelay = tasks[i - 1].startDelay + tasks[i - 1].maxDuration;
+            tasks[i].nextRunTime=tasks[i - 1].nextRunTime + tasks[i - 1].maxDuration;
+            std::cout<<tasks[i].nextRunTime<< std::endl;
         }
     }
 }
@@ -40,7 +41,7 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
     for(; i>=0; i--)
     {
         bool canSet = true;
-        int runTime = tasks[i].nextRunTime;
+        std::uint32_t runTime = tasks[i].nextRunTime;
         int delay = current_time - runTime;
         if (delay > 0)
         {

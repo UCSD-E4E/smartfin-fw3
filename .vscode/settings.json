@@ -82,7 +82,9 @@
     "cmake.generator": "Unix Makefiles",
     "cmake.sourceDirectory": "${workspaceFolder}",
     "cmake.buildDirectory": "${workspaceFolder}/build",
-    
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}"
+    },
     "cmake.configureArgs": [
         "-DTEST=ON",
         "-DCMAKE_BUILD_TYPE=Debug"
