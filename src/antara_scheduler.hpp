@@ -5,13 +5,34 @@
 
 #include "abstractScheduler.hpp"
 #include "deploymentSchedule.hpp"
+/**
+ * @brief Ensemble function.
+ *
+ * This function executes once to update the ensemble state.  This should update
+ * the accumulators with a new measurement.  If the accumulators have
+ * accumulated the proper amount of data, this function should then record the
+ * proper data.
+ *
+ * Essentially, this will be called every ensembleInterval ms after
+ * ensembleDelay ms from the start of the deployment.
+ * 
+ * @param pDeployment the schedule table
+ */
+typedef void (*EnsembleFunction)(DeploymentSchedule_t* pDeployment);
+/**
+ * @brief Ensemble initialization function.
+ *
+ * This function is executed once when all of the
+ * @param pDeployment the schedule table
+ */
+typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
+
 struct DeploymentSchedule_
 {
     // Ensemble properties
-    int priority;
-    void (*measure)();               //!< measurement function
-    void (*init)();                  //!< initialization function
-    // EnsembleProccess process;      //!< processing function
+    //int priority;
+    EnsembleFunction measure;               //!< measurement function
+    EnsembleInit init;                      //!< initialization function
     uint32_t startDelay;             //!< delay after deployment start
     uint32_t ensembleInterval;       //!< time between ensembles
     // void* pData;                  //!< Buffer to store measurements temporarily
@@ -21,6 +42,7 @@ struct DeploymentSchedule_
 
     // State Information
     uint32_t nextRunTime;
+    uint32_t measurementCount;
 };
 
 class Scheduler : public AbstractScheduler
@@ -33,6 +55,7 @@ public:
     int getNextTask(DeploymentSchedule_t **p_next_task,
                     std::uint32_t *p_next_runtime,
                     std::uint32_t current_time);
+    void initializeScheduler();
 };
 #endif
 #endif //__ANTARA_SCHEDULER__HPP__

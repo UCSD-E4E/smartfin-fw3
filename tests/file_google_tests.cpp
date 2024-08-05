@@ -154,8 +154,10 @@ protected:
         setTime(input.start); 
         deploymentSchedule.clear();
         DeploymentSchedule_t e;
+        #if SCHEDULER_VERSION == CHARLIE_VERSION
         for(size_t i = 0; i < input.ensembles.size(); i++)
         {
+            
             e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 
                                             input.ensembles[i].interval,
                                             input.ensembles[i].duration, 
@@ -168,6 +170,25 @@ protected:
         deploymentSchedule.emplace_back(e);
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();
+        #else
+        for(size_t i = 0; i < input.ensembles.size(); i++)
+        {
+            
+            e = { 
+                    SS_ensembleAFunc,   //measure
+                    SS_ensembleAInit,   //init
+                    0,                  // startDelay 
+                    input.ensembles[i].interval,    //ensembleInterval
+                    input.ensembles[i].duration,    //maxDuration
+                    input.ensembles[i].taskName.c_str(), //taskName
+                    UINT32_MAX,         //maxDelay
+                    0                   //nextRunTime
+                };
+            deploymentSchedule.emplace_back(e);
+        }
+        #endif
+        
+        
         
         while(millis() < input.end)
         {
@@ -177,6 +198,7 @@ protected:
             uint32_t afterDelay = 0;
             for(size_t i = 0; i < input.delays.size(); i++)
             {
+                #if SCHEDULER_VERSION == CHARLIE_VERSION
                 if(!strcmp(nextEvent->taskName, 
                             input.delays[i].taskName.c_str()) &&
                         (nextEvent->state.measurementCount - 1 == 
@@ -194,6 +216,25 @@ protected:
                     if ((beforeDelay != 0) && (afterDelay != 0))
                         break;
                 }
+                #else
+                if(!strcmp(nextEvent->taskName, 
+                            input.delays[i].taskName.c_str()) &&
+                        (nextEvent->measurementCount - 1 == 
+                        input.delays[i].iteration))
+                {
+                    if (input.delays[i].isBefore)
+                    {
+                        beforeDelay = input.delays[i].delay;
+                    }
+                    else
+                    {
+                        afterDelay = input.delays[i].delay;
+                    }
+                    input.delays.erase(input.delays.begin() + i);
+                    if ((beforeDelay != 0) && (afterDelay != 0))
+                        break;
+                }
+                #endif
             }
             if (input.expectedValues.size() > 0) 
             {
@@ -203,6 +244,7 @@ protected:
                 input.expectedValues.erase(input.expectedValues.begin());
                 for(size_t i = 0; i < input.resets.size(); i++)
                 {
+                    #if SCHEDULER_VERSION == CHARLIE_VERSION
                     if(!strcmp(nextEvent->taskName, 
                                 input.resets[i].first.c_str()) &&
                             (nextEvent->state.measurementCount - 1 == 
@@ -210,6 +252,7 @@ protected:
                     {
                         ASSERT_EQ(nextEvent->state.firstRunTime, UINT32_MAX);
                     }
+                    #endif
                 }
             }
             else

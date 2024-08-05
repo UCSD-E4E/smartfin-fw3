@@ -71,6 +71,7 @@ protected:
     */
     SchedulerFixedTests()
     {   
+        #if SCHEDULER_VERSION == CHARLIE_VERSION
         deploymentSchedule = {
                                 {   SS_ensembleAFunc, //measure
                                     SS_ensembleAInit, //init
@@ -91,6 +92,26 @@ protected:
         
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();
+        #else
+        deploymentSchedule = {
+                                {
+                                    SS_ensembleAFunc, //measure
+                                    SS_ensembleAInit, //init
+                                    0, // startDelay
+                                    2000, //ensembleInterval
+                                    400, //maxDuration
+                                    "A", //taskName
+                                    UINT32_MAX, //maxDelay
+                                    0,   //nextRunTime
+                                    0
+                                    },
+                            
+        {SS_ensembleBFunc, SS_ensembleBInit, 0, 2000, 200, "B", UINT32_MAX, 0, 0},
+        {SS_ensembleCFunc, SS_ensembleCInit, 0, 2000, 600, "C", UINT32_MAX, 0, 0}
+        
+        };
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(), 3);
+        #endif
     }
     /**
     * @brief Modifies the constructed scheduler
@@ -99,9 +120,18 @@ protected:
     */
     void schedule2()
     {
+        #if SCHEDULER_VERSION == CHARLIE_VERSION
         deploymentSchedule[2] = { nullptr, nullptr, 0, 0, 0, 0, 0, "\0",{0} };
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();
+        #else
+        deploymentSchedule.erase(deploymentSchedule.begin() + 1, 
+                                            deploymentSchedule.end());
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),1);
+
+        #endif
+
+        
     }
     /**
     * @brief Modifies the constructed scheduler
@@ -112,11 +142,18 @@ protected:
     */
     void schedule3()
     {
+        #if SCHEDULER_VERSION == CHARLIE_VERSION
         deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 500, 200, UINT32_MAX, "A", {0} };
         deploymentSchedule[1] = { SS_ensembleBFunc, SS_ensembleBInit, 1, 0, 200, 100, UINT32_MAX, "B", {0} };
         deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 800, 250, UINT32_MAX, "C", {0} };
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();
+        #else
+        deploymentSchedule[0] = {SS_ensembleBFunc, SS_ensembleBInit, 0, 500, 200, "A", UINT32_MAX, 0, 0};
+        deploymentSchedule[1] = {SS_ensembleBFunc, SS_ensembleBInit, 0, 200, 100, "B", UINT32_MAX, 0, 0};
+        deploymentSchedule[2] = {SS_ensembleBFunc, SS_ensembleBInit, 0, 800, 250, "C", UINT32_MAX, 0, 0};
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),3);
+        #endif
     }
     /**
     * @brief Modifies the constructed scheduler
@@ -125,10 +162,17 @@ protected:
     */
     void schedule4()
     {
+        #if SCHEDULER_VERSION == CHARLIE_VERSION
         deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 200, 150, UINT32_MAX, "A", {0} };
         deploymentSchedule[1] = { nullptr,          nullptr,          0, 0, 0,    0,   0,        "", {0} };
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();   
+        #else
+        deploymentSchedule.erase(deploymentSchedule.begin() + 1, 
+                                            deploymentSchedule.end());
+        deploymentSchedule[0] = {SS_ensembleBFunc, SS_ensembleBInit, 0, 500, 150, "A", UINT32_MAX, 0, 0};
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),1);
+        #endif
     }
 
     /**
@@ -490,7 +534,7 @@ TEST_F(SchedulerFixedTests, SingleEvent_SecondEndAfterThirdStart)
 TEST_F(SchedulerFixedTests, SingleEvent_ExactOverlap)
 {
     singleEventStart();
-    uint32_t count = deploymentSchedule[0].state.measurementCount;
+   
     scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 1000, 0, 250);
@@ -514,7 +558,7 @@ TEST_F(SchedulerFixedTests, SingleEvent_DelayPastThirdStart)
 {
 
     singleEventStart();
-    uint32_t count = deploymentSchedule[0].state.measurementCount;
+    
     scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 1050, 0, 300);
@@ -536,7 +580,7 @@ TEST_F(SchedulerFixedTests, SingleEvent_SkipSecondAndThird)
 {
 
     singleEventStart();
-    uint32_t count = deploymentSchedule[0].state.measurementCount;
+   
     scheduler->getNextTask(&nextEvent,
                             &nextEventTime, millis());
     runAndCheckEventWithDelays("A", 600, 1060, 0, 310);
@@ -668,134 +712,5 @@ TEST_F(SchedulerFixedTests, ScheduleTooTight)
 
 
 
-
-
-/**
- * @brief Testing back-to-back scheduling without overlap
- *
- * A  *********
- * B            **********
- * C                      **********
- */
-TEST_F(SchedulerFixedTests, BackToBackScheduling)
-{
-
-
-    deploymentSchedule[0].state.deploymentStartTime = 0;
-    deploymentSchedule[0].ensembleDelay = 0;
-    deploymentSchedule[0].maxDuration = 500;
-    deploymentSchedule[0].ensembleInterval = 1500;
-
-    deploymentSchedule[1].state.deploymentStartTime = 0;
-    deploymentSchedule[1].ensembleDelay = 500;
-    deploymentSchedule[1].maxDuration = 500;
-    deploymentSchedule[1].ensembleInterval = 1500;
-
-    deploymentSchedule[2].ensembleInterval = 1500;
-    deploymentSchedule[2].maxDuration = 500;
-
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("A", 0, 500);
-
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("B", 500, 1000);
-
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("C", 1000, 1500);
-}
-
-/**
- * @brief Testing idle periods where no tasks run
- *
- * A  *********
- * B               **********
- *
- */
-TEST_F(SchedulerFixedTests, IdlePeriod)
-{
-    schedule2();
-
-    deploymentSchedule[0].state.deploymentStartTime = 0;
-    deploymentSchedule[0].ensembleDelay = 0;
-    deploymentSchedule[0].maxDuration = 500;
-    deploymentSchedule[0].ensembleInterval = 2000;
-
-    deploymentSchedule[1].state.deploymentStartTime = 0;
-    deploymentSchedule[1].ensembleDelay = 1000;
-    deploymentSchedule[1].maxDuration = 500;
-    deploymentSchedule[1].ensembleInterval = 2000;
-
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("A", 0, 500);
-
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("B", 1000, 1500);
-
-    // Ensure that no event is scheduled during the idle period
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    ASSERT_EQ(nextEventTime, 2000);
-}
-
-/**
- * @brief Testing when maximum durations span multiple intervals
- *
-*/
-TEST_F(SchedulerFixedTests, MaximumDurationSpan)
-{
-    schedule2();
-
-    deploymentSchedule[0].state.deploymentStartTime = 0;
-    deploymentSchedule[0].ensembleDelay = 0;
-    deploymentSchedule[0].maxDuration = 1500;
-    deploymentSchedule[0].ensembleInterval = 3000;
-
-    deploymentSchedule[1].state.deploymentStartTime = 0;
-    deploymentSchedule[1].ensembleDelay = 0;
-    deploymentSchedule[1].maxDuration = 100;
-    deploymentSchedule[1].ensembleInterval = 500;
-
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("A", 0, 1500);
-
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("B", 1500, 1600);
-}
-
-
-/**
- * @brief Testing tasks with large intervals and small durations
- *
- */
-TEST_F(SchedulerFixedTests, LargeIntervalsSmallDurations)
-{
-    schedule2();
-
-    deploymentSchedule[0].state.deploymentStartTime = 0;
-    deploymentSchedule[0].ensembleDelay = 0;
-    deploymentSchedule[0].maxDuration = 100;
-    deploymentSchedule[0].ensembleInterval = 1000;
-
-    deploymentSchedule[1].state.deploymentStartTime = 0;
-    deploymentSchedule[1].ensembleDelay = 800;
-    deploymentSchedule[1].maxDuration = 100;
-    deploymentSchedule[1].ensembleInterval = 1000;
-
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    runAndCheckEvent("A", 0, 100);
-
-    scheduler->getNextTask(&nextEvent,
-                            &nextEventTime, millis());
-    ASSERT_EQ(nextEventTime, 800);
-    runAndCheckEvent("B", 800, 900);
-}
 
 

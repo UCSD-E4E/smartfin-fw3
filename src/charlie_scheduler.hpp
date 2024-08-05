@@ -9,12 +9,12 @@
 #include "product.hpp"
 #if SCHEDULER_VERSION == CHARLIE_VERSION
 
-
 #include <stddef.h>
 #include <cstdint>
 
 #include "deploymentSchedule.hpp"
 #include "abstractScheduler.hpp"
+#include "cli/conio.hpp"
 #ifndef TEST_VERSION
 #include "Particle.h"
 #else
@@ -92,10 +92,20 @@ struct DeploymentSchedule_
     
     
 };
+
 class Scheduler : public AbstractScheduler {
     public:
     DeploymentSchedule_t* scheduleTable;
-    
+    void printTable()
+    {
+       DeploymentSchedule_t* pDeployment = scheduleTable;
+        uint32_t lastEndTime = 0;
+        while (pDeployment->init)
+        {
+            SF_OSAL_printf("Ensemble %s\n",pDeployment->taskName);
+        } 
+    };
+
 
     Scheduler(DeploymentSchedule_t* scheduler);
 

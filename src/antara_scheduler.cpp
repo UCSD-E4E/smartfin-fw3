@@ -31,7 +31,8 @@ Scheduler::Scheduler(DeploymentSchedule_t schedule[], int numTasks)
         }
     }
 }
-
+void Scheduler::initializeScheduler()
+{}
 int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_next_runtime, std::uint32_t current_time)
 {
     int i = numTasks - 1;
@@ -76,6 +77,7 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
     }
 
     *p_next_task = &(tasks[0]);
+    tasks[0].measurementCount++;
     int runTime = tasks[0].nextRunTime;
     int delay = current_time - (tasks[0].nextRunTime);
     if (delay > 0)

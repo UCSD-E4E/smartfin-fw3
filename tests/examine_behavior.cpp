@@ -90,7 +90,8 @@ class ExamineBehavior
 
         
         testName = filename;
-        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
+        
+        
         nextEvent = nullptr; // ensures that first call to scheduler is correct
         nextEventTime = 0; // time handling
 
@@ -125,16 +126,31 @@ class ExamineBehavior
         DeploymentSchedule_t e;
         for (size_t i = 0; i < input.ensembles.size(); i++)
         {
+            #if SCHEDULER_VERSION == CHARLIE_VERSION
             e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
                                             input.ensembles[i].interval,
                                             input.ensembles[i].duration,
                                             input.ensembles[i].delay,
                                             input.ensembles[i].taskName.c_str(),
                                             {0} };
+            #else
+            e = {SS_ensembleAFunc, SS_ensembleAInit, 0, 
+                        input.ensembles[i].interval, 
+                        input.ensembles[i].duration, 
+                        input.ensembles[i].taskName.c_str(),
+                        UINT32_MAX, 0,  0};
+            #endif 
             deploymentSchedule.emplace_back(e);
         }
+        #if SCHEDULER_VERSION == CHARLIE_VERSION
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
         deploymentSchedule.emplace_back(e);
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
+        #else
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),
+            deploymentSchedule.size());
+        #endif
+        
         
         scheduler->initializeScheduler();
 
@@ -146,6 +162,7 @@ class ExamineBehavior
             uint32_t afterDelay = 0;
             for (size_t i = 0; i < input.delays.size(); i++)
             {
+                #if SCHEDULER_VERSION == CHARLIE_VERSION
                 if (!strcmp(nextEvent->taskName,
                     input.delays[i].taskName.c_str()) &&
                         (nextEvent->state.measurementCount - 1 ==
@@ -163,6 +180,25 @@ class ExamineBehavior
                     if ((beforeDelay != 0) && (afterDelay != 0))
                         break;
                 }
+                #else
+                if (!strcmp(nextEvent->taskName,
+                    input.delays[i].taskName.c_str()) &&
+                        (nextEvent->measurementCount - 1 ==
+                            input.delays[i].iteration))
+                {
+                    if (input.delays[i].isBefore)
+                    {
+                        beforeDelay = input.delays[i].delay;
+                    }
+                    else
+                    {
+                        afterDelay = input.delays[i].delay;
+                    }
+                    input.delays.erase(input.delays.begin() + i);
+                    if ((beforeDelay != 0) && (afterDelay != 0))
+                        break;
+                }
+                #endif
             }
             runAndCheckEventWithDelays(beforeDelay, afterDelay);
 
@@ -324,25 +360,29 @@ class ExamineBehavior
     }
     std::vector<std::string> GetFilesInDirectory(const std::string& directory) {
         std::vector<std::string> filesInDir;
+        struct dirent *dp; 
         DIR* dirp = opendir(directory.c_str());
-        struct dirent* dp;
-        dp = readdir(dirp);
-        std::cout << directory << "\n";
+        
+       
+        std::cout << "directory: " <<  directory << "\n";
     
-        while (dp != nullptr) {
+        while ((dp = readdir(dirp)) != NULL) {
             if (dp->d_type == DT_REG) {
-                std::cout << directory + "/" + std::string(dp->d_name) << "\n";
-                filesInDir.push_back(directory + "/" + std::string(dp->d_name));
+                std::string file = directory + std::string(dp->d_name);
+                std::cout <<"file found: " <<  file << "\n";
+                filesInDir.push_back(file);
             }
         }
+        std::cout << "closing " <<  directory << "\n";
         closedir(dirp);
+        std::cout << directory << " closed" << "\n";
         return filesInDir;
     }
     void runTests()
     {
         SetUpTestSuite();
         std::vector<std::string> filesInDir = GetFilesInDirectory(
-                "tests/no_check_inputs/");
+                "./tests/no_check_inputs/");
         for (const auto& file : filesInDir)
         {
             SetUp(file);
@@ -365,8 +405,10 @@ int main(int argc, char const* argv[])
     ExamineBehavior e;
     e.runTests();
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+    std::cout << "Time to run = " 
+    << 
+    std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
+    << "[µs]" << std::endl;
 
 
     
