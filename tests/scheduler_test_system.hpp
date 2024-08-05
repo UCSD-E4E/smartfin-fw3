@@ -93,7 +93,7 @@ struct Delay
 {
     std::string taskName; //!< name of the task
     uint32_t iteration;
-    uint32_t delay;
+    int32_t delay;
     bool isBefore;
     
 };
