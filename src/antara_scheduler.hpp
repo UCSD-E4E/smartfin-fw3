@@ -39,10 +39,8 @@ struct DeploymentSchedule_
     uint32_t maxDuration;            //!< store max running time of measurement
     const char* taskName;            //!< task name of ensemble
     uint32_t maxDelay;
-    
-
     // State Information
-    uint32_t startDelay;
+    
     uint32_t nextRunTime;
     uint32_t measurementCount;
 };

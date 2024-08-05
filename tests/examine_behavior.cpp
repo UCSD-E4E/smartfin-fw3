@@ -19,9 +19,16 @@ class ExamineBehavior
     static std::unique_ptr<FileWriter> files;
     static void SetUpTestSuite()
     {
+    
+        #if SCHEDULER_VERSION == CHARLIE_VERSION
         files = std::make_unique<FileWriter>(
                 "/dev/null",
-                "tests/no_check_outputs/actual_file_tests.log");
+                "tests/no_check_outputs/charlie_actual_file_tests.log");
+        #else
+        files = std::make_unique<FileWriter>(
+                "/dev/null",
+                "tests/no_check_outputs/antara_actual_file_tests.log");
+        #endif
 
     }
     static void TearDownTestSuite()
@@ -44,8 +51,8 @@ class ExamineBehavior
     std::ofstream actualFile;
 
     TestInput input;
-    //! filename for writing actual test output
-    std::string actualFileName = "actual_file_tests.log";
+    
+    
     //! holds test name across functions
     std::string testName;
 
