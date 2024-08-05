@@ -41,6 +41,7 @@ struct DeploymentSchedule_
     uint32_t maxDelay;
 
     // State Information
+    uint32_t startDelay;
     uint32_t nextRunTime;
     uint32_t measurementCount;
 };
