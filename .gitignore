@@ -331,4 +331,3 @@ tests/googletest
 tests/outputs/
 build/*
 tests/*outputs/*
-tests/no_check*
