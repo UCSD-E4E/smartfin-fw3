@@ -20,11 +20,7 @@
 
 #if SCHEDULER_VERSION == CHARLIE_VERSION
 Scheduler::Scheduler(DeploymentSchedule_t schedule[])
-    :  scheduleTable(schedule
-    )
-    {
-        SF_OSAL_printf("Using Charlie's Version\n");
-    }
+    :  scheduleTable(schedule){}
  /**
   * @brief Initializes ensembles within schedule table.
   *
@@ -49,7 +45,7 @@ void Scheduler::initializeScheduler()
 
 
 /**
- * @brief Retrieves the next scheduled event
+ * @brief Retrieves the next schedu2led event
  *
  * This function iterates through a schedule table to find the event that
  * should run next based on the current system time.
@@ -164,8 +160,8 @@ int Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
                     {
                         FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
                                             s.measurementCount);
-                        SF_OSAL_printf("Task %s skipped at time %zu"  __NL__ ,
-                                currentEvent.taskName,currentTime);
+                        //SF_OSAL_printf("Task %s skipped at time %zu"  __NL__ ,
+                               //currentEvent.taskName,currentTime);
                     }
                 }
             }

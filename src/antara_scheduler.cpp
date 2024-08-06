@@ -15,7 +15,7 @@
 #if SCHEDULER_VERSION == ANTARA_VERSION
 Scheduler::Scheduler(DeploymentSchedule_t schedule[], int numTasks)
 {
-    SF_OSAL_printf("Using Antara's Version\n");
+    
     tasks = schedule;
     this->numTasks = numTasks;
 
@@ -70,6 +70,7 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
         {
             *p_next_task = &(tasks[i]);
             tasks[i].nextRunTime += delay + tasks[i].ensembleInterval;
+            *p_next_runtime = runTime;
             return runTime;
         }
 
@@ -89,7 +90,7 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
         delay = 0;
     }
     tasks[0].nextRunTime += delay + tasks[0].ensembleInterval;
-
+    *p_next_runtime = runTime;
     return runTime;
 }
 #endif

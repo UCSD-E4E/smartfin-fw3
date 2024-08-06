@@ -180,3 +180,12 @@ void FileWriter::closeFiles()
     expectedFile.close();
 }
 EnsembleInput::EnsembleInput(std::string taskName,uint32_t interval, uint32_t duration, uint32_t delay) : taskName(taskName), interval(interval), duration(duration), delay(delay){};
+
+void TestInput::clear()
+{
+    ensembles.clear();
+    expectedValues.clear();
+    delays.clear();
+    resets.clear();
+    
+}
