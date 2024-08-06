@@ -69,7 +69,7 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
         {
             *p_next_task = &(tasks[i]);
             tasks[i].nextRunTime = runTime + tasks[i].ensembleInterval;
-            tasks[i].nextRunTime += delay + tasks[i].ensembleInterval;
+            
             *p_next_runtime = runTime;
             return runTime;
         }
