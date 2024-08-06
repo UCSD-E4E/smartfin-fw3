@@ -28,7 +28,7 @@ Scheduler::Scheduler(DeploymentSchedule_t schedule[], int numTasks)
         else
         {
             tasks[i].nextRunTime=tasks[i - 1].nextRunTime + tasks[i - 1].maxDuration;
-            std::cout<<tasks[i].nextRunTime<< std::endl;
+            
         }
     }
 }
@@ -69,7 +69,7 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
         {
             *p_next_task = &(tasks[i]);
             tasks[i].nextRunTime = runTime + tasks[i].ensembleInterval;
-            std::cout<<tasks[i].nextRunTime<< std::endl;
+            
             tasks[i].measurementCount++;
             *p_next_runtime=runTime;
             if(delay>0){
