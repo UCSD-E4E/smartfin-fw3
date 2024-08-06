@@ -15,7 +15,7 @@
 #if SCHEDULER_VERSION == ANTARA_VERSION
 Scheduler::Scheduler(DeploymentSchedule_t schedule[], int numTasks)
 {
-    SF_OSAL_printf("Using Antara's Version\n");
+    
     tasks = schedule;
     
     this->numTasks=numTasks;

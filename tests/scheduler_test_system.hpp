@@ -113,6 +113,8 @@ struct TestInput
     std::vector<TestLog> expectedValues;
     std::vector<Delay> delays;
     std::vector<std::pair<std::string,uint32_t>> resets;
+
+    void clear();
     std::string serialize() const {
         std::stringstream ss;
         ss << "TestInput: { Start: " << start << ", End: " << end << "\n";
@@ -147,6 +149,7 @@ struct TestInput
         ss << "}";
         return ss.str();
     }
+    
 
 };
 std::ostream& operator<<(std::ostream &strm, const TestLog &value);
