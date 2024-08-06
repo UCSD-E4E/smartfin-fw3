@@ -69,12 +69,22 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
         {
             *p_next_task = &(tasks[i]);
             tasks[i].nextRunTime = runTime + tasks[i].ensembleInterval;
-            return runTime;
+            std::cout<<tasks[i].nextRunTime<< std::endl;
+            tasks[i].measurementCount++;
+            *p_next_runtime=runTime;
+            if(delay>0){
+                 FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
+                                            tasks[i].measurementCount);
+                        SF_OSAL_printf("Task %s shifted at time %zu"  __NL__ ,
+                                tasks[i].taskName,current_time);
+            }
+            return SUCCESS;
         }
+       
 
         
     }
 
-   return -1;
+   return TASK_SEARCH_FAIL;
 }
 #endif
