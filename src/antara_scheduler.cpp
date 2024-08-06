@@ -17,9 +17,9 @@ Scheduler::Scheduler(DeploymentSchedule_t schedule[], int numTasks)
 {
     
     tasks = schedule;
-    this->numTasks = numTasks;
-
-    for (int i = 0; i < numTasks; i++)
+    
+    this->numTasks=numTasks;
+    for (int i = 0; i<numTasks; i++)
     {
         if (i == 0)
         {
@@ -27,7 +27,8 @@ Scheduler::Scheduler(DeploymentSchedule_t schedule[], int numTasks)
         }
         else
         {
-            tasks[i].startDelay = tasks[i - 1].startDelay + tasks[i - 1].maxDuration;
+            tasks[i].nextRunTime=tasks[i - 1].nextRunTime + tasks[i - 1].maxDuration;
+            std::cout<<tasks[i].nextRunTime<< std::endl;
         }
     }
 }
@@ -37,11 +38,11 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
 {
     int i = numTasks - 1;
 
-    while (i >= 0)
+    for(; i>=0; i--)
     {
         bool canSet = true;
-        int runTime = tasks[i].nextRunTime;
-        int delay = current_time - tasks[i].nextRunTime;
+        std::uint32_t runTime = tasks[i].nextRunTime;
+        int delay = current_time - runTime;
         if (delay > 0)
         {
             runTime = current_time;
@@ -52,15 +53,13 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
         }
         if (delay == tasks[i].maxDelay)
         {
-            *p_next_task = &(tasks[i]);
-            tasks[i].nextRunTime += delay + tasks[i].ensembleInterval;
-            return runTime;
+            //send warning
         }
-        int completion = runTime + tasks[i].ensembleInterval;
+        int completion = runTime + tasks[i].maxDuration;
         int j = 0;
         while (j < i && canSet)
         {
-            if (tasks[j].nextRunTime < completion)
+            if (tasks[j].nextRunTime< completion)
             {
                 canSet = false;
             }
@@ -69,28 +68,15 @@ int Scheduler::getNextTask(DeploymentSchedule_t **p_next_task, std::uint32_t *p_
         if (canSet)
         {
             *p_next_task = &(tasks[i]);
+            tasks[i].nextRunTime = runTime + tasks[i].ensembleInterval;
             tasks[i].nextRunTime += delay + tasks[i].ensembleInterval;
             *p_next_runtime = runTime;
             return runTime;
         }
 
-        i--;
+        
     }
 
-    *p_next_task = &(tasks[0]);
-    tasks[0].measurementCount++;
-    int runTime = tasks[0].nextRunTime;
-    int delay = current_time - (tasks[0].nextRunTime);
-    if (delay > 0)
-    {
-        runTime = current_time;
-    }
-    else
-    {
-        delay = 0;
-    }
-    tasks[0].nextRunTime += delay + tasks[0].ensembleInterval;
-    *p_next_runtime = runTime;
-    return runTime;
+   return -1;
 }
 #endif
