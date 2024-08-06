@@ -1,5 +1,6 @@
 #include "scheduler_test_system.hpp"
 #include "test_ensembles.hpp"
+#include "cli/conio.hpp"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -24,10 +25,12 @@ class ExamineBehavior
         files = std::make_unique<FileWriter>(
                 "/dev/null",
                 "tests/no_check_outputs/charlie_actual_file_tests.log");
+        SF_OSAL_printf("Using Charlie's Version\n");
         #else
         files = std::make_unique<FileWriter>(
                 "/dev/null",
                 "tests/no_check_outputs/antara_actual_file_tests.log");
+                SF_OSAL_printf("Using Antara's Version\n");
         #endif
 
     }
@@ -114,18 +117,19 @@ class ExamineBehavior
     {
         
         size_t pos = testName.find_last_of("/");
-        std::cout << testName << "\n";
+        
         testName = testName.substr(pos + 1);
-        std::cout << testName << "\n";
+        
         std::string::size_type const p(testName.find_last_of('.'));
-        std::cout << testName << "\n";
-        std::cout << p << "\n";
+        
+        
         std::string baseName = testName.substr(0, p);
-        std::cout << baseName << "\n";
+       
         files->writeTest(baseName, actual,actual);
     }
     void runTestFile(std::string filename)
     {
+        input.clear();
         input = parseInputFile(filename);
 
         setTime(input.start);
@@ -376,7 +380,7 @@ class ExamineBehavior
         while ((dp = readdir(dirp)) != NULL) {
             if (dp->d_type == DT_REG) {
                 std::string file = directory + std::string(dp->d_name);
-                std::cout <<"file found: " <<  file << "\n";
+                
                 filesInDir.push_back(file);
             }
         }
@@ -390,12 +394,13 @@ class ExamineBehavior
         SetUpTestSuite();
         std::vector<std::string> filesInDir = GetFilesInDirectory(
                 "./tests/no_check_inputs/");
+        int i = 0;
         for (const auto& file : filesInDir)
         {
             SetUp(file);
             runTestFile(file);
             TearDown();
-
+            SF_OSAL_printf("\rCompleted %d/%d\t\t\t\t",++i,filesInDir.size());
         }
         TearDownTestSuite();
     }
@@ -406,6 +411,7 @@ std::unique_ptr<FileWriter> ExamineBehavior::files = nullptr;
 
 int main(int argc, char const* argv[])
 {
+
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 
