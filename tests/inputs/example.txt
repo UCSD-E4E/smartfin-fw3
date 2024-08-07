@@ -7,7 +7,21 @@ A|2000|200
 B|2000|400|1000
 C|500|100|100
 DELAYS #0 based indexing: "taskname|iteration|delay"
-B|1|1000
+B|1|9
+C|4|17
+B|7|5
+A|10|15
+B|24|100
+B|35|20
+A|2|50
+B|6|13
+A|4|7
+B|8|3
+C|9|81
+B|13|91
+C|16|31
+B|19|42
+A|21|14
 EXPECTED #"taskname|start|end"
 A|0|200
 B|200|600
