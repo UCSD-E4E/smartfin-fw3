@@ -57,20 +57,22 @@ if __name__ == "__main__":
         os.remove(f)
     file_num = 0
     ensembles = {}
-    gyro_sweep = [30,31]
-    mag_sweep = [30,31]
+    gyro_sweep = [30,300]
+    mag_sweep = [30,300]
     input = None
     ensembles["Temperature"] = Ensemble("Temperature",0.873,1,1)
     ensembles["GPS"] = Ensemble("GPS",0.1443,1,1)
     ensembles["Wet/Dry Sensor"] = Ensemble("Wet/Dry Sensor",1.02,1,1)
-    for gyro_interval in range(gyro_sweep[0],gyro_sweep[1]+1):
+    step = 5
+    for gyro_interval in range(gyro_sweep[0],gyro_sweep[1]+1,step):
         ensembles["Gyrometer"] = Ensemble("Gyrometer",5.209,1, gyro_interval)
-        for mag_interval in range(mag_sweep[0],mag_sweep[1]+1):
+        for mag_interval in range(mag_sweep[0],mag_sweep[1]+1,step):
             ensembles["Magnetometer"] = Ensemble("Magnetometer",5.212,1, mag_interval)
             input = Input("test" + str(file_num), ensembles.values())
             file_num += 1
             input.generate_delays()
             input.write()
+            print(f'{file_num}/{(250/step)**2}' + "\r")
 
     
 

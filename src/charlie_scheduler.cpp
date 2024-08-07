@@ -160,8 +160,7 @@ int Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
                     {
                         FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
                                             s.measurementCount);
-                        //SF_OSAL_printf("Task %s skipped at time %zu"  __NL__ ,
-                               //currentEvent.taskName,currentTime);
+                        
                     }
                 }
             }
