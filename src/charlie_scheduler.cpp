@@ -90,14 +90,17 @@ int Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
         // Calculate first start time after delay.
         uint32_t firstStartTime = s.deploymentStartTime +
             currentEvent.ensembleDelay;
+        //checks if last run was shifted
         if (s.firstRunTime == UINT32_MAX && s.lastMeasurementTime != UINT32_MAX)
         {
             s.firstRunTime = s.lastMeasurementTime;
         }
+        //if not first run since start or shift
         if (s.firstRunTime != UINT32_MAX)
         {
             firstStartTime = s.firstRunTime;
         }
+        //if still has measurements to take
         if (s.nMeasurements == s.measurementCount)
         {
             continue;
@@ -117,44 +120,56 @@ int Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
         // Calculate intended count 
         uint32_t intendedCount = (currentTime - firstStartTime - 1) /
             currentEvent.ensembleInterval + 1;
+        //calucalte intended last interval
         uint32_t lastInterval = firstStartTime + (intendedCount - 1) *
             currentEvent.ensembleInterval;
+        //calucalte intended next interval
         uint32_t nextInterval = lastInterval + currentEvent.ensembleInterval;
 
-        // check if measurement is late
+        // check if last measurement was late 
         if ((s.lastMeasurementTime < lastInterval) ||
             ((s.lastMeasurementTime == firstStartTime) &&
                 (firstStartTime < currentTime) &&
                 (s.measurementCount == 0)))
         {
+            //see if running now would overlap with next run
             if (currentTime + currentEvent.maxDuration > nextInterval)
             {
+                //skip and run at next interval
                 nextStartTime = nextInterval;
             }
+            //run now if wouldnt overlap with next time
             else
             {
                 nextStartTime = currentTime;
             }
         }
+        // if no last measurement (first run ever)
         else if(s.lastMeasurementTime == UINT32_MAX)
         {
             nextStartTime = currentTime;
         }
+        // if last measurement (not first run ever)
         else
         {
             nextStartTime = nextInterval;
         }
-
+        //if no overlap for current task
         if (!willOverlap(idx, currentTime, nextStartTime))
         {
+            //ensemble can be scheduled at nextStartTime
             s.nextRunTime = nextStartTime;
+            // if next start time is sooner than current minNextTime
             if (nextStartTime < minNextTime)
             {
+                // schedule current event
                 nextEvent = &currentEvent;
                 minNextTime = nextStartTime;
+                // if delay of the next task is over maximum allowable delay
                 if (nextStartTime - s.lastMeasurementTime > 
                                         currentEvent.maxDelay)
                 {
+                    //set firstRunTime as a flag for next task
                     s.firstRunTime = UINT32_MAX;
                     if (nextEvent->state.measurementCount != 0)
                     {
