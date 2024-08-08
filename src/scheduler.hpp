@@ -4,10 +4,10 @@
  * @brief Header file for scheduler defined in @ref scheduler.cpp
  * @version 1
  */
-#ifndef __CHARLIE_SCHEDULER__HPP__
+#ifndef __CONSOLODATED_SCHEDULER__HPP__
 #define __CHARLIE_SCHEDULER__HPP__
 #include "product.hpp"
-#if SCHEDULER_VERSION == CHARLIE_VERSION
+#if SCHEDULER_VERSION == CONSOLODATED_VERSION
 
 #include <stddef.h>
 #include <cstdint>
@@ -49,21 +49,12 @@ typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
 
 struct StateInformation
 {
-    //! Total number of measurements to execute
-    uint32_t nMeasurements;
-    //! last time measurement was scheduled 
-    uint32_t lastMeasurementTime;
-    //! when schedule was initialized   
-    uint32_t deploymentStartTime;
     //! how many times ensemble was scheduled
-    uint32_t measurementCount; 
-    //! Buffer to store measurements temporarily  
-    void* pData;
+    uint32_t measurementCount;
     
     //! store the next time the task should run
     uint32_t nextRunTime;
-    //! store the zeroth run time
-    uint32_t firstRunTime;
+    
     
 };
 /**
@@ -94,6 +85,8 @@ struct DeploymentSchedule_
 };
 
 class Scheduler : public AbstractScheduler {
+    private:
+    uint32_t tableSize;
     public:
     DeploymentSchedule_t* scheduleTable;
     

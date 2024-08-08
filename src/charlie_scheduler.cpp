@@ -37,7 +37,7 @@ void Scheduler::initializeScheduler()
         pDeployment->state.firstRunTime = UINT32_MAX;
         pDeployment->state.nMeasurements = UINT32_MAX;
         pDeployment->state.lastMeasurementTime = UINT32_MAX;
-        pDeployment->init (pDeployment);
+        pDeployment->init(pDeployment);
         pDeployment++;
     }
 }

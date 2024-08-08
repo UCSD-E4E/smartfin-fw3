@@ -3,10 +3,10 @@
 #include <cstdint>
 #include "deploymentSchedule.hpp"
 
+
+
 class AbstractScheduler {
     public:
-    //DeploymentSchedule_t* scheduleTable;
-    //AbstractScheduler(DeploymentSchedule_* schedule):scheduleTable(schedule){};
     /**
      * Creates and initializes the schedule
      */

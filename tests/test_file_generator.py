@@ -74,9 +74,7 @@ if __name__ == "__main__":
             input.write()
             print(f'{file_num}/{(250/step)**2}' + "\r")
 
-    
 
-        
     
 '''
 START #only one number
