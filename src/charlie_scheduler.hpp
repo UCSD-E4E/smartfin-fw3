@@ -132,11 +132,7 @@ class Scheduler : public AbstractScheduler {
         
 };
 
-typedef enum error_
-{
-    SUCCESS,
-    TASK_SEARCH_FAIL,
-}SCH_error_e;
+
 
 
 

@@ -57,11 +57,7 @@ public:
                     std::uint32_t current_time);
     void initializeScheduler();
 };
-typedef enum error_
-{
-    SUCCESS,
-    TASK_SEARCH_FAIL,
-}SCH_error_e;
+
 
 
 #endif

@@ -5,7 +5,7 @@
  * @version 1
  */
 #ifndef __CONSOLODATED_SCHEDULER__HPP__
-#define __CHARLIE_SCHEDULER__HPP__
+#define __CONSOLODATED_SCHEDULER__HPP__
 #include "product.hpp"
 #if SCHEDULER_VERSION == CONSOLODATED_VERSION
 
@@ -19,7 +19,7 @@
 #include "Particle.h"
 #else
 #include "scheduler_test_system.hpp"
-#endif
+#endif // TEST_VERSION
 
 
 /**
@@ -50,11 +50,10 @@ typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
 struct StateInformation
 {
     //! how many times ensemble was scheduled
-    uint32_t measurementCount;
-    
+    std::uint32_t measurementCount;
+
     //! store the next time the task should run
-    uint32_t nextRunTime;
-    
+    std::uint32_t nextRunTime;
     
 };
 /**
@@ -91,7 +90,7 @@ class Scheduler : public AbstractScheduler {
     DeploymentSchedule_t* scheduleTable;
     
     
-
+    
 
     Scheduler(DeploymentSchedule_t* scheduler);
 
@@ -116,7 +115,7 @@ class Scheduler : public AbstractScheduler {
      * @param nextStartTime The proposed start time of the current task.
      * @return True if there is an overlap with another task; false otherwise.
      */
-    int getNextTask(DeploymentSchedule_t** p_next_task,
+    SCH_error_e getNextTask(DeploymentSchedule_t** p_next_task,
                     uint32_t* p_next_runtime,
                     uint32_t current_time);
 
@@ -124,23 +123,5 @@ class Scheduler : public AbstractScheduler {
                                                 uint32_t nextStartTime);
         
 };
-
-typedef enum error_
-{
-    SUCCESS,
-    TASK_SEARCH_FAIL,
-}SCH_error_e;
-
-
-
-
-
-
-
-
-         
-
-       
-#endif 
-
-#endif //__CHARLIE_SCHEDULER__HPP__
+#endif //SCHEDULER_VERSION
+#endif //__CONSOLODATED_SCHEDULER__HPP__

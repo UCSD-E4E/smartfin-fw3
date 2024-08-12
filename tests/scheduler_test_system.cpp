@@ -97,6 +97,19 @@ void delay(uint32_t time)
     addTime(time);
 }
 
+
+uint32_t TestInput::getDelay(std::string name, uint32_t iteration)
+{
+    uint32_t delay = 0;
+    if (delays.find(name) != delays.end())
+    {
+        if (delays[name].find(iteration) != delays[name].end())
+        {
+            delay = delays[name][iteration];
+        }
+    }
+    return delay;
+}
 FileWriter::FileWriter(std::string expectedFileName, std::string actualFileName)
 {
     this->firstTest = true;

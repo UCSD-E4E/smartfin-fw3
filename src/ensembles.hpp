@@ -5,11 +5,8 @@
 
 #ifndef __ENSEMBLES_HPP__
 #define __ENSEMBLES_HPP__
-
-#if SCHEDULER_VERSION == CHARLIE_VERSION
 #include "charlie_scheduler.hpp"
-#else
 #include "antara_scheduler.hpp"
-#endif
+#include "scheduler.hpp"
 
-#endif
+#endif //__ENSEMBLES_HPP__

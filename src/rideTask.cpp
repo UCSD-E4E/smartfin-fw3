@@ -15,11 +15,9 @@
 #include "vers.hpp"
 #include "ensembles.hpp"
 #include "cli/flog.hpp"
-#if SCHEDULER_VERSION == CHARLIE_VERSION
 #include "charlie_scheduler.hpp"
-#else
 #include "antara_scheduler.hpp"
-#endif
+#include "scheduler.hpp"
 
 /**
  * @brief creates file name for log

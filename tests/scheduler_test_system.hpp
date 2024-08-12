@@ -12,6 +12,8 @@
 #include <sstream>
 #include <fstream>
 #include <utility>
+#include <unordered_map>
+
 
 
 
@@ -89,17 +91,11 @@ struct TestLog
     bool operator==(const TestLog& rhs);
 };
 
-struct Delay
-{
-    std::string taskName; //!< name of the task
-    uint32_t iteration;
-    int32_t delay;
-    bool isBefore;
-    
-};
+
 struct EnsembleInput
 {
-    EnsembleInput(std::string taskName,uint32_t interval, uint32_t duration, uint32_t delay);
+    EnsembleInput(std::string taskName,uint32_t interval, uint32_t duration, 
+                                                                uint32_t delay);
     std::string taskName; //!< name of the task
     uint32_t interval;
     uint32_t duration;
@@ -111,8 +107,11 @@ struct TestInput
     uint32_t end;
     std::vector<EnsembleInput> ensembles;
     std::vector<TestLog> expectedValues;
-    std::vector<Delay> delays;
+    std::unordered_map<std::string, 
+                        std::unordered_map<uint32_t,uint32_t>> delays;
     std::vector<std::pair<std::string,uint32_t>> resets;
+
+    uint32_t getDelay(std::string name, uint32_t iteration);
 
     void clear();
     std::string serialize() const {
@@ -136,15 +135,7 @@ struct TestInput
         }
         ss << "  ]\n";
 
-        ss << "  Delays: [\n";
-        for (const auto& delay : delays) {
-            ss << "    { TaskName: " << delay.taskName
-               << ", Iteration: " << delay.iteration
-               << ", Delay: " << delay.delay
-               << ", IsBefore: " << (delay.isBefore ? "true" : "false") 
-               << " }\n";
-        }
-        ss << "  ]\n";
+        
 
         ss << "}";
         return ss.str();

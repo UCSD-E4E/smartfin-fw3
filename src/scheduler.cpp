@@ -10,6 +10,7 @@
 #else
 #include "scheduler_test_system.hpp"
 #endif
+#include <cstdint>
 #include "cli/conio.hpp"
 #include "ensembles.hpp"
 #include "scheduler.hpp"
@@ -35,7 +36,7 @@ void Scheduler::initializeScheduler()
         tableSize++;
         memset(&(pDeployment->state), 0, 
             sizeof(StateInformation));
-        pDeployment->state.lastMeasurementTime = UINT32_MAX;
+        
         pDeployment->init(pDeployment);
         pDeployment++;
     }
@@ -88,7 +89,7 @@ int Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
         {
             delay = 0;
         }
-        if (delay == currentEvent.maxDelay)
+        if (delay >= currentEvent.maxDelay)
         {
             //send warning
         }

@@ -23,6 +23,7 @@ set(GTEST_SOURCE_FILES
     src/antara_scheduler.cpp
     src/charlie_scheduler.cpp
     tests/fixed_google_tests.cpp
+    src/scheduler.cpp
     #tests/file_google_tests.cpp
     #tests/overlap_google_tests.cpp
     tests/scheduler_test_flog.cpp
@@ -32,6 +33,7 @@ set(EXAMINE_BEHAVIOR_SOURCE_FILES
     tests/test_ensembles.cpp
     src/charlie_scheduler.cpp
     src/antara_scheduler.cpp
+    src/scheduler.cpp
     tests/scheduler_test_flog.cpp
     tests/examine_behavior.cpp
 )

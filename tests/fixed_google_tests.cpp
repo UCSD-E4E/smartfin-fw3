@@ -5,6 +5,9 @@
  */
 #include <gtest/gtest.h>
 #include "scheduler_test_system.hpp"
+#include "scheduler.hpp"
+#include "charlie_scheduler.hpp"
+#include "antara_scheduler.hpp"
 #include "test_ensembles.hpp"
 #include <iostream>
 #include <string>
@@ -92,7 +95,7 @@ protected:
         
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();
-        #else
+        #elif SCHEDULER_VERSION == ANTARA_VERSION
         deploymentSchedule = {
                                 {
                                     SS_ensembleAFunc, //measure
@@ -111,6 +114,27 @@ protected:
         
         };
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(), 3);
+        #else
+        deploymentSchedule = {
+                                {   SS_ensembleAFunc, //measure
+                                    SS_ensembleAInit, //init
+                                    1, // measurementsToAccumulate
+                                    0, // ensembleDelay 
+                                    2000, //ensembleInterval
+                                    400, //maxDuration
+                                    UINT32_MAX, //maxDelay
+                                    "A", //taskName
+                                    {0} //state
+                                    },
+                            
+        {SS_ensembleBFunc, SS_ensembleBInit, 1, 0, 2000, 200, UINT32_MAX, "B", {0}},
+        {SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 2000, 600, UINT32_MAX, "C", {0}},
+        { nullptr,          nullptr,          0, 0, 0,    0,   0,          "", {0}}
+        };
+        
+        
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
+        scheduler->initializeScheduler();
         #endif
     }
     /**
@@ -124,11 +148,15 @@ protected:
         deploymentSchedule[2] = { nullptr, nullptr, 0, 0, 0, 0, 0, "\0",{0} };
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();
-        #else
+        #elif SCHEDULER_VERSION == ANTARA_VERSION
         deploymentSchedule.erase(deploymentSchedule.begin() + 1, 
                                             deploymentSchedule.end());
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),1);
-
+        #else
+        
+        deploymentSchedule[2] = { nullptr, nullptr, 0, 0, 0, 0, 0, "\0",{0} };
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
+        scheduler->initializeScheduler();
         #endif
 
         
@@ -148,11 +176,17 @@ protected:
         deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 800, 250, UINT32_MAX, "C", {0} };
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();
-        #else
+        #elif SCHEDULER_VERSION == ANTARA_VERSION
         deploymentSchedule[0] = {SS_ensembleBFunc, SS_ensembleBInit, 0, 500, 200, "A", UINT32_MAX, 0, 0};
         deploymentSchedule[1] = {SS_ensembleBFunc, SS_ensembleBInit, 0, 200, 100, "B", UINT32_MAX, 0, 0};
         deploymentSchedule[2] = {SS_ensembleBFunc, SS_ensembleBInit, 0, 800, 250, "C", UINT32_MAX, 0, 0};
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),3);
+        #else 
+        deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 500, 200, UINT32_MAX, "A", {0} };
+        deploymentSchedule[1] = { SS_ensembleBFunc, SS_ensembleBInit, 1, 0, 200, 100, UINT32_MAX, "B", {0} };
+        deploymentSchedule[2] = { SS_ensembleCFunc, SS_ensembleCInit, 1, 0, 800, 250, UINT32_MAX, "C", {0} };
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
+        scheduler->initializeScheduler();
         #endif
     }
     /**
@@ -167,11 +201,16 @@ protected:
         deploymentSchedule[1] = { nullptr,          nullptr,          0, 0, 0,    0,   0,        "", {0} };
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         scheduler->initializeScheduler();   
-        #else
+        #elif SCHEDULER_VERSION == ANTARA_VERSION
         deploymentSchedule.erase(deploymentSchedule.begin() + 1, 
                                             deploymentSchedule.end());
         deploymentSchedule[0] = {SS_ensembleBFunc, SS_ensembleBInit, 0, 500, 150, "A", UINT32_MAX, 0, 0};
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),1);
+        #else
+        deploymentSchedule[0] = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 200, 150, UINT32_MAX, "A", {0} };
+        deploymentSchedule[1] = { nullptr,          nullptr,          0, 0, 0,    0,   0,        "", {0} };
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
+        scheduler->initializeScheduler();   
         #endif
     }
 

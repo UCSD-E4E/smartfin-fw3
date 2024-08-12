@@ -1,6 +1,8 @@
 #include "scheduler_test_system.hpp"
 #include "test_ensembles.hpp"
 #include "cli/conio.hpp"
+#include "scheduler.hpp"
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -13,6 +15,7 @@
 #include <string.h>
 #include <chrono>
 
+
 class ExamineBehavior
 {
     public:
@@ -21,16 +24,21 @@ class ExamineBehavior
     static void SetUpTestSuite()
     {
     
-        #if SCHEDULER_VERSION == CHARLIE_VERSION
+        #if SCHEDULER_VERSION == CHARLIE_VERSION 
         files = std::make_unique<FileWriter>(
                 "/dev/null",
                 "tests/no_check_outputs/charlie_actual_file_tests.log");
         SF_OSAL_printf("Using Charlie's Version\n");
-        #else
+        #elif SCHEDULER_VERSION == ANTARA_VERSION
         files = std::make_unique<FileWriter>(
                 "/dev/null",
                 "tests/no_check_outputs/antara_actual_file_tests.log");
                 SF_OSAL_printf("Using Antara's Version\n");
+        #else
+        files = std::make_unique<FileWriter>(
+                "/dev/null",
+                "tests/no_check_outputs/consolodated_actual_file_tests.log");
+                SF_OSAL_printf("Using consolodated version\n");
         #endif
 
     }
@@ -63,7 +71,7 @@ class ExamineBehavior
     //! for writing test output
     bool useCompareLogs;
     std::unique_ptr<Scheduler> scheduler;
-    
+    std::vector<std::pair<std::string,uint32_t>> exceededDelays;
 
 
 
@@ -144,12 +152,19 @@ class ExamineBehavior
                                             input.ensembles[i].delay,
                                             input.ensembles[i].taskName.c_str(),
                                             {0} };
-            #else
+            #elif SCHEDULER_VERSION == ANTARA_VERSION
             e = {SS_ensembleAFunc, SS_ensembleAInit, 0, 
                         input.ensembles[i].interval, 
                         input.ensembles[i].duration, 
                         input.ensembles[i].taskName.c_str(),
                         UINT32_MAX, 0,  0};
+            #else
+            e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
+                                            input.ensembles[i].interval,
+                                            input.ensembles[i].duration,
+                                            input.ensembles[i].delay,
+                                            input.ensembles[i].taskName.c_str(),
+                                            {0} };
             #endif 
             deploymentSchedule.emplace_back(e);
         }
@@ -157,9 +172,13 @@ class ExamineBehavior
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
         deploymentSchedule.emplace_back(e);
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
-        #else
+        #elif SCHEDULER_VERSION == ANTARA_VERSION
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),
             deploymentSchedule.size());
+        #else
+        e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
+        deploymentSchedule.emplace_back(e);
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         #endif
         
         
@@ -169,49 +188,12 @@ class ExamineBehavior
         {
             scheduler->getNextTask(&nextEvent, &nextEventTime,
                                     millis());
-            uint32_t beforeDelay = 0;
-            uint32_t afterDelay = 0;
-            for (size_t i = 0; i < input.delays.size(); i++)
-            {
-                #if SCHEDULER_VERSION == CHARLIE_VERSION
-                if (!strcmp(nextEvent->taskName,
-                    input.delays[i].taskName.c_str()) &&
-                        (nextEvent->state.measurementCount - 1 ==
-                            input.delays[i].iteration))
-                {
-                    if (input.delays[i].isBefore)
-                    {
-                        beforeDelay = input.delays[i].delay;
-                    }
-                    else
-                    {
-                        afterDelay = input.delays[i].delay;
-                    }
-                    input.delays.erase(input.delays.begin() + i);
-                    if ((beforeDelay != 0) && (afterDelay != 0))
-                        break;
-                }
-                #else
-                if (!strcmp(nextEvent->taskName,
-                    input.delays[i].taskName.c_str()) &&
-                        (nextEvent->measurementCount - 1 ==
-                            input.delays[i].iteration))
-                {
-                    if (input.delays[i].isBefore)
-                    {
-                        beforeDelay = input.delays[i].delay;
-                    }
-                    else
-                    {
-                        afterDelay = input.delays[i].delay;
-                    }
-                    input.delays.erase(input.delays.begin() + i);
-                    if ((beforeDelay != 0) && (afterDelay != 0))
-                        break;
-                }
-                #endif
-            }
-            runAndCheckEventWithDelays(beforeDelay, afterDelay);
+            
+            uint32_t afterDelay = input.getDelay(nextEvent->taskName,
+                                        nextEvent->state.measurementCount - 1);
+            
+            
+            runAndCheckEventWithDelays(afterDelay);
 
         }
 
@@ -313,27 +295,25 @@ class ExamineBehavior
             }
             else if (currentSection == "DELAYS")
             {
-                Delay d;
+                
                 std::string delayName;
                 std::getline(iss, delayName, '|');
-                d.taskName = delayName.c_str();
-                iss >> d.iteration;
+                std::string taskName = delayName.c_str();
+                uint32_t iteration, delay;
+                iss >> iteration;
                 iss.ignore(1, '|');
-                iss >> d.delay;
-                d.isBefore = false;
-                char checkChar = iss.peek();
-                if (checkChar == '|')
+                iss >> delay;
+                
+                if (out.delays.find(taskName) != out.delays.end())
                 {
-                    iss.ignore(1, '|');
-                    std::string position;
-                    iss >> position;
-                    if (position == "before") d.isBefore = true;
+                    out.delays[taskName] = std::unordered_map<uint32_t,
+                                                                uint32_t>();
                 }
-                out.delays.emplace_back(d);
+                out.delays[taskName][iteration] = delay;
+                
             }
             else if (currentSection == "RESETS")
             {
-
                 std::string resetName;
                 uint32_t iteration;
                 std::getline(iss, resetName, '|');
@@ -350,8 +330,7 @@ class ExamineBehavior
 
 
 
-    void runAndCheckEventWithDelays(uint32_t preceedingDelay,
-                                    uint32_t trailingDelay)
+    void runAndCheckEventWithDelays(uint32_t trailingDelay)
     {
 
 
@@ -366,7 +345,6 @@ class ExamineBehavior
 
 
         appendActualFile(nextEvent->taskName, actualStart, actualEnd);
-
 
     }
     std::vector<std::string> GetFilesInDirectory(const std::string& directory) {

@@ -6,6 +6,9 @@
 #include <gtest/gtest.h>
 #include "scheduler_test_system.hpp"
 #include "test_ensembles.hpp"
+#include "scheduler.hpp"
+#include "charlie_scheduler.hpp"
+#include "antara_scheduler.hpp"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -15,6 +18,7 @@
 #include <dirent.h>
 #include <algorithm>
 #include <utility>
+
 
 
 class SchedulerTestsFromFiles : public ::testing::TestWithParam<std::string>
@@ -47,6 +51,7 @@ protected:
     //! output file for actual values
     std::ofstream actualFile;
     
+    //! holds all data from a file
     TestInput input;
 
 
@@ -149,98 +154,68 @@ protected:
     
     void runTestFile(std::string filename)
     {
+        input.clear();
         input = parseInputFile(filename);
-        
-        setTime(input.start); 
+
+        setTime(input.start);
         deploymentSchedule.clear();
         DeploymentSchedule_t e;
-        #if SCHEDULER_VERSION == CHARLIE_VERSION
-        for(size_t i = 0; i < input.ensembles.size(); i++)
+        for (size_t i = 0; i < input.ensembles.size(); i++)
         {
-            
-            e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0, 
+            #if SCHEDULER_VERSION == CHARLIE_VERSION
+            e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
                                             input.ensembles[i].interval,
-                                            input.ensembles[i].duration, 
-                                            input.ensembles[i].delay, 
-                                            input.ensembles[i].taskName.c_str(), 
+                                            input.ensembles[i].duration,
+                                            input.ensembles[i].delay,
+                                            input.ensembles[i].taskName.c_str(),
                                             {0} };
+            #elif SCHEDULER_VERSION == ANTARA_VERSION
+            e = {SS_ensembleAFunc, SS_ensembleAInit, 0, 
+                        input.ensembles[i].interval, 
+                        input.ensembles[i].duration, 
+                        input.ensembles[i].taskName.c_str(),
+                        UINT32_MAX, 0,  0};
+            #else
+            e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
+                                            input.ensembles[i].interval,
+                                            input.ensembles[i].duration,
+                                            input.ensembles[i].delay,
+                                            input.ensembles[i].taskName.c_str(),
+                                            {0} };
+            #endif 
             deploymentSchedule.emplace_back(e);
         }
+        #if SCHEDULER_VERSION == CHARLIE_VERSION
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
         deploymentSchedule.emplace_back(e);
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
-        scheduler->initializeScheduler();
+        #elif SCHEDULER_VERSION == ANTARA_VERSION
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),
+            deploymentSchedule.size());
         #else
-        for(size_t i = 0; i < input.ensembles.size(); i++)
-        {
-            
-            e = { 
-                    SS_ensembleAFunc,   //measure
-                    SS_ensembleAInit,   //init
-                    0,                  // startDelay 
-                    input.ensembles[i].interval,    //ensembleInterval
-                    input.ensembles[i].duration,    //maxDuration
-                    input.ensembles[i].taskName.c_str(), //taskName
-                    UINT32_MAX,         //maxDelay
-                    0                   //nextRunTime
-                };
-            deploymentSchedule.emplace_back(e);
-        }
+        e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
+        deploymentSchedule.emplace_back(e);
+        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         #endif
         
         
-        
-        while(millis() < input.end)
+        scheduler->initializeScheduler();
+
+        while (millis() < input.end)
         {
-            scheduler->getNextTask(&nextEvent,&nextEventTime,
+            scheduler->getNextTask(&nextEvent, &nextEventTime,
                                     millis());
-            uint32_t beforeDelay = 0;
-            uint32_t afterDelay = 0;
-            for(size_t i = 0; i < input.delays.size(); i++)
-            {
-                #if SCHEDULER_VERSION == CHARLIE_VERSION
-                if(!strcmp(nextEvent->taskName, 
-                            input.delays[i].taskName.c_str()) &&
-                        (nextEvent->state.measurementCount - 1 == 
-                        input.delays[i].iteration))
-                {
-                    if (input.delays[i].isBefore)
-                    {
-                        beforeDelay = input.delays[i].delay;
-                    }
-                    else
-                    {
-                        afterDelay = input.delays[i].delay;
-                    }
-                    input.delays.erase(input.delays.begin() + i);
-                    if ((beforeDelay != 0) && (afterDelay != 0))
-                        break;
-                }
-                #else
-                if(!strcmp(nextEvent->taskName, 
-                            input.delays[i].taskName.c_str()) &&
-                        (nextEvent->measurementCount - 1 == 
-                        input.delays[i].iteration))
-                {
-                    if (input.delays[i].isBefore)
-                    {
-                        beforeDelay = input.delays[i].delay;
-                    }
-                    else
-                    {
-                        afterDelay = input.delays[i].delay;
-                    }
-                    input.delays.erase(input.delays.begin() + i);
-                    if ((beforeDelay != 0) && (afterDelay != 0))
-                        break;
-                }
-                #endif
-            }
-            if (input.expectedValues.size() > 0) 
+            
+            uint32_t afterDelay = input.getDelay(nextEvent->taskName,
+                                        nextEvent->state.measurementCount - 1);
+            
+            
+            
+            if(input.expectedValues.size() > 0) 
             {
                 TestLog exp = input.expectedValues.front();
                 runAndCheckEventWithDelays(exp.name, exp.start, exp.end, 
-                                        beforeDelay,afterDelay);
+                                                            afterDelay);
                 input.expectedValues.erase(input.expectedValues.begin());
                 for(size_t i = 0; i < input.resets.size(); i++)
                 {
@@ -258,11 +233,12 @@ protected:
             else
             {
                 return;
-            }   
-
+            }
         }
+            
         
     }
+
     TestInput parseInputFile(std::string filename)
     {
         std::ifstream inputFile(filename);
@@ -348,22 +324,20 @@ protected:
                 
             } 
             else if (currentSection == "DELAYS") {
-                Delay d;
                 std::string delayName;
                 std::getline(iss, delayName, '|');
-                d.taskName = delayName.c_str();
-                iss >> d.iteration;
+                std::string taskName = delayName.c_str();
+                uint32_t iteration, delay;
+                iss >> iteration;
                 iss.ignore(1, '|');
-                iss >> d.delay;
-                d.isBefore = false;
-                char checkChar = iss.peek();
-                if (checkChar == '|') {
-                    iss.ignore(1, '|');
-                    std::string position;
-                    iss >> position;
-                    if (position == "before") d.isBefore = true;
+                iss >> delay;
+                
+                if (out.delays.find(taskName) != out.delays.end())
+                {
+                    out.delays[taskName] = std::unordered_map<uint32_t,
+                                                                uint32_t>();
                 }
-                out.delays.emplace_back(d);
+                out.delays[taskName][iteration] = delay;
             }
             else if (currentSection == "EXPECTED") {
                 std::string expectedTaskName;
@@ -411,12 +385,12 @@ protected:
                                     uint32_t expectedEnd)
     {
         runAndCheckEventWithDelays(expectedTaskName, expectedStart, 
-                                    expectedEnd, 0, 0);
+                                    expectedEnd, 0);
     }
     void runAndCheckEventWithDelays(std::string expectedTaskName,
                                     uint32_t expectedStart,
                                     uint32_t expectedEnd,
-                                    uint32_t preceedingDelay,
+                                    
                                     uint32_t trailingDelay)
     {
         ASSERT_NE(nextEvent, nullptr) << "Scheduler returned nullptr.";
