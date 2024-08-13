@@ -183,7 +183,6 @@ class ExamineBehavior
         
         
         scheduler->initializeScheduler();
-
         while (millis() < input.end)
         {
             scheduler->getNextTask(&nextEvent, &nextEventTime,

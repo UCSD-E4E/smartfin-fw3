@@ -65,7 +65,7 @@ void Scheduler::initializeScheduler()
  * TASK_SEARCH_FAIL otherwise.
  */
 
-int Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent, 
+SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent, 
                            std::uint32_t* p_nextTime,
                            std::uint32_t currentTime)
 {
@@ -116,7 +116,7 @@ int Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
                         SF_OSAL_printf("Task %s shifted at time %zu"  __NL__ ,
                                 currentEvent.taskName,currentTime);
             }
-            return SUCCESS;
+            return SCHEDULER_SUCCESS;
         }
        
 

@@ -1,9 +1,16 @@
 #ifndef __ABSTRACT_SCHEDULER_HPP__
 #define __ABSTRACT_SCHEDULER_HPP__
 #include <cstdint>
-#include "deploymentSchedule.hpp"
 #include <cstdint>
+#include <cli/flog.hpp>
+#include "deploymentSchedule.hpp"
 
+typedef enum error_
+{
+    SCHEDULER_SUCCESS,
+    TASK_SEARCH_FAIL,
+    SCHEDULER_DELAY_EXCEEDED
+}SCH_error_e;
 
 class AbstractScheduler {
     public:
@@ -30,11 +37,6 @@ class AbstractScheduler {
                     std::uint32_t current_time) = 0;
 };
 
-typedef enum error_
-{
-    SUCCESS,
-    TASK_SEARCH_FAIL,
-    FLOG_SCHEDULER_DELAY_EXCEEDED
-}SCH_error_e;
+
 
 #endif // __ABSTRACT_SCHEDULER_HPP__
