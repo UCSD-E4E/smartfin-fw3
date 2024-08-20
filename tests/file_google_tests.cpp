@@ -7,8 +7,7 @@
 #include "scheduler_test_system.hpp"
 #include "test_ensembles.hpp"
 #include "scheduler.hpp"
-#include "charlie_scheduler.hpp"
-#include "antara_scheduler.hpp"
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -162,41 +161,18 @@ protected:
         DeploymentSchedule_t e;
         for (size_t i = 0; i < input.ensembles.size(); i++)
         {
-            #if SCHEDULER_VERSION == CHARLIE_VERSION
             e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
                                             input.ensembles[i].interval,
                                             input.ensembles[i].duration,
                                             input.ensembles[i].delay,
                                             input.ensembles[i].taskName.c_str(),
                                             {0} };
-            #elif SCHEDULER_VERSION == ANTARA_VERSION
-            e = {SS_ensembleAFunc, SS_ensembleAInit, 0, 
-                        input.ensembles[i].interval, 
-                        input.ensembles[i].duration, 
-                        input.ensembles[i].taskName.c_str(),
-                        UINT32_MAX, 0,  0};
-            #else
-            e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
-                                            input.ensembles[i].interval,
-                                            input.ensembles[i].duration,
-                                            input.ensembles[i].delay,
-                                            input.ensembles[i].taskName.c_str(),
-                                            {0} };
-            #endif 
             deploymentSchedule.emplace_back(e);
         }
-        #if SCHEDULER_VERSION == CHARLIE_VERSION
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
         deploymentSchedule.emplace_back(e);
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
-        #elif SCHEDULER_VERSION == ANTARA_VERSION
-        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),
-            deploymentSchedule.size());
-        #else
-        e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
-        deploymentSchedule.emplace_back(e);
-        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
-        #endif
+        
         
         
         scheduler->initializeScheduler();
@@ -217,18 +193,7 @@ protected:
                 runAndCheckEventWithDelays(exp.name, exp.start, exp.end, 
                                                             afterDelay);
                 input.expectedValues.erase(input.expectedValues.begin());
-                for(size_t i = 0; i < input.resets.size(); i++)
-                {
-                    #if SCHEDULER_VERSION == CHARLIE_VERSION
-                    if(!strcmp(nextEvent->taskName, 
-                                input.resets[i].first.c_str()) &&
-                            (nextEvent->state.measurementCount - 1 == 
-                            input.resets[i].second))
-                    {
-                        ASSERT_EQ(nextEvent->state.firstRunTime, UINT32_MAX);
-                    }
-                    #endif
-                }
+                
             }
             else
             {

@@ -7,7 +7,7 @@
 #ifndef __CONSOLODATED_SCHEDULER__HPP__
 #define __CONSOLODATED_SCHEDULER__HPP__
 #include "product.hpp"
-#if SCHEDULER_VERSION == CONSOLODATED_VERSION
+
 
 #include <stddef.h>
 #include <cstdint>
@@ -123,5 +123,5 @@ class Scheduler : public AbstractScheduler {
                                                 uint32_t nextStartTime);
         
 };
-#endif //SCHEDULER_VERSION
+
 #endif //__CONSOLODATED_SCHEDULER__HPP__

@@ -6,10 +6,8 @@
 #ifndef __TEST_ENSEMBLES_HPP__
 #define __TEST_ENSEMBLES_HPP__
 #include "product.hpp"
-#include "charlie_scheduler.hpp"
+#include "scheduler.hpp"
 
-#include "antara_scheduler.hpp"
-#include "antara_scheduler.hpp"
 #include "scheduler.hpp"
 /**
  * @brief dummy ensemble init function

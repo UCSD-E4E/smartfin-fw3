@@ -104,6 +104,7 @@ void FLOG_Initialize(void)
     {
         FLOG_ClearLog();
     }
+    SF_OSAL_printf("Fault Log initialized!\n");
 }
 void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
 {
@@ -121,6 +122,7 @@ void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
     pEntry->param = parameter;
     flogData.numEntries++;
     flogData.nNumEntries = ~flogData.numEntries;
+    
 }
 
 void FLOG_DisplayLog(void)

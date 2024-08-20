@@ -24,22 +24,10 @@ class ExamineBehavior
     static void SetUpTestSuite()
     {
     
-        #if SCHEDULER_VERSION == CHARLIE_VERSION 
-        files = std::make_unique<FileWriter>(
-                "/dev/null",
-                "tests/no_check_outputs/charlie_actual_file_tests.log");
-        SF_OSAL_printf("Using Charlie's Version\n");
-        #elif SCHEDULER_VERSION == ANTARA_VERSION
-        files = std::make_unique<FileWriter>(
-                "/dev/null",
-                "tests/no_check_outputs/antara_actual_file_tests.log");
-                SF_OSAL_printf("Using Antara's Version\n");
-        #else
         files = std::make_unique<FileWriter>(
                 "/dev/null",
                 "tests/no_check_outputs/consolodated_actual_file_tests.log");
                 SF_OSAL_printf("Using consolodated version\n");
-        #endif
 
     }
     static void TearDownTestSuite()
@@ -58,20 +46,20 @@ class ExamineBehavior
     
     
     
+    
     //! output file for actual values
     std::ofstream actualFile;
-
+    //! holds all data input from file
     TestInput input;
-    
     
     //! holds test name across functions
     std::string testName;
-
 
     //! for writing test output
     bool useCompareLogs;
     std::unique_ptr<Scheduler> scheduler;
     std::vector<std::pair<std::string,uint32_t>> exceededDelays;
+    std::unordered_map<std::string,std::vector<std::string>> shifts;
 
 
 
@@ -103,10 +91,9 @@ class ExamineBehavior
      */
     void SetUp(std::string filename)
     {
-        actual.clear();
         
-
         
+        actual.clear();        
         testName = filename;
         
         
@@ -114,6 +101,7 @@ class ExamineBehavior
         nextEventTime = 0; // time handling
 
         setTime(0);
+
 
     }
 
@@ -137,6 +125,8 @@ class ExamineBehavior
     }
     void runTestFile(std::string filename)
     {
+
+        std::cout << "running " << filename << "\n";
         input.clear();
         input = parseInputFile(filename);
 
@@ -145,58 +135,55 @@ class ExamineBehavior
         DeploymentSchedule_t e;
         for (size_t i = 0; i < input.ensembles.size(); i++)
         {
-            #if SCHEDULER_VERSION == CHARLIE_VERSION
             e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
                                             input.ensembles[i].interval,
                                             input.ensembles[i].duration,
                                             input.ensembles[i].delay,
                                             input.ensembles[i].taskName.c_str(),
                                             {0} };
-            #elif SCHEDULER_VERSION == ANTARA_VERSION
-            e = {SS_ensembleAFunc, SS_ensembleAInit, 0, 
-                        input.ensembles[i].interval, 
-                        input.ensembles[i].duration, 
-                        input.ensembles[i].taskName.c_str(),
-                        UINT32_MAX, 0,  0};
-            #else
-            e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
-                                            input.ensembles[i].interval,
-                                            input.ensembles[i].duration,
-                                            input.ensembles[i].delay,
-                                            input.ensembles[i].taskName.c_str(),
-                                            {0} };
-            #endif 
             deploymentSchedule.emplace_back(e);
         }
-        #if SCHEDULER_VERSION == CHARLIE_VERSION
-        e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
+        e = { nullptr, nullptr, 0, 0, 0, 0, 0, "", {0}};
         deploymentSchedule.emplace_back(e);
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
-        #elif SCHEDULER_VERSION == ANTARA_VERSION
-        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data(),
-            deploymentSchedule.size());
-        #else
-        e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
-        deploymentSchedule.emplace_back(e);
-        scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
-        #endif
         
-        
+
+     
+    
+    
         scheduler->initializeScheduler();
+    
         while (millis() < input.end)
         {
-            scheduler->getNextTask(&nextEvent, &nextEventTime,
-                                    millis());
-            
-            uint32_t afterDelay = input.getDelay(nextEvent->taskName,
-                                        nextEvent->state.measurementCount - 1);
-            
-            
-            runAndCheckEventWithDelays(afterDelay);
+        
+            scheduler->getNextTask(&nextEvent, &nextEventTime, millis());
 
+        
+            uint32_t afterDelay = input.getDelay(nextEvent->taskName,
+                                    nextEvent->state.measurementCount - 1);
+        
+            runAndCheckEventWithDelays(afterDelay);
         }
 
+        std::string delimiter = "|";
+        std::ifstream sch_log( "scheduler.log" );
+        for( std::string line; getline( sch_log, line); )
+        {
+            std::string ensemble = line.substr(0,line.find(delimiter));
+            std::string idx = line.substr(line.find(delimiter) + 1);
+            std::cout << "\tensemble: " << ensemble << "\n";   
+            std::cout << "\tidx: " << idx << "\n";
+            
+
+        }
+        
+        
+        
+        
+        
     }
+    
+    
 
 
 

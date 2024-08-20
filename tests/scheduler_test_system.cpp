@@ -202,3 +202,14 @@ void TestInput::clear()
     resets.clear();
     
 }
+
+void write_shift(std::string ensemble, std::uint32_t idx)
+{
+    
+    std::ofstream shiftFile ("shifts.txt", std::ios::app);
+    if (shiftFile.is_open())
+    {
+        shiftFile << ensemble << "|" << idx << "\n";
+        shiftFile.close();
+    }
+}

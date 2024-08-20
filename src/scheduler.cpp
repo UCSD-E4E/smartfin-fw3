@@ -19,7 +19,6 @@
 #include <string.h>
 
 
-#if SCHEDULER_VERSION == CONSOLODATED_VERSION
 Scheduler::Scheduler(DeploymentSchedule_t schedule[])
     :  scheduleTable(schedule){}
  /**
@@ -111,10 +110,29 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
             state.measurementCount++;
             *p_nextTime = runTime;
             if(delay>0){
-                 FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
+                FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
                                             state.measurementCount);
-                        SF_OSAL_printf("Task %s shifted at time %zu"  __NL__ ,
-                                currentEvent.taskName,currentTime);
+                #ifdef TEST_VERSION
+                    std::ofstream logfile;
+                    if (currentTime == 0)
+                    {
+                        logfile = std::ofstream("scheduler.log");
+                        
+                    }
+                    else
+                    {
+                        logfile = std::ofstream("scheduler.log", std::ios::app);
+                    }
+                    if (logfile.is_open())
+                    {
+                        logfile << currentEvent.taskName 
+                                << "|"
+                                << state.measurementCount
+                                <<"\n";
+                        logfile.close();
+                    }
+                #endif
+                
             }
             return SCHEDULER_SUCCESS;
         }
@@ -130,6 +148,3 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
 
 
 
-
-
-#endif

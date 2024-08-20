@@ -22,7 +22,7 @@
 typedef uint32_t system_tick_t;
 
 
-
+void write_shift(std::string ensemble, std::uint32_t idx);
 /**
  * @brief prints to stdout
  * 
