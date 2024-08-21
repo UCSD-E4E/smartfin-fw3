@@ -28,15 +28,16 @@
 #include "product.hpp"
 #include "sleepTask.hpp"
 #include "system.hpp"
-
+#include "tracker_config.h"
 #include "system.hpp"
 
 #include <fstream>
 #include <bits/stdc++.h>
-
+#include "location_service.h"
 #include "Particle.h"
 #include <string>
 #include <iostream>
+#include <fstream>
 
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
@@ -51,6 +52,7 @@ static void CLI_sleepSetSleepBehavior(void);
 static void CLI_sleepGetSleepBehavior(void);
 static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
+static void CLI_testTime(void);
 
 const Menu_t CLI_menu[] =
 {
@@ -70,6 +72,7 @@ const Menu_t CLI_menu[] =
     {14, "Recorder Test Menu", {.pMenu=Recorder_debug_menu}, MENU_SUBMENU},
     {15, "Session Test Menu", {.pMenu=Session_debug_menu}, MENU_SUBMENU},
     {16, "Display all sensors", &CLI_monitorSensors, MENU_CMD},
+    {17, "Test Sampling Time for Sensors", &CLI_testTime, MENU_CMD},
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
@@ -114,15 +117,90 @@ void CLI::exit()
 {
     pSystemDesc->pChargerCheck->stop();
 }
+static void CLI_testTime(void) {
+    //SF_OSAL_printf("DMP Data..." __NL__);
+    //getDMPData();
+    //float gyroData[3] = {0,0,0};
+    //float magData[3] = {0,0,0};
+    //float accelData[3] = {0,0,0};
+    // LocationPoint point;
+    // LocationService& instance= LocationService::instance();
+    
+    //     getAccelerometer(accelData, accelData + 1, accelData + 2);
+    //pSystemDesc->pTempSensor->getTemp();
+    //instance.getLocation(point);
+    //  SF_OSAL_printf("gps overnight sample: %lu", millis());
+    //  instance.getLocation(point);
+    //  SF_OSAL_printf("gps final 1 sample: %lu", millis());
+    //std::ofstream outputFile("/home/m.annamalai/timing.txt");
+//     SF_OSAL_printf("starting overnight gps sample timing runs of 1000..." __NL__);
+//    //if (outputFile.is_open()) {
+//     unsigned long it = 0;
+//     unsigned long ft = 0;
+//     unsigned long diff = 0;
+//     for (int i = 0; i < 1000; i++) {
+//         it = millis();
+//         for (int i = 0; i < 1000; i++) {
+//             instance.getLocation(point);
+//             //point.latitude = ubloxGps_->getLatitude();
+//         }
+//         ft = millis();
+//         diff = ft-it;
+//         SF_OSAL_printf("%lu" __NL__, diff);
+//         // outputFile << diff;
+//         // outputFile << "\n";
+//     }
+//     outputFile.close();
+//     //} else {
+    //    SF_OSAL_printf("Error");
+    //}
+    // SF_OSAL_printf(".........................");
+    // SF_OSAL_printf("starting gps 100 timing runs of 10000..." __NL__);
+    // unsigned long it1 = 0;
+    // unsigned long ft1 = 0;
+    // unsigned long diff1 = 0;
+    // for (int i = 0; i < 100; i++) {
+    //     it1 = millis();
+    //     for (int i = 0; i < 1000; i++) {
+    //         instance.getLocation(point);
+    //     }
+    //     ft1 = millis();
+    //     diff1 = ft1-it1;
+    //     SF_OSAL_printf("%lu" __NL__, diff1);
+    // }
+    // SF_OSAL_printf(".........................");
+    // SF_OSAL_printf("starting gps 1000 timing runs of 1000..." __NL__);
+    // unsigned long it2 = 0;
+    // unsigned long ft2 = 0;
+    // unsigned long diff2 = 0;
+    // for (int i = 0; i < 1000; i++) {
+    //     it2 = millis();
+    //     for (int i = 0; i < 1000; i++) {
+    //         instance.getLocation(point);
+    //     }
+    //     ft2 = millis();
+    //     diff2 = ft2-it2;
+    //     SF_OSAL_printf("%lu" __NL__, diff2);
+    // }
+    
+    
 
+    
+
+}
 static void CLI_monitorSensors(void) {
     char ch;
 
     float accelData[3] = {0,0,0};
+    float accelDMPData[4] = {0,0,0,0};
     float gyroData[3] = {0,0,0};
+    float gyroDMPData[3] = {0,0,0};
     float magData[3] = {0,0,0};
+    double quatData[5] = {0,0,0,0,0};
+    uint8_t dmpRawData[14] = {0};
     float tmpData = 0;
-    float wdData = 0;
+    float wdCR = 0;
+    float wdLS = 0;
 
     setupICM();
     SF_OSAL_printf(__NL__);
@@ -132,13 +210,14 @@ static void CLI_monitorSensors(void) {
     bool m = false;
     bool t = false;
     bool w = false;
+    bool p = false;
     
     SF_OSAL_printf("Enter delay time: ");
     char dt[SF_CLI_MAX_CMD_LEN];
     getline(dt, SF_CLI_MAX_CMD_LEN);
     int delayTime = atoi(dt);
     while (true) {
-        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w), d to quit: ");
+        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w, p, r), d to quit: ");
         ch = getch();
         SF_OSAL_printf("%c", ch); 
         SF_OSAL_printf(__NL__);
@@ -152,8 +231,29 @@ static void CLI_monitorSensors(void) {
             m = true;
         } else if (ch == 't') {
             t = true;
-        }  else if (ch == 'w') {
+        }else if (ch == 'w') {
             w = true;
+        } else if (ch == 'p') {
+            p = true;
+        } else if (ch == 'r') {
+            while(1) {
+                if(kbhit()) 
+                    {
+                        ch = getch();
+
+                        if('q' == ch) 
+                        {
+                            break;
+                        } 
+                    }
+            // if (getDMPRaw(dmpRawData)) {
+            //     SF_OSAL_printf("DMP Raw Data: ");
+            //     for (size_t i = 0; i < sizeof(dmpRawData); ++i) {
+            //         SF_OSAL_printf("%02X ", dmpRawData[i]);
+            //     }
+            //     SF_OSAL_printf(__NL__);
+            // } 
+        }
         } else {
              SF_OSAL_printf("invalid input" __NL__);
         }
@@ -179,42 +279,88 @@ static void CLI_monitorSensors(void) {
         headers.push_back("temp");
     }
     if (w) {
-        headers.push_back("wet/dry");
+        headers.push_back("wd lr");
+        headers.push_back("wd ls");
     }
-
+    if (p) {
+        headers.push_back("dq1");
+        headers.push_back("dq2");
+        headers.push_back("dq3");
+        headers.push_back("dq0");
+        headers.push_back("dqacc");
+        headers.push_back("dax");
+        headers.push_back("day");
+        headers.push_back("daz");
+        headers.push_back("a acc");
+        // headers.push_back("dcx");
+        // headers.push_back("dcy");
+        // headers.push_back("dcz");
+    }
 
     
     int count = 0;
    
-    while(1)
-    {
+    for(int i = 0; i < 1; i++){
+    // {
         if(kbhit()) 
         {
             ch = getch();
 
-            if('q' == ch) 
-            {
-                break;
-            } 
+            // if('q' == ch) 
+            // {
+            //     break;
+            // } 
         }
+        if (a) {
         getAccelerometer(accelData, accelData + 1, accelData + 2);
+        }
+        if (g) {
         getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+        }
+        if (m) {
         getMagnetometer(magData, magData + 1, magData + 2);
+        }
+        //getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2, accelDMPData + 3);
+        //getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
+        //getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
+        //getDMPCompass();
         //this is from temp sensor not imu temp
+        if (t) {
         tmpData = pSystemDesc->pTempSensor->getTemp();
-        wdData = pSystemDesc->pWaterSensor->getLastReading();
+        }
+        if (w) {
+        wdCR =  pSystemDesc->pWaterSensor->getCurrentReading();
+        wdLS = pSystemDesc->pWaterSensor->getLastStatus();
+        }
+    
+
         std::map<std::string, float> sensorData = {
         {"ax", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelData[0]))},
         {"ay", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelData[1]))},
         {"az", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelData[2]))},
-        {"gx", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(gyroData[0]))},
-        {"gy", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(gyroData[1]))},
-        {"gz", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(gyroData[2]))},
-        {"mx", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(magData[0]))},
-        {"my", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(magData[1]))},
-        {"mz", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(magData[2]))},
-        {"temp", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(tmpData))},
-        {"wet/dry", wdData}
+        {"gx", gyroData[0]},
+        {"gy", gyroData[1]},
+        {"gz", gyroData[2]},
+        {"mx", magData[0]},
+        {"my", magData[1]},
+        {"mz", magData[2]},
+        {"temp", tmpData},
+        {"wd cr", wdCR},
+        {"wd ls", wdLS},
+        {"dax", accelDMPData[0]},
+        {"day", accelDMPData[1]},
+        {"daz", accelDMPData[2]},
+        {"a acc", accelDMPData[3]},
+        {"dgx", gyroDMPData[0]},
+        {"dgy", gyroDMPData[1]},
+        {"dgz", gyroDMPData[2]},
+        {"dq1", quatData[0]},
+        {"dq2",  quatData[1]},
+        {"dq3",  quatData[2]},
+        {"dq0",  quatData[3]},
+        {"dqacc",  quatData[4]}
+
+
     };
         if (count % 10 == 0) {
             for (const auto& header : headers) {
@@ -230,6 +376,7 @@ static void CLI_monitorSensors(void) {
         delay(delayTime);
     }
 }
+// }
 void CLI_displayMenu(void)
 {
     MNU_displayMenu(CLI_menu);
