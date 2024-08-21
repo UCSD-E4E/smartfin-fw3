@@ -62,7 +62,6 @@
     "particle.targetPlatform": "tracker",
     "particle.targetDevice": "",
     "cmake.configureOnOpen": false,
-    "C_Cpp.codeAnalysis.clangTidy.enabled": false,
     "C_Cpp.default.cppStandard": "c++11",
     "C_Cpp.default.cStandard": "c11",
     "C_Cpp.doxygen.generatedStyle": "/**",
@@ -71,14 +70,11 @@
         80
     ],
     "particle.enableVerboseLocalCompilerLogging": true,
-    "C_Cpp.vcFormat.space.pointerReferenceAlignment": "left",
-    "C_Cpp.formatting": "vcFormat",
-    "C_Cpp.vcFormat.newLine.scopeBracesOnSeparateLines": true,
-    "C_Cpp.vcFormat.newLine.beforeOpenBrace.type": "newLine",
-    "C_Cpp.vcFormat.newLine.beforeOpenBrace.block": "newLine",
-    "C_Cpp.vcFormat.indent.preserveWithinParentheses": true,
-    "C_Cpp.vcFormat.indent.preprocessor": "oneLeft",
     "plantuml.render": "PlantUMLServer",
     "plantuml.server": "https://www.plantuml.com/plantuml",
-
+    "C_Cpp.formatting": "clangFormat",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "modifications",
+    "editor.formatOnType": true,
 }
