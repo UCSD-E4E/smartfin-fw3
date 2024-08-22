@@ -374,6 +374,7 @@ static void CLI_monitorSensors(void) {
         SF_OSAL_printf(__NL__);
         count++;
         delay(delayTime);
+        whereDMP();
     }
 }
 // }

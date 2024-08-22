@@ -15,6 +15,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "i2c/i2c.h"
 #include <cmath>
 #define SERIAL_PORT Serial
 
@@ -271,6 +272,16 @@ bool getDMPQuat6(double *q1, double *q2, double *q3)
 //    }
 // return true;
 // }
+
+void readDMP(void){
+
+}
+
+void whereDMP(void){
+   // std::string sName(reinterpret_cast<char*>(name));
+   Serial.write(myICM.getWhoAmI());
+   Serial.write("\n");
+}
 
 void getDMPData(void) {
   int count = 0;

@@ -55,5 +55,7 @@ bool getDMPCompass(float *c_x, float *c_y, float *c_z);
 bool getDMPQuat6(double *q1, double *q2, double *q3);
 void setupICM(void);
 void getDMPData(void);
+void readDMP(void);
+void whereDMP(void);
 bool getDMPRaw(uint8_t *fb);
 #endif
