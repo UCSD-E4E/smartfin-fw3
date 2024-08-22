@@ -40,7 +40,7 @@ void setupICM(void)
 
 
    myICM.begin(WIRE_PORT, AD0_VAL);
-   myICM.initializeDMP();
+   // myICM.initializeDMP();
   
 
 
