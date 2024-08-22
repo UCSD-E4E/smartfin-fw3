@@ -119,7 +119,7 @@ void CLI::exit()
 }
 static void CLI_testTime(void) {
     //SF_OSAL_printf("DMP Data..." __NL__);
-    //getDMPData();
+    getDMPData();
     //float gyroData[3] = {0,0,0};
     //float magData[3] = {0,0,0};
     //float accelData[3] = {0,0,0};
@@ -223,19 +223,19 @@ static void CLI_monitorSensors(void) {
         SF_OSAL_printf(__NL__);
         if (ch == 'd') {
             break;
-        } else if (ch == 'a') {
+        } else if (ch == 'a') { //accelerometer
             a = true;
-        } else if (ch == 'g') {
+        } else if (ch == 'g') { //gyroscope
             g = true;
-        } else if (ch == 'm') {
+        } else if (ch == 'm') { //Magenetometer
             m = true;
-        } else if (ch == 't') {
+        } else if (ch == 't') { //temp
             t = true;
-        }else if (ch == 'w') {
+        }else if (ch == 'w') { //wet dry sensor
             w = true;
-        } else if (ch == 'p') {
+        } else if (ch == 'p') { //DMP values
             p = true;
-        } else if (ch == 'r') {
+        } else if (ch == 'r') { //raw values
             while(1) {
                 if(kbhit()) 
                     {

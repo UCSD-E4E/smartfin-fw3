@@ -39,6 +39,7 @@ void setupICM(void)
 
 
    myICM.begin(WIRE_PORT, AD0_VAL);
+   myICM.initializeDMP();
   
 
 
@@ -261,14 +262,15 @@ bool getDMPQuat6(double *q1, double *q2, double *q3)
 
    return true;
 }
-bool getDMPRaw(uint8_t *fb){
-   icm_20948_DMP_data_t data;
-  myICM.readDMPdataFromFIFO(&data);
-  for (size_t i = 0; i < sizeof(data.fifoByte); ++i) {
-    fb[i] = data.fifoByte[i];
-}
-return true;
-}
+
+// bool getDMPRaw(uint8_t *fb){
+//    icm_20948_DMP_data_t data;
+//   myICM.readDMPdataFromFIFO(&data);
+//   for (size_t i = 0; i < sizeof(data.fifoByte); ++i) {
+//     fb[i] = data.fifoByte[i];
+//    }
+// return true;
+// }
 
 void getDMPData(void) {
   int count = 0;
@@ -282,6 +284,7 @@ void getDMPData(void) {
   while(count < 50) {
     count++;
  icm_20948_DMP_data_t data;
+ 
  myICM.readDMPdataFromFIFO(&data);
   q1 = ((double)data.Quat6.Data.Q1) / 1073741824.0; // Convert to double. Divide by 2^30
   q2 = ((double)data.Quat6.Data.Q2) / 1073741824.0; // Convert to double. Divide by 2^30
