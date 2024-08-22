@@ -206,16 +206,16 @@ bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z, float *acc_ac
    myICM.readDMPdataFromFIFO(&data);
    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail)) 
   {
-  if ((data.header & DMP_header_bitmap_Accel) > 0) 
+  if ((data.header & DMP_header_bitmap_Accel) != 0) 
     {
    *acc_x = data.Raw_Accel.Data.X;
    *acc_y = data.Raw_Accel.Data.Y;
    *acc_z = data.Raw_Accel.Data.Z;
-   *acc_acc = data.Accel_Accuracy;
    }
   } else {
       FLOG_AddError(FLOG_ICM_FAIL, 3);
   }
+  *acc_acc = data.Accel_Accuracy;
    return true;
    
 }
@@ -280,7 +280,6 @@ void readDMP(void){
 void whereDMP(void){
    // std::string sName(reinterpret_cast<char*>(name));
    Serial.write(myICM.getWhoAmI());
-   Serial.write(myICM.ICM_20948_read_FIFO())
    Serial.write("\n");
 }
 
