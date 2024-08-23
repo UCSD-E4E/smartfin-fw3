@@ -39,16 +39,17 @@ protected:
                                 {   SS_ensembleAFunc, //measure
                                     SS_ensembleAInit, //init
                                     1, // measurementsToAccumulate
-                                    0, // ensembleDelay 
+        
                                     table_default_interval_A, //ensembleInterval
                                     table_default_duration_A, //maxDuration
+                                   
                                     UINT32_MAX, //maxDelay
-                                    "A", //taskName
+                                     "A", //taskName
                                     {0} //state
                                     },
                             
-        {SS_ensembleBFunc, SS_ensembleBInit, 1, 0, table_default_interval_B, table_default_duration_B, UINT32_MAX, "B",{0}},
-        {SS_ensembleCFunc, SS_ensembleCInit, 1, 0, table_default_interval_C, table_default_duration_C, UINT32_MAX, "C", {0}},
+        {SS_ensembleBFunc, SS_ensembleBInit, 1,  table_default_interval_B, table_default_duration_B, UINT32_MAX, "B", {0}},
+        {SS_ensembleCFunc, SS_ensembleCInit, 1, table_default_interval_C, table_default_duration_C,  UINT32_MAX, "C", {0}},
         };
         test_log={};
 

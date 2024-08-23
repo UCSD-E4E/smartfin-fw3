@@ -70,16 +70,16 @@ struct DeploymentSchedule_
     EnsembleInit init;                      //!< initialization function
 
     //! measurements before processing
-    const std::uint32_t measurementsToAccumulate; 
+    std::uint32_t measurementsToAccumulate; 
     
     //! time between ensembles
-    const std::uint32_t ensembleInterval;              
+     std::uint32_t ensembleInterval;              
         
     //! max running time of measurement 
-    const std::uint32_t maxDuration;                 
+     std::uint32_t maxDuration;                 
     
     //! max delay before throwing flag and resetting
-    const std::uint32_t maxDelay; 
+    std::uint32_t maxDelay; 
     
     //! task name of ensemble
     const char*  taskName;                 
