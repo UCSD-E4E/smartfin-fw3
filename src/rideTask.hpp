@@ -7,7 +7,7 @@
 #define __RIDE_HPP__
 #include "task.hpp"
 #include "product.hpp"
-
+#include "scheduler.hpp"
 
 #include <Particle.h>
 
@@ -19,6 +19,7 @@
 class RideTask : public Task
 {
 public:
+    RideTask();
     /**
      * @brief initialize ride task
      * Sets LEDs  and initializes schedule
@@ -36,9 +37,11 @@ public:
     void exit(void);
 private:
     //! TODO: implement LEDStatus
-    //LEDStatus ledStatus; //!< manages led behavior
+    LEDStatus ledStatus; //!< manages led behavior
     
     system_tick_t startTime; /**< start time at initialization */
+
+    Scheduler scheduler;
 
 };
 
