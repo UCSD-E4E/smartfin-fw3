@@ -243,13 +243,13 @@ static void CLI_monitorSensors(void) {
                             break;
                         } 
                     }
-            if (getDMPRaw(dmpRawData)) {
-                SF_OSAL_printf("DMP Raw Data: ");
-                for (size_t i = 0; i < sizeof(dmpRawData); ++i) {
-                    SF_OSAL_printf("%02X ", dmpRawData[i]);
-                }
-                SF_OSAL_printf(__NL__);
-            } 
+            // if (getDMPRaw(dmpRawData)) {
+            //     SF_OSAL_printf("DMP Raw Data: ");
+            //     for (size_t i = 0; i < sizeof(dmpRawData); ++i) {
+            //         SF_OSAL_printf("%02X ", dmpRawData[i]);
+            //     }
+            //     SF_OSAL_printf(__NL__);
+            // } 
         }
         } else {
              SF_OSAL_printf("invalid input" __NL__);
@@ -280,16 +280,15 @@ static void CLI_monitorSensors(void) {
         headers.push_back("wd ls");
     }
     if (p) {
-        // headers.push_back("dq1");
-        // headers.push_back("dq2");
-        // headers.push_back("dq3");
-        // headers.push_back("dq0");
-        // headers.push_back("dqacc");
+        headers.push_back("dq1");
+        headers.push_back("dq2");
+        headers.push_back("dq3");
+        headers.push_back("dq0");
+        headers.push_back("dqacc");
         headers.push_back("dax");
         headers.push_back("day");
         headers.push_back("daz");
         headers.push_back("a acc");
-        SF_OSAL_printf("acceleration")
         // headers.push_back("dcx");
         // headers.push_back("dcy");
         // headers.push_back("dcz");
@@ -321,7 +320,7 @@ static void CLI_monitorSensors(void) {
         if (p) {
         getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2);
         getDMPAccelerometerAcc(accelDMPData + 3);
-        // getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
+        getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
         getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
         }
         //getDMPCompass();
@@ -373,7 +372,7 @@ static void CLI_monitorSensors(void) {
         SF_OSAL_printf(" %8.4f\t", sensorData.at(header));
         }
         SF_OSAL_printf(__NL__);
-        SF_OSAL_printf("HERE")
+        SF_OSAL_printf("HERE");
         count++;
     }
 }
