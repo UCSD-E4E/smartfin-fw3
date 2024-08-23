@@ -128,8 +128,6 @@ class Scheduler : public AbstractScheduler {
                     std::uint32_t* p_nextTime,
                     std::uint32_t currentTime);
 
-    
-        
 };
 
 #endif //__SCHEDULER_HPP__

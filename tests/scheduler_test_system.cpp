@@ -1,8 +1,8 @@
 /**
  * @file scheduler_test_system.cpp
- * @brief implements functions for testing declared in @ref 
+ * @brief implements functions for testing declared in @ref
  * scheduler_test_system.hpp
- * 
+ *
  */
 #include "scheduler_test_system.hpp"
 #include "cli/conio.hpp"
@@ -13,22 +13,22 @@
 #include <string>
 #include <cstdio>
 
-/**
-* @brief comparator for google tests EXPECT_TRUE
-* 
-* @param rhs other TestLog to compare to
-* @return true if the same
-* @return false otherwise
-*/
+ /**
+ * @brief comparator for google tests EXPECT_TRUE
+ *
+ * @param rhs other TestLog to compare to
+ * @return true if the same
+ * @return false otherwise
+ */
 bool TestLog::operator==(const TestLog& rhs)
 {
     return  (name == rhs.name) &&
         (start == rhs.start) &&
         (end == rhs.end);
 };
-std::ostream& operator<<(std::ostream &strm, const TestLog &value) {
+std::ostream& operator<<(std::ostream& strm, const TestLog& value) {
     return strm << "\"" << value.name << "|"
-                << value.start << "|" << value.end << "\"";
+        << value.start << "|" << value.end << "\"";
 }
 
 int SF_OSAL_sprintf(char* buffer, size_t size, const char* fmt, ...)
@@ -42,7 +42,7 @@ int SF_OSAL_sprintf(char* buffer, size_t size, const char* fmt, ...)
 
 /**
  * @brief prints to stdout
- * 
+ *
  *
  * @param fmt format to print
  * @param  variables to print
@@ -115,12 +115,12 @@ FileWriter::FileWriter(std::string expectedFileName, std::string actualFileName)
     this->firstTest = true;
     this->expectedFileName = expectedFileName;
     this->actualFileName = actualFileName;
-    std::ofstream expectedFile(expectedFileName,std::ios::out | 
+    std::ofstream expectedFile(expectedFileName, std::ios::out |
     std::ios::trunc);
 
-    std::ofstream actualFile(actualFileName,std::ios::out |
+    std::ofstream actualFile(actualFileName, std::ios::out |
         std::ios::trunc);
-    
+
     if (actualFile.is_open() && expectedFile.is_open())
     {
         actualFile << "{";
@@ -129,14 +129,14 @@ FileWriter::FileWriter(std::string expectedFileName, std::string actualFileName)
     actualFile.close();
     expectedFile.close();
 }
-void FileWriter::writeTest(std::string testName, 
-    std::vector<TestLog> expected,std::vector<TestLog> actual)
+void FileWriter::writeTest(std::string testName,
+    std::vector<TestLog> expected, std::vector<TestLog> actual)
 {
-    std::ofstream actualFile(actualFileName, std::ios::out | 
+    std::ofstream actualFile(actualFileName, std::ios::out |
                                 std::ios::app);
     std::ofstream expectedFile(expectedFileName, std::ios::out |
         std::ios::app);
-    
+
     if (firstTest == false)
     {
         expectedFile << ",";
@@ -178,7 +178,7 @@ void FileWriter::writeTest(std::string testName,
 }
 void FileWriter::closeFiles()
 {
-    std::ofstream actualFile(actualFileName, std::ios::out | 
+    std::ofstream actualFile(actualFileName, std::ios::out |
                                 std::ios::app);
     std::ofstream expectedFile(expectedFileName, std::ios::out |
         std::ios::app);
@@ -192,7 +192,7 @@ void FileWriter::closeFiles()
     actualFile.close();
     expectedFile.close();
 }
-EnsembleInput::EnsembleInput(std::string taskName,uint32_t interval, uint32_t duration, uint32_t delay) : taskName(taskName), interval(interval), duration(duration), delay(delay){};
+EnsembleInput::EnsembleInput(std::string taskName, uint32_t interval, uint32_t duration, uint32_t delay) : taskName(taskName), interval(interval), duration(duration), delay(delay) {};
 
 void TestInput::clear()
 {
@@ -200,45 +200,41 @@ void TestInput::clear()
     expectedValues.clear();
     delays.clear();
     resets.clear();
-    
+
 }
 
 void write_shift(std::string ensemble, std::uint32_t idx)
 {
-    
-    std::ofstream shiftFile ("shifts.txt", std::ios::app);
+
+    std::ofstream shiftFile("shifts.txt", std::ios::app);
     if (shiftFile.is_open())
     {
         shiftFile << ensemble << "|" << idx << "\n";
         shiftFile.close();
     }
 }
-Log::Log(DeploymentSchedule_ ** task, u_int32_t time){
-    DeploymentSchedule_ * t=*task;
-   this->taskName=t->taskName;
-   this->runTime=time;
+Log::Log(DeploymentSchedule_ **task, uint32_t time) {
+    DeploymentSchedule_ *table = *task;
+    this->taskName = std::string(table->taskName);;
+    this->runTime = time;
+    std::cout << "Log created with taskName: " << this->taskName << ", runTime: " << this->runTime << std::endl;
+}
 
- }
-
-
- Log::Log(std::string name, u_int32_t time)
- {
-    this->taskName=name;
-    this->runTime=time;
-
- }
+Log::Log(std::string name, uint32_t time) {
+    this->taskName = name;
+    this->runTime = time;
+    std::cout << "Log created with taskName: " << this->taskName << ", runTime: " << this->runTime << std::endl;
+}
 
 std::string Log::getName()
 {
-  return taskName;
- }
-  u_int32_t Log :: getRunTime()
-  {
+    return taskName;
+}
+uint32_t Log::getRunTime()
+{
     return runTime;
+}
 
-   }
-
-
-  bool operator== (const Log& a, const Log& b){
-    return ((a.taskName==b.taskName)&& (a.runTime==b.runTime));
-  }
+bool operator==(const Log& a, const Log& b) {
+    return ((a.taskName == b.taskName) && (a.runTime == b.runTime));
+}

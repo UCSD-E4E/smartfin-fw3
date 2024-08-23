@@ -159,20 +159,16 @@ struct FileWriter
 };
 class Log{
     std::string taskName;
-    u_int32_t runTime;
+    uint32_t runTime;
 public:
 
-    Log(DeploymentSchedule_ ** task, u_int32_t time);
-    Log(std::string name, u_int32_t time);
+    Log(DeploymentSchedule_ **task, uint32_t time);
+    Log(std::string name, uint32_t time);
 
-   friend bool operator== (const Log& a, const Log& b);
+   friend bool operator==(const Log& a, const Log& b);
 
    std::string getName();
-   u_int32_t getRunTime();
-
-
-    
-
+   uint32_t getRunTime();
 
 };
 #endif //__SCHEDULER__TEST__HPP_

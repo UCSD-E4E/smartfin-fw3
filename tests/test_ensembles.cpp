@@ -20,7 +20,7 @@ void SS_ensembleAInit(DeploymentSchedule_t* pDeployment)
  */
 void SS_ensembleAFunc(DeploymentSchedule_t* pDeployment)
 {
-    delay(400);
+    return;
 }
 
 /**
@@ -37,7 +37,7 @@ void SS_ensembleBInit(DeploymentSchedule_t* pDeployment)
  */
 void SS_ensembleBFunc(DeploymentSchedule_t* pDeployment)
 {
-    delay(200);
+    return;
 
 }
 
@@ -55,5 +55,5 @@ void SS_ensembleCInit(DeploymentSchedule_t* pDeployment)
  */
 void SS_ensembleCFunc(DeploymentSchedule_t* pDeployment)
 {
-    delay(600);
+    return;
 }
