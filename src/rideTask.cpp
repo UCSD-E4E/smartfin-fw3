@@ -19,6 +19,7 @@
 
 #include <time.h>
 
+
 /**
  * @brief creates file name for log
  * @todo implement RIDE_setFileName
@@ -33,8 +34,13 @@ static void RIDE_setFileName(system_tick_t startTime)
 */
 DeploymentSchedule_t deploymentSchedule[] =
 {
-    {nullptr, nullptr, 0, 0, 0, 0, 0, 0, 0, nullptr, 0, '\0'}
+    {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}
 };
+
+RideTask::RideTask() : scheduler(deploymentSchedule)
+{
+
+}
 
 /**
  * @brief initialize ride task
@@ -53,7 +59,8 @@ void RideTask::init()
 
 
     this->startTime = millis();
-    SCH_initializeSchedule(deploymentSchedule, this->startTime);
+    
+    this->scheduler.initializeScheduler();
     pSystemDesc->pRecorder->openSession();
 
 }
@@ -74,10 +81,9 @@ STATES_e RideTask::run(void)
 
         RIDE_setFileName(this->startTime);
 
-        uint32_t retval = SCH_getNextEvent(deploymentSchedule,
-                                                    &pNextEvent, 
-                                                    &nextEventTime,
-                                                    millis());
+        SCH_error_e retval = this->scheduler.getNextTask(&pNextEvent,
+                                                         &nextEventTime,
+                                                         millis());
         //Check if scheduler failed to find nextEvent
         if (TASK_SEARCH_FAIL == retval)
         {
@@ -90,7 +96,7 @@ STATES_e RideTask::run(void)
         pNextEvent->measure(pNextEvent);
         SF_OSAL_printf("|%" PRId32  __NL__, (uint32_t)millis());
         
-        pNextEvent->lastMeasurementTime = nextEventTime;
+        // pNextEvent->lastMeasurementTime = nextEventTime;
 
         if(pSystemDesc->pWaterSensor->getLastStatus() ==
                             WATER_SENSOR_LOW_STATE)

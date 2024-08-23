@@ -78,8 +78,6 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
                            std::uint32_t* p_nextTime,
                            std::uint32_t currentTime)
 {
-    std::uint32_t minNextTime = UINT32_MAX;
-    DeploymentSchedule_t* nextEvent = nullptr;
 
     /*Iterate through each event in the schedule table in reverse order, with 
     the goal of determining if a lower prioirty task can run before a higher 
@@ -109,7 +107,7 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
             delay = 0;
         }
 
-        if (delay >= currentEvent.maxDelay)
+        if (delay >= (int)currentEvent.maxDelay)
         {
             //! TODO: send warning
         }
@@ -120,10 +118,9 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
          will finish overlaps with any task of higher prioirty, we cannot run this
          task next. The highest prioirty task will not be checked against other 
          tasks, so by default that will run*/
-        int j = 0;
         for (int j = 0; (j < idx) && canSet; j++)
         {
-            if (scheduleTable[j].state.nextRunTime < expected_completion)
+            if ((int)scheduleTable[j].state.nextRunTime < expected_completion)
             {
                 canSet = false;
             }
