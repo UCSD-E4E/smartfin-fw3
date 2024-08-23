@@ -215,9 +215,24 @@ bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z, float *acc_ac
   } else {
       FLOG_AddError(FLOG_ICM_FAIL, 3);
   }
-  *acc_acc = data.Accel_Accuracy;
    return true;
    
+}
+
+bool getDMPAcc(float*acc_acc)
+{
+   icm_20948_DMP_data_t data;
+   myICM.readDMPdataFromFIFO(&data);
+   if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail)) 
+  {
+  if ((data.header & DMP_header2_bitmap_Accel_Accuracy) != 0) 
+    {
+   *acc_acc = data.Accel_Accuracy;
+   }
+  } else {
+      FLOG_AddError(FLOG_ICM_FAIL, 3);
+  }
+  return true;
 }
 
 bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc)
