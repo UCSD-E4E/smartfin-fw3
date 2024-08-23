@@ -63,30 +63,35 @@ struct StateInformation
     
 };
 
+#ifndef TEST_VERSION
+#define NON_TEST_CONST const
+#else
+#define NON_TEST_CONST
+#endif
+
 struct DeploymentSchedule_
 {
 
-    EnsembleFunction measure;               //!< measurement function
-    EnsembleInit init;                      //!< initialization function
+    NON_TEST_CONST EnsembleFunction measure;               //!< measurement function
+    NON_TEST_CONST EnsembleInit init;                      //!< initialization function
 
     //! measurements before processing
-    std::uint32_t measurementsToAccumulate; 
+    NON_TEST_CONST std::uint32_t measurementsToAccumulate; 
     
     //! time between ensembles
-     std::uint32_t ensembleInterval;              
+    NON_TEST_CONST std::uint32_t ensembleInterval;              
         
     //! max running time of measurement 
-     std::uint32_t maxDuration;                 
+    NON_TEST_CONST std::uint32_t maxDuration;                 
     
     //! max delay before throwing flag and resetting
-    std::uint32_t maxDelay; 
+    NON_TEST_CONST std::uint32_t maxDelay; 
     
     //! task name of ensemble
-    const char*  taskName;                 
+    const char* NON_TEST_CONST taskName;                 
     
     //! state information
     StateInformation state;                
-    
     
 };
 
