@@ -48,7 +48,7 @@ bool getMagnetometer(float *mag_x, float *mag_y, float *mag_z);
  * @brief Setup IMU 
 */
 //bool getDMPRawAccelerometer(float *acc_x, float *acc_y, float *acc_z);
-bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z, float *acc_acc);
+bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z);
 bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc);
 bool getDMPGyroscope(float *g_x, float *g_y, float *g_z);
 bool getDMPCompass(float *c_x, float *c_y, float *c_z);
@@ -60,4 +60,5 @@ void readDMP(void);
 void whereDMP(void);
 // bool 
 // bool getDMPRaw(uint8_t *fb);
+bool getDMPAccelerometerAcc(float* acc_acc);
 #endif
