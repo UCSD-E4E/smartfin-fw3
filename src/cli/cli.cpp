@@ -119,7 +119,7 @@ void CLI::exit()
 }
 static void CLI_testTime(void) {
     //SF_OSAL_printf("DMP Data..." __NL__);
-    //getDMPData();
+    getDMPData();
     //float gyroData[3] = {0,0,0};
     //float magData[3] = {0,0,0};
     //float accelData[3] = {0,0,0};
@@ -246,13 +246,13 @@ static void CLI_monitorSensors(void) {
                             break;
                         } 
                     }
-            // if (getDMPRaw(dmpRawData)) {
-            //     SF_OSAL_printf("DMP Raw Data: ");
-            //     for (size_t i = 0; i < sizeof(dmpRawData); ++i) {
-            //         SF_OSAL_printf("%02X ", dmpRawData[i]);
-            //     }
-            //     SF_OSAL_printf(__NL__);
-            // } 
+            if (getDMPRaw(dmpRawData)) {
+                SF_OSAL_printf("DMP Raw Data: ");
+                for (size_t i = 0; i < sizeof(dmpRawData); ++i) {
+                    SF_OSAL_printf("%02X ", dmpRawData[i]);
+                }
+                SF_OSAL_printf(__NL__);
+            } 
         }
         } else {
              SF_OSAL_printf("invalid input" __NL__);
@@ -283,11 +283,11 @@ static void CLI_monitorSensors(void) {
         headers.push_back("wd ls");
     }
     if (p) {
-        headers.push_back("dq1");
-        headers.push_back("dq2");
-        headers.push_back("dq3");
-        headers.push_back("dq0");
-        headers.push_back("dqacc");
+        // headers.push_back("dq1");
+        // headers.push_back("dq2");
+        // headers.push_back("dq3");
+        // headers.push_back("dq0");
+        // headers.push_back("dqacc");
         headers.push_back("dax");
         headers.push_back("day");
         headers.push_back("daz");
@@ -300,16 +300,16 @@ static void CLI_monitorSensors(void) {
     
     int count = 0;
    
-    for(int i = 0; i < 1; i++){
-    // {
+    //for(int i = 0; i < 1; i++){
+    while(1) {
         if(kbhit()) 
         {
             ch = getch();
 
-            // if('q' == ch) 
-            // {
-            //     break;
-            // } 
+            if('q' == ch) 
+            {
+                break;
+            } 
         }
         if (a) {
         getAccelerometer(accelData, accelData + 1, accelData + 2);
@@ -320,9 +320,12 @@ static void CLI_monitorSensors(void) {
         if (m) {
         getMagnetometer(magData, magData + 1, magData + 2);
         }
-        //getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2, accelDMPData + 3);
-        //getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
-        //getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
+        if (p) {
+        getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2);
+        getDMPAccelerometerAcc(accelDMPData + 3);
+        // getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
+        getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
+        }
         //getDMPCompass();
         //this is from temp sensor not imu temp
         if (t) {
@@ -347,7 +350,7 @@ static void CLI_monitorSensors(void) {
         {"temp", tmpData},
         {"wd cr", wdCR},
         {"wd ls", wdLS},
-        {"dax", accelDMPData[0]},
+        {"dax", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelDMPData[0]))},
         {"day", accelDMPData[1]},
         {"daz", accelDMPData[2]},
         {"a acc", accelDMPData[3]},
@@ -376,7 +379,7 @@ static void CLI_monitorSensors(void) {
         delay(delayTime);
     }
 }
-// }
+
 void CLI_displayMenu(void)
 {
     MNU_displayMenu(CLI_menu);

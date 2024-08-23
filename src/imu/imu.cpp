@@ -20,7 +20,7 @@
 
 
 #define WIRE_PORT Wire
-#define AD0_VAL 0
+#define AD0_VAL 1
 
 
 ICM_20948_I2C myICM;
@@ -39,60 +39,32 @@ void setupICM(void)
 
 
    myICM.begin(WIRE_PORT, AD0_VAL);
-  
-
+   myICM.initializeDMP();
+   
 
    SF_OSAL_printf("Initialization of the sensor returned: ");
    SF_OSAL_printf(myICM.statusString());
    if (myICM.status != ICM_20948_Stat_Ok)
    {
        SF_OSAL_printf("ICM fail!");
-       FLOG_AddError(FLOG_ICM_FAIL, 0);
+       FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
    }
-   if (myICM.status == ICM_20948_Stat_ParamErr) {
-      SF_OSAL_printf("3");
-   } else if (myICM.status == ICM_20948_Stat_WrongID) {
-      SF_OSAL_printf("4");
-   } else if (myICM.status == ICM_20948_Stat_InvalSensor) {
-      SF_OSAL_printf("5");
-   } else if (myICM.status == ICM_20948_Stat_NoData) {
-      SF_OSAL_printf("6");
-   } else if (myICM.status == ICM_20948_Stat_SensorNotSupported) {
-      SF_OSAL_printf("7");
-   } else if (myICM.status == ICM_20948_Stat_DMPNotSupported) {
-      SF_OSAL_printf("8");
-   } else if (myICM.status == ICM_20948_Stat_DMPVerifyFail) {
-      SF_OSAL_printf("9");
-   } else if (myICM.status == ICM_20948_Stat_FIFONoDataAvail) {
-      SF_OSAL_printf("10");
-   } else if (myICM.status == ICM_20948_Stat_FIFOIncompleteData) {
-      SF_OSAL_printf("10");
-   } else if (myICM.status == ICM_20948_Stat_UnrecognisedDMPHeader) {
-      SF_OSAL_printf("11");
-   } else if (myICM.status == ICM_20948_Stat_InvalDMPRegister) {
-      SF_OSAL_printf("12");
-   } else if (myICM.status == ICM_20948_Stat_NUM) {
-      SF_OSAL_printf("13");
-   } else if (myICM.status == ICM_20948_Stat_Unknown) {
-      SF_OSAL_printf("14");
-   }else {
-      SF_OSAL_printf("none");
-   }
+   
    bool success = true;
    success &= (myICM.initializeDMP() == ICM_20948_Stat_Ok);
    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
    // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
-    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
+    //success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
    // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_GYROSCOPE) == ICM_20948_Stat_Ok);
    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
    // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED) == ICM_20948_Stat_Ok);
    // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_LINEAR_ACCELERATION) == ICM_20948_Stat_Ok);
    success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);        // Set to 5Hz
    success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);        // Set to 1Hz
-   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok);         // Set to 1Hz
-   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 0) == ICM_20948_Stat_Ok);  // Set to 1Hz
-   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok);        // Set to 1Hz
-   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass_Calibr, 0) == ICM_20948_Stat_Ok); // Set to 1Hz
+   // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok);         // Set to 1Hz
+   // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 0) == ICM_20948_Stat_Ok);  // Set to 1Hz
+   // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok);        // Set to 1Hz
+   // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass_Calibr, 0) == ICM_20948_Stat_Ok); // Set to 1Hz
    //Enable the FIFO
    success &= (myICM.enableFIFO() == ICM_20948_Stat_Ok);
 
@@ -198,24 +170,63 @@ float getTmpC( int16_t raw ){
  return (((float)raw)/333.87);
 }
 
-bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z, float *acc_acc)
+bool getDMPAccelerometer(float* acc_x, float* acc_y, float* acc_z)
 {
    icm_20948_DMP_data_t data;
    myICM.readDMPdataFromFIFO(&data);
-   if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail)) 
-  {
-  if ((data.header & DMP_header_bitmap_Accel) > 0) 
-    {
-   *acc_x = (float)data.Raw_Accel.Data.X;
-   *acc_y = (float)data.Raw_Accel.Data.Y;
-   *acc_z = (float)data.Raw_Accel.Data.Z;
-   *acc_acc = (float)data.Accel_Accuracy;
-    }
-  } else {
-      FLOG_AddError(FLOG_ICM_FAIL, 3);
-  }
+   if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
+   {
+      // SERIAL_PORT.print(F("Received data! Header: 0x")); // Print the header in HEX so we can see what data is arriving in the FIFO
+      //  if ( data.header < 0x1000) SERIAL_PORT.print( "0" ); // Pad the zeros
+      //  if ( data.header < 0x100) SERIAL_PORT.print( "0" );
+      //  if ( data.header < 0x10) SERIAL_PORT.print( "0" );
+      //  SERIAL_PORT.println( data.header, HEX );
+      if ((data.header & DMP_header_bitmap_Accel) != 0)
+      {
+         *acc_x = (float)data.Raw_Accel.Data.X;
+         *acc_y = (float)data.Raw_Accel.Data.Y;
+         *acc_z = (float)data.Raw_Accel.Data.Z;
+         SF_OSAL_printf("getting accel from fifo" __NL__);
+      }
+      else
+      {
+         FLOG_AddError(FLOG_ICM_FAIL, 5);
+      }
+   }
+   else
+   {
+      if (myICM.status == ICM_20948_Stat_FIFONoDataAvail) {
+         *acc_x = 0;
+         *acc_y = 0;
+         *acc_z = 0;
+      }
+      FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
+   }
    return true;
-   
+
+}
+//*acc_acc = (float)data.Accel_Accuracy;
+bool getDMPAccelerometerAcc(float* acc_acc)
+{
+   icm_20948_DMP_data_t data;
+   myICM.readDMPdataFromFIFO(&data);
+   if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
+   {
+      
+      if ((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0)
+      {
+         *acc_acc = (float)data.Accel_Accuracy;
+      } else {
+         *acc_acc = 20;
+      }
+   }
+   else
+   {
+      *acc_acc = 10;
+      //FLOG_AddError(FLOG_ACC_FAIL, 4);
+   }
+   return true;
+
 }
 
 bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc)
@@ -261,14 +272,14 @@ bool getDMPQuat6(double *q1, double *q2, double *q3)
 
    return true;
 }
-bool getDMPRaw(uint8_t *fb){
-   icm_20948_DMP_data_t data;
-  myICM.readDMPdataFromFIFO(&data);
-  for (size_t i = 0; i < sizeof(data.fifoByte); ++i) {
-    fb[i] = data.fifoByte[i];
-}
-return true;
-}
+// bool getDMPRaw(uint8_t *fb){
+//    icm_20948_DMP_data_t data;
+//   myICM.readDMPdataFromFIFO(&data);
+//   for (size_t i = 0; i < sizeof(data.fifoByte); ++i) {
+//     fb[i] = data.fifoByte[i];
+// }
+// return true;
+// }
 
 void getDMPData(void) {
   int count = 0;
