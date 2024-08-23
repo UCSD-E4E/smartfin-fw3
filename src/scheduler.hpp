@@ -119,8 +119,7 @@ class Scheduler : public AbstractScheduler {
                     uint32_t* p_next_runtime,
                     uint32_t current_time);
 
-    bool willOverlap(uint32_t i, system_tick_t currentTime, 
-                                                uint32_t nextStartTime);
+    
         
 };
 

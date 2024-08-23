@@ -5,6 +5,8 @@
 #ifndef __SCHEDULER__TEST__HPP_
 #define __SCHEDULER__TEST__HPP_
 
+#include "scheduler.hpp"
+
 #include <stdint.h>
 #include <vector>
 #include <string>
@@ -154,5 +156,23 @@ struct FileWriter
     void writeTest(std::string testName, 
             std::vector<TestLog> expected, std::vector<TestLog> actual);
     void closeFiles();
+};
+class Log{
+    std::string taskName;
+    u_int32_t runTime;
+public:
+
+    Log(DeploymentSchedule_ ** task, u_int32_t time);
+    Log(std::string name, u_int32_t time);
+
+   friend bool operator== (const Log& a, const Log& b);
+
+   std::string getName();
+   u_int32_t getRunTime();
+
+
+    
+
+
 };
 #endif //__SCHEDULER__TEST__HPP_

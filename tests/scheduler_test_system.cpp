@@ -213,3 +213,32 @@ void write_shift(std::string ensemble, std::uint32_t idx)
         shiftFile.close();
     }
 }
+Log::Log(DeploymentSchedule_ ** task, u_int32_t time){
+    DeploymentSchedule_ * t=*task;
+   this->taskName=t->taskName;
+   this->runTime=time;
+
+ }
+
+
+ Log::Log(std::string name, u_int32_t time)
+ {
+    this->taskName=name;
+    this->runTime=time;
+
+ }
+
+std::string Log::getName()
+{
+  return taskName;
+ }
+  u_int32_t Log :: getRunTime()
+  {
+    return runTime;
+
+   }
+
+
+  bool operator== (const Log& a, const Log& b){
+    return ((a.taskName==b.taskName)&& (a.runTime==b.runTime));
+  }
