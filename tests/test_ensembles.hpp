@@ -8,7 +8,6 @@
 #include "product.hpp"
 #include "scheduler.hpp"
 
-#include "scheduler.hpp"
 /**
  * @brief dummy ensemble init function
  * @param pDeployment schedule table
