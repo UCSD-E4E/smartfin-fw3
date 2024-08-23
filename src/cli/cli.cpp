@@ -197,7 +197,7 @@ static void CLI_monitorSensors(void) {
     float gyroDMPData[3] = {0,0,0};
     float magData[3] = {0,0,0};
     double quatData[5] = {0,0,0,0,0};
-    uint8_t dmpRawData[14] = {0};
+    //uint8_t dmpRawData[14] = {0};
     float tmpData = 0;
     float wdCR = 0;
     float wdLS = 0;
@@ -217,7 +217,7 @@ static void CLI_monitorSensors(void) {
     getline(dt, SF_CLI_MAX_CMD_LEN);
     int delayTime = atoi(dt);
     while (true) {
-        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w, p, r), d to quit: ");
+        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w, p), d to quit: ");
         ch = getch();
         SF_OSAL_printf("%c", ch); 
         SF_OSAL_printf(__NL__);
@@ -235,25 +235,25 @@ static void CLI_monitorSensors(void) {
             w = true;
         } else if (ch == 'p') {
             p = true;
-        } else if (ch == 'r') {
-            while(1) {
-                if(kbhit()) 
-                    {
-                        ch = getch();
+        // } else if (ch == 'r') {
+        //     while(1) {
+        //         if(kbhit()) 
+        //             {
+        //                 ch = getch();
 
-                        if('q' == ch) 
-                        {
-                            break;
-                        } 
-                    }
-            if (getDMPRaw(dmpRawData)) {
-                SF_OSAL_printf("DMP Raw Data: ");
-                for (size_t i = 0; i < sizeof(dmpRawData); ++i) {
-                    SF_OSAL_printf("%02X ", dmpRawData[i]);
-                }
-                SF_OSAL_printf(__NL__);
-            } 
-        }
+        //                 if('q' == ch) 
+        //                 {
+        //                     break;
+        //                 } 
+        //             }
+            // if (getDMPRaw(dmpRawData)) {
+            //     SF_OSAL_printf("DMP Raw Data: ");
+            //     for (size_t i = 0; i < sizeof(dmpRawData); ++i) {
+            //         SF_OSAL_printf("%02X ", dmpRawData[i]);
+            //     }
+            //     SF_OSAL_printf(__NL__);
+            // } 
+        //}
         } else {
              SF_OSAL_printf("invalid input" __NL__);
         }
