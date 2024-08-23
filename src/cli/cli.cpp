@@ -197,11 +197,10 @@ static void CLI_monitorSensors(void) {
     float gyroDMPData[3] = {0,0,0};
     float magData[3] = {0,0,0};
     double quatData[5] = {0,0,0,0,0};
-    uint8_t dmpRawData[14] = {0};
+    // uint8_t dmpRawData[14] = {0};
     float tmpData = 0;
     float wdCR = 0;
     float wdLS = 0;
-
     setupICM();
     SF_OSAL_printf(__NL__);
     
@@ -212,10 +211,8 @@ static void CLI_monitorSensors(void) {
     bool w = false;
     bool p = false;
     
-    SF_OSAL_printf("Enter delay time: ");
     char dt[SF_CLI_MAX_CMD_LEN];
     getline(dt, SF_CLI_MAX_CMD_LEN);
-    int delayTime = atoi(dt);
     while (true) {
         SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w, p, r), d to quit: ");
         ch = getch();
@@ -292,6 +289,7 @@ static void CLI_monitorSensors(void) {
         headers.push_back("day");
         headers.push_back("daz");
         headers.push_back("a acc");
+        SF_OSAL_printf("acceleration")
         // headers.push_back("dcx");
         // headers.push_back("dcy");
         // headers.push_back("dcz");
@@ -320,10 +318,10 @@ static void CLI_monitorSensors(void) {
         if (m) {
         getMagnetometer(magData, magData + 1, magData + 2);
         }
-        //getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2, accelDMPData + 3);
-        //getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
-        //getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
-        //getDMPCompass();
+        getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2, accelDMPData + 3);
+        getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
+        getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
+        // getDMPCompass();
         //this is from temp sensor not imu temp
         if (t) {
         tmpData = pSystemDesc->pTempSensor->getTemp();
@@ -372,9 +370,8 @@ static void CLI_monitorSensors(void) {
         SF_OSAL_printf(" %8.4f\t", sensorData.at(header));
         }
         SF_OSAL_printf(__NL__);
+        SF_OSAL_printf("HERE")
         count++;
-        delay(delayTime);
-        whereDMP();
     }
 }
 // }

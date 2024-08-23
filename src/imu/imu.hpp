@@ -58,5 +58,6 @@ void getDMPData(void);
 void getDMPAcc(float *acc_acc);
 void readDMP(void);
 void whereDMP(void);
-bool getDMPRaw(uint8_t *fb);
+// bool 
+// bool getDMPRaw(uint8_t *fb);
 #endif

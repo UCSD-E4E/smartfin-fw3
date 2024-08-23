@@ -225,7 +225,7 @@ bool getDMPAcc(float*acc_acc)
    myICM.readDMPdataFromFIFO(&data);
    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail)) 
   {
-  if ((data.header & DMP_header2_bitmap_Accel_Accuracy) != 0) 
+  if ((data.header & DMP_header2_bitmap_Accel_Accuracy) != 0 && ((data.header & DMP_header_bitmap_Accel) != 0))
     {
    *acc_acc = data.Accel_Accuracy;
    }
@@ -308,39 +308,39 @@ void getDMPData(void) {
   double acc_y = 0;
   double acc_z = 0;
   while(count < 50) {
-    count++;
- icm_20948_DMP_data_t data;
+      count++;
+      icm_20948_DMP_data_t data;
  
- myICM.readDMPdataFromFIFO(&data);
-  q1 = ((double)data.Quat6.Data.Q1) / 1073741824.0; // Convert to double. Divide by 2^30
-  q2 = ((double)data.Quat6.Data.Q2) / 1073741824.0; // Convert to double. Divide by 2^30
-  q3 = ((double)data.Quat6.Data.Q3) / 1073741824.0; // Convert to double. Divide by 2^30
+      myICM.readDMPdataFromFIFO(&data);
+      q1 = ((double)data.Quat6.Data.Q1) / 1073741824.0; // Convert to double. Divide by 2^30
+      q2 = ((double)data.Quat6.Data.Q2) / 1073741824.0; // Convert to double. Divide by 2^30
+      q3 = ((double)data.Quat6.Data.Q3) / 1073741824.0; // Convert to double. Divide by 2^30
 
 
- SF_OSAL_printf("Q1:    Q2:    Q3:  " __NL__) ;
- SF_OSAL_printf(" %8.4f  ", q1);
- SF_OSAL_printf(" %8.4f  ", q2);
- SF_OSAL_printf(" %8.4f  ", q3);
- SF_OSAL_printf(__NL__);
- delay(100);
-  }
+      SF_OSAL_printf("Q1:    Q2:    Q3:  " __NL__) ;
+      SF_OSAL_printf(" %8.4f  ", q1);
+      SF_OSAL_printf(" %8.4f  ", q2);
+      SF_OSAL_printf(" %8.4f  ", q3);
+      SF_OSAL_printf(__NL__);
+      delay(100);
+   }
 
-while(count1 < 500) {
-    count1++;
- icm_20948_DMP_data_t data;
- myICM.readDMPdataFromFIFO(&data);
-  acc_x = (float)data.Raw_Accel.Data.X; // Extract the raw accelerometer data
-  acc_y = (float)data.Raw_Accel.Data.Y;
-  acc_z = (float)data.Raw_Accel.Data.Z;
+   while(count1 < 500) {
+      count1++;
+   icm_20948_DMP_data_t data;
+   myICM.readDMPdataFromFIFO(&data);
+   acc_x = (float)data.Raw_Accel.Data.X; // Extract the raw accelerometer data
+   acc_y = (float)data.Raw_Accel.Data.Y;
+   acc_z = (float)data.Raw_Accel.Data.Z;
 
 
- SF_OSAL_printf("Accel: X:");
- SF_OSAL_printf(" %8.4f  ", acc_x);
- SF_OSAL_printf(" Y:");
- SF_OSAL_printf(" %8.4f  ", acc_y);
- SF_OSAL_printf(" Z:");
- SF_OSAL_printf(" %8.4f  " __NL__, acc_z);
- delay(100);
+   SF_OSAL_printf("Accel: X:");
+   SF_OSAL_printf(" %8.4f  ", acc_x);
+   SF_OSAL_printf(" Y:");
+   SF_OSAL_printf(" %8.4f  ", acc_y);
+   SF_OSAL_printf(" Z:");
+   SF_OSAL_printf(" %8.4f  " __NL__, acc_z);
+   delay(100);
 }
 
 //  float x = (float)data.Raw_Gyro.Data.X; // Extract the raw gyro data
