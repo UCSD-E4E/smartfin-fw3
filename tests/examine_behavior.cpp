@@ -16,6 +16,7 @@
 #include <chrono>
 
 
+
 class ExamineBehavior
 {
     public:
@@ -135,7 +136,7 @@ class ExamineBehavior
         DeploymentSchedule_t e;
         for (size_t i = 0; i < input.ensembles.size(); i++)
         {
-            e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
+            e = { SS_ensembleAFunc, SS_ensembleAInit, 1,
                                             input.ensembles[i].interval,
                                             input.ensembles[i].duration,
                                             input.ensembles[i].delay,
@@ -143,7 +144,7 @@ class ExamineBehavior
                                             {0} };
             deploymentSchedule.emplace_back(e);
         }
-        e = { nullptr, nullptr, 0, 0, 0, 0, 0, "", {0}};
+        e = { nullptr, nullptr, 0, 0, 0, 0, "", {0}};
         deploymentSchedule.emplace_back(e);
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         

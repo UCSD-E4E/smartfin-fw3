@@ -1,6 +1,5 @@
-import re
+from pathlib import Path
 import matplotlib as mpl
-mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -8,8 +7,11 @@ import sys
 import os.path
 import cv2
 import json
-from pathlib import Path
+
 import glob
+
+mpl.use('Agg')
+
 def comparelogs():
     actual_json, expected_json = parse_logs()
 

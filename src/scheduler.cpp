@@ -4,39 +4,49 @@
  *  @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  *  @version 1
  */
+#include "scheduler.hpp"
+#include "cli/conio.hpp"
+#include "ensembles.hpp"
+#include "consts.hpp"
+#include "cli/flog.hpp"
+
+#include <cstdint>
+#include <string.h>
 
 #ifndef TEST_VERSION
 #include "Particle.h"
 #else
 #include "scheduler_test_system.hpp"
 #endif
-#include <cstdint>
-#include "cli/conio.hpp"
-#include "ensembles.hpp"
-#include "scheduler.hpp"
-#include "consts.hpp"
-#include <cli/flog.hpp>
-#include <string.h>
 
-
+/**
+ * @brief constructor for scheduler
+ * 
+ * @param schedule the schedule table
+*/
 Scheduler::Scheduler(DeploymentSchedule_t schedule[])
-    :  scheduleTable(schedule){}
- /**
-  * @brief Initializes ensembles within schedule table.
-  *
-  */
+    : scheduleTable(schedule) {}
+/**
+ * @brief Initializes ensembles within schedule table.
+ *
+ */
 void Scheduler::initializeScheduler()
 {
-    DeploymentSchedule_t* pDeployment = scheduleTable;
-    uint32_t lastEndTime = 0;
+    DeploymentSchedule_t* pDeployment = this->scheduleTable;
+    std::uint32_t lastEndTime = 0;
     tableSize = 0;
+    if (this->scheduleTable == nullptr)
+    {
+        return;
+    }
     while (pDeployment->init)
     {
-        tableSize++;
-        memset(&(pDeployment->state), 0, 
-            sizeof(StateInformation));
         
+        memset(&(pDeployment->state), 0,
+            sizeof(StateInformation));
+
         pDeployment->init(pDeployment);
+        tableSize++;
         pDeployment++;
     }
 }
@@ -49,36 +59,35 @@ void Scheduler::initializeScheduler()
  * This function iterates through a schedule table to find the event that
  * should run next based on the current system time.
  * It ensures that no overlapping events are scheduled by checking with
- * @ref SCH_willOverlap().
  *
- * @see tests/gtest.cpp for intended behavior
+ * @see tests/googletests.cpp for intended behavior
  *
- * @param scheduleTable Pointer to the first element of an array of
- * DeploymentSchedule_t, which contains the scheduling information.
+ * 
  * @param p_nextEvent Pointer to a pointer where the next event to be executed
  * will be stored.
  * @param p_nextTime Pointer to where the time for the next event will
  * be stored.
  *
+ * @param currentTime The current system time
  * @return Returns SUCCESS if a suitable event is found,
  * TASK_SEARCH_FAIL otherwise.
  */
 
-SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent, 
+SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
                            std::uint32_t* p_nextTime,
                            std::uint32_t currentTime)
 {
-    uint32_t minNextTime = UINT32_MAX;
+    std::uint32_t minNextTime = UINT32_MAX;
     DeploymentSchedule_t* nextEvent = nullptr;
-    
-    // Iterate through each event in the schedule table.
-    
-    for(int idx = tableSize - 1; idx>=0; idx--)
+
+    // Iterate through each event in the schedule table in reverse order.
+
+    for (int idx = tableSize - 1; idx >= 0; idx--)
     {
         bool canSet = true;
         DeploymentSchedule_t& currentEvent = scheduleTable[idx];
-        StateInformation& state = scheduleTable[idx].state;
-        std::uint32_t runTime = state.nextRunTime;
+        StateInformation& currentEventState = scheduleTable[idx].state;
+        std::uint32_t runTime = currentEventState.nextRunTime;
         int delay = currentTime - runTime;
         if (delay > 0)
         {
@@ -90,58 +99,60 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
         }
         if (delay >= currentEvent.maxDelay)
         {
-            //send warning
+            //! TODO: send warning
         }
-        int completion = runTime + currentEvent.maxDuration;
+        int expected_completion = runTime + currentEvent.maxDuration;
         int j = 0;
-        while (j < idx && canSet)
+        for (int j = 0; (j < idx) && canSet; j++)
         {
-            if (scheduleTable[j].state.nextRunTime < completion)
+            if (scheduleTable[j].state.nextRunTime < expected_completion)
             {
                 canSet = false;
             }
-            j++;
         }
         if (canSet)
         {
             *p_nextEvent = &currentEvent;
-            state.nextRunTime = runTime + currentEvent.ensembleInterval;
-            
-            state.measurementCount++;
             *p_nextTime = runTime;
-            if(delay>0){
+            currentEventState.nextRunTime = runTime +
+                currentEvent.ensembleInterval;
+
+            currentEventState.measurementCount++;
+
+            if (delay > 0)
+            {
                 FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
-                                            state.measurementCount);
-                #ifdef TEST_VERSION
-                    std::ofstream logfile;
-                    if (currentTime == 0)
-                    {
-                        logfile = std::ofstream("scheduler.log");
-                        
-                    }
-                    else
-                    {
-                        logfile = std::ofstream("scheduler.log", std::ios::app);
-                    }
-                    if (logfile.is_open())
-                    {
-                        logfile << currentEvent.taskName 
-                                << "|"
-                                << state.measurementCount
-                                <<"\n";
-                        logfile.close();
-                    }
-                #endif
-                
+                                        currentEventState.measurementCount);
+            #ifdef TEST_VERSION
+                std::ofstream logfile;
+                if (currentTime == 0)
+                {
+                    logfile = std::ofstream("scheduler.log");
+
+                }
+                else
+                {
+                    logfile = std::ofstream("scheduler.log", std::ios::app);
+                }
+                if (logfile.is_open())
+                {
+                    logfile << currentEvent.taskName
+                        << "|"
+                        << currentEventState.measurementCount
+                        << "\n";
+                    logfile.close();
+                }
+            #endif
+
             }
             return SCHEDULER_SUCCESS;
         }
-       
 
-        
+
+
     }
 
-   return TASK_SEARCH_FAIL;
+    return TASK_SEARCH_FAIL;
 
 }
 

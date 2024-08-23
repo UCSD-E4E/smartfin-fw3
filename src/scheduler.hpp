@@ -4,21 +4,22 @@
  * @brief Header file for scheduler defined in @ref scheduler.cpp
  * @version 1
  */
-#ifndef __CONSOLODATED_SCHEDULER__HPP__
-#define __CONSOLODATED_SCHEDULER__HPP__
+#ifndef __SCHEDULER_HPP__
+#define __SCHEDULER_HPP__
 #include "product.hpp"
-
-
-#include <stddef.h>
-#include <cstdint>
-
 #include "deploymentSchedule.hpp"
 #include "abstractScheduler.hpp"
 #include "cli/conio.hpp"
+
 #ifndef TEST_VERSION
 #include "Particle.h"
 #else
 #include "scheduler_test_system.hpp"
+
+#include <stddef.h>
+#include <cstdint>
+
+
 #endif // TEST_VERSION
 
 
@@ -36,6 +37,7 @@
  * @param pDeployment the schedule table
  */
 typedef void (*EnsembleFunction)(DeploymentSchedule_t* pDeployment);
+
 /**
  * @brief Ensemble initialization function.
  *
@@ -43,55 +45,66 @@ typedef void (*EnsembleFunction)(DeploymentSchedule_t* pDeployment);
  * @param pDeployment the schedule table
  */
 typedef void (*EnsembleInit)(DeploymentSchedule_t* pDeployment);
-/**
-* @brief contains stat information for each ensemble
-*/
 
-struct StateInformation
-{
-    //! how many times ensemble was scheduled
-    std::uint32_t measurementCount;
-
-    //! store the next time the task should run
-    std::uint32_t nextRunTime;
-    
-};
 /**
  * @brief Records and writes ensemble
  * @param pDeployment the schedule table
  */
 typedef void (*EnsembleProccess)(DeploymentSchedule_t* pDeployment);
+
+/**
+* @brief contains state information for each ensemble
+*/
+struct StateInformation
+{
+    std::uint32_t measurementCount;
+    //! store the next time the task should run
+    std::uint32_t nextRunTime;
+    
+};
+
 struct DeploymentSchedule_
 {
 
     EnsembleFunction measure;               //!< measurement function
     EnsembleInit init;                      //!< initialization function
-    //EnsembleProccess process;             //!< processing function
 
-    uint32_t measurementsToAccumulate;      //!< measurements before processing
-    uint32_t ensembleDelay;                 //!< delay after deployment start
-    uint32_t ensembleInterval;              //!< time between ensembles
-    //! store max running time of measurement        
-    uint32_t maxDuration;               
-    //! maximum delay before throwing flag and resetting
-    uint32_t maxDelay;
+    //! measurements before processing
+    const std::uint32_t measurementsToAccumulate; 
+    
+    //! time between ensembles
+    const std::uint32_t ensembleInterval;              
+        
+    //! max running time of measurement 
+    const std::uint32_t maxDuration;                 
+    
+    //! max delay before throwing flag and resetting
+    const std::uint32_t maxDelay; 
+    
     //! task name of ensemble
-    const char*  taskName;
+    const char*  taskName;                 
+    
     //! state information
-    StateInformation state;
+    StateInformation state;                
     
     
 };
 
 class Scheduler : public AbstractScheduler {
     private:
+    //! schedule table size
     uint32_t tableSize;
     public:
+    //! the schedule table
     DeploymentSchedule_t* scheduleTable;
     
     
     
-
+    /**
+     * @brief constructor for scheduler
+     * 
+     * @param schedule the schedule table
+    */
     Scheduler(DeploymentSchedule_t* scheduler);
 
     /**
@@ -103,11 +116,7 @@ class Scheduler : public AbstractScheduler {
     void initializeScheduler();
     
     /**
-     * @brief Determines if a task will overlap with other scheduled tasks.
-     * 
-     * This function checks if the proposed start and end times of a task
-     * overlap with any other tasks in the schedule table. It ensures that 
-     * tasks are scheduled without conflicts.
+     * @brief Determines the next task to run 
      *
      * @param scheduleTable The table containing all scheduled tasks.
      * @param idx The index of the current task in the schedule table.
@@ -115,13 +124,12 @@ class Scheduler : public AbstractScheduler {
      * @param nextStartTime The proposed start time of the current task.
      * @return True if there is an overlap with another task; false otherwise.
      */
-    SCH_error_e getNextTask(DeploymentSchedule_t** p_next_task,
-                    uint32_t* p_next_runtime,
-                    uint32_t current_time);
+    SCH_error_e getNextTask(DeploymentSchedule_t** p_nextEvent,
+                    std::uint32_t* p_nextTime,
+                    std::uint32_t currentTime);
 
-    bool willOverlap(uint32_t i, system_tick_t currentTime, 
-                                                uint32_t nextStartTime);
+    
         
 };
 
-#endif //__CONSOLODATED_SCHEDULER__HPP__
+#endif //__SCHEDULER_HPP__

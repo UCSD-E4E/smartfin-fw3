@@ -6,9 +6,11 @@
 #ifndef __RIDE_HPP__
 #define __RIDE_HPP__
 #include "task.hpp"
-
-#include "Particle.h"
 #include "product.hpp"
+
+
+#include <Particle.h>
+
 
 /**
  * @class RideTask
@@ -33,8 +35,9 @@ public:
      */
     void exit(void);
 private:
+    //! TODO: implement LEDStatus
+    //LEDStatus ledStatus; //!< manages led behavior
     
-    LEDStatus ledStatus; /**< manages led behavior*/
     system_tick_t startTime; /**< start time at initialization */
 
 };

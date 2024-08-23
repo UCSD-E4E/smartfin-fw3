@@ -3,10 +3,12 @@
  * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  * @brief Google Tests for scheduler.cpp
  */
-#include <gtest/gtest.h>
+
 #include "scheduler_test_system.hpp"
 #include "test_ensembles.hpp"
 #include "scheduler.hpp"
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <string>

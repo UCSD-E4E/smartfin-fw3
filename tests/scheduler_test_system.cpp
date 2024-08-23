@@ -7,8 +7,8 @@
 #include "scheduler_test_system.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include <chrono>
 
+#include <chrono>
 #include <stdarg.h>
 #include <string>
 #include <cstdio>
