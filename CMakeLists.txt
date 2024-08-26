@@ -5,25 +5,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 
-if(NOT DEFINED SCRIPT_BUILD)
-    set(SCRIPT_BUILD OFF CACHE BOOL "Build from script" FORCE)
-endif()
-
-add_compile_definitions(TEST_VERSION=1)
-if(SCRIPT_BUILD)
-    add_compile_definitions(SCRIPT_BUILD=1)
-endif()
 
 add_subdirectory(external/googletest )
-include_directories(../external/googletest/googletest/include src/ tests)
+include_directories(external/googletest/googletest/include src/ tests)
 
 set(GTEST_SOURCE_FILES
     tests/scheduler_test_system.cpp
     tests/test_ensembles.cpp
     tests/fixed_google_tests.cpp
     src/scheduler.cpp
-    #tests/file_google_tests.cpp
-    #tests/overlap_google_tests.cpp
     tests/scheduler_test_flog.cpp
 )
 set(EXAMINE_BEHAVIOR_SOURCE_FILES

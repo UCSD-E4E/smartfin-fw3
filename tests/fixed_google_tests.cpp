@@ -157,7 +157,7 @@ protected:
     */
 
     void run(int num_tasks, int iterations, int task_delay, int delay_amount,
-                    std::vector<Log> expected) {
+                    std::vector<Log>& expected) {
 
 
 
@@ -166,7 +166,7 @@ protected:
         std::uint32_t nextTime = 0;
         std::uint32_t* nextTaskTime = &(nextTime);
 
-        DeploymentSchedule_** nextTask;
+        DeploymentSchedule_* nextTask = nullptr;
 
         for (int i = 0; i <= iterations; i++)
         {
@@ -177,12 +177,12 @@ protected:
 
             }
 
-            scheduler.getNextTask(nextTask, nextTaskTime, clock);
+            scheduler.getNextTask(&nextTask, nextTaskTime, this->clock);
             clock = *nextTaskTime;
             
-            update_clock_time(*(nextTask), delay);
             test_log.emplace_back(Log(nextTask, clock));
-            DeploymentSchedule_* t = *nextTask;
+            update_clock_time(nextTask, delay);
+            DeploymentSchedule_* t = nextTask;
             std::cout << t->taskName << "time: " << clock << std::endl;
 
         }
@@ -199,9 +199,9 @@ TEST_F(SchedulerFixedTests, TestDefault)
     expected.emplace_back("A", 0);
     expected.emplace_back("B", 25);
     expected.emplace_back("C", 50);
-    expected.emplace_back("B", 75);
+    expected.emplace_back("A", 75);
     expected.emplace_back("B", 100);
-    expected.emplace_back("B", 150);
+    expected.emplace_back("C", 125);
     run(3, 6, 0, 0, expected);
 }
 

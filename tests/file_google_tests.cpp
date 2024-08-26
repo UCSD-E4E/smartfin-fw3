@@ -27,8 +27,9 @@ class SchedulerTestsFromFiles : public ::testing::TestWithParam<std::string>
 public:
     static void SetUpTestSuite()
     {
-        files = std::make_unique<FileWriter>("tests/outputs/expected_file_tests.log",
-                "tests/outputs/actual_file_tests.log");
+        files = std::make_unique<FileWriter>(
+            "tests/outputs/expected_file_tests.log",
+            "tests/outputs/actual_file_tests.log");
         
     }
     static void TearDownTestSuite()
@@ -163,12 +164,12 @@ protected:
         DeploymentSchedule_t e;
         for (size_t i = 0; i < input.ensembles.size(); i++)
         {
-            e = { SS_ensembleAFunc, SS_ensembleAInit, 1, 0,
-                                            input.ensembles[i].interval,
-                                            input.ensembles[i].duration,
-                                            input.ensembles[i].delay,
-                                            input.ensembles[i].taskName.c_str(),
-                                            {0} };
+            e = { SS_ensembleAFunc, SS_ensembleAInit, 1,
+                                        input.ensembles[i].interval,
+                                        input.ensembles[i].duration,
+                                        input.ensembles[i].delay,
+                                        input.ensembles[i].taskName.c_str(),
+                                        {0} };
             deploymentSchedule.emplace_back(e);
         }
         e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };

@@ -132,17 +132,17 @@ struct FileWriter
     void closeFiles();
 };
 class Log{
-    std::string taskName;
+    const char* taskName;
     uint32_t runTime;
 public:
 
-    Log(DeploymentSchedule_ **task, uint32_t time);
-    Log(std::string name, uint32_t time);
+    Log(DeploymentSchedule_ *task, uint32_t time);
+    Log(const char* name, uint32_t time);
 
    friend bool operator==(const Log& a, const Log& b);
 
-   std::string getName();
-   uint32_t getRunTime();
+   const char* getName(void);
+   uint32_t getRunTime(void);
 
 };
 #endif //__SCHEDULER__TEST__HPP_

@@ -213,20 +213,20 @@ void write_shift(std::string ensemble, std::uint32_t idx)
         shiftFile.close();
     }
 }
-Log::Log(DeploymentSchedule_ **task, uint32_t time) {
-    DeploymentSchedule_ *table = *task;
-    this->taskName = std::string(table->taskName);;
+Log::Log(DeploymentSchedule_ *task, uint32_t time) {
+    DeploymentSchedule_ *table = task;
+    this->taskName = table->taskName;
     this->runTime = time;
     std::cout << "Log created with taskName: " << this->taskName << ", runTime: " << this->runTime << std::endl;
 }
 
-Log::Log(std::string name, uint32_t time) {
+Log::Log(const char* name, uint32_t time) {
     this->taskName = name;
     this->runTime = time;
     std::cout << "Log created with taskName: " << this->taskName << ", runTime: " << this->runTime << std::endl;
 }
 
-std::string Log::getName()
+const char* Log::getName(void)
 {
     return taskName;
 }
