@@ -215,7 +215,7 @@ bool getDMPAccelerometerAcc(float* acc_acc)
    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
    {
       
-      if ((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0)
+      if (((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0) && ((data.header & DMP_header_bitmap_Accel) != 0))
       {
          *acc_acc = (float)data.Accel_Accuracy;
       } else {
@@ -225,7 +225,7 @@ bool getDMPAccelerometerAcc(float* acc_acc)
    else
    {
       *acc_acc = 10;
-      //FLOG_AddError(FLOG_ACC_FAIL, 4);
+      FLOG_AddError(FLOG_ACC_FAIL, 4);
    }
    return true;
 
