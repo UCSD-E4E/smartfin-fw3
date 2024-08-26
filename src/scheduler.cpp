@@ -141,7 +141,7 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
             if (delay > 0)
             {
                 FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
-                                        currentEventState.measurementCount);
+                                        currentEventState.measurementCount); 
             #ifdef TEST_VERSION
                 std::ofstream logfile;
                 if (currentTime == 0)

@@ -73,10 +73,10 @@ struct DeploymentSchedule_
     std::uint32_t measurementsToAccumulate; 
     
     //! time between ensembles
-     std::uint32_t ensembleInterval;              
+    std::uint32_t ensembleInterval;              
         
     //! max running time of measurement 
-     std::uint32_t maxDuration;                 
+    std::uint32_t maxDuration;                 
     
     //! max delay before throwing flag and resetting
     std::uint32_t maxDelay; 

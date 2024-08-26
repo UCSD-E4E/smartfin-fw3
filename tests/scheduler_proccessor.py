@@ -166,7 +166,6 @@ def comparelogs():
                 if len(expected) > 0:
                     plot_gantt(expected, "out", dir)
             else:
-                
                 max_end = 0
                 for v in expected:
                     if v['start'] + v['duration'] > max_end:
