@@ -119,7 +119,7 @@ void CLI::exit()
 }
 static void CLI_testTime(void) {
     //SF_OSAL_printf("DMP Data..." __NL__);
-    getDMPData();
+    //getDMPData();
     //float gyroData[3] = {0,0,0};
     //float magData[3] = {0,0,0};
     //float accelData[3] = {0,0,0};
