@@ -108,21 +108,24 @@ static void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
     getAccelerometer(accelData, accelData + 1, accelData + 2);
     getGyroscope(gyroData, gyroData + 1, gyroData + 2);
     getMagnetometer(magData, magData + 1, magData + 2);
-    LocationPoint point;
-    LocationService& instance= LocationService::instance();
-    instance.getLocation(point);
-    if(point.locked == 1 && point.satsInView > 4)
-        {
-            hasGPS = true;
-            lat = point.latitude;
-            lng = point.longitude;
-        }
-        else
-        {
-            hasGPS = false;
-            lat = pData->location[0];
-            lng = pData->location[1];
-        }
+    bool locked;
+    unsigned int satsInView;
+    ubloxGPS *ubloxGps_(nullptr);
+    locked = (ubloxGps_->getLock()) ? 1 : 0;
+    gps_sat_t sats_in_view_desc[NUM_SAT_DESC];
+    satsInView = ubloxGps_->getSatellitesDesc(sats_in_view_desc);
+    if (locked && satsInView > 4)
+    {
+        hasGPS = true;
+        lat = ubloxGps_->getLatitude();
+        lng = ubloxGps_->getLongitude();
+    }
+    else
+    {
+        hasGPS = false;
+        lat = pData->location[0];
+        lng = pData->location[1];
+    }
 
     // Accumulate measurements
     pData->temperature += temp;

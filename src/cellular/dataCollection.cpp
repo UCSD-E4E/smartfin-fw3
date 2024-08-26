@@ -32,11 +32,7 @@ void SS_ensemble10Func()
     float gyroData[3] = {0,0,0};
     float magData[3] = {0,0,0};
 
-    LocationPoint point;
-    LocationService& instance= LocationService::instance();
-
-    
-    bool hasGPS = false;
+        bool hasGPS = false;
     Ensemble10_eventData_t* pData = &ensemble10Data;
 
     #pragma pack(push, 1)
@@ -63,14 +59,18 @@ void SS_ensemble10Func()
     #else 
         temp = pSystemDesc->pTempSensor->getTemp();
     #endif
-        
-    instance.getLocation(point);
 
-    if(point.locked == 1 && point.satsInView > 4)
-    {
-        hasGPS = true;
-        lat = point.latitude;
-        lng = point.longitude;
+        bool locked;
+        unsigned int satsInView;
+        ubloxGPS *ubloxGps_(nullptr);
+        locked = (ubloxGps_->getLock()) ? 1 : 0;
+        gps_sat_t sats_in_view_desc[NUM_SAT_DESC];
+        satsInView = ubloxGps_->getSatellitesDesc(sats_in_view_desc);
+        if (locked && satsInView > 4)
+        {
+            hasGPS = true;
+            lat = ubloxGps_->getLatitude();
+            lng = ubloxGps_->getLongitude();
     }
     else
     {
