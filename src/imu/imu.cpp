@@ -20,7 +20,7 @@
 
 
 #define WIRE_PORT Wire
-#define AD0_VAL 1
+#define AD0_VAL 0
 
 
 ICM_20948_I2C myICM;
