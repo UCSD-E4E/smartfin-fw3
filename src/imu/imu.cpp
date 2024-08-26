@@ -212,16 +212,18 @@ bool getDMPAccelerometerAcc(float* acc_acc)
 {
    icm_20948_DMP_data_t data;
    myICM.readDMPdataFromFIFO(&data);
-   if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
-   {
+   // if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
+   // {
+      SF_OSAL_printf(data.header2 & DMP_header2_bitmap_Accel_Accuracy);
+      SF_OSAL_printf(data.header & DMP_header_bitmap_Accel);
       
-      if (((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0) && ((data.header & DMP_header_bitmap_Accel) != 0))
+      if (((data.header & DMP_header2_bitmap_Accel_Accuracy) != 0) && ((data.header & DMP_header_bitmap_Accel) != 0))
       {
-         *acc_acc = (float)data.Accel_Accuracy;
+         *acc_acc = data.Accel_Accuracy;
       } else {
          *acc_acc = 20;
       }
-   }
+   // }
    else
    {
       *acc_acc = 10;
@@ -239,7 +241,7 @@ bool getDMPAcc(float*acc_acc)
   {
   if ((data.header & DMP_header2_bitmap_Accel_Accuracy) != 0 && ((data.header & DMP_header_bitmap_Accel) != 0))
     {
-   *acc_acc = data.Accel_Accuracy;
+      *acc_acc = data.Accel_Accuracy;
    }
   } else {
       FLOG_AddError(FLOG_ICM_FAIL, 3);
