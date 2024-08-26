@@ -197,11 +197,10 @@ static void CLI_monitorSensors(void) {
     float gyroDMPData[3] = {0,0,0};
     float magData[3] = {0,0,0};
     double quatData[5] = {0,0,0,0,0};
-    //uint8_t dmpRawData[14] = {0};
+    // //uint8_t dmpRawData[14] = {0};
     float tmpData = 0;
     float wdCR = 0;
     float wdLS = 0;
-
     setupICM();
     SF_OSAL_printf(__NL__);
     
@@ -212,10 +211,8 @@ static void CLI_monitorSensors(void) {
     bool w = false;
     bool p = false;
     
-    SF_OSAL_printf("Enter delay time: ");
     char dt[SF_CLI_MAX_CMD_LEN];
     getline(dt, SF_CLI_MAX_CMD_LEN);
-    int delayTime = atoi(dt);
     while (true) {
         SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w, p), d to quit: ");
         ch = getch();
@@ -223,23 +220,23 @@ static void CLI_monitorSensors(void) {
         SF_OSAL_printf(__NL__);
         if (ch == 'd') {
             break;
-        } else if (ch == 'a') {
+        } else if (ch == 'a') { //accelerometer
             a = true;
-        } else if (ch == 'g') {
+        } else if (ch == 'g') { //gyroscope
             g = true;
-        } else if (ch == 'm') {
+        } else if (ch == 'm') { //Magenetometer
             m = true;
-        } else if (ch == 't') {
+        } else if (ch == 't') { //temp
             t = true;
-        }else if (ch == 'w') {
+        }else if (ch == 'w') { //wet dry sensor
             w = true;
-        } else if (ch == 'p') {
+        } else if (ch == 'p') { //DMP values
             p = true;
-        // } else if (ch == 'r') {
-        //     while(1) {
-        //         if(kbhit()) 
-        //             {
-        //                 ch = getch();
+        } else if (ch == 'r') {
+            while(1) {
+                if(kbhit()) 
+                    {
+                        ch = getch();
 
         //                 if('q' == ch) 
         //                 {
@@ -283,11 +280,11 @@ static void CLI_monitorSensors(void) {
         headers.push_back("wd ls");
     }
     if (p) {
-        // headers.push_back("dq1");
-        // headers.push_back("dq2");
-        // headers.push_back("dq3");
-        // headers.push_back("dq0");
-        // headers.push_back("dqacc");
+        headers.push_back("dq1");
+        headers.push_back("dq2");
+        headers.push_back("dq3");
+        headers.push_back("dq0");
+        headers.push_back("dqacc");
         headers.push_back("dax");
         headers.push_back("day");
         headers.push_back("daz");
@@ -323,7 +320,7 @@ static void CLI_monitorSensors(void) {
         if (p) {
         getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2);
         getDMPAccelerometerAcc(accelDMPData + 3);
-        // getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
+        getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
         getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
         }
         //getDMPCompass();
@@ -375,8 +372,8 @@ static void CLI_monitorSensors(void) {
         SF_OSAL_printf(" %8.4f\t", sensorData.at(header));
         }
         SF_OSAL_printf(__NL__);
+        SF_OSAL_printf("HERE");
         count++;
-        delay(delayTime);
     }
 }
 

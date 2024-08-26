@@ -15,6 +15,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "i2c/i2c.h"
 #include <cmath>
 #define SERIAL_PORT Serial
 
@@ -39,8 +40,9 @@ void setupICM(void)
 
 
    myICM.begin(WIRE_PORT, AD0_VAL);
-   myICM.initializeDMP();
-   
+   // myICM.initializeDMP();
+  
+
 
    SF_OSAL_printf("Initialization of the sensor returned: ");
    SF_OSAL_printf(myICM.statusString());
@@ -202,7 +204,7 @@ bool getDMPAccelerometerAcc(float* acc_acc)
       
       if (((data.header & DMP_header_bitmap_Header2) != 0) && ((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0))
       {
-         *acc_acc = (float)data.Accel_Accuracy;
+         *acc_acc = data.Accel_Accuracy;
       } else {
          *acc_acc = 20;
          FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
@@ -215,6 +217,22 @@ bool getDMPAccelerometerAcc(float* acc_acc)
    }
    return true;
 
+}
+
+bool getDMPAcc(float*acc_acc)
+{
+   icm_20948_DMP_data_t data;
+   myICM.readDMPdataFromFIFO(&data);
+   if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail)) 
+  {
+  if ((data.header & DMP_header2_bitmap_Accel_Accuracy) != 0 && ((data.header & DMP_header_bitmap_Accel) != 0))
+    {
+      *acc_acc = data.Accel_Accuracy;
+   }
+  } else {
+      FLOG_AddError(FLOG_ICM_FAIL, 3);
+  }
+  return true;
 }
 
 bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc)
@@ -272,12 +290,23 @@ bool getDMPQuat6(double *q1, double *q2, double *q3)
 
    return true;
 }
+
 // bool getDMPRaw(uint8_t *fb){
 //    icm_20948_DMP_data_t data;
 //   myICM.readDMPdataFromFIFO(&data);
 //   for (size_t i = 0; i < sizeof(data.fifoByte); ++i) {
 //     fb[i] = data.fifoByte[i];
-// }
+//    }
 // return true;
 // }
+
+void readDMP(void){
+
+}
+
+void whereDMP(void){
+   // std::string sName(reinterpret_cast<char*>(name));
+   Serial.write(myICM.getWhoAmI());
+   Serial.write("\n");
+}
 

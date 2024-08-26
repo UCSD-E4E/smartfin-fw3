@@ -53,8 +53,13 @@ bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *ac
 bool getDMPGyroscope(float *g_x, float *g_y, float *g_z);
 bool getDMPCompass(float *c_x, float *c_y, float *c_z);
 bool getDMPQuat6(double *q1, double *q2, double *q3);
+bool getDMPAccelerometerAcc(float *acc_acc);
 void setupICM(void);
 void getDMPData(void);
-//bool getDMPRaw(uint8_t *fb);
+void getDMPAcc(float *acc_acc);
+void readDMP(void);
+void whereDMP(void);
+// bool 
+// bool getDMPRaw(uint8_t *fb);
 bool getDMPAccelerometerAcc(float* acc_acc);
 #endif
