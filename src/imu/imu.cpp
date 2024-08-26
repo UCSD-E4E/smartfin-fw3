@@ -53,18 +53,11 @@ void setupICM(void)
    bool success = true;
    success &= (myICM.initializeDMP() == ICM_20948_Stat_Ok);
    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
-   // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
-    //success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
-   // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_GYROSCOPE) == ICM_20948_Stat_Ok);
+   success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
-   // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED) == ICM_20948_Stat_Ok);
-   // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_LINEAR_ACCELERATION) == ICM_20948_Stat_Ok);
-   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);        // Set to 5Hz
-   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);        // Set to 1Hz
-   // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok);         // Set to 1Hz
-   // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 0) == ICM_20948_Stat_Ok);  // Set to 1Hz
-   // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok);        // Set to 1Hz
-   // success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass_Calibr, 0) == ICM_20948_Stat_Ok); // Set to 1Hz
+   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);        
+   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);       
+
    //Enable the FIFO
    success &= (myICM.enableFIFO() == ICM_20948_Stat_Ok);
 
@@ -85,7 +78,6 @@ void setupICM(void)
        FLOG_AddError(FLOG_ICM_FAIL, 1);
    }
 }
-
 
 
 
@@ -176,17 +168,12 @@ bool getDMPAccelerometer(float* acc_x, float* acc_y, float* acc_z)
    myICM.readDMPdataFromFIFO(&data);
    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
    {
-      // SERIAL_PORT.print(F("Received data! Header: 0x")); // Print the header in HEX so we can see what data is arriving in the FIFO
-      //  if ( data.header < 0x1000) SERIAL_PORT.print( "0" ); // Pad the zeros
-      //  if ( data.header < 0x100) SERIAL_PORT.print( "0" );
-      //  if ( data.header < 0x10) SERIAL_PORT.print( "0" );
-      //  SERIAL_PORT.println( data.header, HEX );
       if ((data.header & DMP_header_bitmap_Accel) != 0)
       {
          *acc_x = (float)data.Raw_Accel.Data.X;
          *acc_y = (float)data.Raw_Accel.Data.Y;
          *acc_z = (float)data.Raw_Accel.Data.Z;
-         SF_OSAL_printf("getting accel from fifo" __NL__);
+         //SF_OSAL_printf("getting accel from fifo" __NL__);
       }
       else
       {
@@ -205,7 +192,7 @@ bool getDMPAccelerometer(float* acc_x, float* acc_y, float* acc_z)
    return true;
 
 }
-//*acc_acc = (float)data.Accel_Accuracy;
+
 bool getDMPAccelerometerAcc(float* acc_acc)
 {
    icm_20948_DMP_data_t data;
@@ -213,17 +200,18 @@ bool getDMPAccelerometerAcc(float* acc_acc)
    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
    {
       
-      if ((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0)
+      if (((data.header & DMP_header_bitmap_Header2) != 0) && ((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0))
       {
          *acc_acc = (float)data.Accel_Accuracy;
       } else {
          *acc_acc = 20;
+         FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
       }
    }
    else
    {
       *acc_acc = 10;
-      //FLOG_AddError(FLOG_ACC_FAIL, 4);
+      FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
    }
    return true;
 
@@ -233,12 +221,24 @@ bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *ac
 {
    icm_20948_DMP_data_t data;
    myICM.readDMPdataFromFIFO(&data);
-  
-   *q1 = ((double)data.Quat9.Data.Q1) / 1073741824.0;
-   *q2 = ((double)data.Quat9.Data.Q2) / 1073741824.0;
-   *q3 = ((double)data.Quat9.Data.Q3) / 1073741824.0;
-   *acc = (double)data.Quat9.Data.Accuracy;
-   *q0 = sqrt(1.0 - ((*q1 * *q1) + (*q2 * *q2) + (*q3 * *q3)));
+   if ((data.header & DMP_header_bitmap_Quat9) != 0)
+      {
+      *q1 = ((double)data.Quat9.Data.Q1) / 1073741824.0;
+      *q2 = ((double)data.Quat9.Data.Q2) / 1073741824.0;
+      *q3 = ((double)data.Quat9.Data.Q3) / 1073741824.0;
+      *acc = (double)data.Quat9.Data.Accuracy;
+      *q0 = sqrt(1.0 - ((*q1 * *q1) + (*q2 * *q2) + (*q3 * *q3)));
+      }
+   else
+   {
+      if (myICM.status == ICM_20948_Stat_FIFONoDataAvail) {
+         *q1 = 0;
+         *q2 = 0;
+         *q3 = 0;
+         *q0 = 0;
+      }
+      FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
+   }
 
 
    return true;
@@ -281,71 +281,3 @@ bool getDMPQuat6(double *q1, double *q2, double *q3)
 // return true;
 // }
 
-void getDMPData(void) {
-  int count = 0;
-  int count1 = 0;
-  double q1 = 0;
-  double q2 = 0;
-  double q3 = 0;
-  double acc_x = 0;
-  double acc_y = 0;
-  double acc_z = 0;
-  while(count < 50) {
-    count++;
- icm_20948_DMP_data_t data;
- myICM.readDMPdataFromFIFO(&data);
-  q1 = ((double)data.Quat6.Data.Q1) / 1073741824.0; // Convert to double. Divide by 2^30
-  q2 = ((double)data.Quat6.Data.Q2) / 1073741824.0; // Convert to double. Divide by 2^30
-  q3 = ((double)data.Quat6.Data.Q3) / 1073741824.0; // Convert to double. Divide by 2^30
-
-
- SF_OSAL_printf("Q1:    Q2:    Q3:  " __NL__) ;
- SF_OSAL_printf(" %8.4f  ", q1);
- SF_OSAL_printf(" %8.4f  ", q2);
- SF_OSAL_printf(" %8.4f  ", q3);
- SF_OSAL_printf(__NL__);
- delay(100);
-  }
-
-while(count1 < 500) {
-    count1++;
- icm_20948_DMP_data_t data;
- myICM.readDMPdataFromFIFO(&data);
-  acc_x = (float)data.Raw_Accel.Data.X; // Extract the raw accelerometer data
-  acc_y = (float)data.Raw_Accel.Data.Y;
-  acc_z = (float)data.Raw_Accel.Data.Z;
-
-
- SF_OSAL_printf("Accel: X:");
- SF_OSAL_printf(" %8.4f  ", acc_x);
- SF_OSAL_printf(" Y:");
- SF_OSAL_printf(" %8.4f  ", acc_y);
- SF_OSAL_printf(" Z:");
- SF_OSAL_printf(" %8.4f  " __NL__, acc_z);
- delay(100);
-}
-
-//  float x = (float)data.Raw_Gyro.Data.X; // Extract the raw gyro data
-//  float y = (float)data.Raw_Gyro.Data.Y;
-//  float z = (float)data.Raw_Gyro.Data.Z;
-
-
-//  SF_OSAL_printf("Gyro: X:");
-//  SF_OSAL_printf(" %8.4f  ", x);
-//  SF_OSAL_printf(" Y:");
-//  SF_OSAL_printf(" %8.4f  ", y);
-//  SF_OSAL_printf(" Z:");
-//  SF_OSAL_printf(" %8.4f  ", z);
-  
-  
-//  float x = (float)data.Compass.Data.X; // Extract the compass data
-//  float y = (float)data.Compass.Data.Y;
-//  float z = (float)data.Compass.Data.Z;
-//  SF_OSAL_printf("Compass: X:");
-//  SF_OSAL_printf(" %8.4f  ", x);
-//  SF_OSAL_printf(" Y:");
-//  SF_OSAL_printf(" %8.4f  ", y);
-//  SF_OSAL_printf(" Z:");
-//  SF_OSAL_printf(" %8.4f  ", z);
-
- }
