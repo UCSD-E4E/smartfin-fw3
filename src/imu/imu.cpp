@@ -291,18 +291,7 @@ bool getDMPQuat6(double *q1, double *q2, double *q3)
    return true;
 }
 
-// bool getDMPRaw(uint8_t *fb){
-//    icm_20948_DMP_data_t data;
-//   myICM.readDMPdataFromFIFO(&data);
-//   for (size_t i = 0; i < sizeof(data.fifoByte); ++i) {
-//     fb[i] = data.fifoByte[i];
-//    }
-// return true;
-// }
 
-void readDMP(void){
-
-}
 
 void whereDMP(void){
    // std::string sName(reinterpret_cast<char*>(name));

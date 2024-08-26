@@ -232,25 +232,6 @@ static void CLI_monitorSensors(void) {
             w = true;
         } else if (ch == 'p') { //DMP values
             p = true;
-        } else if (ch == 'r') {
-            while(1) {
-                if(kbhit()) 
-                    {
-                        ch = getch();
-
-        //                 if('q' == ch) 
-        //                 {
-        //                     break;
-        //                 } 
-        //             }
-            // if (getDMPRaw(dmpRawData)) {
-            //     SF_OSAL_printf("DMP Raw Data: ");
-            //     for (size_t i = 0; i < sizeof(dmpRawData); ++i) {
-            //         SF_OSAL_printf("%02X ", dmpRawData[i]);
-            //     }
-            //     SF_OSAL_printf(__NL__);
-            // } 
-        //}
         } else {
              SF_OSAL_printf("invalid input" __NL__);
         }
