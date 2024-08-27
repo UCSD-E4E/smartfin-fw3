@@ -1,6 +1,6 @@
 /**
  * @file gtest.cpp
- * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @author Antara Chugh (antarachugh@g.ucla.edu)
  * @brief Google Tests for scheduler.cpp
  */
 
@@ -23,8 +23,9 @@
 class SchedulerFixedTests : public ::testing::Test
 {
 protected:
-    /*Constructor: sets up values*/
-
+/**
+  * @brief constructor for tests, intializes default values
+ */
     SchedulerFixedTests()
     {
         table_default_interval_A = 75;
@@ -56,7 +57,9 @@ protected:
 
 
     };
-    /*every test will require a deployment table, we fill it with defaults. Clock corresponds to millis(), record scheduler output in test log*/
+    
+    /*Every test will require a deployment table, we fill it with defaults. 
+    Clock corresponds to millis(), record scheduler output in test log*/
     uint32_t table_default_interval_A;
     uint32_t table_default_interval_B;
     uint32_t table_default_interval_C;
@@ -71,7 +74,8 @@ protected:
 
 
 
-    /*Before every test, set the deployment table to default values, clock to 0, and empty test log*/
+    /*Before every test, set the deployment table to 
+    default values, clock to 0, and empty test log*/
     void SetUp() override {
         deployment_table[0].ensembleInterval = table_default_interval_A;
         deployment_table[1].ensembleInterval = table_default_interval_B;
