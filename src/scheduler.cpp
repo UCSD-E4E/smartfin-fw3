@@ -70,7 +70,8 @@ void Scheduler::initializeScheduler()
  * @param p_nextTime Pointer to where the time for the next event will
  * be stored.
  *
- * @param currentTime The current system time
+ * @param currentTime The current system time, defined as time since system
+ * boot
  * @return Returns SUCCESS if a suitable event is found,
  * TASK_SEARCH_FAIL otherwise.
  *
