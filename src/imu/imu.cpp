@@ -1,5 +1,5 @@
 /****************************************************************
-* Example1_Basics.ino
+* Example1_Basics.ino, Example8_DMP_RawAccel.ino
 * ICM 20948 Arduino Library Demo
 * Use the default configuration to stream 9-axis IMU data
 * Owen Lyke @ SparkFun Electronics
@@ -9,7 +9,7 @@
 *
 * Distributed as-is; no warranty is given.
 *
-* Modified by Emily Thorpe - Auguest 2023
+* Modified by Emily Thorpe - August 2023
 ***************************************************************/
 #include "ICM_20948.h"
 #include "cli/conio.hpp"
@@ -17,12 +17,14 @@
 #include "consts.hpp"
 #include "i2c/i2c.h"
 #include <cmath>
+#include <map>
 #define SERIAL_PORT Serial
 
 
 #define WIRE_PORT Wire
-#define AD0_VAL 0
+#define AD0_VAL 1  //should be set to 0, currently for dev board need to change to 1
 
+#define GIB 1073741824
 
 ICM_20948_I2C myICM;
 
@@ -40,10 +42,7 @@ void setupICM(void)
 
 
    myICM.begin(WIRE_PORT, AD0_VAL);
-   // myICM.initializeDMP();
   
-
-
    SF_OSAL_printf("Initialization of the sensor returned: ");
    SF_OSAL_printf(myICM.statusString());
    if (myICM.status != ICM_20948_Stat_Ok)
@@ -52,8 +51,31 @@ void setupICM(void)
        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
    }
    
+  // DMP sensor options are defined in ICM_20948_DMP.h
+  //    INV_ICM20948_SENSOR_ACCELEROMETER               (16-bit accel)
+  //    INV_ICM20948_SENSOR_GYROSCOPE                   (16-bit gyro + 32-bit calibrated gyro)
+  //    INV_ICM20948_SENSOR_RAW_ACCELEROMETER           (16-bit accel)
+  //    INV_ICM20948_SENSOR_RAW_GYROSCOPE               (16-bit gyro + 32-bit calibrated gyro)
+  //    INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED (16-bit compass)
+  //    INV_ICM20948_SENSOR_GYROSCOPE_UNCALIBRATED      (16-bit gyro)
+  //    INV_ICM20948_SENSOR_STEP_DETECTOR               (Pedometer Step Detector)
+  //    INV_ICM20948_SENSOR_STEP_COUNTER                (Pedometer Step Detector)
+  //    INV_ICM20948_SENSOR_GAME_ROTATION_VECTOR        (32-bit 6-axis quaternion)
+  //    INV_ICM20948_SENSOR_ROTATION_VECTOR             (32-bit 9-axis quaternion + heading accuracy)
+  //    INV_ICM20948_SENSOR_GEOMAGNETIC_ROTATION_VECTOR (32-bit Geomag RV + heading accuracy)
+  //    INV_ICM20948_SENSOR_GEOMAGNETIC_FIELD           (32-bit calibrated compass)
+  //    INV_ICM20948_SENSOR_GRAVITY                     (32-bit 6-axis quaternion)
+  //    INV_ICM20948_SENSOR_LINEAR_ACCELERATION         (16-bit accel + 32-bit 6-axis quaternion)
+  //    INV_ICM20948_SENSOR_ORIENTATION                 (32-bit 9-axis quaternion + heading accuracy)
+   
    bool success = true;
    success &= (myICM.initializeDMP() == ICM_20948_Stat_Ok);
+    // Enable the DMP sensors you want
+    // Configuring DMP to output data at multiple ODRs:
+    // DMP is capable of outputting multiple sensor data at different rates to FIFO.
+    // Setting value can be calculated as follows:
+    // Value = (DMP running rate / ODR ) - 1
+    // E.g. For a 5Hz ODR rate when DMP is running at 55Hz, value = (55/5) - 1 = 10.
    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
@@ -76,7 +98,7 @@ void setupICM(void)
    success &= (myICM.resetFIFO() == ICM_20948_Stat_Ok);
    if (success == false)
    {
-       SF_OSAL_printf("DMP fail");
+       SF_OSAL_printf("DMP fail!" __NL__);
        FLOG_AddError(FLOG_ICM_FAIL, 1);
    }
 }
@@ -175,23 +197,10 @@ bool getDMPAccelerometer(float* acc_x, float* acc_y, float* acc_z)
          *acc_x = (float)data.Raw_Accel.Data.X;
          *acc_y = (float)data.Raw_Accel.Data.Y;
          *acc_z = (float)data.Raw_Accel.Data.Z;
-         //SF_OSAL_printf("getting accel from fifo" __NL__);
-      }
-      else
-      {
-         FLOG_AddError(FLOG_ICM_FAIL, 5);
+         return true;
       }
    }
-   else
-   {
-      if (myICM.status == ICM_20948_Stat_FIFONoDataAvail) {
-         *acc_x = 0;
-         *acc_y = 0;
-         *acc_z = 0;
-      }
-      FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
-   }
-   return true;
+   return false;
 
 }
 
@@ -241,38 +250,30 @@ bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *ac
    myICM.readDMPdataFromFIFO(&data);
    if ((data.header & DMP_header_bitmap_Quat9) != 0)
       {
-      *q1 = ((double)data.Quat9.Data.Q1) / 1073741824.0;
-      *q2 = ((double)data.Quat9.Data.Q2) / 1073741824.0;
-      *q3 = ((double)data.Quat9.Data.Q3) / 1073741824.0;
-      *acc = (double)data.Quat9.Data.Accuracy;
-      *q0 = sqrt(1.0 - ((*q1 * *q1) + (*q2 * *q2) + (*q3 * *q3)));
+         *q1 = ((double)data.Quat9.Data.Q1) / GIB;
+         *q2 = ((double)data.Quat9.Data.Q2) / GIB;
+         *q3 = ((double)data.Quat9.Data.Q3) / GIB;
+         //*acc = (double)data.Quat9.Data.Accuracy;
+         *q0 = sqrt(1.0 - ((*q1 * *q1) + (*q2 * *q2) + (*q3 * *q3)));
+         return true;
       }
-   else
-   {
-      if (myICM.status == ICM_20948_Stat_FIFONoDataAvail) {
-         *q1 = 0;
-         *q2 = 0;
-         *q3 = 0;
-         *q0 = 0;
-      }
-      FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
-   }
-
-
-   return true;
+   
+   return false;
 }
 
 bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
 {
    icm_20948_DMP_data_t data;
    myICM.readDMPdataFromFIFO(&data);
-  
-   *g_x = (float)data.Gyro_Calibr.Data.X;
-   *g_y = (float)data.Gyro_Calibr.Data.Y;
-   *g_z = (float)data.Gyro_Calibr.Data.Z;
+   if ((data.header & DMP_header_bitmap_Quat9) != 0)
+      {
+         *g_x = (float)data.Gyro_Calibr.Data.X;
+         *g_y = (float)data.Gyro_Calibr.Data.Y;
+         *g_z = (float)data.Gyro_Calibr.Data.Z;
+         return true;
+      }
 
-
-   return true;
+   return false;
 }
 
 
@@ -282,9 +283,9 @@ bool getDMPQuat6(double *q1, double *q2, double *q3)
   myICM.readDMPdataFromFIFO(&data);
   
   
-  *q1 = ((double)data.Quat6.Data.Q1) / 1073741824.0; // Convert to double. Divide by 2^30
-  *q2 = ((double)data.Quat6.Data.Q2) / 1073741824.0; // Convert to double. Divide by 2^30
-  *q3 = ((double)data.Quat6.Data.Q3) / 1073741824.0; // Convert to double. Divide by 2^30   *c_x = (float)data.Compass.Data.X;
+  *q1 = ((double)data.Quat6.Data.Q1) / GIB; // Convert to double. Divide by 2^30
+  *q2 = ((double)data.Quat6.Data.Q2) / GIB; // Convert to double. Divide by 2^30
+  *q3 = ((double)data.Quat6.Data.Q3) / GIB; // Convert to double. Divide by 2^30   
    
 
 

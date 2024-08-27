@@ -52,7 +52,6 @@ static void CLI_sleepSetSleepBehavior(void);
 static void CLI_sleepGetSleepBehavior(void);
 static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
-static void CLI_testTime(void);
 
 const Menu_t CLI_menu[] =
 {
@@ -72,7 +71,6 @@ const Menu_t CLI_menu[] =
     {14, "Recorder Test Menu", {.pMenu=Recorder_debug_menu}, MENU_SUBMENU},
     {15, "Session Test Menu", {.pMenu=Session_debug_menu}, MENU_SUBMENU},
     {16, "Display all sensors", &CLI_monitorSensors, MENU_CMD},
-    {17, "Test Sampling Time for Sensors", &CLI_testTime, MENU_CMD},
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
@@ -117,87 +115,15 @@ void CLI::exit()
 {
     pSystemDesc->pChargerCheck->stop();
 }
-static void CLI_testTime(void) {
-    //SF_OSAL_printf("DMP Data..." __NL__);
-    //getDMPData();
-    //float gyroData[3] = {0,0,0};
-    //float magData[3] = {0,0,0};
-    //float accelData[3] = {0,0,0};
-    // LocationPoint point;
-    // LocationService& instance= LocationService::instance();
-    
-    //     getAccelerometer(accelData, accelData + 1, accelData + 2);
-    //pSystemDesc->pTempSensor->getTemp();
-    //instance.getLocation(point);
-    //  SF_OSAL_printf("gps overnight sample: %lu", millis());
-    //  instance.getLocation(point);
-    //  SF_OSAL_printf("gps final 1 sample: %lu", millis());
-    //std::ofstream outputFile("/home/m.annamalai/timing.txt");
-//     SF_OSAL_printf("starting overnight gps sample timing runs of 1000..." __NL__);
-//    //if (outputFile.is_open()) {
-//     unsigned long it = 0;
-//     unsigned long ft = 0;
-//     unsigned long diff = 0;
-//     for (int i = 0; i < 1000; i++) {
-//         it = millis();
-//         for (int i = 0; i < 1000; i++) {
-//             instance.getLocation(point);
-//             //point.latitude = ubloxGps_->getLatitude();
-//         }
-//         ft = millis();
-//         diff = ft-it;
-//         SF_OSAL_printf("%lu" __NL__, diff);
-//         // outputFile << diff;
-//         // outputFile << "\n";
-//     }
-//     outputFile.close();
-//     //} else {
-    //    SF_OSAL_printf("Error");
-    //}
-    // SF_OSAL_printf(".........................");
-    // SF_OSAL_printf("starting gps 100 timing runs of 10000..." __NL__);
-    // unsigned long it1 = 0;
-    // unsigned long ft1 = 0;
-    // unsigned long diff1 = 0;
-    // for (int i = 0; i < 100; i++) {
-    //     it1 = millis();
-    //     for (int i = 0; i < 1000; i++) {
-    //         instance.getLocation(point);
-    //     }
-    //     ft1 = millis();
-    //     diff1 = ft1-it1;
-    //     SF_OSAL_printf("%lu" __NL__, diff1);
-    // }
-    // SF_OSAL_printf(".........................");
-    // SF_OSAL_printf("starting gps 1000 timing runs of 1000..." __NL__);
-    // unsigned long it2 = 0;
-    // unsigned long ft2 = 0;
-    // unsigned long diff2 = 0;
-    // for (int i = 0; i < 1000; i++) {
-    //     it2 = millis();
-    //     for (int i = 0; i < 1000; i++) {
-    //         instance.getLocation(point);
-    //     }
-    //     ft2 = millis();
-    //     diff2 = ft2-it2;
-    //     SF_OSAL_printf("%lu" __NL__, diff2);
-    // }
-    
-    
 
-    
-
-}
 static void CLI_monitorSensors(void) {
     char ch;
-
     float accelData[3] = {0,0,0};
     float accelDMPData[4] = {0,0,0,0};
     float gyroData[3] = {0,0,0};
     float gyroDMPData[3] = {0,0,0};
     float magData[3] = {0,0,0};
     double quatData[5] = {0,0,0,0,0};
-    // //uint8_t dmpRawData[14] = {0};
     float tmpData = 0;
     float wdCR = 0;
     float wdLS = 0;
@@ -209,16 +135,18 @@ static void CLI_monitorSensors(void) {
     bool m = false;
     bool t = false;
     bool w = false;
-    bool p = false;
+    bool d = false;
     
+    SF_OSAL_printf("Enter delay time: ");
     char dt[SF_CLI_MAX_CMD_LEN];
     getline(dt, SF_CLI_MAX_CMD_LEN);
+    int delayTime = atoi(dt);
     while (true) {
-        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w, p), d to quit: ");
+        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t (temp), w (wet/dry), d (dmp)), x to quit: ");
         ch = getch();
         SF_OSAL_printf("%c", ch); 
         SF_OSAL_printf(__NL__);
-        if (ch == 'd') {
+        if (ch == 'x') {
             break;
         } else if (ch == 'a') { //accelerometer
             a = true;
@@ -230,8 +158,8 @@ static void CLI_monitorSensors(void) {
             t = true;
         }else if (ch == 'w') { //wet dry sensor
             w = true;
-        } else if (ch == 'p') { //DMP values
-            p = true;
+        } else if (ch == 'd') { //DMP values
+            d = true;
         } else {
              SF_OSAL_printf("invalid input" __NL__);
         }
@@ -260,12 +188,12 @@ static void CLI_monitorSensors(void) {
         headers.push_back("wd lr");
         headers.push_back("wd ls");
     }
-    if (p) {
-        headers.push_back("dq1");
-        headers.push_back("dq2");
-        headers.push_back("dq3");
-        headers.push_back("dq0");
-        headers.push_back("dqacc");
+    if (d) {
+        // headers.push_back("dq1");
+        // headers.push_back("dq2");
+        // headers.push_back("dq3");
+        // headers.push_back("dq0");
+        // headers.push_back("dqacc");
         headers.push_back("dax");
         headers.push_back("day");
         headers.push_back("daz");
@@ -278,7 +206,6 @@ static void CLI_monitorSensors(void) {
     
     int count = 0;
    
-    //for(int i = 0; i < 1; i++){
     while(1) {
         if(kbhit()) 
         {
@@ -290,28 +217,27 @@ static void CLI_monitorSensors(void) {
             } 
         }
         if (a) {
-        getAccelerometer(accelData, accelData + 1, accelData + 2);
+            getAccelerometer(accelData, accelData + 1, accelData + 2);
         }
         if (g) {
-        getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+            getGyroscope(gyroData, gyroData + 1, gyroData + 2);
         }
         if (m) {
-        getMagnetometer(magData, magData + 1, magData + 2);
+            getMagnetometer(magData, magData + 1, magData + 2);
         }
-        if (p) {
-        getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2);
-        getDMPAccelerometerAcc(accelDMPData + 3);
-        getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
-        getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
+        if (d) {
+            delayTime = 0;
+            getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2);
+            getDMPAccelerometerAcc(accelDMPData + 3);
+            getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
+            getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
         }
-        //getDMPCompass();
-        //this is from temp sensor not imu temp
         if (t) {
-        tmpData = pSystemDesc->pTempSensor->getTemp();
+            tmpData = pSystemDesc->pTempSensor->getTemp();
         }
         if (w) {
-        wdCR =  pSystemDesc->pWaterSensor->getCurrentReading();
-        wdLS = pSystemDesc->pWaterSensor->getLastStatus();
+            wdCR =  pSystemDesc->pWaterSensor->getCurrentReading();
+            wdLS = pSystemDesc->pWaterSensor->getLastStatus();
         }
     
 
@@ -328,7 +254,7 @@ static void CLI_monitorSensors(void) {
         {"temp", tmpData},
         {"wd cr", wdCR},
         {"wd ls", wdLS},
-        {"dax", N_TO_B_ENDIAN_2(B_TO_N_ENDIAN_2(accelDMPData[0]))},
+        {"dax", accelDMPData[0]},
         {"day", accelDMPData[1]},
         {"daz", accelDMPData[2]},
         {"a acc", accelDMPData[3]},
@@ -353,8 +279,8 @@ static void CLI_monitorSensors(void) {
         SF_OSAL_printf(" %8.4f\t", sensorData.at(header));
         }
         SF_OSAL_printf(__NL__);
-        SF_OSAL_printf("HERE");
         count++;
+        delay(delayTime);
     }
 }
 
