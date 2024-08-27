@@ -1,7 +1,7 @@
 /**
  *  @file   scheduler.cpp
  *  @brief  Contains definitions for functions defined in @ref scheduler.hpp
- *  @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ *  @author Antara Chugh (antarachugh@g.ucla.edu), Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  *  @version 1
  */
 #include "scheduler.hpp"
@@ -70,7 +70,8 @@ void Scheduler::initializeScheduler()
  * @param p_nextTime Pointer to where the time for the next event will
  * be stored.
  *
- * @param currentTime The current system time
+ * @param currentTime The current system time, defined as time since system
+ * boot
  * @return Returns SUCCESS if a suitable event is found,
  * TASK_SEARCH_FAIL otherwise.
  *

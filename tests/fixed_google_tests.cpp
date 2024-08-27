@@ -1,6 +1,6 @@
 /**
  * @file gtest.cpp
- * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @author Antara Chugh (antarachugh@g.ucla.edu), Charlie Kushelevsky (ckushelevsky@ucsd.edu) 
  * @brief Google Tests for scheduler.cpp
  */
 
@@ -24,23 +24,9 @@
 class SchedulerFixedTests : public ::testing::Test
 {
 protected:
-
-    /*every test will require a deployment table, we fill it with defaults.
-    Clock corresponds to millis(), record scheduler output in test log*/
-    std::uint32_t table_default_interval_A;
-    std::uint32_t table_default_interval_B;
-    std::uint32_t table_default_interval_C;
-    std::uint32_t table_default_duration_A;
-    std::uint32_t table_default_duration_B;
-    std::uint32_t table_default_duration_C;
-    std::uint32_t clock;
-
-
-    std::vector<DeploymentSchedule_> deployment_table;
-    std::vector<Log> test_log;
-
-    /*Constructor: sets up values*/
-
+/**
+  * @brief constructor for tests, intializes default values
+ */
     SchedulerFixedTests()
     {
         table_default_interval_A = 75;
@@ -62,13 +48,25 @@ protected:
 
 
     };
-
     
+    /*Every test will require a deployment table, we fill it with defaults. 
+    Clock corresponds to millis(), record scheduler output in test log*/
+    uint32_t table_default_interval_A;
+    uint32_t table_default_interval_B;
+    uint32_t table_default_interval_C;
+    uint32_t table_default_duration_A;
+    uint32_t table_default_duration_B;
+    uint32_t table_default_duration_C;
+    uint32_t clock;
+
+
+    std::vector<DeploymentSchedule_> deployment_table;
+    std::vector<Log> test_log;
 
 
 
-    /*Before every test, set the deployment table to default values, clock to
-    0, and empty test log*/
+    /*Before every test, set the deployment table to 
+    default values, clock to 0, and empty test log*/
     void SetUp() override {
         deployment_table[0].ensembleInterval = table_default_interval_A;
         deployment_table[1].ensembleInterval = table_default_interval_B;
