@@ -22,7 +22,7 @@
 
 
 #define WIRE_PORT Wire
-#define AD0_VAL 0  //should be set to 0, currently for dev board need to change to 1
+#define AD0_VAL 1  //should be set to 0, currently for dev board need to change to 1
 
 #define GIB 1073741824
 
@@ -204,6 +204,7 @@ bool getDMPAccelerometer(float* acc_x, float* acc_y, float* acc_z)
 
 }
 
+//TODO: DMP Packet needs to include acceleration accuracy (header2)
 bool getDMPAccelerometerAcc(float* acc_acc)
 {
    icm_20948_DMP_data_t data;
@@ -214,34 +215,12 @@ bool getDMPAccelerometerAcc(float* acc_acc)
       if (((data.header & DMP_header_bitmap_Header2) != 0) && ((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0))
       {
          *acc_acc = data.Accel_Accuracy;
-      } else {
-         *acc_acc = 20;
-         FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
-      }
+         return true;
+      } 
    }
-   else
-   {
-      *acc_acc = 10;
-      FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
-   }
-   return true;
-
-}
-
-bool getDMPAcc(float*acc_acc)
-{
-   icm_20948_DMP_data_t data;
-   myICM.readDMPdataFromFIFO(&data);
-   if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail)) 
-  {
-  if ((data.header & DMP_header2_bitmap_Accel_Accuracy) != 0 && ((data.header & DMP_header_bitmap_Accel) != 0))
-    {
-      *acc_acc = data.Accel_Accuracy;
-   }
-  } else {
-      FLOG_AddError(FLOG_ICM_FAIL, 3);
-  }
-  return true;
+   
+   FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
+   return false;
 }
 
 bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc)
@@ -265,7 +244,7 @@ bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
 {
    icm_20948_DMP_data_t data;
    myICM.readDMPdataFromFIFO(&data);
-   if ((data.header & DMP_header_bitmap_Quat9) != 0)
+   if ((data.header & DMP_header_bitmap_Gyro) != 0)
       {
          *g_x = (float)data.Gyro_Calibr.Data.X;
          *g_y = (float)data.Gyro_Calibr.Data.Y;
@@ -275,24 +254,6 @@ bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
 
    return false;
 }
-
-
-bool getDMPQuat6(double *q1, double *q2, double *q3)
-{
-  icm_20948_DMP_data_t data;
-  myICM.readDMPdataFromFIFO(&data);
-  
-  
-  *q1 = ((double)data.Quat6.Data.Q1) / GIB; // Convert to double. Divide by 2^30
-  *q2 = ((double)data.Quat6.Data.Q2) / GIB; // Convert to double. Divide by 2^30
-  *q3 = ((double)data.Quat6.Data.Q3) / GIB; // Convert to double. Divide by 2^30   
-   
-
-
-   return true;
-}
-
-
 
 void whereDMP(void){
    // std::string sName(reinterpret_cast<char*>(name));
