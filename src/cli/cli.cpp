@@ -38,6 +38,8 @@
 #include <iostream>
 #include <fstream>
 
+#define NUM_SENSORS 6
+
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
 
@@ -129,65 +131,78 @@ static void CLI_monitorSensors(void) {
     setupICM();
     SF_OSAL_printf(__NL__);
     
-    bool a = false;
-    bool g = false;
-    bool m = false;
-    bool t = false;
-    bool w = false;
-    bool d = false;
+    typedef enum {
+        ACCEL,
+        GYRO,
+        MAG,
+        TEMP,
+        WET_DRY,
+        DMP
+    } Sensor;
+    bool sensors[NUM_SENSORS] = {false};
     
     SF_OSAL_printf("Enter delay time: ");
     char dt[SF_CLI_MAX_CMD_LEN];
     getline(dt, SF_CLI_MAX_CMD_LEN);
     int delayTime = atoi(dt);
-    while (true) {
-        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t (temp), w (wet/dry), d (dmp)), x to quit: ");
+    SF_OSAL_printf("a - acceleraction, g - gyroscope, m - magnetometer, t - temp, w - wet/dry, d - dmp" __NL__);
+    bool valid = true;
+    while (valid) {
+        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w, d), x to quit: ");
         ch = getch();
         SF_OSAL_printf("%c", ch); 
         SF_OSAL_printf(__NL__);
-        if (ch == 'x') {
-            break;
-        } else if (ch == 'a') { //accelerometer
-            a = true;
-        } else if (ch == 'g') { //gyroscope
-            g = true;
-        } else if (ch == 'm') { //Magenetometer
-            m = true;
-        } else if (ch == 't') { //temp
-            t = true;
-        }else if (ch == 'w') { //wet dry sensor
-            w = true;
-        } else if (ch == 'd') { //DMP values
-            d = true;
-        } else {
-             SF_OSAL_printf("invalid input" __NL__);
+        switch(ch) {
+            case 'a':
+                sensors[ACCEL] = true;
+                break;
+            case 'g':
+                sensors[GYRO] = true;
+                break;
+            case 'm':
+                sensors[MAG] = true;
+                break;
+            case 't':
+                sensors[TEMP] = true;
+                break;
+            case 'w':
+                sensors[WET_DRY] = true;
+                break;
+            case 'd':
+                sensors[DMP] = true;
+                break;
+            case 'x':
+                valid = false;
+                break;
+            default:
+                SF_OSAL_printf("invalid input" __NL__);
         }
     }
      SF_OSAL_printf(__NL__);
     std::vector<std::string> headers;
-    if (a) {
+    if (sensors[ACCEL]) {
         headers.push_back("ax");
         headers.push_back("ay");
         headers.push_back("az");
     }
-    if (g) {
+    if (sensors[GYRO]) {
         headers.push_back("gx");
         headers.push_back("gy");
         headers.push_back("gz");
     }
-    if (m) {
+    if (sensors[MAG]) {
         headers.push_back("mx");
         headers.push_back("my");
         headers.push_back("mz");
     }
-    if (t) {
+    if (sensors[TEMP]) {
         headers.push_back("temp");
     }
-    if (w) {
+    if (sensors[WET_DRY]) {
         headers.push_back("wd lr");
         headers.push_back("wd ls");
     }
-    if (d) {
+    if (sensors[DMP]) {
         // headers.push_back("dq1");
         // headers.push_back("dq2");
         // headers.push_back("dq3");
@@ -215,26 +230,26 @@ static void CLI_monitorSensors(void) {
                 break;
             } 
         }
-        if (a) {
+        if (sensors[ACCEL]) {
             getAccelerometer(accelData, accelData + 1, accelData + 2);
         }
-        if (g) {
+        if (sensors[GYRO]) {
             getGyroscope(gyroData, gyroData + 1, gyroData + 2);
         }
-        if (m) {
+        if (sensors[MAG]) {
             getMagnetometer(magData, magData + 1, magData + 2);
         }
-        if (d) {
+        if (sensors[DMP]) {
             delayTime = 0;
             getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2);
             getDMPAccelerometerAcc(accelDMPData + 3);
             getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
             getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
         }
-        if (t) {
+        if (sensors[TEMP]) {
             tmpData = pSystemDesc->pTempSensor->getTemp();
         }
-        if (w) {
+        if (sensors[WET_DRY]) {
             wdCR =  pSystemDesc->pWaterSensor->getCurrentReading();
             wdLS = pSystemDesc->pWaterSensor->getLastStatus();
         }
