@@ -11,15 +11,15 @@
 
 typedef struct FLOG_Entry_
 {
-    uint32_t timestamp_ms;
+    std::uint32_t timestamp_ms;
     uint16_t errorCode;
     FLOG_VALUE_TYPE param;
 }__attribute__((packed)) FLOG_Entry_t;
 
 typedef struct FLOG_Data_
 {
-    uint32_t numEntries;
-    uint32_t nNumEntries;
+    std::uint32_t numEntries;
+    std::uint32_t nNumEntries;
     FLOG_Entry_t flogEntries[FLOG_NUM_ENTRIES];
 }FLOG_Data_t;
 
@@ -128,7 +128,7 @@ void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
 
 void FLOG_DisplayLog(void)
 {
-    uint32_t i;
+    std::uint32_t i;
     if (!FLOG_IsInitialized())
     {
         SF_OSAL_printf("Fault Log not initialized!"  __NL__);

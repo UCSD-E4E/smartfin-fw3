@@ -92,9 +92,9 @@ STATES_e RideTask::run(void)
             return STATE_UPLOAD;
         }
         delay(nextEventTime - millis());
-        SF_OSAL_printf("|%" PRId32, (uint32_t)millis());
+        SF_OSAL_printf("|%" PRId32, (std::uint32_t)millis());
         pNextEvent->measure(pNextEvent);
-        SF_OSAL_printf("|%" PRId32  __NL__, (uint32_t)millis());
+        SF_OSAL_printf("|%" PRId32  __NL__, (std::uint32_t)millis());
         
         // pNextEvent->lastMeasurementTime = nextEventTime;
 

@@ -15,12 +15,10 @@
 #include "Particle.h"
 #else
 #include "scheduler_test_system.hpp"
-#include <stddef.h>
-#include <cstdint>
-
-
 #endif // TEST_VERSION
 
+#include <stddef.h>
+#include <cstdint>
 
 /**
  * @brief Ensemble function.
@@ -97,7 +95,7 @@ struct DeploymentSchedule_
 class Scheduler : public AbstractScheduler {
     private:
     //! schedule table size
-    uint32_t tableSize;
+    std::uint32_t tableSize;
     public:
     //! the schedule table
     DeploymentSchedule_t* scheduleTable;

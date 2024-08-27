@@ -7,6 +7,7 @@
 #include "scheduler_test_system.hpp"
 #include "test_ensembles.hpp"
 #include "scheduler.hpp"
+#include "test_file_system.hpp"
 
 #include <gtest/gtest.h>
 
@@ -42,7 +43,7 @@ protected:
     //! pointer for next event in deploymentSchedule
     DeploymentSchedule_t* nextEvent;
     //! next time any event will be run
-    uint32_t nextEventTime;
+    std::uint32_t nextEventTime;
     //! holds actual values for testing
     std::vector<TestLog> actual;
     //! holds expected values for testing
@@ -88,8 +89,8 @@ protected:
      * @param end the end tim
      */
     inline void appendExpectedFile(std::string task, 
-                                    uint32_t start, 
-                                    uint32_t end)
+                                    std::uint32_t start, 
+                                    std::uint32_t end)
     {
         expected.emplace_back(task, start, end);
     }
@@ -100,8 +101,8 @@ protected:
      * @param end the end tim
      */
     inline void appendActualFile(std::string task, 
-                                    uint32_t start, 
-                                    uint32_t end)
+                                    std::uint32_t start, 
+                                    std::uint32_t end)
     {
         actual.emplace_back(task, start, end);
     }
@@ -157,7 +158,7 @@ protected:
     void runTestFile(std::string filename)
     {
         input.clear();
-        input = parseInputFile(filename);
+        input.parseInputFile(filename);
 
         setTime(input.start);
         deploymentSchedule.clear();
@@ -172,7 +173,7 @@ protected:
                                         {0} };
             deploymentSchedule.emplace_back(e);
         }
-        e = { nullptr, nullptr, 0, 0, 0, 0, 0, "",{0} };
+        e = { nullptr, nullptr, 0, 0, 0, 0, "", {0}};
         deploymentSchedule.emplace_back(e);
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         
@@ -185,7 +186,7 @@ protected:
             scheduler->getNextTask(&nextEvent, &nextEventTime,
                                     millis());
             
-            uint32_t afterDelay = input.getDelay(nextEvent->taskName,
+            std::uint32_t afterDelay = input.getDelay(nextEvent->taskName,
                                         nextEvent->state.measurementCount - 1);
             
             
@@ -207,132 +208,7 @@ protected:
         
     }
 
-    TestInput parseInputFile(std::string filename)
-    {
-        std::ifstream inputFile(filename);
-        std::ifstream file(filename);
-        std::string line;
-        std::string currentSection;
-        int start = 0;
-        int end;
-        
-        
-       
-        
-        TestInput out;
-        while (getline(file, line)) {
-            
-            size_t commentPos = line.find('#');
-            if (commentPos != std::string::npos) {
-                line = line.substr(0, commentPos);
-            }
-
-            // Remove leading and trailing whitespace
-            line.erase(0, line.find_first_not_of(" \t"));
-            line.erase(line.find_last_not_of(" \t") + 1);
-
-            if (line.empty()) continue;  
-
-            if (line == "START") {
-                currentSection = "START";
-                continue;
-            } 
-            else if (line == "END") {
-                currentSection = "END";
-                continue;
-            } 
-            else if (line == "ENSEMBLES") {
-                currentSection = "ENSEMBLES";
-                continue;
-            } 
-            else if (line == "DELAYS") {
-                currentSection = "DELAYS";
-                continue; 
-            } 
-            else if (line == "EXPECTED") {
-                currentSection = "EXPECTED";
-                continue;
-            }
-            else if (line == "RESETS") {
-                currentSection = "RESETS";
-                continue;
-            }
-
-            std::istringstream iss(line);
-            if (currentSection == "START") {
-                iss >> out.start;
-            } 
-            else if (currentSection == "END") {
-                iss >> out.end;
-            } 
-            else if (currentSection == "ENSEMBLES") {
-                
-                std::string name;
-                
-                uint32_t interval, duration, maxDelay;
-                std::getline(iss, name, '|');
-                
-                iss >> interval;
-                
-                
-                iss.ignore(1, '|');
-                iss >> duration;
-                
-                char checkChar = iss.peek();
-                if (checkChar == '|') {
-                    iss.ignore(1, '|');
-                    iss >> maxDelay;
-                }
-                else
-                {
-                    maxDelay = interval * 2;
-                }
-                EnsembleInput ensembleInput(name, interval, duration, maxDelay);
-                out.ensembles.emplace_back(ensembleInput);
-                
-            } 
-            else if (currentSection == "DELAYS") {
-                std::string delayName;
-                std::getline(iss, delayName, '|');
-                std::string taskName = delayName.c_str();
-                uint32_t iteration, delay;
-                iss >> iteration;
-                iss.ignore(1, '|');
-                iss >> delay;
-                
-                if (out.delays.find(taskName) != out.delays.end())
-                {
-                    out.delays[taskName] = std::unordered_map<uint32_t,
-                                                                uint32_t>();
-                }
-                out.delays[taskName][iteration] = delay;
-            }
-            else if (currentSection == "EXPECTED") {
-                std::string expectedTaskName;
-                uint32_t expectedStart, exepectedEnd;
-                std::getline(iss, expectedTaskName, '|');
-                iss >> expectedStart;
-                iss.ignore(1, '|');
-                iss >> exepectedEnd;
-                TestLog exp(expectedTaskName.c_str(), expectedStart,
-                                                        exepectedEnd);
-                out.expectedValues.push_back(exp);
-               
-                std::cout << "\n";
-            }
-            else if (currentSection == "RESETS") {
-                
-                std::string resetName;
-                uint32_t iteration;
-                std::getline(iss, resetName, '|');
-                iss >> iteration;
-                out.resets.emplace_back(std::make_pair(resetName, iteration));
-            } 
-        }
-        
-        
-        return out;
-    }
+    
 
     
     
@@ -349,17 +225,17 @@ protected:
      * @param expectedEnd time to check end time with
      */
     inline void runAndCheckEvent(std::string expectedTaskName,
-                                    uint32_t expectedStart,
-                                    uint32_t expectedEnd)
+                                    std::uint32_t expectedStart,
+                                    std::uint32_t expectedEnd)
     {
         runAndCheckEventWithDelays(expectedTaskName, expectedStart, 
                                     expectedEnd, 0);
     }
     void runAndCheckEventWithDelays(std::string expectedTaskName,
-                                    uint32_t expectedStart,
-                                    uint32_t expectedEnd,
+                                    std::uint32_t expectedStart,
+                                    std::uint32_t expectedEnd,
                                     
-                                    uint32_t trailingDelay)
+                                    std::uint32_t trailingDelay)
     {
         ASSERT_NE(nextEvent, nullptr) << "Scheduler returned nullptr.";
         std::stringstream failMessage;
@@ -376,12 +252,12 @@ protected:
         
         setTime(nextEventTime);
         
-        uint32_t actualStart = millis();
+        std::uint32_t actualStart = millis();
         
 
         addTime(nextEvent->maxDuration);
         addTime(trailingDelay);
-        uint32_t actualEnd = millis();
+        std::uint32_t actualEnd = millis();
         
         appendExpectedFile(expectedTaskName, expectedStart, expectedEnd);
         appendActualFile(nextEvent->taskName, actualStart, actualEnd);

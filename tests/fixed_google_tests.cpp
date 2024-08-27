@@ -8,6 +8,7 @@
 #include "scheduler.hpp"
 #include "test_ensembles.hpp"
 #include "cli/flog.hpp"
+#include "test_file_system.hpp"
 
 #include <gtest/gtest.h>
 
@@ -37,21 +38,11 @@ protected:
         clock = 0;
 
         deployment_table = {
-                                {   SS_ensembleAFunc, //measure
-                                    SS_ensembleAInit, //init
-                                    1, // measurementsToAccumulate
-
-                                    table_default_interval_A, //ensembleInterval
-                                    table_default_duration_A, //maxDuration
-
-                                    UINT32_MAX, //maxDelay
-                                    "A", //taskName
-                                    {0} //state
-                                    },
-
-        {SS_ensembleBFunc, SS_ensembleBInit, 1,  table_default_interval_B, table_default_duration_B, UINT32_MAX, "B", {0}},
-        {SS_ensembleCFunc, SS_ensembleCInit, 1, table_default_interval_C, table_default_duration_C,  UINT32_MAX, "C", {0}},
-        {nullptr,           nullptr,          0, 0,                        0,                         0,         nullptr, {0}}
+            //EnsembleFunc,    init,           meas, ensembleInterval,        maxDuration,              maxDelay, taskName, state
+            {SS_ensembleAFunc, SS_ensembleAInit, 1, table_default_interval_A, table_default_duration_A, UINT32_MAX, "A", {0}},
+            {SS_ensembleBFunc, SS_ensembleBInit, 1, table_default_interval_B, table_default_duration_B, UINT32_MAX, "B", {0}},
+            {SS_ensembleCFunc, SS_ensembleCInit, 1, table_default_interval_C, table_default_duration_C, UINT32_MAX, "C", {0}},
+            {nullptr,           nullptr,          0, 0,                       0,                        0,         nullptr, {0}}
         };
         test_log = {};
 
@@ -100,39 +91,37 @@ protected:
 
     /*functions to change the intervals or durations of tasks, add a task. changes are made in test function prior to running*/
 
-    void three_task_change_intervals(uint32_t A, uint32_t B, uint32_t C) {
+    void three_task_change_intervals(std::uint32_t A, std::uint32_t B, std::uint32_t C) {
         deployment_table[0].ensembleInterval = A;
         deployment_table[1].ensembleInterval = B;
         deployment_table[2].ensembleInterval = C;
     }
 
 
-    void two_task_change_intervals(uint32_t A, uint32_t B) {
+    void two_task_change_intervals(std::uint32_t A, std::uint32_t B) {
         deployment_table[0].ensembleInterval = A;
         deployment_table[1].ensembleInterval = B;
     }
 
-    void change_interval(uint32_t task, uint32_t interval) {
+    void change_interval(std::uint32_t task, std::uint32_t interval) {
         deployment_table[task].ensembleInterval = interval;
     }
-    void change_duratiom(uint32_t task, uint32_t duration) {
+    void change_duratiom(std::uint32_t task, std::uint32_t duration) {
         deployment_table[task].maxDuration = duration;
     }
 
 
 
     /*clock functions -- updates clock when task is run, tick clock*/
-    void update_clock_time(DeploymentSchedule_* task, uint32_t delay) {
-        if (task != nullptr)        
-{
+    void update_clock_time(DeploymentSchedule_* task, std::uint32_t delay) {
+        if (task != nullptr)
+        {
             clock += task->maxDuration;
         }
         if (delay != 0)
         {
             clock += delay;
         }
-
-
     }
 
 
@@ -140,30 +129,28 @@ protected:
         clock++;
     }
     //! compares the test log with the expected values, as set in the test case
-    void compare(std::vector<Log> expected, int iterations) {
-        int size = test_log.size() < expected.size() ? 
-                            test_log.size():expected.size();
-        for (int i = 0; i < iterations; i++)        
-{
+    void compare(std::vector<Log>& expected, int iterations) {
+        for (int i = 0; i < iterations; i++)
+        {
             EXPECT_TRUE(test_log[i] == expected[i]) << "test log failed:\n"
                 << "Expected \t Actual\n"
-                << expected[i].getName() << "\t\t" 
+                << expected[i].getName() << "\t\t"
                 << test_log[i].getName() << "\n"
-                << expected[i].getRunTime() << "\t\t" 
+                << expected[i].getRunTime() << "\t\t"
                 << test_log[i].getRunTime();
         }
     }
 
     /**
      * @param num_tasks number of tasks
+     * @param iterations number of scheduler calls
+     * @param task_delay task_delay
      * creates scheduler based on tasks set in test, compares scheduler
      * behaviour with expected behaviour
     */
 
     void run(int num_tasks, int iterations, int task_delay, int delay_amount,
                     std::vector<Log>& expected) {
-
-
 
         Scheduler scheduler(deployment_table.data());
         scheduler.initializeScheduler();
@@ -183,7 +170,7 @@ protected:
 
             scheduler.getNextTask(&nextTask, nextTaskTime, this->clock);
             clock = *nextTaskTime;
-            
+
             test_log.emplace_back(Log(nextTask, clock));
             update_clock_time(nextTask, delay);
             DeploymentSchedule_* t = nextTask;
@@ -198,7 +185,6 @@ protected:
 
 TEST_F(SchedulerFixedTests, TestDefault)
 {
-
     std::vector<Log> expected;
     expected.emplace_back("A", 0);
     expected.emplace_back("B", 25);
