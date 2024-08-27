@@ -29,19 +29,15 @@ protected:
  */
     SchedulerFixedTests()
     {
-        table_default_interval_A = 75;
-        table_default_interval_B = 75;
-        table_default_interval_C = 75;
-        table_default_duration_A = 25;
-        table_default_duration_B = 25;
-        table_default_duration_C = 25;
+        table_default_interval = 75;
+        table_default_duration = 25;
         clock = 0;
 
         deployment_table = {
             //EnsembleFunc,    init,           meas, ensembleInterval,        maxDuration,              maxDelay, taskName, state
-            {SS_ensembleAFunc, SS_ensembleAInit, 1, table_default_interval_A, table_default_duration_A, UINT32_MAX, "A", {0}},
-            {SS_ensembleBFunc, SS_ensembleBInit, 1, table_default_interval_B, table_default_duration_B, UINT32_MAX, "B", {0}},
-            {SS_ensembleCFunc, SS_ensembleCInit, 1, table_default_interval_C, table_default_duration_C, UINT32_MAX, "C", {0}},
+            {SS_ensembleAFunc, SS_ensembleAInit, 1, table_default_interval, table_default_duration, UINT32_MAX, "A", {0}},
+            {SS_ensembleBFunc, SS_ensembleBInit, 1, table_default_interval, table_default_duration, UINT32_MAX, "B", {0}},
+            {SS_ensembleCFunc, SS_ensembleCInit, 1, table_default_interval, table_default_duration, UINT32_MAX, "C", {0}},
             {nullptr,           nullptr,          0, 0,                       0,                        0,         nullptr, {0}}
         };
         test_log = {};
@@ -51,12 +47,11 @@ protected:
     
     /*Every test will require a deployment table, we fill it with defaults. 
     Clock corresponds to millis(), record scheduler output in test log*/
-    uint32_t table_default_interval_A;
-    uint32_t table_default_interval_B;
-    uint32_t table_default_interval_C;
-    uint32_t table_default_duration_A;
-    uint32_t table_default_duration_B;
-    uint32_t table_default_duration_C;
+    uint32_t table_default_interval;
+   
+    uint32_t table_default_duration;
+   
+    
     uint32_t clock;
 
 
@@ -68,13 +63,13 @@ protected:
     /*Before every test, set the deployment table to 
     default values, clock to 0, and empty test log*/
     void SetUp() override {
-        deployment_table[0].ensembleInterval = table_default_interval_A;
-        deployment_table[1].ensembleInterval = table_default_interval_B;
-        deployment_table[2].ensembleInterval = table_default_interval_C;
+        deployment_table[0].ensembleInterval = table_default_interval;
+        deployment_table[1].ensembleInterval = table_default_interval;
+        deployment_table[2].ensembleInterval = table_default_interval;
 
-        deployment_table[0].maxDuration = table_default_duration_A;
-        deployment_table[1].maxDuration = table_default_duration_B;
-        deployment_table[2].maxDuration = table_default_duration_C;
+        deployment_table[0].maxDuration = table_default_duration;
+        deployment_table[1].maxDuration = table_default_duration;
+        deployment_table[2].maxDuration = table_default_duration;
 
         test_log.clear();
         clock = 0;
@@ -109,6 +104,7 @@ protected:
     void change_duratiom(std::uint32_t task, std::uint32_t duration) {
         deployment_table[task].maxDuration = duration;
     }
+   
 
 
 
@@ -116,17 +112,17 @@ protected:
     void update_clock_time(DeploymentSchedule_* task, std::uint32_t delay) {
         if (task != nullptr)
         {
-            clock += task->maxDuration;
+            this->clock += task->maxDuration;
         }
         if (delay != 0)
         {
-            clock += delay;
+            this->clock += delay;
         }
     }
 
 
     void clock_increment() {
-        clock++;
+        this->clock++;
     }
     //! compares the test log with the expected values, as set in the test case
     void compare(std::vector<Log>& expected, int iterations) {
@@ -151,15 +147,20 @@ protected:
 
     void run(int num_tasks, int iterations, int task_delay, int delay_amount,
                     std::vector<Log>& expected) {
-
-        Scheduler scheduler(deployment_table.data());
+        
+        DeploymentSchedule_t table[num_tasks+1];
+        for(int i=0; i<deployment_table.size()-1; i++){
+            table[i]=deployment_table[i];
+        }
+        table[num_tasks]= {nullptr,           nullptr,          0, 0,                       0,                        0,         nullptr, {0}};
+        Scheduler scheduler(table);
         scheduler.initializeScheduler();
         std::uint32_t nextTime = 0;
         std::uint32_t* nextTaskTime = &(nextTime);
 
         DeploymentSchedule_* nextTask = nullptr;
 
-        for (int i = 0; i <= iterations; i++)
+        for (int i = 0; i <iterations; i++)
         {
             int delay = 0;
             if (i == task_delay)
@@ -169,13 +170,12 @@ protected:
             }
 
             scheduler.getNextTask(&nextTask, nextTaskTime, this->clock);
-            clock = *nextTaskTime;
+            this->clock = *nextTaskTime;
 
             test_log.emplace_back(Log(nextTask, clock));
             update_clock_time(nextTask, delay);
             DeploymentSchedule_* t = nextTask;
-            std::cout << t->taskName << "time: " << clock << std::endl;
-
+            
         }
         compare(expected, iterations);
 
@@ -193,6 +193,14 @@ TEST_F(SchedulerFixedTests, TestDefault)
     expected.emplace_back("B", 100);
     expected.emplace_back("C", 125);
     run(3, 6, 0, 0, expected);
+}
+
+TEST_F(SchedulerFixedTests, TestDefaultWithDelays)
+{
+    //test A is on time even with delays
+    int Delay[6]={0, 25, 0, 100, 0, 0};
+    
+    
 }
 
 
