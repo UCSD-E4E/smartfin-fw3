@@ -92,7 +92,7 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
         // check if a delay exists
         std::uint32_t difference = currentTime - runTime;
 
-        if (delay > 0)
+        if (difference > 0)
         {
             runTime = currentTime;
         }
