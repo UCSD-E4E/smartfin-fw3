@@ -8,7 +8,7 @@ repeat :get proposed task run time;
   else (no delay exists, set delay to 0)
   endif
 
-  :Task Finish Time =Proposed Run Time + Task Duration;
+  :Task Finish Time = Proposed Run Time + Task Duration;
   while (there are higher priority tasks left to check && no conflicts exist)
   if (Task Finish Time conflicts with Higher Priority Task Run Time) then
    :conflict exists;
