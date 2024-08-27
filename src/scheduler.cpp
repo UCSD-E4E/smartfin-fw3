@@ -13,10 +13,12 @@
 #include <cstdint>
 #include <string.h>
 
+
 #ifndef TEST_VERSION
 #include "Particle.h"
 #else
 #include "scheduler_test_system.hpp"
+#include <iostream>
 #endif
 
  /**
@@ -82,13 +84,13 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
     // Iterate through each event in the schedule table in reverse order,
     for (int idx = tableSize - 1; idx >= 0; idx--)
     {
-        bool canRun = true;
+        
         DeploymentSchedule_t& currentEvent = scheduleTable[idx];
         StateInformation& currentEventState = scheduleTable[idx].state;
         std::uint32_t runTime = currentEventState.nextRunTime;
 
         // check if a delay exists
-        uint32_t difference = currentTime - runTime;
+        std::uint32_t difference = currentTime - runTime;
 
         if (delay > 0)
         {
@@ -102,12 +104,12 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
         {
             //! TODO: send warning
         }
-        uint32_t delay = difference > 0 ? difference : 0;
+        std::uint32_t delay = difference > 0 ? difference : 0;
 
         //Finish time of task
         int expected_completion = runTime + currentEvent.maxDuration;
 
-
+        bool canRun = true;
         //Iterate through all tasks of higher prioirty.
         for (int j = 0; (j < idx) && canRun; j++)
         {
@@ -116,7 +118,7 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
                 canRun = false;
             }
         }
-        /*If there were no conflicts with higher prioirity tasks, we can set
+        /*If there were no conflicts with higher priority tasks, we can set
         the next task to the task in question*/
         if (canRun)
         {

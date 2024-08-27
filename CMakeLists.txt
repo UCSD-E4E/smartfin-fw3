@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-
+add_compile_definitions(TEST_VERSION)
 
 add_subdirectory(external/googletest )
 include_directories(external/googletest/googletest/include src/ tests)
@@ -15,6 +15,7 @@ set(GTEST_SOURCE_FILES
     tests/fixed_google_tests.cpp
     src/scheduler.cpp
     tests/scheduler_test_flog.cpp
+    tests/test_file_system.cpp
 )
 set(EXAMINE_BEHAVIOR_SOURCE_FILES
     tests/scheduler_test_system.cpp
@@ -22,6 +23,7 @@ set(EXAMINE_BEHAVIOR_SOURCE_FILES
     src/scheduler.cpp
     tests/scheduler_test_flog.cpp
     tests/examine_behavior.cpp
+    tests/test_file_system.cpp
 )
 
 add_executable(googletests ${GTEST_SOURCE_FILES})

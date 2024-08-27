@@ -2,6 +2,7 @@
 #include "test_ensembles.hpp"
 #include "cli/conio.hpp"
 #include "scheduler.hpp"
+#include "test_file_system.hpp"
 
 #include <iostream>
 #include <string>
@@ -17,11 +18,27 @@
 
 
 
+
 class ExamineBehavior
 {
     public:
     
     static std::unique_ptr<FileWriter> files;
+    //! output file for actual values
+    std::ofstream actualFile;
+    //! holds all data input from file
+    TestInput input;
+    
+    //! holds test name across functions
+    std::string testName;
+
+    //! for writing test output
+    bool useCompareLogs;
+    std::unique_ptr<Scheduler> scheduler;
+    std::vector<std::pair<std::string,std::uint32_t>> exceededDelays;
+    std::unordered_map<std::string,std::vector<std::string>> shifts;
+
+
     static void SetUpTestSuite()
     {
     
@@ -40,37 +57,13 @@ class ExamineBehavior
     //! pointer for next event in deploymentSchedule
     DeploymentSchedule_t* nextEvent;
     //! next time any event will be run
-    uint32_t nextEventTime;
+    std::uint32_t nextEventTime;
     //! holds actual values for testing
     std::vector<TestLog> actual;
     
-    
-    
-    
-    //! output file for actual values
-    std::ofstream actualFile;
-    //! holds all data input from file
-    TestInput input;
-    
-    //! holds test name across functions
-    std::string testName;
-
-    //! for writing test output
-    bool useCompareLogs;
-    std::unique_ptr<Scheduler> scheduler;
-    std::vector<std::pair<std::string,uint32_t>> exceededDelays;
-    std::unordered_map<std::string,std::vector<std::string>> shifts;
 
 
-
-    /**
-    * @brief Construct a new Scheduler Test object
-    *
-    * Creates a deployment schedule with three ensembles:
-    * Ensemble A runs every 2000ms with a max duration of 400ms
-    * Ensemble B runs every 2000ms with a max duration of 200ms
-    * Ensemble C runs every 2000ms with a max duration of 600ms
-    */
+    
 
     
     /**
@@ -80,8 +73,8 @@ class ExamineBehavior
      * @param end the end tim
      */
     inline void appendActualFile(std::string task,
-                                    uint32_t start,
-                                    uint32_t end)
+                                    std::uint32_t start,
+                                    std::uint32_t end)
     {
         actual.emplace_back(task, start, end);
     }
@@ -121,14 +114,14 @@ class ExamineBehavior
         
         std::string baseName = testName.substr(0, p);
        
-        files->writeTest(baseName, actual,actual);
+        files->writeTest(baseName, actual, actual);
     }
     void runTestFile(std::string filename)
     {
 
         std::cout << "running " << filename << "\n";
         input.clear();
-        input = parseInputFile(filename);
+        input.parseInputFile(filename);
 
         setTime(input.start);
         deploymentSchedule.clear();
@@ -159,10 +152,10 @@ class ExamineBehavior
             scheduler->getNextTask(&nextEvent, &nextEventTime, millis());
 
         
-            uint32_t afterDelay = input.getDelay(nextEvent->taskName,
+            std::uint32_t afterDelay = input.getDelay(nextEvent->taskName,
                                     nextEvent->state.measurementCount - 1);
         
-            runAndCheckEventWithDelays(afterDelay);
+            runEventWithDelays(afterDelay);
         }
 
         std::string delimiter = "|";
@@ -171,7 +164,6 @@ class ExamineBehavior
         {
             std::string ensemble = line.substr(0,line.find(delimiter));
             std::string idx = line.substr(line.find(delimiter) + 1);
-           
             
 
         }
@@ -186,147 +178,20 @@ class ExamineBehavior
 
 
 
-    TestInput parseInputFile(std::string filename)
-    {
-        std::ifstream inputFile(filename);
-        std::ifstream file(filename);
-        std::string line;
-        std::string currentSection;
-        int start = 0;
-        int end;
 
 
-
-
-        TestInput out;
-        while (getline(file, line))
-        {
-
-            size_t commentPos = line.find('#');
-            if (commentPos != std::string::npos)
-            {
-                line = line.substr(0, commentPos);
-            }
-
-            // Remove leading and trailing whitespace
-            line.erase(0, line.find_first_not_of(" \t"));
-            line.erase(line.find_last_not_of(" \t") + 1);
-
-            if (line.empty()) continue;
-
-            if (line == "START")
-            {
-                currentSection = "START";
-                continue;
-            }
-            else if (line == "END")
-            {
-                currentSection = "END";
-                continue;
-            }
-            else if (line == "ENSEMBLES")
-            {
-                currentSection = "ENSEMBLES";
-                continue;
-            }
-            else if (line == "DELAYS")
-            {
-                currentSection = "DELAYS";
-                continue;
-            }
-            
-            else if (line == "RESETS")
-            {
-                currentSection = "RESETS";
-                continue;
-            }
-
-            std::istringstream iss(line);
-            if (currentSection == "START")
-            {
-                iss >> out.start;
-            }
-            else if (currentSection == "END")
-            {
-                iss >> out.end;
-            }
-            else if (currentSection == "ENSEMBLES")
-            {
-
-                std::string name;
-
-                uint32_t interval, duration, maxDelay;
-                std::getline(iss, name, '|');
-
-                iss >> interval;
-
-
-                iss.ignore(1, '|');
-                iss >> duration;
-
-                char checkChar = iss.peek();
-                if (checkChar == '|')
-                {
-                    iss.ignore(1, '|');
-                    iss >> maxDelay;
-                }
-                else
-                {
-                    maxDelay = interval * 2;
-                }
-                EnsembleInput ensembleInput(name, interval, duration, maxDelay);
-                out.ensembles.emplace_back(ensembleInput);
-
-            }
-            else if (currentSection == "DELAYS")
-            {
-                
-                std::string delayName;
-                std::getline(iss, delayName, '|');
-                std::string taskName = delayName.c_str();
-                uint32_t iteration, delay;
-                iss >> iteration;
-                iss.ignore(1, '|');
-                iss >> delay;
-                
-                if (out.delays.find(taskName) != out.delays.end())
-                {
-                    out.delays[taskName] = std::unordered_map<uint32_t,
-                                                                uint32_t>();
-                }
-                out.delays[taskName][iteration] = delay;
-                
-            }
-            else if (currentSection == "RESETS")
-            {
-                std::string resetName;
-                uint32_t iteration;
-                std::getline(iss, resetName, '|');
-                iss >> iteration;
-                out.resets.emplace_back(std::make_pair(resetName, iteration));
-            }
-        }
-
-
-        return out;
-    }
-
-
-
-
-
-    void runAndCheckEventWithDelays(uint32_t trailingDelay)
+    void runEventWithDelays(std::uint32_t trailingDelay)
     {
 
 
         setTime(nextEventTime);
 
-        uint32_t actualStart = millis();
+        std::uint32_t actualStart = millis();
 
 
         addTime(nextEvent->maxDuration);
         addTime(trailingDelay);
-        uint32_t actualEnd = millis();
+        std::uint32_t actualEnd = millis();
 
 
         appendActualFile(nextEvent->taskName, actualStart, actualEnd);

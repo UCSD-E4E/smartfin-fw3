@@ -12,7 +12,7 @@ import glob
 
 mpl.use('Agg')
 
-def comparelogs():
+def compare_logs():
     actual_json, expected_json = parse_logs()
 
     for k in expected_json.keys():
@@ -152,15 +152,15 @@ def parse_logs(return_max=False):
 def comparelogs():
     actual_json, expected_json = parse_logs()
 
-    for k in expected_json.keys():
+    for k in expected_json:
         expected = expected_json[k]
         actual = actual_json[k]
         same = False
         if actual == expected:
             same = True
-        dir = "outputs/" + str(k) + "/"
+        dir = Path("outputs", k)
         if len(expected) > 0:
-            Path(dir).mkdir(parents=True, exist_ok=True)
+            dir.mkdir(parents=True, exist_ok=True)
             
             if same:
                 if len(expected) > 0:
@@ -181,10 +181,10 @@ def comparelogs():
                 
                 plot_gantt(actual, "actual", dir, max_end, tasks_len)
                 
-                img1 = cv2.imread(str(dir) + "/expected.jpg")
-                img2 = cv2.imread(str(dir) + "/actual.jpg")
+                img1 = cv2.imread(dir / "expected.jpg")
+                img2 = cv2.imread(dir / "actual.jpg")
                 im_v = cv2.vconcat([img1, img2])
-                cv2.imwrite(str(dir) + '/out.jpg', im_v)
+                cv2.imwrite(dir / 'out.jpg', im_v)
 
 
 
@@ -227,7 +227,7 @@ def plot_gantt(tasks, title, dir='/outputs/', max_duration=0,tasks_len=0):
     ax.grid(True)
 
     plt.subplots_adjust(bottom=0.15)
-    output_path = os.path.join(dir, title + ".jpg")
+    output_path = dir / (str(title) + ".jpg")
     
 
     plt.savefig(output_path)
@@ -256,7 +256,8 @@ def plot_examine_gantt(tasks, title, dir='/outputs/', tasks_len=0):
         for start, duration in segments:
             ax.barh(i, duration, left=start, color=colors[color_idx % len(colors)])
             ax.text(start + duration / 2, i, f"{label} ({start} - {start + duration})", 
-                    verticalalignment='center', horizontalalignment='center', color='black')
+                    verticalalignment='center', horizontalalignment='center', 
+                    color='black')
         color_idx += 1
     
     if max_duration != 0:
@@ -288,7 +289,7 @@ def parse_examine_logs(return_max=False):
             json.loads(j)
             actual_json.update(json.loads(j))
     
-    for k in actual_json.keys():
+    for k in actual_json:
             
             actual_raw = actual_json[k]
             
@@ -308,7 +309,7 @@ def parse_examine_logs(return_max=False):
 def examine_logs():
     actual_json = parse_examine_logs()
 
-    for k in actual_json.keys():
+    for k in actual_json:
         
         actual = actual_json[k]
     
@@ -319,11 +320,12 @@ def examine_logs():
                 
             plot_examine_gantt(actual, str(k), dir, len(actual) )
         
-comparelogs()
-examine_logs()
-root = 'tests/outputs/'
-folders = list(os.walk(root))[1:]
+if __name__ == "__main__":
+    comparelogs()
+    examine_logs()
+    root = 'tests/outputs/'
+    folders = list(os.walk(root))[1:]
 
-for folder in folders:
-    if not folder[2]:
-        os.rmdir(folder[0])
+    for folder in folders:
+        if not folder[2]:
+            os.rmdir(folder[0])
