@@ -8,6 +8,19 @@
 #include <stdint.h>
 #include <unordered_map>
 
+
+class EnsembleInput
+{
+public:
+    EnsembleInput(std::string taskName,std::uint32_t interval, 
+    std::uint32_t duration, std::uint32_t delay);
+    std::string taskName; //!< name of the task
+    std::uint32_t interval;
+    std::uint32_t duration;
+    std::uint32_t delay;
+};
+
+
 /**
  * @class TestLog
  * @brief helper for @ref gtest.cpp, compares scheduler output with values
@@ -81,16 +94,7 @@ public:
 
 std::ostream& operator<<(std::ostream &strm, const TestLog &value);
 
-class EnsembleInput
-{
-public:
-    EnsembleInput(std::string taskName,std::uint32_t interval, 
-    std::uint32_t duration, std::uint32_t delay);
-    std::string taskName; //!< name of the task
-    std::uint32_t interval;
-    std::uint32_t duration;
-    std::uint32_t delay;
-};
+
 
 
 #endif //__TEST_FILE_SYSTEM__

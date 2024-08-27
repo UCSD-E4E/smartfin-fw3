@@ -14,6 +14,7 @@
 
 #include <stddef.h>
 #include <cstdint>
+#include <queue>
 
 #ifndef TEST_VERSION
 #include "Particle.h"
@@ -142,6 +143,9 @@ class Scheduler : public AbstractScheduler {
     SCH_error_e getNextTask(DeploymentSchedule_t** p_nextEvent,
                     std::uint32_t* p_nextTime,
                     std::uint32_t currentTime);
+    #ifdef TEST_VERSION
+    std::queue<std::tuple<const char*, std::uint32_t>> log;
+    #endif
 
 };
 
