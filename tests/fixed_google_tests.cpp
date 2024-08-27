@@ -23,7 +23,6 @@
 class SchedulerFixedTests : public ::testing::Test
 {
 protected:
-protected:
     /*Constructor: sets up values*/
 
     SchedulerFixedTests()
@@ -51,12 +50,9 @@ protected:
 
         {SS_ensembleBFunc, SS_ensembleBInit, 1,  table_default_interval_B, table_default_duration_B, UINT32_MAX, "B", {0}},
         {SS_ensembleCFunc, SS_ensembleCInit, 1, table_default_interval_C, table_default_duration_C,  UINT32_MAX, "C", {0}},
-        {nullptr,           nullptr,          0, 0,                        0,                         0,          0,   {0}}
+        {nullptr,           nullptr,          0, 0,                        0,                         0,         nullptr, {0}}
         };
         test_log = {};
-
-
-
 
 
     };

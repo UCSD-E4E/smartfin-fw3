@@ -19,11 +19,11 @@
 #include "scheduler_test_system.hpp"
 #endif
 
-/**
- * @brief constructor for scheduler
- * 
- * @param schedule the schedule table
-*/
+ /**
+  * @brief constructor for scheduler
+  *
+  * @param schedule the schedule table
+ */
 Scheduler::Scheduler(DeploymentSchedule_t schedule[])
     : scheduleTable(schedule) {}
 /**
@@ -41,7 +41,7 @@ void Scheduler::initializeScheduler()
     }
     while (pDeployment->init)
     {
-        
+
         memset(&(pDeployment->state), 0,
             sizeof(StateInformation));
 
@@ -54,15 +54,15 @@ void Scheduler::initializeScheduler()
 
 
 /**
- * @brief Retrieves the next schedu2led event
+ * @brief Retrieves the next scheduled event
  *
  * This function iterates through a schedule table to find the event that
- * should run next based on the current system time.
- * 
+ * should run next based on the current system time. It also modifies the 
+ * current state table to assume that the event will be run.
  *
- * @see tests/googletests.cpp for intended behavior
  *
- * 
+ *
+ *
  * @param p_nextEvent Pointer to a pointer where the next event to be executed
  * will be stored.
  * @param p_nextTime Pointer to where the time for the next event will
@@ -71,7 +71,7 @@ void Scheduler::initializeScheduler()
  * @param currentTime The current system time
  * @return Returns SUCCESS if a suitable event is found,
  * TASK_SEARCH_FAIL otherwise.
- * 
+ *
  */
 
 SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
@@ -79,55 +79,46 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
                            std::uint32_t currentTime)
 {
 
-    /*Iterate through each event in the schedule table in reverse order, with 
-    the goal of determining if a lower prioirty task can run before a higher 
-    priority task must run. */
+    // Iterate through each event in the schedule table in reverse order,
     for (int idx = tableSize - 1; idx >= 0; idx--)
     {
-        bool canSet = true;
+        bool canRun = true;
         DeploymentSchedule_t& currentEvent = scheduleTable[idx];
         StateInformation& currentEventState = scheduleTable[idx].state;
         std::uint32_t runTime = currentEventState.nextRunTime;
-        
-        /* check if a delay exists. Current time comes from clock, which starts
-        at time 0 and is increasing. if currentTime is ahead of runTime, there 
-        is a delay. We will try to run the task immediately. */
-        int delay = currentTime - runTime;
-        
+
+        // check if a delay exists
+        uint32_t difference = currentTime - runTime;
+
         if (delay > 0)
         {
             runTime = currentTime;
         }
 
-        /*if delay is negative, clock has not reached the proposed runTime of a 
-        task and there is no delay. Set delay to 0*/
 
-        if(delay<=0)
-        {
-            delay = 0;
-        }
+        
 
-        if (delay >= (int)currentEvent.maxDelay)
+        if (difference >= (int)currentEvent.maxDelay)
         {
             //! TODO: send warning
         }
-        //Finish time of a task is when we want to run the task plus its duration
+        uint32_t delay = difference > 0 ? difference : 0;
+
+        //Finish time of task
         int expected_completion = runTime + currentEvent.maxDuration;
 
-        /*Iterate through all tasks of higher prioirty. If the time the task 
-         will finish overlaps with any task of higher prioirty, we cannot run this
-         task next. The highest prioirty task will not be checked against other 
-         tasks, so by default that will run*/
-        for (int j = 0; (j < idx) && canSet; j++)
+
+        //Iterate through all tasks of higher prioirty.
+        for (int j = 0; (j < idx) && canRun; j++)
         {
             if ((int)scheduleTable[j].state.nextRunTime < expected_completion)
             {
-                canSet = false;
+                canRun = false;
             }
         }
-        /*If there were no conflicts with higher prioirity tasks, we can set the 
-        next task to the task in question*/
-        if (canSet)
+        /*If there were no conflicts with higher prioirity tasks, we can set
+        the next task to the task in question*/
+        if (canRun)
         {
             *p_nextEvent = &currentEvent;
             *p_nextTime = runTime;
@@ -135,9 +126,12 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
                 currentEvent.ensembleInterval;
 
             currentEventState.measurementCount++;
-            
-            /*If delay was greater than 0, we want to shift all future occurences
-             of the task by delay amount to re-establish a constant frequency*/
+
+            /*
+            If delay was greater than 0, we want to shift all future
+            occurences of the task by delay amount to re-establish a
+            constant frequency
+            */
             if (delay > 0)
             {
                 FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,

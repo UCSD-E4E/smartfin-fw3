@@ -48,7 +48,7 @@
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE",
-                "TEST_VERSION=1"
+                "TEST_VERSION"
             ],
             "compilerPath": "/usr/bin/gcc",
             "intelliSenseMode": "linux-gcc-x64",

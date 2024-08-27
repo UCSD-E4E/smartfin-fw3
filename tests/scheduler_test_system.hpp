@@ -17,7 +17,9 @@
 #include <unordered_map>
 
 
-
+#ifndef TEST_VERSION
+#define TEST_VERSION
+#endif
 
 
 //! time unit required by Particle
@@ -116,34 +118,6 @@ struct TestInput
     uint32_t getDelay(std::string name, uint32_t iteration);
 
     void clear();
-    std::string serialize() const {
-        std::stringstream ss;
-        ss << "TestInput: { Start: " << start << ", End: " << end << "\n";
-
-        ss << "  Ensembles: [\n";
-        for (const auto& ensemble : ensembles) {
-            ss << "    { TaskName: " << ensemble.taskName
-               << ", Interval: " << ensemble.interval
-               << ", Duration: " << ensemble.duration
-               << ", Delay: " << ensemble.delay << " }\n";
-        }
-        ss << "  ]\n";
-
-        ss << "  ExpectedValues: [\n";
-        for (const auto& exp : expectedValues) {
-            ss << "    { Name: " << exp.name
-               << ", Start: " << exp.start
-               << ", End: " << exp.end << " }\n";
-        }
-        ss << "  ]\n";
-
-        
-
-        ss << "}";
-        return ss.str();
-    }
-    
-
 };
 std::ostream& operator<<(std::ostream &strm, const TestLog &value);
 

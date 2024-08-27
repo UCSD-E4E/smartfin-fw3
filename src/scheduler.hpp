@@ -15,7 +15,6 @@
 #include "Particle.h"
 #else
 #include "scheduler_test_system.hpp"
-
 #include <stddef.h>
 #include <cstdint>
 

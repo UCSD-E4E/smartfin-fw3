@@ -28,7 +28,6 @@ class ExamineBehavior
         files = std::make_unique<FileWriter>(
                 "/dev/null",
                 "tests/no_check_outputs/consolodated_actual_file_tests.log");
-                SF_OSAL_printf("Using consolodated version\n");
 
     }
     static void TearDownTestSuite()
@@ -133,19 +132,19 @@ class ExamineBehavior
 
         setTime(input.start);
         deploymentSchedule.clear();
-        DeploymentSchedule_t e;
+        DeploymentSchedule_t ensemble;
         for (size_t i = 0; i < input.ensembles.size(); i++)
         {
-            e = { SS_ensembleAFunc, SS_ensembleAInit, 1,
+            ensemble = { SS_ensembleAFunc, SS_ensembleAInit, 1,
                                             input.ensembles[i].interval,
                                             input.ensembles[i].duration,
                                             input.ensembles[i].delay,
                                             input.ensembles[i].taskName.c_str(),
                                             {0} };
-            deploymentSchedule.emplace_back(e);
+            deploymentSchedule.emplace_back(ensemble);
         }
-        e = { nullptr, nullptr, 0, 0, 0, 0, "", {0}};
-        deploymentSchedule.emplace_back(e);
+        ensemble = { nullptr, nullptr, 0, 0, 0, 0, "", {0}};
+        deploymentSchedule.emplace_back(ensemble);
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
         
 
@@ -172,8 +171,7 @@ class ExamineBehavior
         {
             std::string ensemble = line.substr(0,line.find(delimiter));
             std::string idx = line.substr(line.find(delimiter) + 1);
-            std::cout << "\tensemble: " << ensemble << "\n";   
-            std::cout << "\tidx: " << idx << "\n";
+           
             
 
         }
@@ -365,7 +363,7 @@ class ExamineBehavior
             SetUp(file);
             runTestFile(file);
             TearDown();
-            SF_OSAL_printf("\rCompleted %d/%d\t\t\t\t",++i,filesInDir.size());
+            SF_OSAL_printf("Completed %d/%d\t\t\t\t\r",++i,filesInDir.size());
         }
         TearDownTestSuite();
     }
@@ -380,8 +378,8 @@ int main(int argc, char const* argv[])
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 
-    ExamineBehavior e;
-    e.runTests();
+    ExamineBehavior examine;
+    examine.runTests();
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "Time to run = " 
     << 
