@@ -1,6 +1,6 @@
 /**
  * @file charlie_scheduler.hpp
- * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @author Antara Chugh (antarachugh@g.ucla.edu), Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  * @brief Header file for scheduler defined in @ref scheduler.cpp
  * @version 1
  */
@@ -15,10 +15,12 @@
 #include "Particle.h"
 #else
 #include "scheduler_test_system.hpp"
-#endif // TEST_VERSION
-
 #include <stddef.h>
 #include <cstdint>
+
+
+#endif // TEST_VERSION
+
 
 /**
  * @brief Ensemble function.
@@ -95,7 +97,7 @@ struct DeploymentSchedule_
 class Scheduler : public AbstractScheduler {
     private:
     //! schedule table size
-    std::uint32_t tableSize;
+    uint32_t tableSize;
     public:
     //! the schedule table
     DeploymentSchedule_t* scheduleTable;

@@ -1,6 +1,6 @@
 /**
  * @file gtest.cpp
- * @author Antara Chugh (antarachugh@g.ucla.edu)
+ * @author Antara Chugh (antarachugh@g.ucla.edu), Charlie Kushelevsky (ckushelevsky@ucsd.edu) 
  * @brief Google Tests for scheduler.cpp
  */
 

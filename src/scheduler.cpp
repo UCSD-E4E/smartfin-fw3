@@ -1,7 +1,7 @@
 /**
  *  @file   scheduler.cpp
  *  @brief  Contains definitions for functions defined in @ref scheduler.hpp
- *  @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ *  @author Antara Chugh (antarachugh@g.ucla.edu), Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  *  @version 1
  */
 #include "scheduler.hpp"
