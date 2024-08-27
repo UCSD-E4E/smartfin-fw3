@@ -11,15 +11,16 @@
 #include "abstractScheduler.hpp"
 #include "cli/conio.hpp"
 
+
+#include <stddef.h>
+#include <cstdint>
+
 #ifndef TEST_VERSION
 #include "Particle.h"
 #else
 #include "scheduler_test_system.hpp"
-#include <stddef.h>
-#include <cstdint>
-
-
 #endif // TEST_VERSION
+
 
 
 /**
@@ -68,11 +69,16 @@ struct StateInformation
 #define NON_TEST_CONST
 #endif
 
+/**
+ * @brief contains ensemble definitions and info for scheduler 
+ * 
+ */
 struct DeploymentSchedule_
 {
-
-    NON_TEST_CONST EnsembleFunction measure;               //!< measurement function
-    NON_TEST_CONST EnsembleInit init;                      //!< initialization function
+    //! measurement function
+    NON_TEST_CONST EnsembleFunction measure;
+    //! initialization function              
+    NON_TEST_CONST EnsembleInit init;
 
     //! measurements before processing
     NON_TEST_CONST std::uint32_t measurementsToAccumulate; 
@@ -94,6 +100,11 @@ struct DeploymentSchedule_
     
 };
 
+/**
+ * @brief contains schedule table for scheduler function to initialize and 
+ * get next tasks 
+ * 
+ */
 class Scheduler : public AbstractScheduler {
     private:
     //! schedule table size
