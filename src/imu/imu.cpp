@@ -22,7 +22,7 @@
 
 
 #define WIRE_PORT Wire
-#define AD0_VAL 1  //should be set to 0, currently for dev board need to change to 1
+#define AD0_VAL 0  //should be set to 0, currently for dev board need to change to 1
 
 #define GIB 1073741824
 

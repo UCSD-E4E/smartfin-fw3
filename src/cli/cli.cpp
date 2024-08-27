@@ -28,7 +28,6 @@
 #include "product.hpp"
 #include "sleepTask.hpp"
 #include "system.hpp"
-#include "tracker_config.h"
 #include "system.hpp"
 
 #include <fstream>
