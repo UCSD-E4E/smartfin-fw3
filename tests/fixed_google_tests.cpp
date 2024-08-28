@@ -145,7 +145,7 @@ protected:
      * behaviour with expected behaviour
     */
 
-    void run(int num_tasks, int iterations, int task_delay, int delay_amount,
+    void run(int num_tasks, int iterations, int* task_delay,
                     std::vector<Log>& expected) {
         
         DeploymentSchedule_t table[num_tasks+1];
@@ -163,11 +163,7 @@ protected:
         for (int i = 0; i <iterations; i++)
         {
             int delay = 0;
-            if (i == task_delay)
-            {
-                delay = delay_amount;
-
-            }
+            delay=task_delay[i];
 
             scheduler.getNextTask(&nextTask, nextTaskTime, this->clock);
             this->clock = *nextTaskTime;
@@ -192,16 +188,26 @@ TEST_F(SchedulerFixedTests, TestDefault)
     expected.emplace_back("A", 75);
     expected.emplace_back("B", 100);
     expected.emplace_back("C", 125);
-    run(3, 6, 0, 0, expected);
+    int Delay[6]={0,0,0,0,0,0};
+    run(3, 6, Delay, expected);
 }
 
 TEST_F(SchedulerFixedTests, TestDefaultWithDelays)
 {
     //test A is on time even with delays
-    int Delay[6]={0, 25, 0, 100, 0, 0};
-    
-    
+    int Delay[6]={0, 25, 0, 0, 25, 0};
+     std::vector<Log> expected;
+    expected.emplace_back("A", 0);
+    expected.emplace_back("B", 25);
+    expected.emplace_back("A", 75);
+    expected.emplace_back("B", 100);
+    expected.emplace_back("C", 125);
+    expected.emplace_back("A", 175);
+     run(3, 6, Delay, expected);
 }
+    
+    
+
 
 
 
