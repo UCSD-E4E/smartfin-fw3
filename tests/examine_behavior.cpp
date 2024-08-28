@@ -159,13 +159,11 @@ class ExamineBehavior
         }
 
         std::string delimiter = "|";
-        std::ifstream sch_log( "scheduler.log" );
-        for( std::string line; getline( sch_log, line); )
+        std::ofstream sch_log("scheduler.log");
+        for (const auto& log = scheduler->log.front(); 
+                scheduler->log.size() > 0; scheduler->log.pop())
         {
-            std::string ensemble = line.substr(0,line.find(delimiter));
-            std::string idx = line.substr(line.find(delimiter) + 1);
-            
-
+            sch_log << std::get<0>(log) << "|" << std::get<1>(log) << "\n";
         }
         
         

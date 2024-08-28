@@ -174,7 +174,7 @@ protected:
             test_log.emplace_back(Log(nextTask, clock));
             update_clock_time(nextTask, delay);
             DeploymentSchedule_* t = nextTask;
-            std::cout << t->taskName << "time: " << clock << std::endl;
+            
 
         }
         compare(expected, iterations);

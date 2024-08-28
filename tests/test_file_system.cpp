@@ -267,15 +267,13 @@ Log::Log(DeploymentSchedule_ *task, std::uint32_t time) {
     DeploymentSchedule_ *table = task;
     this->taskName = table->taskName;
     this->runTime = time;
-    std::cout << "Log created with taskName: " << this->taskName 
-            << ", runTime: " << this->runTime << std::endl;
+    
 }
 
 Log::Log(const char* name, std::uint32_t time) {
     this->taskName = name;
     this->runTime = time;
-    std::cout << "Log created with taskName: " << this->taskName 
-                << ", runTime: " << this->runTime << std::endl;
+    
 }
 
 const char* Log::getName(void)
