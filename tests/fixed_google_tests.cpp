@@ -29,34 +29,27 @@ protected:
  */
     SchedulerFixedTests()
     {
-        table_default_interval_A = 75;
-        table_default_interval_B = 75;
-        table_default_interval_C = 75;
-        table_default_duration_A = 25;
-        table_default_duration_B = 25;
-        table_default_duration_C = 25;
+        table_default_interval = 75;
+        table_default_duration = 25;
         clock = 0;
 
         deployment_table = {
             //EnsembleFunc,    init,           meas, ensembleInterval,        maxDuration,              maxDelay, taskName, state
-            {SS_ensembleAFunc, SS_ensembleAInit, 1, table_default_interval_A, table_default_duration_A, UINT32_MAX, "A", {0}},
-            {SS_ensembleBFunc, SS_ensembleBInit, 1, table_default_interval_B, table_default_duration_B, UINT32_MAX, "B", {0}},
-            {SS_ensembleCFunc, SS_ensembleCInit, 1, table_default_interval_C, table_default_duration_C, UINT32_MAX, "C", {0}},
-            {nullptr,           nullptr,          0, 0,                       0,                        0,         nullptr, {0}}
+            {SS_ensembleAFunc, SS_ensembleAInit, 1, table_default_interval, table_default_duration, UINT32_MAX, "A", {0}},
+            {SS_ensembleBFunc, SS_ensembleBInit, 1, table_default_interval, table_default_duration, UINT32_MAX, "B", {0}},
+            {SS_ensembleCFunc, SS_ensembleCInit, 1, table_default_interval, table_default_duration, UINT32_MAX, "C", {0}},
+            //{nullptr,           nullptr,          0, 0,                       0,                        0,         nullptr, {0}}
         };
         test_log = {};
 
 
     };
     
-    /*Every test will require a deployment table, we fill it with defaults. 
-    Clock corresponds to millis(), record scheduler output in test log*/
-    uint32_t table_default_interval_A;
-    uint32_t table_default_interval_B;
-    uint32_t table_default_interval_C;
-    uint32_t table_default_duration_A;
-    uint32_t table_default_duration_B;
-    uint32_t table_default_duration_C;
+    uint32_t table_default_interval;
+   
+    uint32_t table_default_duration;
+   
+    
     uint32_t clock;
 
 
@@ -65,16 +58,18 @@ protected:
 
 
 
-    /*Before every test, set the deployment table to 
-    default values, clock to 0, and empty test log*/
+    /**
+ * @brief SetUp, runs before every test. sets table back to defaults, clock back
+ * to 0, and ensures test log is empty
+    */
     void SetUp() override {
-        deployment_table[0].ensembleInterval = table_default_interval_A;
-        deployment_table[1].ensembleInterval = table_default_interval_B;
-        deployment_table[2].ensembleInterval = table_default_interval_C;
+        deployment_table[0].ensembleInterval = table_default_interval;
+        deployment_table[1].ensembleInterval = table_default_interval;
+        deployment_table[2].ensembleInterval = table_default_interval;
 
-        deployment_table[0].maxDuration = table_default_duration_A;
-        deployment_table[1].maxDuration = table_default_duration_B;
-        deployment_table[2].maxDuration = table_default_duration_C;
+        deployment_table[0].maxDuration = table_default_duration;
+        deployment_table[1].maxDuration = table_default_duration;
+        deployment_table[2].maxDuration = table_default_duration;
 
         test_log.clear();
         clock = 0;
@@ -84,51 +79,108 @@ protected:
 
 
     }
+    /**
+ * @brief TearDown, runs after every test. Clears test log. 
+    */
     void TearDown() override {
         test_log.clear();
 
     }
 
-    /*functions to change the intervals or durations of tasks, add a task. changes are made in test function prior to running*/
+    /**
+     * @param A_interval desired interval of task A, highest priority task
+     * @param B_interval desired interval of task B
+     * @param C_interval desired interval of task C, lowest prioirity task
+     * Updates the intervals of 3 tasks to desired intervals for a test case. 
+     * If it is desired to change interval from default, call this function
+     * before calling "run()"
+    */
 
-    void three_task_change_intervals(std::uint32_t A, std::uint32_t B, std::uint32_t C) {
-        deployment_table[0].ensembleInterval = A;
-        deployment_table[1].ensembleInterval = B;
-        deployment_table[2].ensembleInterval = C;
+    void three_task_change_intervals(std::uint32_t A_interval, std::uint32_t B_interval, std::uint32_t C_interval) {
+        deployment_table[0].ensembleInterval = A_interval;
+        deployment_table[1].ensembleInterval = B_interval;
+        deployment_table[2].ensembleInterval = C_interval;
+    }
+    
+    /**
+     * @param A_interval desired interval of task A, highest priority task
+     * @param B_interval desired interval of task B
+     * Updates the intervals of 2 tasks to desired intervals for a test case. 
+     * If it is desired to change interval from default, call this function
+     * before calling "run()"
+    */
+
+    void two_task_change_intervals(std::uint32_t A_interval, std::uint32_t B_interval) {
+        deployment_table[0].ensembleInterval = A_interval;
+        deployment_table[1].ensembleInterval = B_interval;
     }
 
-
-    void two_task_change_intervals(std::uint32_t A, std::uint32_t B) {
-        deployment_table[0].ensembleInterval = A;
-        deployment_table[1].ensembleInterval = B;
-    }
+    /**
+     * @param task priority of task whose interval is desired to change. 
+     * 0=highest priority. 
+     * @param interval desired interval of task 
+     * Updates the interval of the specified task
+    */
 
     void change_interval(std::uint32_t task, std::uint32_t interval) {
         deployment_table[task].ensembleInterval = interval;
     }
+    /**
+     * @param task priority of task whose duration is desired to change. 
+     * 0=highest priority. 
+     * @param duration desired length of task 
+     * Updates the duration of the specified task
+    */
+
     void change_duratiom(std::uint32_t task, std::uint32_t duration) {
         deployment_table[task].maxDuration = duration;
     }
+     /**
+     * @param task_name name of task. 
+     * @param duration desired length of task 
+     * @param interval desired interval of task
+     * Adds a task with task_name and specificed duration & interval as lowest 
+     * priority task in deployment table.
+    */
+
+    void add_task(const char * task_name, std::uint32_t duration, std::uint32_t interval){
+
+        DeploymentSchedule_ task=  {SS_ensembleCFunc, SS_ensembleCInit, 1, 
+        interval, duration, UINT32_MAX, task_name, {0}};
+        deployment_table.emplace_back(task);
+
+
+    }
+   
 
 
 
-    /*clock functions -- updates clock when task is run, tick clock*/
+    /**
+     * @param task task that is running at current time
+     * @param delay delay added to task duration, task runs over expected length
+     * updates clock when a task runs by the task's max duration and any delay
+     * if present
+    */
     void update_clock_time(DeploymentSchedule_* task, std::uint32_t delay) {
         if (task != nullptr)
         {
-            clock += task->maxDuration;
+            this->clock += task->maxDuration;
         }
         if (delay != 0)
         {
-            clock += delay;
+            this->clock += delay;
         }
     }
 
 
-    void clock_increment() {
-        clock++;
-    }
-    //! compares the test log with the expected values, as set in the test case
+   
+     /**
+     * @param expected takes expected behavior of scheduler, consisting of 
+     * taskname & when it runs
+     * @param iterations number of scheduler calls
+     * compares scheduler behaviour with expected behviour for iteration number 
+     *of calls to the scheduler
+    */
     void compare(std::vector<Log>& expected, int iterations) {
         for (int i = 0; i < iterations; i++)
         {
@@ -144,38 +196,43 @@ protected:
     /**
      * @param num_tasks number of tasks
      * @param iterations number of scheduler calls
-     * @param task_delay task_delay
+     * @param task_delay array of delays to add a task that runs
+     * @param expected takes expected behavior of scheduler, consisting of 
+     * taskname & when it runs
      * creates scheduler based on tasks set in test, compares scheduler
      * behaviour with expected behaviour
     */
 
-    void run(int num_tasks, int iterations, int task_delay, int delay_amount,
+    void run(int num_tasks, int iterations, int* task_delay,
                     std::vector<Log>& expected) {
-
-        Scheduler scheduler(deployment_table.data());
+        
+        DeploymentSchedule_t table[num_tasks+1];
+        if(num_tasks>deployment_table.size()){
+            return;
+        }
+        for(int i=0; i<num_tasks; i++){
+            table[i]=deployment_table[i];
+        }
+        table[num_tasks]= {nullptr,           nullptr,          0, 0,                       0,                        0,         nullptr, {0}};
+        Scheduler scheduler(table);
         scheduler.initializeScheduler();
         std::uint32_t nextTime = 0;
         std::uint32_t* nextTaskTime = &(nextTime);
 
         DeploymentSchedule_* nextTask = nullptr;
 
-        for (int i = 0; i <= iterations; i++)
+        for (int i = 0; i <iterations; i++)
         {
             int delay = 0;
-            if (i == task_delay)
-            {
-                delay = delay_amount;
-
-            }
+            delay=task_delay[i];
 
             scheduler.getNextTask(&nextTask, nextTaskTime, this->clock);
-            clock = *nextTaskTime;
+            this->clock = *nextTaskTime;
 
             test_log.emplace_back(Log(nextTask, clock));
             update_clock_time(nextTask, delay);
             DeploymentSchedule_* t = nextTask;
             
-
         }
         compare(expected, iterations);
 
@@ -192,8 +249,26 @@ TEST_F(SchedulerFixedTests, TestDefault)
     expected.emplace_back("A", 75);
     expected.emplace_back("B", 100);
     expected.emplace_back("C", 125);
-    run(3, 6, 0, 0, expected);
+    int Delay[6]={0,0,0,0,0,0};
+    run(3, 6, Delay, expected);
 }
+
+TEST_F(SchedulerFixedTests, TestDefaultWithDelays)
+{
+    //test A is on time even with delays
+    int Delay[6]={0, 25, 0, 0, 25, 0};
+     std::vector<Log> expected;
+    expected.emplace_back("A", 0);
+    expected.emplace_back("B", 25);
+    expected.emplace_back("A", 75);
+    expected.emplace_back("B", 100);
+    expected.emplace_back("C", 125);
+    expected.emplace_back("A", 175);
+     run(3, 6, Delay, expected);
+}
+    
+    
+
 
 
 
