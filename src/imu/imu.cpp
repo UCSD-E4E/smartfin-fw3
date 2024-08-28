@@ -233,7 +233,6 @@ bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *ac
          *q1 = ((double)data.Quat9.Data.Q1) / GIB;
          *q2 = ((double)data.Quat9.Data.Q2) / GIB;
          *q3 = ((double)data.Quat9.Data.Q3) / GIB;
-         //*acc = (double)data.Quat9.Data.Accuracy;
          *q0 = sqrt(1.0 - ((*q1 * *q1) + (*q2 * *q2) + (*q3 * *q3)));
          return true;
       }
