@@ -96,7 +96,8 @@ protected:
      * before calling "run()"
     */
 
-    void three_task_change_intervals(std::uint32_t A_interval, std::uint32_t B_interval, std::uint32_t C_interval) {
+    void three_task_change_intervals(std::uint32_t A_interval, 
+            std::uint32_t B_interval, std::uint32_t C_interval) {
         deployment_table[0].ensembleInterval = A_interval;
         deployment_table[1].ensembleInterval = B_interval;
         deployment_table[2].ensembleInterval = C_interval;
@@ -110,7 +111,8 @@ protected:
      * before calling "run()"
     */
 
-    void two_task_change_intervals(std::uint32_t A_interval, std::uint32_t B_interval) {
+    void two_task_change_intervals(std::uint32_t A_interval, 
+            std::uint32_t B_interval) {
         deployment_table[0].ensembleInterval = A_interval;
         deployment_table[1].ensembleInterval = B_interval;
     }
@@ -143,7 +145,8 @@ protected:
      * priority task in deployment table.
     */
 
-    void add_task(const char * task_name, std::uint32_t duration, std::uint32_t interval){
+    void add_task(const char * task_name, std::uint32_t duration, 
+        std::uint32_t interval){
 
         DeploymentSchedule_ task=  {SS_ensembleCFunc, SS_ensembleCInit, 1, 
         interval, duration, UINT32_MAX, task_name, {0}};
@@ -213,7 +216,7 @@ protected:
         for(int i=0; i<num_tasks; i++){
             table[i]=deployment_table[i];
         }
-        table[num_tasks]= {nullptr,           nullptr,          0, 0,                       0,                        0,         nullptr, {0}};
+        table[num_tasks]= {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}};
         Scheduler scheduler(table);
         scheduler.initializeScheduler();
         std::uint32_t nextTime = 0;

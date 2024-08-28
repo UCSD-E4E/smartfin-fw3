@@ -176,16 +176,12 @@ protected:
         e = { nullptr, nullptr, 0, 0, 0, 0, "", {0}};
         deploymentSchedule.emplace_back(e);
         scheduler = std::make_unique<Scheduler>(deploymentSchedule.data());
-        
-        
-        
         scheduler->initializeScheduler();
 
         while (millis() < input.end)
         {
             scheduler->getNextTask(&nextEvent, &nextEventTime,
                                     millis());
-            
             std::uint32_t afterDelay = input.getDelay(nextEvent->taskName,
                                         nextEvent->state.measurementCount - 1);
             
@@ -204,14 +200,7 @@ protected:
                 return;
             }
         }
-            
-        
     }
-
-    
-
-    
-    
     
     /**
      * @brief Run task, update time, and check values
@@ -266,13 +255,7 @@ protected:
         ASSERT_EQ(expectedStart, actualStart)  << failMessage.str();
         ASSERT_EQ(expectedEnd, actualEnd)  << failMessage.str();
     }
-    /**
-     * @brief Runs the next event and updates clock
-     *
-     * @param ScheduleTable_t contains ensemble table
-     * @param p_nextEvent  pointer to next event
-     * @param p_nextTime pointer to next time to run
-     */
+    
     
 
     
