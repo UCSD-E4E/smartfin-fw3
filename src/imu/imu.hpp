@@ -53,5 +53,4 @@ bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *ac
 bool getDMPGyroscope(float *g_x, float *g_y, float *g_z);
 bool getDMPAccelerometerAcc(float *acc_acc);
 void setupICM(void);
-void whereDMP(void);
 #endif

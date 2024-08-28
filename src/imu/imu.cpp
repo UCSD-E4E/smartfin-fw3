@@ -256,9 +256,3 @@ bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
    return false;
 }
 
-void whereDMP(void){
-   // std::string sName(reinterpret_cast<char*>(name));
-   Serial.write(myICM.getWhoAmI());
-   Serial.write("\n");
-}
-
