@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.0...v3.2.1) (2024-06-23)
+
+
+### Bug Fixes
+
+* adds arrows, calibration ([1285620](https://github.com/UCSD-E4E/smartfin-fw3/commit/1285620108e6a3083b54d4c656df5841d32274c5))
+
 # [3.2.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.1.0...v3.2.0) (2024-02-10)
 
 
