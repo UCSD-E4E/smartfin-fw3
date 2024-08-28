@@ -12,14 +12,15 @@
 
 #include <cstdint>
 #include <string.h>
+#include <iostream>
 
 
 #ifndef TEST_VERSION
 #include "Particle.h"
 #else
 #include "scheduler_test_system.hpp"
-#include <iostream>
 #endif
+
 
  /**
   * @brief constructor for scheduler
@@ -36,7 +37,7 @@ void Scheduler::initializeScheduler()
 {
     DeploymentSchedule_t* pDeployment = this->scheduleTable;
     std::uint32_t lastEndTime = 0;
-    tableSize = 0;
+    this->tableSize = 0;
     if (this->scheduleTable == nullptr)
     {
         return;
@@ -48,7 +49,7 @@ void Scheduler::initializeScheduler()
             sizeof(StateInformation));
 
         pDeployment->init(pDeployment);
-        tableSize++;
+        this->tableSize++;
         pDeployment++;
     }
 }
@@ -83,7 +84,7 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
 {
 
     // Iterate through each event in the schedule table in reverse order,
-    for (int idx = tableSize - 1; idx >= 0; idx--)
+    for (int idx = this->tableSize - 1; idx >= 0; idx--)
     {
         
         DeploymentSchedule_t& currentEvent = scheduleTable[idx];
@@ -131,9 +132,8 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t** p_nextEvent,
             currentEventState.measurementCount++;
 
             /*
-            If delay was greater than 0, we want to shift all future
-            occurences of the task by delay amount to re-establish a
-            constant frequency
+            If delay greater than 0, shift all future occurences of the task by
+            delay amount to re-establish a constant frequency
             */
             if (delay > 0)
             {
