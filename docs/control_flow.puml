@@ -3,27 +3,31 @@ start
 
 :get lowest priority task;
 repeat :get proposed task run time;
-  if (clock) is (>run Time) then
-   :delay exists, set delay and set proposed run time to clock (try running task now);
-  else (no delay exists, set delay to 0)
+  if (clock>runTime) is (yes) then
+   :delay exists, set delay and set proposed run time to now;
+  else (no)
+    :no delay exists, delay is 0, preserve proposed run time;
   endif
 
   :Task Finish Time = Proposed Run Time + Task Duration;
-  while (there are higher priority tasks left to check && no conflicts exist)
-  if (Task Finish Time conflicts with Higher Priority Task Run Time) then
-   :conflict exists;
+  while (there are higher priority tasks left to check && no conflicts exist) is (yes)
+  if (Task Finish Time conflicts with Higher Priority Task Run Time) is (yes) then
+   :flag conflict;
+  else (no)
+    : no conflict exists;
   endif
   
-  endwhile;
+  endwhile (no more tasks to check or conflict exists);
 
-  if (if no conflict exists) then
+  if (if conflict exists) is (no) then
    :set next task to current task;
    :update task's next run time to runTime+delay;
-   :return No Error;
+   #palegreen :return No Error;
    stop
+   else (yes)
   endif
 
-repeat while (get lowest priority task not yet checked )
-:no tasks left to check, return error: no task found to run next;
-stop
+repeat while (get lowest priority task not yet checked ) is (yes) not (no tasks left to check)
+#pink : return error: no task found to run next;
+detach
 @enduml
