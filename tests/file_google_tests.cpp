@@ -73,39 +73,10 @@ protected:
     std::unique_ptr<Scheduler> scheduler;
     
 
-    /**
-    * @brief Construct a new Scheduler Test object
-    *
-    * Creates a deployment schedule with three ensembles:
-    * Ensemble A runs every 2000ms with a max duration of 400ms
-    * Ensemble B runs every 2000ms with a max duration of 200ms
-    * Ensemble C runs every 2000ms with a max duration of 600ms
-    */
+    
    
-    /**
-     * @brief Add expected log to vector
-     * @param task the name of the task being run
-     * @param start the start time
-     * @param end the end tim
-     */
-    inline void appendExpectedFile(std::string task, 
-                                    std::uint32_t start, 
-                                    std::uint32_t end)
-    {
-        expected.emplace_back(task, start, end);
-    }
-    /**
-     * @brief Add actual log to vector
-     * @param task the name of the task being run
-     * @param start the start time
-     * @param end the end tim
-     */
-    inline void appendActualFile(std::string task, 
-                                    std::uint32_t start, 
-                                    std::uint32_t end)
-    {
-        actual.emplace_back(task, start, end);
-    }
+   
+    
     /**
      * @brief Sets up the test envirnoment before each test
      *
@@ -150,8 +121,8 @@ protected:
         addTime(nextEvent->maxDuration);
         if (!useCompareLogs)
         {
-            appendExpectedFile(nextEvent->taskName, nextEventTime, millis());
-            appendActualFile(nextEvent->taskName, nextEventTime, millis());
+            expected.emplace_back(nextEvent->taskName, nextEventTime, millis());
+            actual.emplace_back(nextEvent->taskName, nextEventTime, millis());
         }
     }
     
@@ -248,8 +219,8 @@ protected:
         addTime(trailingDelay);
         std::uint32_t actualEnd = millis();
         
-        appendExpectedFile(expectedTaskName, expectedStart, expectedEnd);
-        appendActualFile(nextEvent->taskName, actualStart, actualEnd);
+        expected.emplace_back(expectedTaskName, expectedStart, expectedEnd);
+        actual.emplace_back(nextEvent->taskName, actualStart, actualEnd);
 
         ASSERT_EQ(expectedTaskName, nextEvent->taskName) << failMessage.str();
         ASSERT_EQ(expectedStart, actualStart)  << failMessage.str();

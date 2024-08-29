@@ -79,7 +79,7 @@ def plot_gantt(tasks: List[Dict[str, Union[str, int]]], title: str, dir_path: Pa
 def parse_logs() -> Tuple[Dict[str, List[Dict[str, Union[str, int]]]], Dict[str, List[Dict[str, Union[str, int]]]]]:
     expected_json = {}
     actual_json = {}
-    for filepath in glob.iglob('outputs/actual*.log'):
+    for filepath in glob.iglob('tests/outputs/actual*.log'):
         expected_file_path = Path(str(filepath).replace("actual", "expected"))
         actual_file_path = Path(filepath)
 
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     compare_logs()
     examine_logs()
     root = Path('tests/outputs/')
-    folders = list(root.glob('*/'))
+    folders = [f for f in root.glob('*/') if f.is_dir()]
 
     for folder in folders:
         if not any(folder.iterdir()):

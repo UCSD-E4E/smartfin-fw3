@@ -181,6 +181,12 @@ void TestInput::parseInputFile(std::string filename)
             currentSection = "RESETS";
             continue;
         }
+        else if (line == "EXPECTED")
+        {
+            currentSection = "EXPECTED";
+            continue;
+        }
+        
 
         std::istringstream iss(line);
         if (currentSection == "START")
@@ -245,6 +251,18 @@ void TestInput::parseInputFile(std::string filename)
             std::getline(iss, resetName, '|');
             iss >> iteration;
             resets.emplace_back(std::make_pair(resetName, iteration));
+        }
+        else if (currentSection == "EXPECTED" )
+        {
+            std::string name;
+            std::uint32_t start;
+            std::uint32_t end;
+            std::getline(iss, name, '|');
+            iss >> start;
+            iss.ignore(1, '|');
+            iss >> end;
+            this->expectedValues.emplace_back(name,start,end);
+
         }
     }
 
