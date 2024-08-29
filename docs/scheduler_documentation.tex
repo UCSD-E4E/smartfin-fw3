@@ -3,7 +3,7 @@
 \usepackage{graphicx}
 
 \title{Brief Overview of SmartFin Version 3 Scheduler Implementation}
-\author{Antara Chugh}
+\author{Antara Chugh} \and {Charlie Kushelevy} \and {Meena Annamalai}  \and {Hannah Cutler} \and {Nathan Hui} \and {Ryan Katsner}
 \date{Summer 2024}
 
 \begin{document}
@@ -12,11 +12,11 @@
 
 \section{Background on the SmartFin System}
 
-We are working to design a scheduler for multiple sensors running at various frequencies and durations on a single threaded system that can only run one sensor at a time. The hardware thus restricts the schedule to be non-pre-emptitive: we cannot stop or pause a sensor A from running if another sensor B must run during the duration sensor A is collecting data. From now on, we’ll refer to each sensor as a repeating, periodic task that must run for x amount of time every y seconds. \newline
+We are working to design a scheduler for multiple sensors running at various frequencies and durations on a single threaded system that can only run one sensor at a time. The hardware thus restricts the schedule to be non-pre-emptitive: we cannot stop or pause a sensor A from running if another sensor B must run during the duration sensor A is collecting data. From now on, we’ll refer to each sensor as a repeating, periodic task that must run for x amount of time every y seconds. 
 
 
-\title{Table 1: Mean \& Standard Deviation Runtime of SmartFin Sensors}
-\newline
+\caption{Table 1: Mean \& Standard Deviation Runtime of SmartFin Sensors (Annamalai, M)}
+
 
 
 
@@ -83,7 +83,7 @@ Our current implementation is a greedy algorithm which picks tasks based on whet
 \end{figure}
 
 \section{Scheduler Limitations}
-Due to the fact that the SmartFin is a uniprocessor device and the periodicity and length of the tasks, mathematically, it is not possible for all combinations of tasks to run with no shifts in the system. Further, even when allowing for shifts, there exist combinations of tasks in which preserving the frequencies of each task is simply not possible. 
+Due to the fact that the SmartFin is a single core device and the periodicity and length of the tasks, mathematically, it is not possible for all combinations of tasks to run with no shifts in the system. Further, even when allowing for shifts, there exist combinations of tasks in which preserving the frequencies of each task is simply not possible. 
 
 
 \bibliographystyle{plain} % We choose the "plain" reference style

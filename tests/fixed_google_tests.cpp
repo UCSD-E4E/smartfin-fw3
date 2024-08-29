@@ -2,6 +2,7 @@
  * @file gtest.cpp
  * @author Antara Chugh (antarachugh@g.ucla.edu), Charlie Kushelevsky (ckushelevsky@ucsd.edu) 
  * @brief Google Tests for scheduler.cpp
+ * Read Create_New_Tests.md for documentation to add more tests
  */
 
 #include "scheduler_test_system.hpp"
@@ -260,7 +261,7 @@ TEST_F(SchedulerFixedTests, TestDefaultWithDelays)
 {
     //test A is on time even with delays
     int Delay[6]={0, 25, 0, 0, 25, 0};
-     std::vector<Log> expected;
+    std::vector<Log> expected;
     expected.emplace_back("A", 0);
     expected.emplace_back("B", 25);
     expected.emplace_back("A", 75);
@@ -269,6 +270,37 @@ TEST_F(SchedulerFixedTests, TestDefaultWithDelays)
     expected.emplace_back("A", 175);
      run(3, 6, Delay, expected);
 }
+
+
+   TEST_F(SchedulerFixedTests, NotEnoughTimeForC)
+{
+    
+    two_task_change_intervals(50, 50);
+    int Delay[6]={0, 0, 0, 0, 0, 0};
+    std::vector<Log> expected;
+    expected.emplace_back("A", 0);
+    expected.emplace_back("B", 25);
+    expected.emplace_back("A", 50);
+    expected.emplace_back("B", 75);
+    expected.emplace_back("A", 100);
+    expected.emplace_back("B", 125);
+     run(3, 6, Delay, expected);
+} 
+
+TEST_F(SchedulerFixedTests, ExtremeDelayonB)
+{
+    
+    two_task_change_intervals(50, 50);
+    int Delay[6]={0, 45, 0,0, 0, 0};
+    std::vector<Log> expected;
+    expected.emplace_back("A", 0);
+    expected.emplace_back("B", 25);
+    expected.emplace_back("A", 95);
+    expected.emplace_back("B", 120);
+    expected.emplace_back("A", 145);
+    expected.emplace_back("B", 170);
+     run(2, 6, Delay, expected);
+} 
     
     
 
