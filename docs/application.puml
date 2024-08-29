@@ -24,15 +24,16 @@ package "Application" {
     [Charge Task] as charge_task #Green
     [Sleep Task] as sleep_task #Green
     [Data Upload] as upload #Green
+    [Calibration] as calibrate #Red
 }
 
 package "Board Support Package" {
     [Temp Sensor] as temp_sensor #Green
-    [Water Sensor] as water_sensor #Green
+    [ICM] as icm #Green
     [Location Service] as loc_service #Green
     [GPS] as gps #Green
+    [Water Sensor] as water_sensor #Green
     [LED] as led #Green
-    [ICM] as icm #Green
 }
 
 package "Application Support Package" {
@@ -66,21 +67,27 @@ cli <-- water_sensor
 gps --> spi
 icm --> i2c
 temp_sensor --> i2c
-conio --> serial
+conio <--> serial
 recorder <--> fs
 
-water_sensor --> gpio
+water_sensor <--> gpio
 led --> gpio
 ride --> led
-nvram --> eeprom
+nvram <--> eeprom
 eeprom -> fs
 upload <-- recorder
 upload --> cellular
 upload <-- water_sensor
 upload --> led
-charge_task --> gpio
-upload --> gpio
+charge_task <-- gpio
+upload <-- gpio
 sleep_task <-- water_sensor
+
+calibrate <-- temp_sensor
+calibrate <-- icm
+calibrate <-- water_sensor
+calibrate <--> nvram
+calibrate <--> conio
 ' recorder -u-> flog
 ' conio -u-> flog
 ' gps -u-> flog

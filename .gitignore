@@ -325,7 +325,4 @@ smartfin-fw3.cpp
 target/
 *.bin
 nul
-out/docs/application/Service Diagram.png
-out/docs/fw_flow/Firmware Flowchart.png
-tests/googletest
-*.jpg
+out/docs/*
