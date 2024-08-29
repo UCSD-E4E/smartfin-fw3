@@ -60,8 +60,10 @@
     },
     "particle.firmwareVersion": "5.3.0",
     "particle.targetPlatform": "tracker",
+
     "particle.targetDevice": "",
     "cmake.configureOnOpen": true,
+
     "C_Cpp.codeAnalysis.clangTidy.enabled": false,
     "C_Cpp.default.cppStandard": "c++11",
     "C_Cpp.default.cStandard": "c11",
