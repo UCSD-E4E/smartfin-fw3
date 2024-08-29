@@ -27,4 +27,6 @@ jobs:
               cd build
               make
               gdb -q -ex "run" -ex "bt" -ex "quit" ./googletests
+              ./googletests
+
     
