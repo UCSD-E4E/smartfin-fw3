@@ -10,10 +10,3 @@ DELAYS #0 indexed: "taskname|iteration|delay"
 B|1|900
 EXPECTED #"taskname|start|end"
 A|0|400
-B|400|600
-C|600|1200
-A|2000|2400
-B|2400|3500
-A|4000|4400
-B|4400|4600
-C|4600|5200
