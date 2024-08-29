@@ -21,12 +21,12 @@ jobs:
               
     
           - name: Build and run tests
-            run: | 
-              cd tests
-              cmake -S .. -B build -DCMAKE_BUILD_TYPE=Debug
+            run: |
+              cmake -B build -DCMAKE_BUILD_TYPE=Debug
               cd build
               make
-              gdb -q -ex "run" -ex "bt" -ex "quit" ./googletests
-              ./googletests
+              cd ..
+              gdb -q -ex "run" -ex "bt" -ex "quit" ./build/googletests
+              ./build/googletests
 
     

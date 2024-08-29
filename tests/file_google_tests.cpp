@@ -274,6 +274,7 @@ std::vector<std::string> GetFilesInDirectory(const std::string& directory) {
     std::vector<std::string> files;
     DIR* dirp = opendir(directory.c_str());
     struct dirent* dp;
+    std::cout << "Directory: " << directory.c_str() << "\n";
     while ((dp = readdir(dirp)) != nullptr) {
         if (dp->d_type == DT_REG) {  
             files.push_back(directory + "/" + std::string(dp->d_name));
