@@ -15,7 +15,7 @@
             "compilerPath": "~\\.particle\\toolchains\\gcc-arm\\10.2.1\\bin\\arm-none-eabi-gcc.exe",
             "intelliSenseMode": "windows-gcc-arm",
             "cStandard": "c11",
-            "cppStandard": "c++11",
+            "cppStandard": "c++14",
             "configurationProvider": "particle.particle-vscode-core",
             "mergeConfigurations": true,
             "browse": {
@@ -34,6 +34,35 @@
                     "${workspaceFolder}\\src"
                 ]
             }
+        },
+        {
+            "name": "*nix",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/tests",
+                "${workspaceFolder}/src/cli"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "TEST_VERSION=1"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "intelliSenseMode": "linux-gcc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "mergeConfigurations": true,
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "${default}",
+                    "${workspaceFolder}/src",
+                    "${workspaceFolder}/tests",
+                ]
+            },
+            "compilerArgs": []
         }
     ],
     "version": 4

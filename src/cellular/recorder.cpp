@@ -448,7 +448,7 @@ int Recorder::closeSession(void)
 {
     if (nullptr == this->pSession)
     {
-        SF_OSAL_printf("REC::CLOSE Already closed\n");
+        SF_OSAL_printf("REC::CLOSE Already closed"  __NL__);
         return 1;
     }
 
@@ -482,7 +482,7 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
         {
             this->dataBuffer[this->dataIdx] = 0;
         }
-        // SF_OSAL_printf("Flushing\n");
+        // SF_OSAL_printf("Flushing"  __NL__);
         this->pSession->write(this->dataBuffer, SF_PACKET_SIZE);
 
         memset(this->dataBuffer, 0, REC_MEMORY_BUFFER_SIZE);
@@ -490,7 +490,7 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
     }
 
     // data guaranteed to fit
-    // SF_OSAL_printf("Putting %u bytes\n", nBytes);
+    // SF_OSAL_printf("Putting %u bytes"  __NL__, nBytes);
     memcpy(&this->dataBuffer[this->dataIdx], pData, nBytes);
     this->dataIdx += nBytes;
     return 0;

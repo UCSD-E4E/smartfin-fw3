@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/c++,linux,macos,windows,particle,python
-# Edit at https://www.toptal.com/developers/gitignore?templates=c++,linux,macos,windows,particle,python
+# Created by https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,doxygen,windows,particle,venv
+# Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake,linux,macos,python,doxygen,windows,particle,venv
 
 ### C++ ###
 # Prerequisites
@@ -34,6 +34,27 @@
 *.exe
 *.out
 *.app
+
+### CMake ###
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+### CMake Patch ###
+# External projects
+*-prefix/
+
+### Doxygen ###
+html
+latex
 
 ### Linux ###
 *~
@@ -261,6 +282,18 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
+### venv ###
+# Virtualenv
+# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
+[Bb]in
+[Ii]nclude
+[Ll]ib
+[Ll]ib64
+[Ll]ocal
+[Ss]cripts
+pyvenv.cfg
+pip-selfcheck.json
+
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
@@ -287,7 +320,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/c++,linux,macos,windows,particle,python
+# End of https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,doxygen,windows,particle,venv
 smartfin-fw3.cpp
 target/
 *.bin
