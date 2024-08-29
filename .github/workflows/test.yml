@@ -17,7 +17,7 @@ jobs:
           
           - name: Set up environment
             run: |
-              sudo apt-get update && sudo apt-get install -y cmake build-essential           
+              sudo apt-get update && sudo apt-get install -y cmake build-essential gdb        
               
     
           - name: Build and run tests
