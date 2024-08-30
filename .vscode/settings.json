@@ -62,9 +62,7 @@
     "particle.targetPlatform": "tracker",
 
     "particle.targetDevice": "",
-    "cmake.configureOnOpen": true,
-
-    "C_Cpp.codeAnalysis.clangTidy.enabled": false,
+    "cmake.configureOnOpen": false,
     "C_Cpp.default.cppStandard": "c++11",
     "C_Cpp.default.cStandard": "c11",
     "C_Cpp.doxygen.generatedStyle": "/**",
@@ -88,7 +86,7 @@
         "cwd": "${workspaceFolder}"
     },
     "cmake.configureArgs": [
-        "-DTEST=ON",
+        "-DTEST_VERSION",
         "-DCMAKE_BUILD_TYPE=Debug"
     ]
     
