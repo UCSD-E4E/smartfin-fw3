@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{cite}
 
 \title{Brief Overview of SmartFin Version 3 Scheduler Implementation}
 \author{Antara Chugh} \and {Charlie Kushelevy} \and {Meena Annamalai}  \and {Hannah Cutler} \and {Nathan Hui} \and {Ryan Katsner}
@@ -63,13 +64,13 @@ In addition, minimizing the number of shifts in the sampling sequence may be mor
 Another factor to note is that the exact amount of time the system will run is variable, as surfers spend variable amounts of time in the water. 
 
 \section{Previous Works}
-There has been much work already done on non-preemptive scheduler algorithms. \newline
+There has been much work already done on non-preemptive scheduler algorithms. 
 
-Greedy algorithms are those based on making the most locally optimal decision. Earliest deadline first and earliest job finished are examples of greedy algorithms used for creating schedules with a single compute source and multiple tasks with potentially overlapping times (Karger 1997). \newline
+Greedy algorithms are those based on making the most locally optimal decision. Earliest deadline first and earliest job finished are examples of greedy algorithms used for creating schedules with a single compute source and multiple tasks with potentially overlapping times ~\cite{Karger97}. 
 
-Earliest Deadline First is a greedy algorithm for soft real time systems, which allow for tasks to be late (Karger 1997). It provides the optimal solution to minimizing lateness in the system. It schedules tasks by ascending deadlines, scheduling those with the earliest deadline first (as implied by its name).Though we wish to also minimize delays in the system, we would prefer to delay a task and all subsequent occurrences of that task to maintain a consistent sampling rate over having a task delayed and that data point rendered as not usable. Thus, earliest deadline first is not a feasible algorithm, as it cannot guarantee consistent periodic intervals of each task. \newline
+Earliest Deadline First is a greedy algorithm for soft real time systems, which allow for tasks to be late ~\cite{Karger97}. It provides the optimal solution to minimizing lateness in the system. It schedules tasks by ascending deadlines, scheduling those with the earliest deadline first (as implied by its name).Though we wish to also minimize delays in the system, we would prefer to delay a task and all subsequent occurrences of that task to maintain a consistent sampling rate over having a task delayed and that data point rendered as not usable. Thus, earliest deadline first is not a feasible algorithm, as it cannot guarantee consistent periodic intervals of each task. \newline
 
-Earliest Job Finish is a greedy algorithm for hard real time systems with limited compute power (Karger 1997). It aims to perform as many tasks as possible, given that no task can be late. It also sorts the tasks by ascending deadlines, scheduling tasks that work together. Earliest job finish would not be a feasible algorithm as jobs would be skipped completely, again failing to maintain a consistent data sampling rate.  \newline
+Earliest Job Finish is a greedy algorithm for hard real time systems with limited compute power ~\cite{Karger97}. It aims to perform as many tasks as possible, given that no task can be late. It also sorts the tasks by ascending deadlines, scheduling tasks that work together. Earliest job finish would not be a feasible algorithm as jobs would be skipped completely, again failing to maintain a consistent data sampling rate.  
 
 \section{Current Algorithm}
 
@@ -86,10 +87,8 @@ Our current implementation is a greedy algorithm which picks tasks based on whet
 Due to the fact that the SmartFin is a single core device and the periodicity and length of the tasks, mathematically, it is not possible for all combinations of tasks to run with no shifts in the system. Further, even when allowing for shifts, there exist combinations of tasks in which preserving the frequencies of each task is simply not possible. 
 
 
-\bibliographystyle{plain} % We choose the "plain" reference style
-
-\bibliography{refs} % Entries are in the refs.bib file
-Karger, David, and Cli Stein. Scheduling Algorithms. 1997.
+\bibliography{refs}{} 
+\bibliographystyle{plain}
 
 \end{document}
 
