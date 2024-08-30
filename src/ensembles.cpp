@@ -1,6 +1,6 @@
 /**
  * @file ensembles.cpp
- * @brief Contains efinitions of ensembles
+ * @brief Contains definitions of ensembles (updated version of smartfin-fw2 ensembles)
  */
 #include "ensembles.hpp"
 #include "cellular/ensembleTypes.hpp"
@@ -107,6 +107,8 @@ static void SS_ensemble10Func(DeploymentSchedule_t* pDeployment)
     getAccelerometer(accelData, accelData + 1, accelData + 2);
     getGyroscope(gyroData, gyroData + 1, gyroData + 2);
     getMagnetometer(magData, magData + 1, magData + 2);
+    
+    //GPS
     bool locked;
     unsigned int satsInView;
     ubloxGPS *ubloxGps_(nullptr);
