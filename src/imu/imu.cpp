@@ -17,15 +17,14 @@
 #include "consts.hpp"
 #include "i2c/i2c.h"
 #include <cmath>
-#include <map>
-#include <vector>
+
 #define SERIAL_PORT Serial
 
 
 #define WIRE_PORT Wire
-#define AD0_VAL 1  //should be set to 0, currently for dev board need to change to 1
+#define AD0_VAL 0  //should be set to 0, currently for dev board need to change to 1
 
-#define GIB 1073741824
+#define GIB 1073741824 // To convert quaternion raw data to double. Divide by 2^30
 
 ICM_20948_I2C myICM;
 
@@ -224,7 +223,7 @@ bool getDMPAccelerometerAcc(float* acc_acc)
    return false;
 }
 
-bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc)
+bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0)
 {
    icm_20948_DMP_data_t data;
    myICM.readDMPdataFromFIFO(&data);
