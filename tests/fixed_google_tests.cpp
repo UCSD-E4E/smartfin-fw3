@@ -287,7 +287,7 @@ TEST_F(SchedulerFixedTests, TestDefaultWithDelays)
      run(3, 6, Delay, expected);
 } 
 
-TEST_F(SchedulerFixedTests, ExtremeDelayonB)
+TEST_F(SchedulerFixedTests, ExtremeDelayOnB)
 {
     
     two_task_change_intervals(50, 50);
