@@ -5,6 +5,7 @@
         "cschlosser.doxdocgen",
         "jebbs.plantuml",
         "ms-vscode.cpptools-extension-pack",
-        "github.vscode-github-actions"
+        "github.vscode-github-actions",
+        "eamodio.gitlens"
     ]
 }
