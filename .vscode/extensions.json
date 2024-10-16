@@ -4,6 +4,7 @@
         "particle.particle-vscode-core",
         "cschlosser.doxdocgen",
         "jebbs.plantuml",
-        "ms-vscode.cpptools-extension-pack"
+        "ms-vscode.cpptools-extension-pack",
+        "github.vscode-github-actions"
     ]
 }
