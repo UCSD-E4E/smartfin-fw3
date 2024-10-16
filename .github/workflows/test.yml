@@ -1,31 +1,26 @@
-name: Compile Firmware
+name: x86 Unit Tests
 
 on: [push]
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-          
-          - name: Checkout code
-            uses: actions/checkout@v4
-            with:
-              submodules: recursive
-          
-          - name: Create folder
-            run: mkdir -p external/ 
-          
-          - name: Set up environment
-            run: |
-              sudo apt-get update && sudo apt-get install -y cmake build-essential        
-              
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
     
-          - name: Build and run tests
-            run: |
-              cmake -B build -DCMAKE_BUILD_TYPE=Debug
-              cd build
-              make
-              cd ..
-              ./build/googletests
+    - name: Set up environment
+      run: |
+        sudo apt-get update && sudo apt-get install -y cmake build-essential        
+
+    - name: Build and run tests
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Debug
+        cd build
+        make
+        cd ..
+        ./build/googletests
 
     
