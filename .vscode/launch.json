@@ -88,63 +88,6 @@
                 "version": "1.0.1",
                 "debugger": "generic-cmsis-dap"
             }
-        },
-        {
-            "name": "Google Tests Debugger",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${command:cmake.launchTargetPath}",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "CMake: build",
-            "miDebuggerPath": "/usr/bin/gdb",
-            "logging": {
-                "moduleLoad": false,
-                "programOutput": true,
-                "engineLogging": false,
-                "trace": false,
-                "traceResponse": false
-            }
-        },
-        {
-            "name": "Examine Behavior Debugger",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examine_behavior",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "CMake: build",
-            "miDebuggerPath": "/usr/bin/gdb",
-            "logging": {
-                "moduleLoad": false,
-                "programOutput": true,
-                "engineLogging": false,
-                "trace": false,
-                "traceResponse": false
-            }
         }
-        
     ]
 }

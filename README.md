@@ -10,6 +10,13 @@ Smartfin FW v3
 git submodule init
 git submodule update --recursive
 ```
+5. Ensure tooling is installed
+    - `cmake`
+    - `g++` (usually from `build-essential`)
+    - `gdb`
+
+## x86 Mode Debugging
+Please use the CMake Tools debugger
 
 # Contributing
 
