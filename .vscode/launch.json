@@ -2,6 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Semantic Release",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "semantic_release_prepare.py",
+            "console": "integratedTerminal",
+            "args": [
+                "1.2.3",
+                "37-feat-semver",
+                "src/vers.hpp"
+            ]
+        },
+        {
             "type": "cortex-debug",
             "request": "attach",
             "servertype": "openocd",
