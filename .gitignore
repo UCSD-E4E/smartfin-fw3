@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,doxygen,windows,particle,venv
-# Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake,linux,macos,python,doxygen,windows,particle,venv
+# Created by https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,doxygen,windows,particle
+# Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake,linux,macos,python,doxygen,windows,particle
 
 ### C++ ###
 # Prerequisites
@@ -282,18 +282,6 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-### venv ###
-# Virtualenv
-# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
-[Bb]in
-[Ii]nclude
-[Ll]ib
-[Ll]ib64
-[Ll]ocal
-[Ss]cripts
-pyvenv.cfg
-pip-selfcheck.json
-
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
@@ -320,7 +308,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,doxygen,windows,particle,venv
+# End of https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,doxygen,windows,particle
 smartfin-fw3.cpp
 target/
 *.bin
