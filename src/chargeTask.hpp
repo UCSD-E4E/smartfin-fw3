@@ -21,8 +21,8 @@ class ChargeTask : public Task{
     */
     void init(void);
     /**
-     * @brief Charges the device, and exits to CLI on command.
-    */
+     * @brief Charges the device, and exits to CLI on command..
+     */
     STATES_e run(void);
     void exit(void);
 
