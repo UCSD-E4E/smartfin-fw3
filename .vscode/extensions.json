@@ -3,6 +3,9 @@
         "ms-vscode.cpptools",
         "particle.particle-vscode-core",
         "cschlosser.doxdocgen",
-        "jebbs.plantuml"
+        "jebbs.plantuml",
+        "ms-vscode.cpptools-extension-pack",
+        "github.vscode-github-actions",
+        "eamodio.gitlens"
     ]
 }

@@ -1,6 +1,22 @@
 # smartfin-fw3
 Smartfin FW v3
 
+# Developer Getting Started
+1. Clone this repository
+2. Open in Visual Studio Code
+3. Install all recommended extensions
+4. Initialize submodules
+```
+git submodule init
+git submodule update --recursive
+```
+5. Ensure tooling is installed
+    - `cmake`
+    - `g++` (usually from `build-essential`)
+    - `gdb`
+
+## x86 Mode Debugging
+Please use the CMake Tools debugger
 
 # Contributing
 

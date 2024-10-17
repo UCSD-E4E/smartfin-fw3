@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/c++,linux,macos,python,windows,particle,doxygen
-# Edit at https://www.toptal.com/developers/gitignore?templates=c++,linux,macos,python,windows,particle,doxygen
+# Created by https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,doxygen,windows,particle
+# Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake,linux,macos,python,doxygen,windows,particle
 
 ### C++ ###
 # Prerequisites
@@ -34,6 +34,23 @@
 *.exe
 *.out
 *.app
+
+### CMake ###
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+### CMake Patch ###
+# External projects
+*-prefix/
 
 ### Doxygen ###
 html
@@ -291,9 +308,16 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/c++,linux,macos,python,windows,particle,doxygen
+# End of https://www.toptal.com/developers/gitignore/api/c++,cmake,linux,macos,python,doxygen,windows,particle
 smartfin-fw3.cpp
 target/
 *.bin
 nul
-out/docs/*
+
+out/docs/application/Service Diagram.png
+out/docs/fw_flow/Firmware Flowchart.png
+tests/googletest
+tests/outputs/
+build/*
+tests/*outputs/*
+tests/no_check_inputs/*

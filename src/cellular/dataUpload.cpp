@@ -66,7 +66,7 @@ STATES_e DataUpload::run(void)
 
     if (!this->initSuccess)
     {
-        SF_OSAL_printf("Failed to init\n");
+        SF_OSAL_printf("Failed to init" __NL__);
         return STATE_DEEP_SLEEP;
     }
 

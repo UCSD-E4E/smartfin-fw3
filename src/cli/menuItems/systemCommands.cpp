@@ -56,7 +56,7 @@ void CLI_doUpload(void)
 
 void CLI_self_identify(void)
 {
-    SF_OSAL_printf("Smartfin ID: %s\n", pSystemDesc->deviceID);
+    SF_OSAL_printf("Smartfin ID: %s"  __NL__, pSystemDesc->deviceID);
     VERS_printBanner();
 }
 
