@@ -9,8 +9,7 @@
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE",
-                
+                "_UNICODE"
             ],
             "windowsSdkVersion": "10.0.22000.0",
             "compilerPath": "~\\.particle\\toolchains\\gcc-arm\\10.2.1\\bin\\arm-none-eabi-gcc.exe",
@@ -61,7 +60,7 @@
                 "path": [
                     "${default}",
                     "${workspaceFolder}/src",
-                    "${workspaceFolder}/tests",
+                    "${workspaceFolder}/tests"
                 ]
             },
             "compilerArgs": []
