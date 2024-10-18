@@ -97,13 +97,11 @@ class FileCLI{
     /**
      * @brief Structure representing a command menu entry for FileCLI.
      *
-     * Associated specific user commands with specific actions.
-     * The findCommand function then finds the matching command in the menu.
      */
     typedef struct menu_
     {
-        const char cmd;
-        void (FileCLI::*fn)(void);
+        const char cmd;            /**< A character representing a user command. */
+        void (FileCLI::*fn)(void); /**< A pointer to a FileCLI member function. */
     } menu_t;
     static menu_t fsExplorerMenu[];
     /**
