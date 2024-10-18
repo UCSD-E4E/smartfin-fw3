@@ -1,33 +1,25 @@
-/**
- * @file flog.cpp
- * @author @emilybthorpe
- * @brief Fault Log (FLOG) with persistent memory
- * @version 0.1
- * @date 2023-08-03
- *
- * @copyright Copyright (c) 2023
- *
- */
-
-#include "flog.hpp"
-
-#include "conio.hpp"
+#include "cli/flog.hpp"
+#include "cli/conio.hpp"
 #include "consts.hpp"
+#include "scheduler_test_system.hpp"
 
-#include <Particle.h>
+#include <stdlib.h>
+#include <string.h>
+
+
 
 
 typedef struct FLOG_Entry_
 {
-    uint32_t timestamp_ms;
+    std::uint32_t timestamp_ms;
     uint16_t errorCode;
     FLOG_VALUE_TYPE param;
 }__attribute__((packed)) FLOG_Entry_t;
 
 typedef struct FLOG_Data_
 {
-    uint32_t numEntries;
-    uint32_t nNumEntries;
+    std::uint32_t numEntries;
+    std::uint32_t nNumEntries;
     FLOG_Entry_t flogEntries[FLOG_NUM_ENTRIES];
 }FLOG_Data_t;
 
@@ -37,7 +29,7 @@ typedef struct FLOG_Message_
     const char* message;
 }FLOG_Message_t;
 
-retained FLOG_Data_t flogData;
+FLOG_Data_t flogData;
 static char FLOG_unknownMessage[256];
 
 static const char* FLOG_FindMessage(FLOG_CODE_e code);
@@ -113,6 +105,7 @@ void FLOG_Initialize(void)
     {
         FLOG_ClearLog();
     }
+    SF_OSAL_printf("Fault Log initialized!\n");
 }
 void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
 {
@@ -123,17 +116,19 @@ void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
         FLOG_Initialize();
     }
 
-    pEntry = &flogData.flogEntries[(flogData.numEntries) & (FLOG_NUM_ENTRIES - 1)];
+    pEntry = &flogData.flogEntries[(flogData.numEntries) & 
+        (FLOG_NUM_ENTRIES - 1)];
     pEntry->timestamp_ms = millis();
     pEntry->errorCode = errorCode;
     pEntry->param = parameter;
     flogData.numEntries++;
     flogData.nNumEntries = ~flogData.numEntries;
+    
 }
 
 void FLOG_DisplayLog(void)
 {
-    uint32_t i;
+    std::uint32_t i;
     if (!FLOG_IsInitialized())
     {
         SF_OSAL_printf("Fault Log not initialized!"  __NL__);

@@ -60,6 +60,7 @@
     },
     "particle.firmwareVersion": "5.3.0",
     "particle.targetPlatform": "tracker",
+
     "particle.targetDevice": "",
     "cmake.configureOnOpen": false,
     "C_Cpp.default.cppStandard": "c++11",
@@ -67,7 +68,7 @@
     "C_Cpp.doxygen.generatedStyle": "/**",
     "C_Cpp.autoAddFileAssociations": false,
     "editor.rulers": [
-        80
+        100
     ],
     "particle.enableVerboseLocalCompilerLogging": true,
     "plantuml.render": "PlantUMLServer",
@@ -79,4 +80,16 @@
     "editor.formatOnType": true,
     "doxdocgen.generic.useGitUserEmail": true,
     "doxdocgen.generic.useGitUserName": true,
+    "C_Cpp.errorSquiggles": "enabled",
+    "cmake.generator": "Unix Makefiles",
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}"
+    },
+    "cmake.configureArgs": [
+        "-DTEST_VERSION=1",
+        "-DCMAKE_BUILD_TYPE=Debug"
+    ],
+    "latex-workshop.formatting.latex": "latexindent"
 }
