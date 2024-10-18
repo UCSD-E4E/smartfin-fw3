@@ -89,16 +89,54 @@ class FileCLI{
      */
     void mkdir(void);
 
+    /**
+     * @brief Indicates whether the CLI is running.
+     *
+     * @detailsWhen set to 1, the CLI continues running; when set to 0,
+     * the CLI exits.
+     */
     int run = 1;
+
+    /**
+     * @brief Stack of directory pointers for navigating through directories.
+     *
+     * @details This stack holds up to FILE_CLI_MAX_DIR_DEPTH directories.
+     */
     DIR* dir_stack[FILE_CLI_MAX_DIR_DEPTH];
+
+    /**
+     * @brief Stack of paths corresponding to the directory stack.
+     *
+     * This stack holds the paths for the directories in the `dir_stack`.
+     */
     char path_stack[FILE_CLI_MAX_DIR_DEPTH][NAME_MAX];
+    /**
+     * @brief Index of the current directory in the directory stack.
+     *
+     * @details This integer represents the current position within
+     * the `dir_stack`.
+     */
     int current_dir;
+    /**
+     * @brief typedef for a menu entry for fileCli.
+     *
+     * @details contains a command and a function for each entry
+     */
     typedef struct menu_
     {
+        //! Command character for the menu entry.
         const char cmd;
+        //! Function pointer to the command handler.
         void (FileCLI::*fn)(void);
     } menu_t;
+
+    /**
+     * @brief Array of menu entries.
+     *
+     *  @details This menu is used to handle various file operations in the CLI.
+     */
     static menu_t fsExplorerMenu[];
+
     /**
      * @brief Finds the menu entry corresponding to the specified command string
      * 
@@ -106,6 +144,13 @@ class FileCLI{
      * @return Pointer to menu entry if matching entry found, otherwise nullptr
      */
     static menu_t* findCommand(const char* const cmd);
+
+    /**
+     * @brief Constructs a path from the current directory stack.
+     *
+     * @param is_dir If true, the path is a directory path.
+     * @return const char* The constructed file or directory path.
+     */
     const char* buildPath(bool is_dir);
 };
 #endif
