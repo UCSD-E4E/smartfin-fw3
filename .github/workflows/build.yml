@@ -20,8 +20,7 @@ jobs:
       - name: Compile Documentation
         id: docs
         uses: mattnotmitt/doxygen-action@1.9.8
-        with:
-          enable-latex: true
+
       - name: Check outputs
         run: |
           ls -alh docs/html
@@ -34,7 +33,7 @@ jobs:
                 ${{ steps.compile.outputs.firmware-path }}
                 ${{ steps.compile.outputs.target-path }}
                 docs/html
-                docs/latex
+                doxygen.log
 
   release:
     needs: [compile]
