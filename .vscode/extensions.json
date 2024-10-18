@@ -6,6 +6,7 @@
         "jebbs.plantuml",
         "ms-vscode.cpptools-extension-pack",
         "github.vscode-github-actions",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "james-yu.latex-workshop"
     ]
 }
