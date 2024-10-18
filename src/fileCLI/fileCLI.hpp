@@ -93,10 +93,15 @@ class FileCLI{
     DIR* dir_stack[FILE_CLI_MAX_DIR_DEPTH];
     char path_stack[FILE_CLI_MAX_DIR_DEPTH][NAME_MAX];
     int current_dir;
+
+    /**
+     * @brief Structure representing a command menu entry for FileCLI.
+     *
+     */
     typedef struct menu_
     {
-        const char cmd;
-        void (FileCLI::*fn)(void);
+        const char cmd;            /**< A character representing a user command. */
+        void (FileCLI::*fn)(void); /**< A pointer to a FileCLI member function. */
     } menu_t;
     static menu_t fsExplorerMenu[];
     /**
