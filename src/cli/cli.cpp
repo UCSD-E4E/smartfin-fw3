@@ -8,35 +8,29 @@
 
 #include "cli.hpp"
 
+#include "Particle.h"
 #include "cliDebug.hpp"
-
 #include "conio.hpp"
 #include "consts.hpp"
-#include "menu.hpp"
-
-#include "menuItems/systemCommands.hpp"
-#include "menuItems/debugCommands.hpp"
-#include "menuItems/gpsCommands.hpp"
 #include "debug/recorder_debug.hpp"
 #include "debug/session_debug.hpp"
 #include "imu/imu.hpp"
+#include "location_service.h"
+#include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
-
-#include "states.hpp"
-#include "util.hpp"
-#include "vers.hpp"
+#include "menuItems/gpsCommands.hpp"
+#include "menuItems/systemCommands.hpp"
 #include "product.hpp"
 #include "sleepTask.hpp"
+#include "states.hpp"
 #include "system.hpp"
-#include "system.hpp"
+#include "util.hpp"
+#include "vers.hpp"
 
-#include <fstream>
 #include <bits/stdc++.h>
-#include "location_service.h"
-#include "Particle.h"
-#include <string>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <string>
 
 #define NUM_SENSORS 6
 
