@@ -93,6 +93,13 @@ class FileCLI{
     DIR* dir_stack[FILE_CLI_MAX_DIR_DEPTH];
     char path_stack[FILE_CLI_MAX_DIR_DEPTH][NAME_MAX];
     int current_dir;
+
+    /**
+     * @brief Structure representing a command menu entry for FileCLI.
+     *
+     * Associated specific user commands with specific actions.
+     * The findCommand function then finds the matching command in the menu.
+     */
     typedef struct menu_
     {
         const char cmd;
