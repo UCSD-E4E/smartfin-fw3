@@ -56,15 +56,21 @@ public:
     virtual void initializeScheduler(void) = 0;
 
     /**
-     * Computes the time to the next task.
+     * @brief Computes the next task parameters
+     *
+     * Given the schedule of tasks and other internal state information,
+     * this function MUST compute the next available task as well as the time at
+     * which the next task should run.  If the next available task to run should
+     * have run before the current_time, then this function MUST indicate that
+     * this task is delayed (if delays are allowed by implementation).
      *
      * @param p_next_task Pointer to a variable which will be populated with the
      * address to the next task to run
      * @param p_next_runtime Pointer to a variable which will be populated with
      * the time in milliseconds since boot at which the next task MUST run
      * @param current_time The current time in milliseconds since boot
-     * @return 0 if successful, otherwise error code to be defined by
-     * implementation
+     * @return ::SCHEDULER_SUCCESS if successful, otherwise error
+     * code to be defined by implementation
      */
     virtual SCH_error_e getNextTask(DeploymentSchedule_t **p_next_task,
                                     std::uint32_t *p_next_runtime,
