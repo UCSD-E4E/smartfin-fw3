@@ -14,6 +14,8 @@ git submodule update --recursive
     - `cmake`
     - `g++` (usually from `build-essential`)
     - `gdb`
+    - `doxygen`
+    - `graphviz`
 
 ## x86 Mode Debugging
 Please use the CMake Tools debugger
