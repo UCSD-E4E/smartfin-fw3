@@ -48,14 +48,13 @@ static void CLI_sleepGetSleepBehavior(void);
 static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
 
-const Menu_t CLI_menu[] =
-{
+const Menu_t CLI_menu[] = {
     {1, "display Menu", &CLI_displayMenu, MENU_CMD},
     {2, "disconnect particle", &CLI_disconnect, MENU_CMD},
     {3, "connect particle", &CLI_connect, MENU_CMD},
     {4, "show flog errors", &CLI_displayFLOG, MENU_CMD},
     {5, "test printf", &CLI_testPrintf, MENU_CMD},
-    {6, "debug menu", {.pMenu=CLI_debugMenu}, MENU_SUBMENU},
+    {6, "debug menu", {.pMenu = CLI_debugMenu}, MENU_SUBMENU},
     {7, "hexdump", &CLI_hexdump, MENU_CMD},
     {8, "gps", &CLI_GPS, MENU_CMD},
     {9, "sleep", &CLI_doSleep, MENU_CMD},
@@ -63,8 +62,8 @@ const Menu_t CLI_menu[] =
     {11, "check charge ports", &CLI_checkCharging, MENU_CMD},
     {12, "MFG Test", &CLI_doMfgTest, MENU_CMD},
     {13, "upload", &CLI_doUpload, MENU_CMD},
-    {14, "Recorder Test Menu", {.pMenu=Recorder_debug_menu}, MENU_SUBMENU},
-    {15, "Session Test Menu", {.pMenu=Session_debug_menu}, MENU_SUBMENU},
+    {14, "Recorder Test Menu", {.pMenu = Recorder_debug_menu}, MENU_SUBMENU},
+    {15, "Session Test Menu", {.pMenu = Session_debug_menu}, MENU_SUBMENU},
     {16, "Display all sensors", &CLI_monitorSensors, MENU_CMD},
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
@@ -72,9 +71,7 @@ const Menu_t CLI_menu[] =
     {200, "Sleep - Set Sleep Behavior", &CLI_sleepSetSleepBehavior, MENU_CMD},
     {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior, MENU_CMD},
     {300, "Display Reset Reason", &CLI_displayResetReason, MENU_CMD},
-    {0, nullptr, nullptr, MENU_NULL}
-};
-
+    {0, nullptr, nullptr, MENU_NULL}};
 
 STATES_e CLI_nextState;
 
