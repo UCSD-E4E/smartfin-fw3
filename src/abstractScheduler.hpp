@@ -1,3 +1,14 @@
+/**
+ * @file abstractScheduler.hpp
+ * @author Nathan Hui (nthui@ucsd.edu)
+ * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @brief Abstract Scheduler definitions
+ * @version 0.1
+ * @date 2024-07-25
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #ifndef __ABSTRACT_SCHEDULER_HPP__
 #define __ABSTRACT_SCHEDULER_HPP__
 #include "deploymentSchedule.hpp"
