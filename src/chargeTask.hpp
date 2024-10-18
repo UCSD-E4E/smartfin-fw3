@@ -21,14 +21,29 @@ class ChargeTask : public Task{
     */
     void init(void);
     /**
-     * @brief Charges the device, and exits to CLI on command..
+     * @brief Charges the device, and exits to CLI on command
+     * 
+     * @return Current status of charge task
      */
     STATES_e run(void);
     void exit(void);
 
     private:
+    /**
+     * @brief Buffer for storing command-line input
+     * 
+     * Character array holds input from CLI with a maxiumum size of 'CLI_BUFFER_LEN'
+    */
     char inputBuffer[CLI_BUFFER_LEN];
+    /**
+     * @brief LED status indicator for charging task
+     *
+     * Object provides visual status of device's charging state
+     */
     LEDStatus ledStatus;
+    /**
+     * @brief Timestamp for tracking start of charging process
+     */
     system_tick_t startTime;
 };
 #endif
