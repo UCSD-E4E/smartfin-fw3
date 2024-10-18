@@ -92,7 +92,7 @@ class FileCLI{
     /**
      * @brief Indicates whether the CLI is running.
      *
-     * @detailsWhen set to 1, the CLI continues running; when set to 0,
+     * @details When set to 1, the CLI continues running; when set to 0,
      * the CLI exits.
      */
     int run = 1;
