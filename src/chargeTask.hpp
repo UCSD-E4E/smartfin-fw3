@@ -23,7 +23,7 @@ class ChargeTask : public Task{
     /**
      * @brief Charges the device, and exits to CLI on command
      * 
-     * @return Current status of charge task
+     * @return State of device: STATE_CLI or STATE_DEEP_SLEEP
      */
     STATES_e run(void);
     void exit(void);
@@ -38,11 +38,13 @@ class ChargeTask : public Task{
     /**
      * @brief LED status indicator for charging task
      *
-     * Object provides visual status of device's charging state
+     * Object defines visual status of device's charging state
      */
     LEDStatus ledStatus;
     /**
      * @brief Timestamp for tracking start of charging process
+     * 
+     * startTime = 0 indicates the device charging for 0 milliseconds
      */
     system_tick_t startTime;
 };
