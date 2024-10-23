@@ -79,9 +79,8 @@ extern "C"
         return i;
     }
 
-
     // Print char array to terminal
-    int SF_OSAL_printf(const char* fmt, ...)
+    int SF_OSAL_printf(const char *fmt, ...)
     {
         va_list vargs;
         int nBytes = 0;
@@ -91,5 +90,4 @@ extern "C"
         Serial.write(SF_OSAL_printfBuffer);
         return nBytes;
     }
-
 }
