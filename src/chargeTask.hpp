@@ -13,6 +13,10 @@
 #define CHARGE_RGB_LED_PERIOD   0
 #define CHARGE_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
 
+/**
+ * @brief Handles charging process
+ * @details Contains methods for starting charging task (setting LEDs, etc), detecting if charger is connected, and ending charging task
+ */
 class ChargeTask : public Task{
     public:
     /**
