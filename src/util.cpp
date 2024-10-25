@@ -8,6 +8,11 @@
  * @copyright Copyright (c) 2023
  * 
  */
+
+/*! \def BYTES_PER_LINE
+    \brief A macro that stores the the size of each line of output as a constant 16 bytes
+*/
+
 #include "util.hpp"
 
 #include "cli/conio.hpp"
