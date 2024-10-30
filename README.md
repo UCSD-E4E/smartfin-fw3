@@ -46,7 +46,7 @@ State              | Color    | Pattern
 ---------------------------------------
 Charge             | Yellow   | Solid
 Sleep              | Black    | Solid
-CLI                | Red      | Solid
+CLI                | Green    | Solid
 Network Off        | Black    | Solid
 Network On         | Blue     | Solid
 Network Connecting | Blue     | Solid
