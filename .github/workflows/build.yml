@@ -51,6 +51,7 @@ jobs:
         fetch-depth: 0
         submodules: recursive
         ref: main
+        token: ${{ secrets.RELEASER }}
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -74,6 +75,6 @@ jobs:
     - name: Run Semantic Release
       id: release
       env:
-        GH_TOKEN : ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN : ${{ secrets.RELEASER }}
       run: |
         npx semantic-release@23
