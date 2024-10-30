@@ -1,3 +1,11 @@
+## [3.2.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.1...v3.2.2) (2024-10-30)
+
+
+### Bug Fixes
+
+* add brief & details to chargetask documentation ([42ed2e6](https://github.com/UCSD-E4E/smartfin-fw3/commit/42ed2e678e276cd26609116464ea40163d388323))
+* add brief & details to ChargeTask documentation ([#105](https://github.com/UCSD-E4E/smartfin-fw3/issues/105)) ([0c004d8](https://github.com/UCSD-E4E/smartfin-fw3/commit/0c004d8c552b7aadc827b1e97362f7a6ce7d9de0))
+
 ## [3.2.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.0...v3.2.1) (2024-06-23)
 
 
