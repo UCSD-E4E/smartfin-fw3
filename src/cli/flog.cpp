@@ -154,7 +154,7 @@ void FLOG_DisplayLog(void)
             FLOG_FindMessage((FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
             flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
     }
-    SF_OSAL_printf(""  __NL__);
+    SF_OSAL_printf(__NL__);
 }
 void FLOG_ClearLog(void)
 {
