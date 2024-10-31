@@ -16,6 +16,7 @@
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "i2c/i2c.h"
+
 #include <cmath>
 #include <map>
 #include <vector>
