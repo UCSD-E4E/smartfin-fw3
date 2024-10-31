@@ -20,16 +20,24 @@
 #include <cmath>
 #include <map>
 #include <vector>
-#define SERIAL_PORT Serial
-
 
 #define WIRE_PORT Wire
-#define AD0_VAL 1  //should be set to 0, currently for dev board need to change to 1
 
+/**
+ * @brief ICM20948 I2C Address Selector Bit
+ *
+ * Set to 0 on final design, set to 1 for dev board.
+ *
+ */
+#define AD0_VAL 1 // should be set to 0, currently for dev board need to change to 1
+
+/**
+ * @brief Gibibyte in bytes
+ *
+ */
 #define GIB 1073741824
 
 ICM_20948_I2C myICM;
-
 
 float getAccMG( int16_t raw, uint8_t fss );
 float getGyrDPS( int16_t raw, uint8_t fss );
