@@ -108,6 +108,14 @@ void CLI::exit()
     pSystemDesc->pChargerCheck->stop();
 }
 
+/**
+ * @brief CLI Monitor Sensors
+ *
+ * @todo This function needs to be refactored into a class for unit testing. Suspect bad data
+ * acquisition
+ *
+ *
+ */
 static void CLI_monitorSensors(void) {
     char ch;
     float accelData[3] = {0,0,0};
