@@ -12,7 +12,7 @@
 #define __DEPLOYMENT_SCHDEULE_HPP__
 
 /**
- * @brief defines type for DeploymentSchedule_t
+ * @brief Deployment Schedule Type
 
  */
 typedef struct DeploymentSchedule_ DeploymentSchedule_t;
