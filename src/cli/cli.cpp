@@ -136,6 +136,7 @@ static void CLI_monitorSensors(void) {
     char dt[SF_CLI_MAX_CMD_LEN];
     getline(dt, SF_CLI_MAX_CMD_LEN);
     int delayTime = atoi(dt);
+    SF_OSAL_printf("Delay set to %d ms" __NL__, delayTime);
     SF_OSAL_printf("a - acceleraction, g - gyroscope, m - magnetometer, t - temp, w - wet/dry, d - dmp" __NL__);
     bool valid = true;
     while (valid) {
@@ -208,7 +209,12 @@ static void CLI_monitorSensors(void) {
         // headers.push_back("dcz");
     }
 
-    
+    // if no headers, return now
+    if (headers.size() == 0)
+    {
+        return;
+    }
+
     int count = 0;
    
     while(1) {
