@@ -67,7 +67,7 @@ void CLI_createTestFile(void)
     
     if (fd != -1) {
         for(int ii = 0; ii < 100; ii++) {
-            String msg = String::format("testing %d"  __NL__, ii);
+            String msg = String::format("testing %d" __NL__, ii);
             SF_OSAL_printf("Creating file with msg %s" __NL__, msg.c_str());
 
             int i = write(fd, msg.c_str(), msg.length());
