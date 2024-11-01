@@ -18,11 +18,12 @@
  * This task is the effective abstraction of a state in a state machine.
  *
  */
-class Task {
+class Task
+{
 public:
     /**
-     * @brief Initializes the task.  This assumes entry from any other state.  
-     * If this fails, Task::run must handle switching to the appropriate task 
+     * @brief Initializes the task.  This assumes entry from any other state.
+     * If this fails, Task::run must handle switching to the appropriate task
      * context.
      */
     virtual void init(void) = 0;
@@ -37,7 +38,7 @@ public:
     virtual STATES_e run(void) = 0;
 
     /**
-     * @brief This should handle cleaning up any resources.  
+     * @brief This should handle cleaning up any resources.
      * This will execute when Task::run returns.
      */
     virtual void exit(void) = 0;
