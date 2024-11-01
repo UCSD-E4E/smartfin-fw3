@@ -46,6 +46,12 @@ typedef struct FLOG_Message_
     const char* message;
 }FLOG_Message_t;
 
+struct FLOG_Printer
+{
+    FLOG_CODE_e code;
+    void (*printer)(const FLOG_Entry_t &);
+};
+
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 retained FLOG_Data_t flogData;
 #elif SF_PLATFORM == SF_PLATFORM_GCC
@@ -55,6 +61,9 @@ static char FLOG_unknownMessage[256];
 
 static const char* FLOG_FindMessage(FLOG_CODE_e code);
 static int FLOG_IsInitialized(void);
+static void FLOG_fmt_sys_start(const FLOG_Entry_t &entry);
+static void FLOG_fmt_reset_reason(const FLOG_Entry_t &entry);
+static void FLOG_fmt_default(const FLOG_Entry_t &entry);
 
 const FLOG_Message_t FLOG_Message[] = {{FLOG_SYS_START, "System Start"},
                                        {FLOG_SYS_BADSRAM, "Bad SRAM"},
@@ -118,6 +127,10 @@ const FLOG_Message_t FLOG_Message[] = {{FLOG_SYS_START, "System Start"},
                                        {FLOG_DEBUG, "debug point"},
                                        {FLOG_NULL, NULL}};
 
+const struct FLOG_Printer formatter_table[] = {{FLOG_RESET_REASON, FLOG_fmt_reset_reason},
+                                               {FLOG_SYS_START, FLOG_fmt_sys_start},
+                                               {FLOG_NULL, FLOG_fmt_default}};
+
 void FLOG_Initialize(void)
 {
     if (flogData.nNumEntries != ~flogData.numEntries)
@@ -162,28 +175,15 @@ void FLOG_DisplayLog(void)
     for (; i < flogData.numEntries; i++)
     {
         pEntry = &flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)];
-        switch (pEntry->errorCode)
+        const struct FLOG_Printer *ptr;
+        for (ptr = formatter_table; ptr->code != FLOG_NULL; ptr++)
         {
-        case FLOG_SYS_START:
-            const char *time_str;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-            time_str = Time.format((time32_t)pEntry->param).c_str();
-#elif SF_PLATFORM == SF_PLATFORM_GCC
-            time_t timestamp;
-            timestamp = pEntry->param;
-            time_str = ctime(&timestamp);
-#endif
-            SF_OSAL_printf("%8d System Started at %s" __NL__, pEntry->timestamp_ms, time_str);
-            break;
-        default:
-            SF_OSAL_printf(
-                "%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT __NL__,
-                flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
-                FLOG_FindMessage(
-                    (FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
-                flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
-            break;
+            if (ptr->code == pEntry->errorCode)
+            {
+                break;
+            }
         }
+        ptr->printer(*pEntry);
     }
     SF_OSAL_printf(__NL__);
 }
@@ -210,4 +210,66 @@ static const char* FLOG_FindMessage(FLOG_CODE_e code)
 static int FLOG_IsInitialized(void)
 {
     return flogData.nNumEntries == ~flogData.numEntries;
+}
+
+static void FLOG_fmt_sys_start(const FLOG_Entry_t &entry)
+{
+    const char *time_str;
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    time_str = Time.format((time32_t)entry.param).c_str();
+#elif SF_PLATFORM == SF_PLATFORM_GCC
+    time_t timestamp;
+    timestamp = entry.param;
+    time_str = ctime(&timestamp);
+#endif
+    SF_OSAL_printf("%8d System Started at %s" __NL__, entry.timestamp_ms, time_str);
+}
+
+static void FLOG_fmt_reset_reason(const FLOG_Entry_t &entry)
+{
+#if SF_PLATFORM == SF_PLATFORM_GCC
+    SF_OSAL_printf("Reset reason not available" __NL__);
+#elif SF_PLATFORM == SF_PLATFORM_PARTICLE
+    struct reason_mapping
+    {
+        System_Reset_Reason code;
+        const char *text;
+    };
+    struct reason_mapping reason_map[] = {
+        {RESET_REASON_UNKNOWN, "Unspecified reason"},
+        {RESET_REASON_PIN_RESET, "Reset pin assert"},
+        {RESET_REASON_POWER_MANAGEMENT, "Low-power management reset"},
+        {RESET_REASON_POWER_DOWN, "Power-down reset"},
+        {RESET_REASON_POWER_BROWNOUT, "Brownout reset"},
+        {RESET_REASON_WATCHDOG, "Watchdog reset"},
+        {RESET_REASON_UPDATE, "Reset to apply firmware update"},
+        {RESET_REASON_UPDATE_ERROR, "Generic firmware update error"},
+        {RESET_REASON_UPDATE_TIMEOUT, "Firmware update timeout"},
+        {RESET_REASON_FACTORY_RESET, "Factory reset requested"},
+        {RESET_REASON_SAFE_MODE, "Safe mode requested"},
+        {RESET_REASON_DFU_MODE, "DFU mode requested"},
+        {RESET_REASON_PANIC, "System panic"},
+        {RESET_REASON_USER, "User reset"},
+        {RESET_REASON_CONFIG_UPDATE, "Config change update"},
+        {RESET_REASON_NONE, "Invalid reason code"},
+    };
+    struct reason_mapping *ptr;
+    for (ptr = reason_map; ptr->code != RESET_REASON_NONE; ptr++)
+    {
+        if (ptr->code == (System_Reset_Reason)entry.param)
+        {
+            break;
+        }
+    }
+    SF_OSAL_printf("%8d Reset due to %s" __NL__, entry.timestamp_ms, ptr->text);
+
+#endif
+}
+
+static void FLOG_fmt_default(const FLOG_Entry_t &entry)
+{
+    SF_OSAL_printf("%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT __NL__,
+                   entry.timestamp_ms,
+                   FLOG_FindMessage((FLOG_CODE_e)entry.errorCode),
+                   entry.param);
 }
