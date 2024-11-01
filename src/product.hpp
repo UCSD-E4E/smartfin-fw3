@@ -259,7 +259,7 @@
  * @brief GCC Platform Selector
  *
  */
-#define SF_PLATFORM_GCC
+#define SF_PLATFORM_GCC 1
 
 #ifdef PARTICLE
 /**
@@ -270,4 +270,4 @@
 #else
 #define SF_PLATFORM SF_PLATFORM_GCC
 #endif
-#endif
+#endif // __PRODUCT_HPP__

@@ -20,6 +20,7 @@
 #elif SF_PLATFORM == SF_PLATFORM_GCC
 #include "scheduler_test_system.hpp"
 
+#include <ctime>
 #include <stdlib.h>
 #include <string.h>
 #endif
@@ -163,9 +164,15 @@ void FLOG_DisplayLog(void)
         switch (pEntry->errorCode)
         {
         case FLOG_SYS_START:
-            SF_OSAL_printf("%8d System Started at %s" __NL__,
-                           pEntry->timestamp_ms,
-                           Time.format((time32_t)pEntry->param).c_str());
+            const char *time_str;
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+            time_str = Time.format((time32_t)pEntry->param).c_str();
+#elif SF_PLATFORM == SF_PLATFORM_GCC
+            time_t timestamp;
+            timestamp = pEntry->param;
+            time_str = ctime(&timestamp);
+#endif
+            SF_OSAL_printf("%8d System Started at %s" __NL__, pEntry->timestamp_ms, time_str);
             break;
         default:
             SF_OSAL_printf(
