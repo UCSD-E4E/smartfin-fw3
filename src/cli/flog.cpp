@@ -15,7 +15,7 @@
 #include "conio.hpp"
 #include "consts.hpp"
 #include "product.hpp"
-
+#include "states.hpp"
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include <Particle.h>
 #elif SF_PLATFORM == SF_PLATFORM_GCC
@@ -64,6 +64,7 @@ static int FLOG_IsInitialized(void);
 static void FLOG_fmt_sys_start(const FLOG_Entry_t &entry);
 static void FLOG_fmt_reset_reason(const FLOG_Entry_t &entry);
 static void FLOG_fmt_default(const FLOG_Entry_t &entry);
+static void FLOG_fmt_state_start(const FLOG_Entry_t &entry);
 
 const FLOG_Message_t FLOG_Message[] = {{FLOG_SYS_START, "System Start"},
                                        {FLOG_SYS_BADSRAM, "Bad SRAM"},
@@ -129,6 +130,7 @@ const FLOG_Message_t FLOG_Message[] = {{FLOG_SYS_START, "System Start"},
 
 const struct FLOG_Printer formatter_table[] = {{FLOG_RESET_REASON, FLOG_fmt_reset_reason},
                                                {FLOG_SYS_START, FLOG_fmt_sys_start},
+                                               {FLOG_SYS_STARTSTATE, FLOG_fmt_state_start},
                                                {FLOG_NULL, FLOG_fmt_default}};
 
 void FLOG_Initialize(void)
@@ -264,6 +266,12 @@ static void FLOG_fmt_reset_reason(const FLOG_Entry_t &entry)
     SF_OSAL_printf("%8d Reset due to %s" __NL__, entry.timestamp_ms, ptr->text);
 
 #endif
+}
+
+static void FLOG_fmt_state_start(const FLOG_Entry_t &entry)
+{
+    const char *state_name = STATES_NAME_TAB[entry.param];
+    SF_OSAL_printf("%8d Starting state %s" __NL__, entry.timestamp_ms, state_name);
 }
 
 static void FLOG_fmt_default(const FLOG_Entry_t &entry)
