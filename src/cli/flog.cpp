@@ -1,11 +1,12 @@
 /**
  * @file flog.cpp
  * @author @emilybthorpe
+ * @author Nathan Hui (nthui@ucsd.edu)
  * @brief Fault Log (FLOG) with persistent memory
  * @version 0.1
- * @date 2023-08-03
+ * @date 2024-10-31
  *
- * @copyright Copyright (c) 2023
+ * @copyright Copyright (c) 2024
  *
  */
 
