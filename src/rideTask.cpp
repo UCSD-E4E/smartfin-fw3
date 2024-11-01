@@ -83,10 +83,11 @@ STATES_e RideTask::run(void)
             FLOG_AddError(FLOG_SCHEDULER_FAILED, TASK_SEARCH_FAIL);
             return STATE_UPLOAD;
         }
+        SF_OSAL_printf("Next task is %s" __NL__, pNextEvent->taskName);
         delay(nextEventTime - millis());
-        SF_OSAL_printf("|%" PRId32, (std::uint32_t)millis());
+        SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
         pNextEvent->measure(pNextEvent);
-        SF_OSAL_printf("|%" PRId32 __NL__, (std::uint32_t)millis());
+        SF_OSAL_printf("Ends at %" PRId32 __NL__, (std::uint32_t)millis());
 
         // pNextEvent->lastMeasurementTime = nextEventTime;
 
