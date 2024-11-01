@@ -6,26 +6,16 @@
 
 #include "cellular/ensembleTypes.hpp"
 #include "imu/imu.hpp"
+#include "product.hpp"
 #include "scheduler.hpp"
 #include "system.hpp"
 #include "util.hpp"
-#ifndef TEST_VERSION
+
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "Particle.h"
-#else
+#elif SF_PLATFORM == SF_PLATFORM_GCC
 #include "scheduler_test_system.hpp"
 #endif
-
-static void SS_ensemble10Func(DeploymentSchedule_t *pDeployment);
-static void SS_ensemble10Init(DeploymentSchedule_t *pDeployment);
-
-static void SS_ensemble07Func(DeploymentSchedule_t *pDeployment);
-static void SS_ensemble07Init(DeploymentSchedule_t *pDeployment);
-
-static void SS_ensemble08Func(DeploymentSchedule_t *pDeployment);
-static void SS_ensemble08Init(DeploymentSchedule_t *pDeployment);
-
-static void SS_fwVerInit(DeploymentSchedule_t *pDeployment);
-static void SS_fwVerFunc(DeploymentSchedule_t *pDeployment);
 
 // define ensemble structs
 typedef struct Ensemble10_eventData_
@@ -58,25 +48,25 @@ static Ensemble10_eventData_t ensemble10Data;
 static Ensemble07_eventData_t ensemble07Data;
 static Ensemble08_eventData_t ensemble08Data;
 
-static void SS_ensemble10Init(DeploymentSchedule_t *pDeployment)
+void SS_ensemble10Init(DeploymentSchedule_t *pDeployment)
 {
     memset(&ensemble10Data, 0, sizeof(Ensemble10_eventData_t));
     pDeployment->state.pData = &ensemble10Data;
 }
 
-static void SS_ensemble07Init(DeploymentSchedule_t *pDeployment)
+void SS_ensemble07Init(DeploymentSchedule_t *pDeployment)
 {
     memset(&ensemble07Data, 0, sizeof(Ensemble07_eventData_t));
     pDeployment->state.pData = &ensemble07Data;
 }
 
-static void SS_ensemble08Init(DeploymentSchedule_t *pDeployment)
+void SS_ensemble08Init(DeploymentSchedule_t *pDeployment)
 {
     memset(&ensemble08Data, 0, sizeof(Ensemble08_eventData_t));
     pDeployment->state.pData = &ensemble08Data;
 }
 
-static void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
+void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 {
     float temp;
     uint8_t water;
@@ -197,7 +187,7 @@ static void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
     }
 }
 
-static void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
+void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
 {
     float battVoltage;
     Ensemble07_eventData_t *pData = (Ensemble07_eventData_t *)pDeployment->state.pData;
@@ -229,7 +219,7 @@ static void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
     }
 }
 
-static void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
+void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
 {
     float temp;
     uint8_t water;
@@ -271,11 +261,11 @@ static void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
     }
 }
 
-static void SS_fwVerInit(DeploymentSchedule_t *pDeployment)
+void SS_fwVerInit(DeploymentSchedule_t *pDeployment)
 {
     (void)pDeployment;
 }
-static void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
+void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
 {
 #pragma pack(push, 1)
     struct textEns

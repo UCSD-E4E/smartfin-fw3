@@ -31,7 +31,10 @@ static void RIDE_setFileName(system_tick_t startTime)
 /** @brief deployment schedule of ensembles to run
  * @see SCH_getNextEvent
  */
-DeploymentSchedule_t deploymentSchedule[] = {{nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
+DeploymentSchedule_t deploymentSchedule[] = {
+    {SS_fwVerFunc, SS_fwVerInit, 1, UINT32_MAX, 0, 0, "FW VER", {0}},
+    {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
+    {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
 
 RideTask::RideTask() : scheduler(deploymentSchedule)
 {

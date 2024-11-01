@@ -7,4 +7,16 @@
 #define __ENSEMBLES_HPP__
 #include "scheduler.hpp"
 
+void SS_ensemble10Func(DeploymentSchedule_t *pDeployment);
+void SS_ensemble10Init(DeploymentSchedule_t *pDeployment);
+
+void SS_ensemble07Func(DeploymentSchedule_t *pDeployment);
+void SS_ensemble07Init(DeploymentSchedule_t *pDeployment);
+
+void SS_ensemble08Func(DeploymentSchedule_t *pDeployment);
+void SS_ensemble08Init(DeploymentSchedule_t *pDeployment);
+
+void SS_fwVerInit(DeploymentSchedule_t *pDeployment);
+void SS_fwVerFunc(DeploymentSchedule_t *pDeployment);
+
 #endif //__ENSEMBLES_HPP__
