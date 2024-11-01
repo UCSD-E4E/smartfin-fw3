@@ -61,6 +61,7 @@ struct StateInformation
     std::uint32_t measurementCount;
     //! store the next time the task should run
     std::uint32_t nextRunTime;
+    void* pData;
     
 };
 
