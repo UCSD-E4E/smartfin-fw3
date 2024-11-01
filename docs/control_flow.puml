@@ -1,33 +1,33 @@
-@startuml
+@startuml Scheduler Control Flow
 start
 
 :get lowest priority task;
 repeat :get proposed task run time;
-  if (clock>runTime) is (yes) then
+  if (clock > runTime) is (true) then
    :delay exists, set delay and set proposed run time to now;
-  else (no)
+  else (false)
     :no delay exists, delay is 0, preserve proposed run time;
   endif
 
   :Task Finish Time = Proposed Run Time + Task Duration;
-  while (there are higher priority tasks left to check && no conflicts exist) is (yes)
-  if (Task Finish Time conflicts with Higher Priority Task Run Time) is (yes) then
-   :flag conflict;
-  else (no)
-    : no conflict exists;
-  endif
+  while (there are higher priority tasks left to check AND no conflicts exist) is (true)
+    if (Task Finish Time conflicts with Higher Priority Task Run Time) is (true) then
+    :flag conflict;
+    else (false)
+      :no conflict exists;
+    endif
   
-  endwhile (no more tasks to check or conflict exists);
+  endwhile (false);
 
-  if (if conflict exists) is (no) then
+  if (conflict exists) is (false) then
    :set next task to current task;
    :update task's next run time to runTime+delay;
    #palegreen :return No Error;
    stop
-   else (yes)
+   else (true)
   endif
 
-repeat while (get lowest priority task not yet checked ) is (yes) not (no tasks left to check)
+repeat while (get lowest priority task not yet checked ) is (success) not (fail)
 #pink : return error: no task found to run next;
-detach
+stop
 @enduml

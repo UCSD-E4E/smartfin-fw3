@@ -9,14 +9,13 @@
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE",
-                
+                "_UNICODE"
             ],
             "windowsSdkVersion": "10.0.22000.0",
             "compilerPath": "~\\.particle\\toolchains\\gcc-arm\\10.2.1\\bin\\arm-none-eabi-gcc.exe",
             "intelliSenseMode": "windows-gcc-arm",
             "cStandard": "c11",
-            "cppStandard": "c++14",
+            "cppStandard": "c++11",
             "configurationProvider": "particle.particle-vscode-core",
             "mergeConfigurations": true,
             "browse": {
@@ -53,7 +52,7 @@
             "compilerPath": "/usr/bin/gcc",
             "intelliSenseMode": "linux-gcc-x64",
             "cStandard": "c11",
-            "cppStandard": "c++14",
+            "cppStandard": "c++11",
             "configurationProvider": "ms-vscode.cmake-tools",
             "mergeConfigurations": true,
             "browse": {
@@ -61,7 +60,7 @@
                 "path": [
                     "${default}",
                     "${workspaceFolder}/src",
-                    "${workspaceFolder}/tests",
+                    "${workspaceFolder}/tests"
                 ]
             },
             "compilerArgs": []

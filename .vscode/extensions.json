@@ -2,6 +2,11 @@
     "recommendations": [
         "ms-vscode.cpptools",
         "particle.particle-vscode-core",
-        "cschlosser.doxdocgen"
+        "cschlosser.doxdocgen",
+        "jebbs.plantuml",
+        "ms-vscode.cpptools-extension-pack",
+        "github.vscode-github-actions",
+        "eamodio.gitlens",
+        "james-yu.latex-workshop"
     ]
 }

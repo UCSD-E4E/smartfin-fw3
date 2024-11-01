@@ -448,7 +448,7 @@ int Recorder::closeSession(void)
 {
     if (nullptr == this->pSession)
     {
-        SF_OSAL_printf("REC::CLOSE Already closed"  __NL__);
+        SF_OSAL_printf("REC::CLOSE Already closed" __NL__);
         return 1;
     }
 
