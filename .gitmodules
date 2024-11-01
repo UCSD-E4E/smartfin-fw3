@@ -1,6 +1,8 @@
 [submodule "lib/SparkFun_ICM-20948_ParticleLibrary"]
 	path = lib/SparkFun_ICM-20948_ParticleLibrary
+
 	url = https://github.com/UCSD-E4E/SparkFun_ICM-20948_ParticleLibrary.git
 [submodule "external/googletest"]
 	path = external/googletest
 	url = https://github.com/google/googletest.git
+

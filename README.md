@@ -1,6 +1,24 @@
 # smartfin-fw3
 Smartfin FW v3
 
+# Developer Getting Started
+1. Clone this repository
+2. Open in Visual Studio Code
+3. Install all recommended extensions
+4. Initialize submodules
+```
+git submodule init
+git submodule update --recursive
+```
+5. Ensure tooling is installed
+    - `cmake`
+    - `g++` (usually from `build-essential`)
+    - `gdb`
+    - `doxygen`
+    - `graphviz`
+
+## x86 Mode Debugging
+Please use the CMake Tools debugger
 
 # Contributing
 
@@ -24,18 +42,20 @@ base85          | 9c52d27 | MIT     | https://github.com/rafagafe/base85 | src/c
 # LED Behavior
 
 ## Status LED
-State              | Color    | Pattern
----------------------------------------
-Charge             | Yellow   | Solid
-Sleep              | Black    | Solid
-CLI                | Red      | Solid
-Network Off        | Black    | Solid
-Network On         | Blue     | Solid
-Network Connecting | Blue     | Solid
-Network DHCP       | Blue     | Solid
-Cloud Connecting   | Blue     | Solid
-Cloud Connected    | Blue     | Blink
-Cloud Handshake    | Blue     | Blink
+State                | Color    | Pattern
+-----------------------------------------
+Charge               | Yellow   | Solid
+Sleep                | Black    | Solid
+CLI                  | Green    | Solid
+Network Off          | Black    | Solid
+Network On           | Blue     | Solid
+Network Connecting   | Blue     | Solid
+Network DHCP         | Blue     | Solid
+Cloud Connecting     | Blue     | Solid
+Cloud Connected      | Blue     | Blink
+Cloud Handshake      | Blue     | Blink
+Deployed with GPS    | White    | Blink
+Deployed with no GPS | White    | Solid
 
 
 ## Battery LED

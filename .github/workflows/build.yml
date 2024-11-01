@@ -62,7 +62,6 @@ jobs:
                 ${{ steps.compile.outputs.target-path }}
                 docs/html
                 doxygen.log
-
   release:
     needs: [compile, test]
     runs-on: ubuntu-latest

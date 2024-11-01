@@ -34,6 +34,36 @@
                     "${workspaceFolder}\\src"
                 ]
             }
+        },
+        {
+            "name": "*nix",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/tests",
+                "${workspaceFolder}/src/cli",
+                "${workspaceFolder}/external/googletest/googletest/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "TEST_VERSION"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "intelliSenseMode": "linux-gcc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "mergeConfigurations": true,
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "${default}",
+                    "${workspaceFolder}/src",
+                    "${workspaceFolder}/tests"
+                ]
+            },
+            "compilerArgs": []
         }
     ],
     "version": 4
