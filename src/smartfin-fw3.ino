@@ -5,24 +5,20 @@
  * Date:
  */
 #include "Particle.h"
-
-#include "states.hpp"
-#include "task.hpp"
-#include "product.hpp"
-#include "consts.hpp"
-#include "system.hpp"
-
-#include "mfgTest/mfgTest.hpp"
-
+#include "cellular/dataUpload.hpp"
+#include "cellular/sf_cloud.hpp"
+#include "chargeTask.hpp"
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "cellular/sf_cloud.hpp"
-#include "sleepTask.hpp"
-#include "chargeTask.hpp"
+#include "consts.hpp"
+#include "mfgTest/mfgTest.hpp"
+#include "product.hpp"
 #include "rideTask.hpp"
-#include "cellular/dataUpload.hpp"
-
+#include "sleepTask.hpp"
+#include "states.hpp"
+#include "system.hpp"
+#include "task.hpp"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
