@@ -3,6 +3,8 @@
         "ms-vscode.cpptools",
         "particle.particle-vscode-core",
         "cschlosser.doxdocgen",
-        "jebbs.plantuml"
+        "jebbs.plantuml",
+        "twxs.cmake",
+        "ms-vscode.cmake-tools"
     ]
 }
