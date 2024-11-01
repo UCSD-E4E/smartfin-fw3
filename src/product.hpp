@@ -1,3 +1,13 @@
+/**
+ * @file product.hpp
+ * @author Nathan Hui (nthui@ucsd.edu)
+ * @brief Product configuration header
+ * @version 0.1
+ * @date 2024-11-01
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 #ifndef __PRODUCT_HPP__
 #define __PRODUCT_HPP__
 
@@ -248,4 +258,25 @@
  * 
  */
 #define SF_CLOUD_CONNECT_MAX_ATTEMPTS   5
+
+/**
+ * @brief Particle Platform Selector
+ *
+ */
+#define SF_PLATFORM_PARTICLE 0
+/**
+ * @brief GCC Platform Selector
+ *
+ */
+#define SF_PLATFORM_GCC 1
+
+/**
+ * @brief Smartfin Platform Designator
+ *
+ */
+#ifdef PARTICLE
+#define SF_PLATFORM SF_PLATFORM_PARTICLE
+#else
+#define SF_PLATFORM SF_PLATFORM_GCC
 #endif
+#endif // __PRODUCT_HPP__
