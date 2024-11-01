@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+/// @cond HELPER FUNCTIONS
 void REC_testHasData(void);
 void REC_testNumFiles(void);
 void REC_testGetLastPacket(void);
@@ -30,6 +31,7 @@ void REC_testPutBytes(void);
 void REC_testSetTime(void);
 void REC_testCreateBigSession(void);
 void REC_testPopLastPacket(void);
+/// @endcond
 
 const Menu_t Recorder_debug_menu[] =
 {
@@ -44,7 +46,7 @@ const Menu_t Recorder_debug_menu[] =
     {9, "Pop Last Packet", &REC_testPopLastPacket, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}
 };
-
+/// @cond HELPER FUNCTIONS
 void REC_testHasData(void)
 {
     Recorder* pRecorder = pSystemDesc->pRecorder;
@@ -186,3 +188,4 @@ void REC_testPopLastPacket(void)
 
     SF_OSAL_printf("Returned %d" __NL__, retval);
 }
+/// @endcond
