@@ -1,3 +1,7 @@
+# Test Suites
+
+See https://google.github.io/googletest/
+
 # Overview
 The folder `tests` contains tests monatomic tests for the scheduler in the
  `src` directory. There is a bash script to manage the tests at 

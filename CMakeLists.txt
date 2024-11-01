@@ -6,10 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_definitions(TEST_VERSION)
 
-add_subdirectory(external/googletest )
+add_subdirectory(external/googletest)
 include_directories(external/googletest/googletest/include src/ tests)
 
 set(GTEST_SOURCE_FILES
+    tests/test_endianness.cpp
     tests/scheduler_test_system.cpp
     tests/test_ensembles.cpp
     tests/fixed_google_tests.cpp
@@ -19,6 +20,7 @@ set(GTEST_SOURCE_FILES
     tests/test_file_system.cpp
     src/states.cpp
 )
+
 set(EXAMINE_BEHAVIOR_SOURCE_FILES
     tests/scheduler_test_system.cpp
     tests/test_ensembles.cpp
