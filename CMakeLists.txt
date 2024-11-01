@@ -7,6 +7,7 @@ add_subdirectory(external/googletest)
 include_directories(external/googletest/googletest/include src/ tests)
 
 set(GTEST_SOURCE_FILES
+    tests/test_endianness.cpp
 )
 
 add_executable(googletests ${GTEST_SOURCE_FILES})
