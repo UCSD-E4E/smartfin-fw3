@@ -32,11 +32,12 @@
 
 #include <fstream>
 #include <bits/stdc++.h>
-#include "location_service.h"
 #include "Particle.h"
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <map>
 
 #define NUM_SENSORS 6
 
@@ -124,10 +125,10 @@ static void CLI_monitorSensors(void) {
     float gyroData[3] = {0,0,0};
     float gyroDMPData[3] = {0,0,0};
     float magData[3] = {0,0,0};
-    double quatData[5] = {0,0,0,0,0};
+    double quatData[4] = {0,0,0,0};
     float tmpData = 0;
-    float wdCR = 0;
-    float wdLS = 0;
+    float wetDryCurrentReading = 0;
+    float wetDryLastStatus = 0;
     setupICM();
     SF_OSAL_printf(__NL__);
     
@@ -142,9 +143,9 @@ static void CLI_monitorSensors(void) {
     bool sensors[NUM_SENSORS] = {false};
     
     SF_OSAL_printf("Enter delay time: ");
-    char dt[SF_CLI_MAX_CMD_LEN];
-    getline(dt, SF_CLI_MAX_CMD_LEN);
-    int delayTime = atoi(dt);
+    char delayTimeChar[SF_CLI_MAX_CMD_LEN];
+    getline(delayTimeChar, SF_CLI_MAX_CMD_LEN);
+    int delayTime = atoi(delayTimeChar);
     SF_OSAL_printf("a - acceleraction, g - gyroscope, m - magnetometer, t - temp, w - wet/dry, d - dmp" __NL__);
     bool valid = true;
     while (valid) {
@@ -203,18 +204,13 @@ static void CLI_monitorSensors(void) {
         headers.push_back("wd ls");
     }
     if (sensors[DMP]) {
-        // headers.push_back("dq1");
-        // headers.push_back("dq2");
-        // headers.push_back("dq3");
-        // headers.push_back("dq0");
-        // headers.push_back("dqacc");
+        headers.push_back("dq1");
+        headers.push_back("dq2");
+        headers.push_back("dq3");
+        headers.push_back("dq0");
         headers.push_back("dax");
         headers.push_back("day");
         headers.push_back("daz");
-        headers.push_back("a acc");
-        // headers.push_back("dcx");
-        // headers.push_back("dcy");
-        // headers.push_back("dcz");
     }
 
     
@@ -244,14 +240,14 @@ static void CLI_monitorSensors(void) {
             getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2);
             getDMPAccelerometerAcc(accelDMPData + 3);
             getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
-            getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
+            getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3);
         }
         if (sensors[TEMP]) {
             tmpData = pSystemDesc->pTempSensor->getTemp();
         }
         if (sensors[WET_DRY]) {
-            wdCR =  pSystemDesc->pWaterSensor->getCurrentReading();
-            wdLS = pSystemDesc->pWaterSensor->getLastStatus();
+            wetDryCurrentReading =  pSystemDesc->pWaterSensor->getCurrentReading();
+            wetDryLastStatus = pSystemDesc->pWaterSensor->getLastStatus();
         }
     
 
@@ -266,8 +262,8 @@ static void CLI_monitorSensors(void) {
         {"my", magData[1]},
         {"mz", magData[2]},
         {"temp", tmpData},
-        {"wd cr", wdCR},
-        {"wd ls", wdLS},
+        {"wd cr", wetDryCurrentReading},
+        {"wd ls", wetDryLastStatus},
         {"dax", accelDMPData[0]},
         {"day", accelDMPData[1]},
         {"daz", accelDMPData[2]},
@@ -279,7 +275,6 @@ static void CLI_monitorSensors(void) {
         {"dq2",  quatData[1]},
         {"dq3",  quatData[2]},
         {"dq0",  quatData[3]},
-        {"dqacc",  quatData[4]}
 
 
     };

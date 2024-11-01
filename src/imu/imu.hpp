@@ -49,7 +49,7 @@ bool getMagnetometer(float *mag_x, float *mag_y, float *mag_z);
 */
 
 bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z);
-bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc);
+bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0);
 bool getDMPGyroscope(float *g_x, float *g_y, float *g_z);
 bool getDMPAccelerometerAcc(float *acc_acc);
 void setupICM(void);
