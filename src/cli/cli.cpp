@@ -125,7 +125,7 @@ static void CLI_monitorSensors(void) {
     float gyroData[3] = {0,0,0};
     float gyroDMPData[3] = {0,0,0};
     float magData[3] = {0,0,0};
-    double quatData[5] = {0,0,0,0};
+    double quatData[5] = {0,0,0,0,0};
     float tmpData = 0;
     float wetDryCurrentReading = 0;
     float wetDryLastStatus = 0;
