@@ -132,6 +132,7 @@ void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
 void FLOG_DisplayLog(void)
 {
     uint32_t i;
+    const FLOG_Entry_t *pEntry;
     if (!FLOG_IsInitialized())
     {
         SF_OSAL_printf("Fault Log not initialized!"  __NL__);
@@ -147,10 +148,23 @@ void FLOG_DisplayLog(void)
 
     for (; i < flogData.numEntries; i++)
     {
-        SF_OSAL_printf("%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT __NL__,
-            flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
-            FLOG_FindMessage((FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
-            flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
+        pEntry = &flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)];
+        switch (pEntry->errorCode)
+        {
+        case FLOG_SYS_START:
+            SF_OSAL_printf("%8d System Started at %s" __NL__,
+                           pEntry->timestamp_ms,
+                           Time.format((time32_t)pEntry->param).c_str());
+            break;
+        default:
+            SF_OSAL_printf(
+                "%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT __NL__,
+                flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
+                FLOG_FindMessage(
+                    (FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
+                flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
+            break;
+        }
     }
     SF_OSAL_printf(__NL__);
 }
