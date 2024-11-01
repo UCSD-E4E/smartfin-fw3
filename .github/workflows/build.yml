@@ -21,7 +21,13 @@ jobs:
         cd build
         make
         cd ..
-        ./build/googletests
+        ./build/googletests | tee googletest.log
+
+    - name: Upload test log
+      uses: actions/upload-artifact@v4
+      with:
+        path: |
+          googletest.log
 
   compile:
     runs-on: ubuntu-latest
@@ -48,7 +54,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-            name: firmware-artifact
             path: |
                 ${{ steps.compile.outputs.firmware-path }}
                 ${{ steps.compile.outputs.target-path }}
