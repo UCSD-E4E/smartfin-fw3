@@ -44,6 +44,9 @@ typedef const struct Menu_
      * 
      */
     const char* const fnName;
+    /**
+     * @brief Stores a command function or submenu pointer
+     */
     union {
         /**
          * @brief Command function pointer
@@ -56,6 +59,9 @@ typedef const struct Menu_
          */
         const struct Menu_* pMenu;
     } ptr;
+    /**
+     * @brief Type of menu item
+     */
     MenuType_t menuType;
 }Menu_t;
 
