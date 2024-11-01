@@ -250,4 +250,24 @@
  */
 #define SF_CLOUD_CONNECT_MAX_ATTEMPTS 5
 
+/**
+ * @brief Particle Selector
+ *
+ */
+#define SF_PLATFORM_PARTICLE 0
+/**
+ * @brief GCC Platform Selector
+ *
+ */
+#define SF_PLATFORM_GCC
+
+#ifdef PARTICLE
+/**
+ * @brief Smartfin Platform Designator
+ *
+ */
+#define SF_PLATFORM SF_PLATFORM_PARTICLE
+#else
+#define SF_PLATFORM SF_PLATFORM_GCC
+#endif
 #endif

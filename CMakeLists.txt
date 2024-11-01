@@ -15,14 +15,14 @@ set(GTEST_SOURCE_FILES
     tests/fixed_google_tests.cpp
     tests/file_google_tests.cpp
     src/scheduler.cpp
-    tests/scheduler_test_flog.cpp
+    src/cli/flog.cpp
     tests/test_file_system.cpp
 )
 set(EXAMINE_BEHAVIOR_SOURCE_FILES
     tests/scheduler_test_system.cpp
     tests/test_ensembles.cpp
     src/scheduler.cpp
-    tests/scheduler_test_flog.cpp
+    src/cli/flog.cpp
     tests/examine_behavior.cpp
     tests/test_file_system.cpp
 )

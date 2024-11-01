@@ -13,9 +13,16 @@
 
 #include "conio.hpp"
 #include "consts.hpp"
+#include "product.hpp"
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include <Particle.h>
+#elif SF_PLATFORM == SF_PLATFORM_GCC
+#include "scheduler_test_system.hpp"
 
+#include <stdlib.h>
+#include <string.h>
+#endif
 
 typedef struct FLOG_Entry_
 {
@@ -37,7 +44,11 @@ typedef struct FLOG_Message_
     const char* message;
 }FLOG_Message_t;
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 retained FLOG_Data_t flogData;
+#elif SF_PLATFORM == SF_PLATFORM_GCC
+FLOG_Data_t flogData;
+#endif
 static char FLOG_unknownMessage[256];
 
 static const char* FLOG_FindMessage(FLOG_CODE_e code);
