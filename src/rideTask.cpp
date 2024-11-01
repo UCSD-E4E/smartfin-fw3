@@ -4,21 +4,20 @@
  *  @version 1
  */
 
-
 #include "rideTask.hpp"
+
 #include "Particle.h"
-#include "consts.hpp"
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
+#include "consts.hpp"
+#include "ensembles.hpp"
+#include "scheduler.hpp"
+#include "sleepTask.hpp"
+#include "system.hpp"
 #include "util.hpp"
 #include "vers.hpp"
-#include "ensembles.hpp"
-#include "cli/flog.hpp"
-#include "system.hpp"
-#include "sleepTask.hpp"
-#include "scheduler.hpp"
 
 #include <time.h>
-
 
 /**
  * @brief creates file name for log
