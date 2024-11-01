@@ -61,7 +61,7 @@ jobs:
                 doxygen.log
 
   release:
-    needs: [compile]
+    needs: [compile, test]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
