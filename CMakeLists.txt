@@ -17,6 +17,7 @@ set(GTEST_SOURCE_FILES
     src/scheduler.cpp
     src/cli/flog.cpp
     tests/test_file_system.cpp
+    src/states.cpp
 )
 set(EXAMINE_BEHAVIOR_SOURCE_FILES
     tests/scheduler_test_system.cpp
@@ -25,6 +26,7 @@ set(EXAMINE_BEHAVIOR_SOURCE_FILES
     src/cli/flog.cpp
     tests/examine_behavior.cpp
     tests/test_file_system.cpp
+    src/states.cpp
 )
 
 add_executable(googletests ${GTEST_SOURCE_FILES})
