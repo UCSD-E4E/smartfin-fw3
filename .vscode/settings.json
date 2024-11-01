@@ -79,4 +79,13 @@
     "editor.formatOnType": true,
     "doxdocgen.generic.useGitUserEmail": true,
     "doxdocgen.generic.useGitUserName": true,
+    "cmake.generator": "Unix Makefiles",
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}"
+    },
+    "cmake.configureArgs": [
+        "-DCMAKE_BUILD_TYPE=Debug"
+    ],
 }

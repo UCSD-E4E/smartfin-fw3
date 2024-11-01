@@ -1,8 +1,36 @@
-name: Compile Firmware
+name: Compile Firmware and Tests
 
 on: [push]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Set up environment
+      run: |
+        sudo apt-get update && sudo apt-get install -y cmake build-essential        
+
+    - name: Build and run tests
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Debug
+        cd build
+        make
+        cd ..
+        ./build/googletests | tee googletest.log
+
+    - name: Upload test log
+      uses: actions/upload-artifact@v4
+      with:
+        name: test_artifact
+        path: |
+          build/googletests
+          googletest.log
+
   compile:
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +64,7 @@ jobs:
                 doxygen.log
 
   release:
-    needs: [compile]
+    needs: [compile, test]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
