@@ -1,3 +1,15 @@
+/**
+ * @file imu.cpp
+ * @author Owen Lyke
+ * @author Emily Thorpe (ethorpe@macalester.edu)
+ * @author Nathan Hui (nthui@ucsd.edu)
+ * @brief
+ * @version 0.2
+ * @date 2024-10-31
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 /****************************************************************
  * Example1_Basics.ino, Example8_DMP_RawAccel.ino
  * ICM 20948 Arduino Library Demo
@@ -11,6 +23,7 @@
  *
  * Modified by Emily Thorpe - August 2023
  ***************************************************************/
+
 #include "ICM_20948.h"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
@@ -21,6 +34,10 @@
 #include <map>
 #include <vector>
 
+/**
+ * @brief I2C Handle
+ *
+ */
 #define WIRE_PORT Wire
 
 /**
@@ -37,12 +54,42 @@
  */
 #define GIB 1073741824
 
+/**
+ * @brief ICM Module Handle
+ *
+ */
 ICM_20948_I2C myICM;
 
-float getAccMG(int16_t raw, uint8_t fss);
-float getGyrDPS(int16_t raw, uint8_t fss);
-float getMagUT(int16_t raw);
-float getTmpC(int16_t raw);
+/**
+ * @brief Converts the raw acceleration to G
+ *
+ * @param raw Raw accelerometer values
+ * @param fss Full Scale Selector
+ * @return Acceleration reading in g
+ */
+static float getAccMG(int16_t raw, uint8_t fss);
+/**
+ * @brief Converts the raw gyroscope to degrees per second
+ *
+ * @param raw Raw gyroscope values
+ * @param fss Full Scale Selector
+ * @return Gyroscope reading in degrees per second
+ */
+static float getGyrDPS(int16_t raw, uint8_t fss);
+/**
+ * @brief Converts the raw magnetometer values to microtesla
+ *
+ * @param raw Raw magnetometer values
+ * @return Magnetometer reading in microtesla
+ */
+static float getMagUT(int16_t raw);
+/**
+ * @brief Converts the raw temperature values to Celsius
+ *
+ * @param raw Raw temperature values
+ * @return Temperature in Celsius
+ */
+static float getTmpC(int16_t raw);
 
 void setupICM(void)
 {
@@ -276,6 +323,5 @@ bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
 void whereDMP(void)
 {
     // std::string sName(reinterpret_cast<char*>(name));
-    Serial.write(myICM.getWhoAmI());
-    Serial.write("\n");
+    SF_OSAL_printf("%hhu" __NL__, myICM.getWhoAmI());
 }
