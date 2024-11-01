@@ -91,5 +91,6 @@
         "-DTEST_VERSION=1",
         "-DCMAKE_BUILD_TYPE=Debug"
     ],
-    "latex-workshop.formatting.latex": "latexindent"
+    "latex-workshop.formatting.latex": "latexindent",
+    "doxygen_runner.configuration_file_override": "${workspaceFolder}/Doxyfile"
 }
