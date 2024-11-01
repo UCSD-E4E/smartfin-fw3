@@ -38,16 +38,13 @@ static MfgTest mfgTask;
 static RideTask rideTask;
 
 // Holds the list of states and coresponding tasks
-static StateMachine_t stateMachine[] = 
-{
-    {STATE_CLI, &cliTask},
-    {STATE_DEEP_SLEEP, &sleepTask},
-    {STATE_CHARGE, &chargeTask},
-    {STATE_UPLOAD, &uploadTask},
-    {STATE_MFG_TEST, &mfgTask},
-    {STATE_DEPLOYED, &rideTask},
-    {STATE_NULL, NULL}
-};
+static StateMachine_t stateMachine[] = {{STATE_CLI, &cliTask},
+                                        {STATE_DEEP_SLEEP, &sleepTask},
+                                        {STATE_CHARGE, &chargeTask},
+                                        {STATE_UPLOAD, &uploadTask},
+                                        {STATE_MFG_TEST, &mfgTask},
+                                        {STATE_DEPLOYED, &rideTask},
+                                        {STATE_NULL, NULL}};
 
 static STATES_e currentState;
 
