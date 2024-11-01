@@ -16,7 +16,7 @@
 
 #include "Particle.h"
 
-/*! BYTES_PER_LINE
+/*! \def BYTES_PER_LINE
     \brief A macro that stores the the size of each line of output as a constant 16 bytes
 */
 #define BYTES_PER_LINE 16
