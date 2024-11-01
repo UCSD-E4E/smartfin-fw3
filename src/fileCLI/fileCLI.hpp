@@ -100,10 +100,15 @@ class FileCLI{
      */
     typedef struct menu_
     {
-        const char
-            cmd; /**< A character representing a user command. Will trigger a specific function. */
-        void (FileCLI::*fn)(
-            void); /**< A pointer to a place in ram where a function with properties is held. */
+        /**
+         * A character representing a user command. Will trigger a specific function.
+         */
+        const char cmd;
+        /**
+         * A pointer to a place in ram where a function with properties is held. Executes the
+         * command associated with cmd.
+         */
+        void (FileCLI::*fn)(void);
     } menu_t;
     static menu_t fsExplorerMenu[];
     /**
