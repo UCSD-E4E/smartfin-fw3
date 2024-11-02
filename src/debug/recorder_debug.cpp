@@ -80,6 +80,7 @@ const Menu_t Recorder_debug_menu[] =
     {9, "Pop Last Packet", &REC_testPopLastPacket, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}
 };
+
 void REC_testHasData(void)
 {
     Recorder* pRecorder = pSystemDesc->pRecorder;
