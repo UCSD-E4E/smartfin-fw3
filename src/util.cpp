@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2023
  * 
  */
+
 #include "util.hpp"
 
 #include "cli/conio.hpp"
@@ -15,11 +16,13 @@
 
 #include "Particle.h"
 
-
-
-void hexDump(const void *memoryLocation, size_t buflen) 
-{
+/**
+ * \brief A macro that stores the the size of each line of output as a constant 16 bytes
+ */
 #define BYTES_PER_LINE 16
+
+void hexDump(const void *memoryLocation, size_t buflen)
+{
     size_t buffer_idx = 0;
     uint8_t byte_buffer[BYTES_PER_LINE + 1];
     const uint8_t* data_window = (const uint8_t*) memoryLocation;
