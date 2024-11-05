@@ -24,27 +24,72 @@
 #define WATER_SENSOR_HIGH_STATE 1
 #define WATER_SENSOR_LOW_STATE 0
 
+/**
+ * @brief Represents a sensor that detects water presence using a moving window of samples
+ */
 class WaterSensor
 {
 private:
     // which pin is the water sensor on?
+    /**
+     * @brief Pin that enables the water detection sensor
+     */
     uint8_t water_detect_en_pin;
+    /**
+     * @brief Pin that reads the water detection status
+     */
     uint8_t water_detect_pin;
+
     // how many samples to look at for the moving window
+    /**
+     * @brief Size of the moving sample window used for water detection
+     */
     uint8_t moving_window_size;
+    /**
+     * @brief Minimum percentage of high state readings to trigger a change to "out of water"
+     */
     uint8_t low_detect_percentage = DEFAULT_WATER_SENSOR_LOW_PERCENTAGE;
+    /**
+     * @brief Minimum percentage of high state readings to trigger a change to "in water"
+     */
     uint8_t high_detect_percentage = DEFAULT_WATER_SENSOR_HIGH_PERCENTAGE;
+
     // how many samples have been taken since a reset (signally a valid measurement)
+    /**
+     * @brief Number of samples taken since the last reset
+     */
     uint8_t samples_taken_since_reset = 0;
+
     // sum of the array, initially set to zero.
+    /**
+     * @brief Sum of the current samples in the window
+     */
     uint8_t array_sum = 0;
+
     // current location in the array
+    /**
+     * @brief Current position in the array of samples
+     */
     uint8_t array_location = 0;
+
     // the last water reading, for hystersis, starting with "out of the water"
+    /**
+     * @brief Previous water detection status used for hystersis
+     */
     uint8_t last_water_detect = 0;
 
 public:
+    /**
+     * @brief Initializes the WaterSensor with specific pins and window size
+     *
+     * @param water_detect_en_pin Pin that enables the water sensor
+     * @param water_detect_pin_to_set Pin that reads the sensor value
+     * @param window_size Size of the moving sample window used for water detection
+     */
     WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set, uint8_t window_size);
+    /**
+     * @brief Destroys the WaterSensor instance
+     */
     ~WaterSensor();
 
     // resets the array to zero
