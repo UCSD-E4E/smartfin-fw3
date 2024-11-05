@@ -1,3 +1,18 @@
+# [3.3.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.3...v3.3.0) (2024-11-01)
+
+
+### Features
+
+* Adds platform selection macro ([711778b](https://github.com/UCSD-E4E/smartfin-fw3/commit/711778b5a731f98f495f1ffb8b9b8bf5a27da325))
+* Adds platform selection macro ([#113](https://github.com/UCSD-E4E/smartfin-fw3/issues/113)) ([18adff5](https://github.com/UCSD-E4E/smartfin-fw3/commit/18adff584e4d9db1d60cb3c22ff568566689ad11))
+
+## [3.2.3](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.2...v3.2.3) (2024-11-01)
+
+
+### Bug Fixes
+
+* Updates components ([57f59da](https://github.com/UCSD-E4E/smartfin-fw3/commit/57f59da218af8e4a61e9b8c8711fad65c7e0aa09))
+
 ## [3.2.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.1...v3.2.2) (2024-10-30)
 
 
