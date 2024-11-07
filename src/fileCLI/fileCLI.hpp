@@ -105,8 +105,8 @@ class FileCLI{
          */
         const char cmd;
         /**
-         * A pointer to a place in ram where a function with properties is held. Executes the
-         * command associated with cmd.
+         * A pointer to a place in flash memory or RAM where a function with properties is held.
+         * Executes the command associated with cmd.
          */
         void (FileCLI::*fn)(void);
     } menu_t;
