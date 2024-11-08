@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
-project(SmartfinTests)
-set(CMAKE_CXX_STANDARD 14)
+project(Smartfin)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(external/googletest)
@@ -13,3 +13,4 @@ set(GTEST_SOURCE_FILES
 add_executable(googletests ${GTEST_SOURCE_FILES})
 target_link_libraries(googletests gtest gtest_main pthread)
 
+add_subdirectory(pc_hal)
