@@ -23,7 +23,8 @@ class ChargeTask : public Task{
     /**
      * @brief Charges the device, and exits to CLI on command
      * 
-     * @return State of device: STATE_CLI or STATE_DEEP_SLEEP
+     * @return STATE_CLI when CLI pattern entered or
+     * STATE_DEEP_SLEEP when device not charging
      */
     STATES_e run(void);
     void exit(void);
@@ -44,7 +45,8 @@ class ChargeTask : public Task{
     /**
      * @brief Timestamp for tracking start of charging process
      * 
-     * startTime = 0 indicates the device charging for 0 milliseconds
+     * startTime = 0 indicates the device charging since
+     * the powering on of the device
      */
     system_tick_t startTime;
 };
