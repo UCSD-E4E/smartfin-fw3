@@ -326,3 +326,4 @@ target/
 *.bin
 nul
 out/docs/*
+tests/*outputs
