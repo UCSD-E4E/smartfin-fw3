@@ -160,7 +160,7 @@ uint8_t WaterSensor::getCurrentStatus()
 
 /**
  * @brief forces the in/out of water status
- * Usefule because of hystersis
+ * Useful because of hystersis
  * @param water_detect_state 
  */
 void WaterSensor::forceState(uint8_t water_detect_state)

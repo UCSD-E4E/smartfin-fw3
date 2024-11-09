@@ -1,3 +1,12 @@
+## [3.3.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.3.0...v3.3.1) (2024-11-07)
+
+
+### Bug Fixes
+
+* solve recorder_debug members not documented doxygen warning ([782545e](https://github.com/UCSD-E4E/smartfin-fw3/commit/782545eb9bfb87eef926e6378801a4620708c411))
+* solve recorder_debug members not documented doxygen warning ([88403a5](https://github.com/UCSD-E4E/smartfin-fw3/commit/88403a58068477e6b5a22e93c513cb8d70398110))
+* solve recorder_debug members not documented doxygen warning ([#112](https://github.com/UCSD-E4E/smartfin-fw3/issues/112)) ([055fb6c](https://github.com/UCSD-E4E/smartfin-fw3/commit/055fb6c9da905c2d56168fe80457d30d17b7e423))
+
 # [3.3.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.3...v3.3.0) (2024-11-01)
 
 

@@ -21,15 +21,51 @@
 #include <stdint.h>
 #include <stdio.h>
 
-void REC_testHasData(void);
-void REC_testNumFiles(void);
-void REC_testGetLastPacket(void);
-void REC_testOpen(void);
-void REC_testClose(void);
-void REC_testPutBytes(void);
-void REC_testSetTime(void);
-void REC_testCreateBigSession(void);
-void REC_testPopLastPacket(void);
+/**
+ * @brief Function to test if recorder has data
+ *
+ */
+static void REC_testHasData(void);
+/**
+ * @brief Function to test if we can retrieve number of files in filesystem
+ *
+ */
+static void REC_testNumFiles(void);
+/**
+ * @brief Function to test if we can retrieve last packet in memory
+ *
+ */
+static void REC_testGetLastPacket(void);
+/**
+ * @brief Function to test if we can open a recording session
+ *
+ */
+static void REC_testOpen(void);
+/**
+ * @brief Function to test if we can close a recording session
+ *
+ */
+static void REC_testClose(void);
+/**
+ * @brief Function to test if we can input bytes into data buffer
+ *
+ */
+static void REC_testPutBytes(void);
+/**
+ * @brief Function to test if we can set start time of recording session
+ *
+ */
+static void REC_testSetTime(void);
+/**
+ * @brief Function to test if we can create session & store in session of byte size inputted by user
+ *
+ */
+static void REC_testCreateBigSession(void);
+/**
+ * @brief Function to test if we can pop the last packet in memory
+ *
+ */
+static void REC_testPopLastPacket(void);
 
 const Menu_t Recorder_debug_menu[] =
 {
