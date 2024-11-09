@@ -25,15 +25,15 @@ class SleepTask : public Task {
          */
         BOOT_BEHAVIOR_NORMAL=0,
         /**
-         * @brief Initiate temporary calibration on startup
+         * @brief Initiate temperature calibration on startup
          */
         BOOT_BEHAVIOR_TMP_CAL_START=1,
         /**
-         * @brief Continue temporary calibration sequence
+         * @brief Continue temperature calibration sequence
          */
         BOOT_BEHAVIOR_TMP_CAL_CONTINUE=2,
         /**
-         * @brief End temporary calibration
+         * @brief End temperature calibration
          */
         BOOT_BEHAVIOR_TMP_CAL_END=3,
         /**
@@ -44,9 +44,6 @@ class SleepTask : public Task {
          * @brief Boot behavior is not specified
          */
         BOOT_BEHAVIOR_NOT_SET=255
-    /**
-     * @brief Type definition for Boot Behavior enum
-     */
     } BOOT_BEHAVIOR_e;
 
     /**
@@ -61,9 +58,9 @@ class SleepTask : public Task {
     /**
      * @brief Updates boot behavior to NVRAM
      * 
-     * @param BOOT_BEHAVIOR_e Boot Behavior to set
+     * @param behavior Boot Behavior to set
      */
-    static void setBootBehavior(BOOT_BEHAVIOR_e);
+    static void setBootBehavior(BOOT_BEHAVIOR_e behavior);
     /**
      * @brief Get's current boot behavior from NVRAM
      * 
