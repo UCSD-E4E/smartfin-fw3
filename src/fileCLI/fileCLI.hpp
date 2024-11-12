@@ -93,9 +93,21 @@ class FileCLI{
     DIR* dir_stack[FILE_CLI_MAX_DIR_DEPTH];
     char path_stack[FILE_CLI_MAX_DIR_DEPTH][NAME_MAX];
     int current_dir;
+
+    /**
+     * @brief Structure representing a command menu entry for FileCLI.
+     *
+     */
     typedef struct menu_
     {
+        /**
+         * A character representing a user command. Will trigger a specific function.
+         */
         const char cmd;
+        /**
+         * A pointer to a place in flash memory or RAM where a function with properties is held.
+         * Executes the command associated with cmd.
+         */
         void (FileCLI::*fn)(void);
     } menu_t;
     static menu_t fsExplorerMenu[];
