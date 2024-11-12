@@ -30,7 +30,6 @@
 class WaterSensor
 {
 private:
-    // which pin is the water sensor on?
     /**
      * @brief Pin that enables the water detection sensor
      */
@@ -39,8 +38,6 @@ private:
      * @brief Pin that reads the water detection status
      */
     uint8_t water_detect_pin;
-
-    // how many samples to look at for the moving window
     /**
      * @brief Size of the moving sample window used for water detection
      */
@@ -53,26 +50,18 @@ private:
      * @brief Minimum percentage of high state readings to trigger a change to "in water"
      */
     uint8_t high_detect_percentage = DEFAULT_WATER_SENSOR_HIGH_PERCENTAGE;
-
-    // how many samples have been taken since a reset (signally a valid measurement)
     /**
      * @brief Number of samples taken since the last reset
      */
     uint8_t samples_taken_since_reset = 0;
-
-    // sum of the array, initially set to zero.
     /**
      * @brief Sum of the current samples in the window
      */
     uint8_t array_sum = 0;
-
-    // current location in the array
     /**
      * @brief Current position in the array of samples
      */
     uint8_t array_location = 0;
-
-    // the last water reading, for hystersis, starting with "out of the water"
     /**
      * @brief Previous water detection status used for hystersis
      */
