@@ -1,3 +1,35 @@
+## [3.3.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.3.0...v3.3.1) (2024-11-07)
+
+
+### Bug Fixes
+
+* solve recorder_debug members not documented doxygen warning ([782545e](https://github.com/UCSD-E4E/smartfin-fw3/commit/782545eb9bfb87eef926e6378801a4620708c411))
+* solve recorder_debug members not documented doxygen warning ([88403a5](https://github.com/UCSD-E4E/smartfin-fw3/commit/88403a58068477e6b5a22e93c513cb8d70398110))
+* solve recorder_debug members not documented doxygen warning ([#112](https://github.com/UCSD-E4E/smartfin-fw3/issues/112)) ([055fb6c](https://github.com/UCSD-E4E/smartfin-fw3/commit/055fb6c9da905c2d56168fe80457d30d17b7e423))
+
+# [3.3.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.3...v3.3.0) (2024-11-01)
+
+
+### Features
+
+* Adds platform selection macro ([711778b](https://github.com/UCSD-E4E/smartfin-fw3/commit/711778b5a731f98f495f1ffb8b9b8bf5a27da325))
+* Adds platform selection macro ([#113](https://github.com/UCSD-E4E/smartfin-fw3/issues/113)) ([18adff5](https://github.com/UCSD-E4E/smartfin-fw3/commit/18adff584e4d9db1d60cb3c22ff568566689ad11))
+
+## [3.2.3](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.2...v3.2.3) (2024-11-01)
+
+
+### Bug Fixes
+
+* Updates components ([57f59da](https://github.com/UCSD-E4E/smartfin-fw3/commit/57f59da218af8e4a61e9b8c8711fad65c7e0aa09))
+
+## [3.2.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.1...v3.2.2) (2024-10-30)
+
+
+### Bug Fixes
+
+* add brief & details to chargetask documentation ([42ed2e6](https://github.com/UCSD-E4E/smartfin-fw3/commit/42ed2e678e276cd26609116464ea40163d388323))
+* add brief & details to ChargeTask documentation ([#105](https://github.com/UCSD-E4E/smartfin-fw3/issues/105)) ([0c004d8](https://github.com/UCSD-E4E/smartfin-fw3/commit/0c004d8c552b7aadc827b1e97362f7a6ce7d9de0))
+
 ## [3.2.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.2.0...v3.2.1) (2024-06-23)
 
 
