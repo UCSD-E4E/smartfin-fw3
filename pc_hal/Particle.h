@@ -10,6 +10,9 @@
  */
 #ifndef __PC_HAL_PARTICLE_H__
 #define __PC_HAL_PARTICLE_H__
+
+#include <functional>
+
 class EEPROMClass
 {
     EEPROMClass()
