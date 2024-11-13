@@ -42,7 +42,7 @@ extern "C"
      * @param buffer buffer to write too
      * @param buflen length of buffer
      */
-    int getline(char* buffer, int buflen);
+    int SF_OSAL_getline(char *buffer, int buflen);
 
 #ifdef __cplusplus
 }

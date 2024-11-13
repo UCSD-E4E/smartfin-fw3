@@ -67,7 +67,7 @@ void FileCLI::execute(void)
     {
         SF_OSAL_printf(":>");
         memset(input_buffer, 0, FILE_CLI_INPUT_BUFFER_LEN);
-        getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+        SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
         cmd = findCommand(input_buffer);
         if (!cmd)
         {
@@ -194,7 +194,7 @@ void FileCLI::change_dir(void)
     rewinddir(cwd);
     SF_OSAL_printf(__NL__);
     SF_OSAL_printf("Enter the number of the directory to change to: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
     if (cmd_val == same_dir_idx)
@@ -266,7 +266,7 @@ void FileCLI::deleteFile(void)
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to remove: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
     seekdir(cwd, cmd_val);
@@ -361,7 +361,7 @@ void FileCLI::dumpHex(void)
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to hexdump: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
     seekdir(cwd, cmd_val);
@@ -449,7 +449,7 @@ void FileCLI::dumpBase85(void)
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to dump: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
     seekdir(cwd, cmd_val);
@@ -487,7 +487,7 @@ void FileCLI::mkdir(void)
     int result;
 
     SF_OSAL_printf("Enter new directory name: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
 
     result = ::mkdir(input_buffer, 0777);
     SF_OSAL_printf("Returned %d" __NL__, result);

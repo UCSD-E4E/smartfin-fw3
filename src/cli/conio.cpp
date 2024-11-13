@@ -45,7 +45,7 @@ extern "C"
         return ch;
     }
 
-    int getline(char* buffer, int buflen)
+    int SF_OSAL_getline(char *buffer, int buflen)
     {
         int i = 0;
         char userInput;
