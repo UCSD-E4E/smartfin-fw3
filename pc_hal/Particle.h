@@ -64,6 +64,9 @@ public:
     void print(char ch)
     {
     }
+    void write(const char *str)
+    {
+    }
 };
 #define Serial __get_default_serial()
 USARTSerial &__get_default_serial();
