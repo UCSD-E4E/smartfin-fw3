@@ -11,6 +11,7 @@
 #ifndef __PC_HAL_PARTICLE_H__
 #define __PC_HAL_PARTICLE_H__
 
+#include <cstdint>
 #include <functional>
 #include <string>
 class EEPROMClass
@@ -120,6 +121,10 @@ typedef enum
 {
     FEATURE_RESET_INFO
 } HAL_Feature;
+typedef enum
+{
+    RESET_REASON_NONE
+} __RESET_REASON_t;
 class SystemClass
 {
 public:
@@ -127,8 +132,24 @@ public:
     {
         return 0;
     }
+    __RESET_REASON_t resetReason()
+    {
+        return RESET_REASON_NONE;
+    }
 };
 #define System __fetch_global_System()
 SystemClass &__fetch_global_System();
 
+typedef std::uint32_t time32_t;
+
+class TimeClass
+{
+public:
+    time32_t now()
+    {
+        return 0;
+    }
+};
+#define Time __fetch_global_time()
+TimeClass &__fetch_global_time();
 #endif // __PC_HAL_PARTICLE_H__

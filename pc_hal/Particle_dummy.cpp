@@ -28,3 +28,9 @@ USARTSerial &__get_default_serial()
 {
     return __default_serial;
 }
+
+TimeClass __global_time;
+TimeClass &__fetch_global_time()
+{
+    return __global_time;
+}
