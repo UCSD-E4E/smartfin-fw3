@@ -12,17 +12,22 @@
 #define __PC_HAL_PARTICLE_H__
 
 #include <cstdint>
+#include <cstring>
 #include <functional>
 #include <string>
 class EEPROMClass
 {
-    EEPROMClass()
-    {
-    }
+private:
+    uint8_t *blob;
+    std::size_t blob_size;
+
+public:
+    EEPROMClass();
 
     template <typename T> T &get(int idx, T &t)
     {
-        return T();
+        std::memcpy(&t, this->blob + idx, sizeof(T));
+        return t;
     }
 
     template <typename T> const T &put(int idx, const T &t)

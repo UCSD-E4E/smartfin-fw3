@@ -11,6 +11,14 @@
 
 #include "Particle.h"
 
+#include <memory>
+EEPROMClass::EEPROMClass()
+{
+    this->blob_size = 2048;
+    this->blob = new std::uint8_t[this->blob_size];
+    std::memset(this->blob, 0xFF, this->blob_size);
+}
+
 EEPROMClass __global_eeprom;
 EEPROMClass &__fetch_global_EEPROM()
 {
