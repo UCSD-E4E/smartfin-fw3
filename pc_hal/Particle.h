@@ -40,4 +40,8 @@ class Timer
 class USARTSerial
 {
 };
+
+class SPIClass
+{
+};
 #endif // __PC_HAL_PARTICLE_H__
