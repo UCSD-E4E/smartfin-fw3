@@ -176,4 +176,17 @@ public:
 };
 #define Time __fetch_global_time()
 TimeClass &__fetch_global_time();
+
+#define millis Time.now
+#define delay Time.delay
+
+class ParticleClass
+{
+public:
+    void process()
+    {
+    }
+};
+#define Particle __fetch_global_particle()
+ParticleClass &__fetch_global_particle();
 #endif // __PC_HAL_PARTICLE_H__

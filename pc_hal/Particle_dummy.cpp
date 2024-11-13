@@ -42,3 +42,9 @@ TimeClass &__fetch_global_time()
 {
     return __global_time;
 }
+
+ParticleClass __global_particle;
+ParticleClass &__fetch_global_particle()
+{
+    return __global_particle;
+}
