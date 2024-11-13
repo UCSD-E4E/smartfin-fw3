@@ -15,6 +15,7 @@
 #include <cstring>
 #include <functional>
 #include <string>
+#define retained
 class EEPROMClass
 {
 private:
@@ -47,6 +48,20 @@ class USARTSerial
 {
 public:
     void begin(int baud)
+    {
+    }
+
+    std::size_t available()
+    {
+        return 0;
+    }
+
+    int read()
+    {
+        return 0;
+    }
+
+    void print(char ch)
     {
     }
 };
@@ -153,6 +168,10 @@ public:
     time32_t now()
     {
         return 0;
+    }
+
+    void delay(std::uint32_t ms)
+    {
     }
 };
 #define Time __fetch_global_time()
