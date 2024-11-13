@@ -12,7 +12,7 @@
 #define __PC_HAL_PARTICLE_H__
 
 #include <functional>
-
+#include <string>
 class EEPROMClass
 {
     EEPROMClass()
@@ -42,6 +42,10 @@ class USARTSerial
 };
 
 class SPIClass
+{
+};
+
+class String : public std::string
 {
 };
 #endif // __PC_HAL_PARTICLE_H__
