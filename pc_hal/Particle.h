@@ -48,4 +48,9 @@ class SPIClass
 class String : public std::string
 {
 };
+
+typedef enum
+{
+
+} LogLevel;
 #endif // __PC_HAL_PARTICLE_H__
