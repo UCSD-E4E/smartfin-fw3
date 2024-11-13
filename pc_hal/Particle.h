@@ -62,4 +62,52 @@ typedef struct
 {
 
 } __SPISettings;
+
+class os_queue_t
+{
+};
+
+class Thread
+{
+};
+
+enum
+{
+    PIN_INVALID
+};
+enum
+{
+    HIGH
+};
+
+class TwoWire
+{
+};
+typedef std::size_t system_tick_t;
+
+template <class T> class Vector
+{
+};
+
+class RecursiveMutex
+{
+};
+
+typedef struct
+{
+
+} LEDSystemTheme;
+
+class FuelGauge
+{
+};
+
+typedef struct
+{
+
+} LEDStatus;
+
+#define SYSTEM_MODE(a) ;
+#define SYSTEM_THREAD(a) ;
+
 #endif // __PC_HAL_PARTICLE_H__
