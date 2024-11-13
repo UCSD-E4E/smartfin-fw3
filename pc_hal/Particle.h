@@ -57,4 +57,9 @@ typedef enum
 class Logger
 {
 };
+
+typedef struct
+{
+
+} __SPISettings;
 #endif // __PC_HAL_PARTICLE_H__
