@@ -53,4 +53,8 @@ typedef enum
 {
 
 } LogLevel;
+
+class Logger
+{
+};
 #endif // __PC_HAL_PARTICLE_H__
