@@ -29,4 +29,8 @@ class EEPROMClass
 
 #define EEPROM __fetch_global_EEPROM()
 EEPROMClass &__fetch_global_EEPROM();
+
+class Timer
+{
+};
 #endif // __PC_HAL_PARTICLE_H__
