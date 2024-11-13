@@ -14,5 +14,8 @@ include_directories(
 
 set(SMARTFIN_SOURCE_FILES
     main.cpp
+    Particle_dummy.cpp
+    ../src/cli/flog.cpp
+    ../src/cli/conio.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
