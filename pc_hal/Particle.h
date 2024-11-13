@@ -110,4 +110,18 @@ typedef struct
 #define SYSTEM_MODE(a) ;
 #define SYSTEM_THREAD(a) ;
 
+typedef enum
+{
+    FEATURE_RESET_INFO
+} HAL_Feature;
+class SystemClass
+{
+public:
+    int enableFeature(HAL_Feature feature)
+    {
+        return 0;
+    }
+};
+#define System __fetch_global_System()
+SystemClass &__fetch_global_System();
 #endif // __PC_HAL_PARTICLE_H__

@@ -16,3 +16,9 @@ EEPROMClass &__fetch_global_EEPROM()
 {
     return __global_eeprom;
 }
+
+SystemClass __global_system;
+SystemClass &__fetch_global_System()
+{
+    return __global_system;
+}
