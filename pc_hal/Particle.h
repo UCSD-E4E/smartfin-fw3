@@ -33,4 +33,8 @@ EEPROMClass &__fetch_global_EEPROM();
 class Timer
 {
 };
+
+class USARTSerial
+{
+};
 #endif // __PC_HAL_PARTICLE_H__
