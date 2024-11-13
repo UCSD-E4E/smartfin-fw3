@@ -39,7 +39,13 @@ class Timer
 
 class USARTSerial
 {
+public:
+    void begin(int baud)
+    {
+    }
 };
+#define Serial __get_default_serial()
+USARTSerial &__get_default_serial();
 
 class SPIClass
 {
@@ -124,4 +130,5 @@ public:
 };
 #define System __fetch_global_System()
 SystemClass &__fetch_global_System();
+
 #endif // __PC_HAL_PARTICLE_H__

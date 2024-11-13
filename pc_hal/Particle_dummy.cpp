@@ -22,3 +22,9 @@ SystemClass &__fetch_global_System()
 {
     return __global_system;
 }
+
+USARTSerial __default_serial;
+USARTSerial &__get_default_serial()
+{
+    return __default_serial;
+}
