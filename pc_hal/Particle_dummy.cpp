@@ -106,3 +106,8 @@ int LocationService::start(bool restart)
 void LocationService::setFastLock(bool enable)
 {
 }
+
+LocationService::LocationService()
+{
+}
+LocationService *LocationService::_instance = nullptr;
