@@ -39,5 +39,6 @@ set(SMARTFIN_SOURCE_FILES
     ../src/util.cpp
     ../src/cli/menuItems/systemCommands.cpp
     ../src/cli/menuItems/debugCommands.cpp
+    ../src/imu/imu.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
