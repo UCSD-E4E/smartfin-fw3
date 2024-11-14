@@ -2,7 +2,7 @@
 * Project smartfin-fw3
 * @file conio.hpp
 * Description: Particle serial input and output for command line use
-* @author @emilybthorpe
+* @author \@emilybthorpe
 * @date Jul 20 2023
 */
 

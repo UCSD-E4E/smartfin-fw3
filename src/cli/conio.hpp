@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+/**
+ * @brief int length of character array SF_OSAL_printfBuffer
+ *
+ */
 #define SF_OSAL_PRINTF_BUFLEN   1536
 
 #ifdef __cplusplus
@@ -41,6 +45,7 @@ extern "C"
      * @brief Gets user input lin
      * @param buffer buffer to write too
      * @param buflen length of buffer
+     * @return int value of user inputs in the buffer array excluding '\b'
      */
     int getline(char* buffer, int buflen);
 
