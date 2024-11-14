@@ -10,6 +10,7 @@
  */
 
 #include "Particle.h"
+#include "location_service.h"
 
 #include <memory>
 EEPROMClass::EEPROMClass()
@@ -89,4 +90,19 @@ int digitalRead(int pin)
 int pinReadFast(int pin)
 {
     return 0;
+}
+
+void LocationService::setModuleType(void)
+{
+}
+int LocationService::begin(const LocationServiceConfiguration &config)
+{
+    return 1;
+}
+int LocationService::start(bool restart)
+{
+    return 1;
+}
+void LocationService::setFastLock(bool enable)
+{
 }

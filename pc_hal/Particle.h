@@ -177,7 +177,9 @@ enum
 class LEDSystemTheme
 {
 public:
-    LEDSystemTheme(void);
+    LEDSystemTheme(void)
+    {
+    }
     void setSignal(LEDSignal signal, uint32_t color)
     {
     }
