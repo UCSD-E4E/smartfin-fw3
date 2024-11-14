@@ -11,6 +11,7 @@
 #ifndef __PC_HAL_PARTICLE_H__
 #define __PC_HAL_PARTICLE_H__
 
+#include <cstdarg>
 #include <cstdint>
 #include <cstring>
 #include <functional>
@@ -96,6 +97,19 @@ public:
     const char *c_str() const
     {
         return val.c_str();
+    }
+    static String format(const char *fmt, ...)
+    {
+        char buf[2048];
+        va_list vargs;
+        va_start(vargs, fmt);
+        vsnprintf(buf, 2048, fmt, vargs);
+        va_end(vargs);
+        return String(buf);
+    }
+    std::size_t length(void) const
+    {
+        return val.length();
     }
 };
 
