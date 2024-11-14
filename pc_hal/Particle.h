@@ -178,12 +178,18 @@ class LEDSystemTheme
 {
 public:
     LEDSystemTheme(void);
-    void setSignal(LEDSignal signal, uint32_t color);
+    void setSignal(LEDSignal signal, uint32_t color)
+    {
+    }
     void setSignal(LEDSignal signal,
                    uint32_t color,
                    LEDPattern pattern,
-                   LEDSpeed speed = LED_SPEED_NORMAL);
-    void setSignal(LEDSignal signal, uint32_t color, LEDPattern pattern, uint16_t period);
+                   LEDSpeed speed = LED_SPEED_NORMAL)
+    {
+    }
+    void setSignal(LEDSignal signal, uint32_t color, LEDPattern pattern, uint16_t period)
+    {
+    }
 };
 
 class FuelGauge
