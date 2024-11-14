@@ -270,6 +270,7 @@ enum
 class SystemClass
 {
     String device_id = String("");
+    String version_str = String("");
 
 public:
     int enableFeature(HAL_Feature feature)
@@ -296,6 +297,11 @@ public:
     void reset(void)
     {
         exit(0);
+    }
+
+    String &version(void)
+    {
+        return version_str;
     }
 };
 #define System __fetch_global_System()

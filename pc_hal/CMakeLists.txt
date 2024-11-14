@@ -29,5 +29,8 @@ set(SMARTFIN_SOURCE_FILES
     ../src/cellular/recorder.cpp
     ../src/sys/led.cpp
     ../src/watersensor/waterSensor.cpp
+    ../src/temperature/max317275_cpp.cpp
+    ../src/temperature/tmpSensor.cpp
+    ../src/vers.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
