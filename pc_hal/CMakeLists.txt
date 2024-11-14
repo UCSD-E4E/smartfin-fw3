@@ -18,5 +18,14 @@ set(SMARTFIN_SOURCE_FILES
     ../src/cli/flog.cpp
     ../src/cli/conio.cpp
     ../src/system.cpp
+    ../src/cellular/sf_cloud.cpp
+    ../src/sleepTask.cpp
+    ../src/cli/cli.cpp
+    ../src/states.cpp
+    ../src/mfgTest/mfgTest.cpp
+    ../src/chargeTask.cpp
+    ../src/cellular/dataUpload.cpp
+    ../src/sys/NVRAM.cpp
+    ../src/cellular/recorder.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})

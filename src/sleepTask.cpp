@@ -38,7 +38,7 @@ void SleepTask::init(void)
 
     // bring down the system safely
     // SYS_deinitSys(); TODO
-
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     switch(SleepTask::bootBehavior)
     {
         case BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
@@ -62,6 +62,7 @@ void SleepTask::init(void)
             System.sleep(config);
             break;
     }
+#endif
     //safety
     SF_OSAL_printf("System going down!" __NL__);
     System.reset();

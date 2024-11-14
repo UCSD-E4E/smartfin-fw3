@@ -48,3 +48,24 @@ ParticleClass &__fetch_global_particle()
 {
     return __global_particle;
 }
+
+Timer::Timer(int period, void (*fn)(void), bool one_shot)
+    : period(period), cb(fn), one_shot(one_shot)
+{
+}
+
+String::String(const char *val) : val(val)
+{
+}
+
+TwoWire __global_i2c;
+TwoWire &__fetch_global_I2C()
+{
+    return __global_i2c;
+}
+
+CellularClass __global_cellular;
+CellularClass &__fetch_global_cellular()
+{
+    return __global_cellular;
+}
