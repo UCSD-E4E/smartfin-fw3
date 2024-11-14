@@ -312,6 +312,9 @@ public:
     void delay(std::uint32_t ms)
     {
     }
+    void delayMicroseconds(std::size_t us)
+    {
+    }
     String format(uint32_t timestamp, const char *fmt)
     {
         return String("");
@@ -322,6 +325,7 @@ TimeClass &__fetch_global_time();
 
 #define millis Time.now
 #define delay Time.delay
+#define delayMicroseconds Time.delayMicroseconds
 
 class ParticleClass
 {

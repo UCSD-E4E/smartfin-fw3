@@ -28,5 +28,6 @@ set(SMARTFIN_SOURCE_FILES
     ../src/sys/NVRAM.cpp
     ../src/cellular/recorder.cpp
     ../src/sys/led.cpp
+    ../src/watersensor/waterSensor.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
