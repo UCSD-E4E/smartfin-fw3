@@ -17,5 +17,6 @@ set(SMARTFIN_SOURCE_FILES
     Particle_dummy.cpp
     ../src/cli/flog.cpp
     ../src/cli/conio.cpp
+    ../src/system.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
