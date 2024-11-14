@@ -35,5 +35,6 @@ set(SMARTFIN_SOURCE_FILES
     ../src/cellular/encoding/base64.c
     ../src/cli/menu.cpp
     ../src/cellular/deploy.cpp
+    ../src/i2c/i2c.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
