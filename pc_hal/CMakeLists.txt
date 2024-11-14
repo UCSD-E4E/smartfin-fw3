@@ -32,5 +32,8 @@ set(SMARTFIN_SOURCE_FILES
     ../src/temperature/max317275_cpp.cpp
     ../src/temperature/tmpSensor.cpp
     ../src/vers.cpp
+    ../src/cellular/encoding/base64.c
+    ../src/cli/menu.cpp
+    ../src/cellular/deploy.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
