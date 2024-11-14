@@ -389,11 +389,13 @@ typedef enum
     HIGH
 } __PC_HAL_PIN_STATE;
 
-void pinMode(__PC_HAL_PIN_DEFs pin, __PC_HAL_PIN_CONFIG mode);
+void pinMode(int pin, __PC_HAL_PIN_CONFIG mode);
 
-void digitalWrite(__PC_HAL_PIN_DEFs pin, __PC_HAL_PIN_STATE state);
+void digitalWrite(int pin, int state);
+void digitalWriteFast(int pin, int state);
 
-int digitalRead(__PC_HAL_PIN_DEFs pin);
+int digitalRead(int pin);
+int pinReadFast(int pin);
 namespace particle
 {
     namespace protocol

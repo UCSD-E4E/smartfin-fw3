@@ -70,15 +70,23 @@ CellularClass &__fetch_global_cellular()
     return __global_cellular;
 }
 
-void pinMode(__PC_HAL_PIN_DEFs pin, __PC_HAL_PIN_CONFIG mode)
+void pinMode(int pin, __PC_HAL_PIN_CONFIG mode)
 {
 }
 
-void digitalWrite(__PC_HAL_PIN_DEFs pin, __PC_HAL_PIN_STATE state)
+void digitalWrite(int pin, int state)
 {
 }
 
-int digitalRead(__PC_HAL_PIN_DEFs pin)
+void digitalWriteFast(int pin, int state)
+{
+}
+
+int digitalRead(int pin)
+{
+    return 0;
+}
+int pinReadFast(int pin)
 {
     return 0;
 }

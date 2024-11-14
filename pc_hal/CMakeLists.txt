@@ -27,5 +27,6 @@ set(SMARTFIN_SOURCE_FILES
     ../src/cellular/dataUpload.cpp
     ../src/sys/NVRAM.cpp
     ../src/cellular/recorder.cpp
+    ../src/sys/led.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
