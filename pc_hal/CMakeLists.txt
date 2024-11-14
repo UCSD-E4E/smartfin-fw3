@@ -40,5 +40,8 @@ set(SMARTFIN_SOURCE_FILES
     ../src/cli/menuItems/systemCommands.cpp
     ../src/cli/menuItems/debugCommands.cpp
     ../src/imu/imu.cpp
+    ../src/cli/cliDebug.cpp
+    ../src/cli/menuItems/gpsCommands.cpp
+    ../src/debug/recorder_debug.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
