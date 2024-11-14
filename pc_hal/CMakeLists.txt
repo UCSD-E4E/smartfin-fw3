@@ -38,5 +38,6 @@ set(SMARTFIN_SOURCE_FILES
     ../src/i2c/i2c.cpp
     ../src/util.cpp
     ../src/cli/menuItems/systemCommands.cpp
+    ../src/cli/menuItems/debugCommands.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
