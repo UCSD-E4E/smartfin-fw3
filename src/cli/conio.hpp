@@ -45,7 +45,8 @@ extern "C"
      * @brief Gets user input lin
      * @param buffer buffer to write too
      * @param buflen length of buffer
-     * @return int value of user inputs in the buffer array excluding '\b'
+     * @return int value of user inputs in the buffer array until
+     * backspace clicked('\\b')
      */
     int getline(char* buffer, int buflen);
 
