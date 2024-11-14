@@ -1,3 +1,10 @@
+## [3.3.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.3.1...v3.3.2) (2024-11-12)
+
+
+### Bug Fixes
+
+* fields inside menu_ documented. revert unintended changes ([fd3ef27](https://github.com/UCSD-E4E/smartfin-fw3/commit/fd3ef27c16882a7c122ad6b22777aba013098a8a))
+
 ## [3.3.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.3.0...v3.3.1) (2024-11-07)
 
 
