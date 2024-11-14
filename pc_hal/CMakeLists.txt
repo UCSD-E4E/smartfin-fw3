@@ -36,5 +36,6 @@ set(SMARTFIN_SOURCE_FILES
     ../src/cli/menu.cpp
     ../src/cellular/deploy.cpp
     ../src/i2c/i2c.cpp
+    ../src/util.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
