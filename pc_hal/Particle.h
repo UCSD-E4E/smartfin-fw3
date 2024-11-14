@@ -306,6 +306,10 @@ public:
     void delay(std::uint32_t ms)
     {
     }
+    String format(uint32_t timestamp, const char *fmt)
+    {
+        return String("");
+    }
 };
 #define Time __fetch_global_time()
 TimeClass &__fetch_global_time();
