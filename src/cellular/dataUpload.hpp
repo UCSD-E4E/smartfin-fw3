@@ -44,9 +44,24 @@ class DataUpload : public Task{
     void exit(void);
 
     private:
+    /**
+     * @brief Stores if data upload state successfully initializes.
+     * Variable storing 1 if system successfully enters data upload state, or 0 if system times out
+     * before entering data upload state.
+     */
     int initSuccess;
     system_tick_t lastConnectTime;
+    /**
+     * @brief Exits data upload state.
+     * Function ends data upload process then enters deep sleep state.
+     */
     STATES_e exitState(void);
+    /**
+     * @brief Identifies if data upload is possible.
+     * Returns that the data upload is possible if: the recorder has data, is connected to a cloud
+     * service, is not in water, and the battery has enough voltage for an upload. Otherwise,
+     * changes current state from upload state to deep sleep, or deployed if currently in water.
+     */
     STATES_e can_upload(void);
 };
 #endif
