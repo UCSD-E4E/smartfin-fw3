@@ -8,6 +8,9 @@
 
 #include "Particle.h"
 
+/**
+ * @brief struct for holding 10 measurements to upload
+ */
 typedef struct Ensemble10_eventData_
 {
     double temperature;
@@ -20,9 +23,15 @@ typedef struct Ensemble10_eventData_
     uint32_t accumulateCount;
 }Ensemble10_eventData_t;
 
+/**
+ * @brief staic variable for 10 measurements
+ */
 static Ensemble10_eventData_t ensemble10Data;
 
-
+/**
+ * @brief collects data with 10 measurmenets for upload
+ * Sends to recorder
+ */
 void SS_ensemble10Func()
 {
     int32_t lat, lng;
