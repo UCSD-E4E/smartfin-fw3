@@ -44,9 +44,21 @@ class DataUpload : public Task{
     void exit(void);
 
     private:
+    /**
+     * @brief Stores if data upload state successfully initializes.
+     * Variable storing 1 if system successfully enters data upload state, or 0 if system times out
+     * before entering data upload state.
+     */
     int initSuccess;
     system_tick_t lastConnectTime;
-    STATES_e exitState(void);
+    //In smartfin-fw2/src/dataUpload::DataUpload::exitState(void), we return based on the water sensor state.  If the system is in the water, we redeploy, otherwise we go to sleep.
+    //STATES_e exitState(void);
+    /**
+     * @brief Identifies if data upload is possible.
+     * Returns that the data upload is possible if: the recorder has data, is connected to a cloud
+     * service, is not in water, and the battery has enough voltage for an upload. If the system is currently in water, we redeploy, otherwise we go to sleep.
+     * @return Returns state enumeration of STATE_UPLOAD, STATE_DEEP_SLEEP, or STATE_DEPLOYED upon execution.
+     */
     STATES_e can_upload(void);
 };
 #endif

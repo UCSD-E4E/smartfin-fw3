@@ -157,7 +157,10 @@ void DataUpload::exit(void)
     }
 }
 
+// In smartfin-fw2/src/dataUpload::DataUpload::exitState(void), we return based on the water sensor state.  If the system is in the water, we redeploy, otherwise we go to sleep.
+/*
 STATES_e DataUpload::exitState(void)
 {
     return STATE_DEEP_SLEEP;
 }
+*/
