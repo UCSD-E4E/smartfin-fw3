@@ -38,14 +38,13 @@
 
 
 class DataUpload : public Task{
-    public:
+public:
     void init(void);
     STATES_e run(void);
     void exit(void);
 
-    private:
+private:
     int initSuccess;
-    system_tick_t lastConnectTime;
     STATES_e exitState(void);
     STATES_e can_upload(void);
 };
