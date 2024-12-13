@@ -185,7 +185,7 @@ void REC_testCreateBigSession(void)
     input_length = atoi(user_input);
     for (hex_idx = 0; hex_idx < input_length; hex_idx++)
     {
-        rand_byte = random(256);
+        rand_byte = SF::utils::random(0, 256);
         switch (pRecorder->putBytes(&rand_byte, 1))
         {
         case 0:
