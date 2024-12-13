@@ -1,11 +1,10 @@
 /**
-* Project smartfin-fw3
-* @file conio.hpp
-* Description: Particle serial input and output for command line use
-* @author @emilybthorpe
-* @date Jul 20 2023
-*/
-
+ * Project smartfin-fw3
+ * @file conio.hpp
+ * Description: Particle serial input and output for command line use
+ * @author Emily B. Thorpe <ethorpe@macalester.edu>
+ * @date Jul 20 2023
+ */
 
 #include "conio.hpp"
 

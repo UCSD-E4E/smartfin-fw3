@@ -36,9 +36,8 @@ void CLI_testHasData(void);
  * @brief Delete all files
 */
 void CLI_wipeFileSystem(void);
-/*
- * @brief Monitors temperature sensor
- * 
+/**
+ * @brief Monitor temperature sensor
  */
 void CLI_monitorTempSensor(void);
 /**
