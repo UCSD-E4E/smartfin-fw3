@@ -15,6 +15,8 @@
 #include "consts.hpp"
 #include "product.hpp"
 
+#include <random>
+
 /**
  * \brief A macro that stores the the size of each line of output as a constant 16 bytes
  */
@@ -67,7 +69,10 @@ int SF::utils::random(int min, int max)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     return ::random(min, max);
-#elif SF_PLATFORM == SF_PLATFORM_GCC
-#error
+#elif SF_PLATFORM == SF_PLATFORM_GLIBC
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(min, max + 1);
+    return distrib(gen);
 #endif
 }
