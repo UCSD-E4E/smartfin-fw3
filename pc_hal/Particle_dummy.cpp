@@ -111,3 +111,7 @@ LocationService::LocationService()
 {
 }
 LocationService *LocationService::_instance = nullptr;
+int LocationService::getLocation(LocationPoint &point)
+{
+    return 1;
+}
