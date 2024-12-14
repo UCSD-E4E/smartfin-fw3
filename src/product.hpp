@@ -263,18 +263,18 @@
  * @brief Particle Platform Selector
  *
  */
-#define SF_PLATFORM_PARTICLE 0
+#define SF_PLATFORM_PARTICLE 1
 /**
  * @brief GCC Platform Selector
  *
  */
-#define SF_PLATFORM_GLIBC 1
+#define SF_PLATFORM_GLIBC 2
 
 /**
  * @brief GoogleTest Platform Selector
  *
  */
-#define SF_PLATFORM_GOOGLETEST 2
+#define SF_PLATFORM_GOOGLETEST 3
 
 /**
  * @brief Smartfin Platform Designator
