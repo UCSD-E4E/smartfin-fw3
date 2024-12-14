@@ -83,9 +83,13 @@ extern "C"
         va_list vargs;
         int nBytes = 0;
         va_start(vargs, fmt);
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
         nBytes = vsnprintf(SF_OSAL_printfBuffer, SF_OSAL_PRINTF_BUFLEN, fmt, vargs);
-        va_end(vargs);
         Serial.write(SF_OSAL_printfBuffer);
+#elif SF_PLATFORM == SF_PLATFORM_GLIBC
+        nBytes = vprintf(fmt, vargs);
+#endif
+        va_end(vargs);
         return nBytes;
     }
 }
