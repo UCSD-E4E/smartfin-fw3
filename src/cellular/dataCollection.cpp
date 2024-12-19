@@ -110,7 +110,7 @@ void SS_ensemble10Func()
         lng = pData->location[1];
     }
 
-    water = 0; // TODO - waiting on water sensor integration
+    water = pSystemDesc->pWaterSensor->getCurrentReading();
 
     // Accumulate measurements
     pData->temperature += temp;

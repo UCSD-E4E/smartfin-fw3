@@ -1,6 +1,7 @@
 #ifndef __CONIO_HPP__
 #define __CONIO_HPP__
 
+#include <cstdarg>
 #include <stdint.h>
 
 /**
