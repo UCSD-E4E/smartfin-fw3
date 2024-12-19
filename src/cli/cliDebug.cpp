@@ -32,7 +32,9 @@
 
 #include "Particle.h"
 
-
+/**
+ * @brief Command line debugging menu
+ */
 const Menu_t CLI_debugMenu[] = 
 {
     {1, "Display Fault Log", &CLI_displayFLOG, MENU_CMD},
