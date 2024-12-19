@@ -3,9 +3,9 @@
 
 #include "Particle.h"
 
-#include <stddef.h>
 #include <dirent.h>
-#include <sys/syslimits.h>
+#include <limits.h>
+#include <stddef.h>
 
 #define FILE_CLI_INPUT_BUFFER_LEN   80
 #define FILE_CLI_MAX_DIR_DEPTH  4
