@@ -11,33 +11,35 @@
 typedef struct Ensemble10_eventData_
 {
     /**
-     * @brief Temperature value of the water in Celsius provided
+     * @brief Average temperature value of the water in Celsius provided
      * by the temperature sensor
      */
     double temperature;
     /**
-     * @brief Indicates how much of the water sensor is in water
-     * 
-     * water = 0 indicates water sensor being dry
+     * @brief Truncated average of whether or not system in water over
+     * accumulation period
+     *
      */
     int32_t water;
     /**
-     * @brief Array saving processed accelerometer data on the x, y, and z axis
+     * @brief Array saving average of the accumulated accelerometer data on the
+     * x, y, and z axis in g scaled up by 16834
      */
     int32_t acc[3];
     /**
-     * @brief Array of length 3 saving processed gyroscope data on the x, y, and
-     * z axis
+     * @brief Array of length 3 saving average of the accumulated gyroscope data
+     * on the x, y, and z axis in degrees per second scaled up by 131.072
      */
     int32_t ang[3];
     /**
-     * @brief Array of length 3 saving processed magnetometer data on the x, y,
-     * and z axis
+     * @brief Array of length 3 saving average of the accumulated magnetometer
+     * data on the x, y, and z axis in uT scaled down by 0.15.
+     *
      */
     int32_t mag[3];
     /**
-     * @brief Array of length 2 saving latitude and longitude values of the
-     * point at which data was collected
+     * @brief Array of length 2 saving latitude and longitude values, multiplied 
+     * by 1e6, of the point at which data was collected
      */
     int32_t location[2];
     /**
