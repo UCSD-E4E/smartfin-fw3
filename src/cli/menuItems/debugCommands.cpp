@@ -149,7 +149,7 @@ void CLI_monitorTempSensor(void)
     {
         if(kbhit()) 
         {
-            ch = getch();
+            ch = SF_OSAL_getch();
             if('q' == ch) 
             {
                 break;
@@ -178,7 +178,7 @@ void CLI_monitorIMU(void)
     {
         if(kbhit()) 
         {
-            ch = getch();
+            ch = SF_OSAL_getch();
 
             if('q' == ch) 
             {
@@ -216,7 +216,7 @@ void CLI_monitorWetDry(void)
     {
         if(kbhit()) 
         {
-            ch = getch();
+            ch = SF_OSAL_getch();
 
             if('q' == ch) 
             {

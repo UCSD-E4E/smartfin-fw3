@@ -93,7 +93,7 @@ void CLI::init(void)
     // While there is an avaliable character typed, get it
     while (kbhit())
     {
-        getch();
+        SF_OSAL_getch();
     }
 }
 

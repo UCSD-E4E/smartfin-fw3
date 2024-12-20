@@ -27,14 +27,17 @@ extern "C"
         return Serial.available();
     }
 
-    // Get pressed key
-    int getch(void)
+    int SF_OSAL_getch(void)
     {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
         while (Serial.available() == 0)
         {
             delay(1);
         }
         return Serial.read();
+#elif SF_PLATFORM == SF_PLATFORM_GLIBC
+        return getchar();
+#endif
     }
 
     // Write character
@@ -54,7 +57,7 @@ extern "C"
             Particle.process();
             if (kbhit())
             {
-                userInput = getch();
+                userInput = SF_OSAL_getch();
                 switch(userInput)
                 {
                     case '\b':

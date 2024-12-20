@@ -16,7 +16,7 @@ void CLI_GPS()
     {
         if(kbhit()) 
         {
-            ch = getch();
+            ch = SF_OSAL_getch();
             if('q' == ch)
             {
                 break;

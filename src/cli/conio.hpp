@@ -15,14 +15,8 @@ extern "C"
 {
 #endif
     /**
-     * @brief Gets character from serial
-     * 
-     * @return int key thats pressed
-     */
-    int getch(void);
-    /**
      * @brief Checks if key is pressed
-     * 
+     *
      * @return int whether key is pressed
      */
     int kbhit(void);
@@ -49,6 +43,13 @@ extern "C"
      * @return length of the user input line
      */
     int SF_OSAL_getline(char *buffer, int buflen);
+
+    /**
+     * @brief Reads the next character from stdin
+     *
+     * @return The obtained character on success or EOF on failure.
+     */
+    int SF_OSAL_getch(void);
 
 #ifdef __cplusplus
 }
