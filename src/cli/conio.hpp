@@ -43,7 +43,7 @@ extern "C"
     int SF_OSAL_printf(const char* fmt, ...);
 
     /**
-     * @brief Gets user input lin
+     * @brief Gets user input line
      * @param buffer buffer to write too
      * @param buflen length of buffer
      * @return length of the user input line
