@@ -53,5 +53,5 @@ TODO
 # Installation for for GCC
 Run in a Linux environment
 
-1. Install build-essentials and cmake
+1. Install build-essentials and cmake, gdb
 2. Ensure submodules are initialized and updated
