@@ -220,11 +220,9 @@ static void SYS_waterTask(void)
     }
 }
 
-
-
 /**
- * @brief Initialization function for GPS 
- * Ublox gps, handled by @file gps/location_service.cpp
+ * @brief Initialization function for GPS
+ * Ublox gps
  * @return int 1 on success, otherwise 0
  */
 static int SYS_initGPS(void) 
