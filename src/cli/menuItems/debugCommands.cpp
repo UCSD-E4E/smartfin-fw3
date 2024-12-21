@@ -61,6 +61,7 @@ void CLI_testGetNumFiles(void)
 
 void CLI_createTestFile(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fd = open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
     SF_OSAL_printf("Error: %d" __NL__, errno);
     SF_OSAL_printf("fd sucsess %d" __NL__, fd);
@@ -75,10 +76,12 @@ void CLI_createTestFile(void)
         }
         close(fd);
     }
+#endif
 }
 
 void CLI_wipeFileSystem(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     DIR* directory = opendir("");
     if (directory == 0)
     {
@@ -89,7 +92,7 @@ void CLI_wipeFileSystem(void)
     {
         unlink(readdir(directory)->d_name);
     }
-
+#endif
 }
 
 void CLI_checkCharging(void) 
@@ -144,9 +147,9 @@ void CLI_monitorTempSensor(void)
 
     while(1) 
     {
-        if(kbhit()) 
+        if (SF_OSAL_kbhit())
         {
-            ch = getch();
+            ch = SF_OSAL_getch();
             if('q' == ch) 
             {
                 break;
@@ -173,9 +176,9 @@ void CLI_monitorIMU(void)
     setupICM();
     while(1)
     {
-        if(kbhit()) 
+        if (SF_OSAL_kbhit())
         {
-            ch = getch();
+            ch = SF_OSAL_getch();
 
             if('q' == ch) 
             {
@@ -211,9 +214,9 @@ void CLI_monitorWetDry(void)
     SF_OSAL_printf("Reading    Status" __NL__);
     while(1)
     {
-        if(kbhit()) 
+        if (SF_OSAL_kbhit())
         {
-            ch = getch();
+            ch = SF_OSAL_getch();
 
             if('q' == ch) 
             {

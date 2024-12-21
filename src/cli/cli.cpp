@@ -91,9 +91,9 @@ void CLI::init(void)
     CLI_ledStatus.setActive();
 
     // While there is an avaliable character typed, get it
-    while (kbhit())
+    while (SF_OSAL_kbhit())
     {
-        getch();
+        SF_OSAL_getch();
     }
 }
 
@@ -121,10 +121,10 @@ void CLI_hexdump(void)
     const void* pBuffer;
     size_t buffer_length;
     SF_OSAL_printf("Starting address: 0x");
-    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN);
     pBuffer = (const void*)strtol(input_buffer, &pEndTok, 16);
     SF_OSAL_printf("Length: ");
-    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN);
     buffer_length = (size_t) strtol(input_buffer, &pEndTok, 10);
     hexDump(pBuffer, buffer_length);
 }
@@ -140,7 +140,7 @@ static void CLI_setState(void)
         SF_OSAL_printf("%3d: %s" __NL__, i, STATES_NAME_TAB[i]);
     }
     SF_OSAL_printf("Enter state to change to: ");
-    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN);
     nextState = (STATES_e) strtol(input_buffer, &pEndTok, 10);
     if (nextState == 0)
     {
@@ -169,7 +169,7 @@ static void CLI_sleepSetSleepBehavior(void)
     char* pEndTok;
     SleepTask::BOOT_BEHAVIOR_e boot_behavior;
     SF_OSAL_printf("Boot Behavior Code: ");
-    getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN);
     boot_behavior = (SleepTask::BOOT_BEHAVIOR_e) strtol(input_buffer, &pEndTok, 10);
     SleepTask::setBootBehavior(boot_behavior);
 }

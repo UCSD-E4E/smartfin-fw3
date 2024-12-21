@@ -26,9 +26,9 @@ STATES_e ChargeTask::run(void)
 {
     while(1)
     {
-        if(kbhit())
+        if (SF_OSAL_kbhit())
         {
-            this->inputBuffer[CLI_BUFFER_LEN - 1] = getch();
+            this->inputBuffer[CLI_BUFFER_LEN - 1] = SF_OSAL_getch();
             byteshiftl(this->inputBuffer, CLI_BUFFER_LEN, 1, 0);
             if(strcmp(this->inputBuffer, CLI_INTERRUPT_PHRASE) == 0)
             {

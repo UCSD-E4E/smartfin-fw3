@@ -49,3 +49,9 @@ Not charging and at least 10 ms have passed   | LED ON              |
 
 ## Wet Dry LED
 TODO
+
+# Installation for for GCC
+Run in a Linux environment
+
+1. Install build-essentials and cmake, gdb
+2. Ensure submodules are initialized and updated

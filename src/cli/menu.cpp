@@ -44,7 +44,7 @@ void MNU_executeMenu(const Menu_t* pMenu)
     {
         SF_OSAL_printf(">");
         memset(userInput, 0, SF_CLI_MAX_CMD_LEN);
-        getline(userInput, SF_CLI_MAX_CMD_LEN);
+        SF_OSAL_getline(userInput, SF_CLI_MAX_CMD_LEN);
 
         if (strlen(userInput) == 0)
         {

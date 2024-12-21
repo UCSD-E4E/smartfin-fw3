@@ -50,6 +50,7 @@ void VERS_printBanner(void)
     const uint32_t APP_ADDR = 0x000d4000; // Earlier versions including 2.x LTS
     #endif
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     const module_info_t *prefix = (module_info_t *)APP_ADDR;
 
     const uint32_t *crcAddr = (const uint32_t *)prefix->module_end_address;
@@ -62,7 +63,7 @@ void VERS_printBanner(void)
         SF_OSAL_printf("%02x", sha[byte_idx]);
     }
     SF_OSAL_printf(__NL__);
-    
+#endif
 }
 
 const char* VERS_getBuildDate(void)

@@ -55,7 +55,7 @@ void DEPD_testOpenRW(void)
     int retval;
 
     SF_OSAL_printf("Enter path: ");
-    getline(userInput, REC_SESSION_NAME_MAX_LEN);
+    SF_OSAL_getline(userInput, REC_SESSION_NAME_MAX_LEN);
 
     retval = instance.open(userInput, Deployment::RDWR);
     SF_OSAL_printf("Returned %d" __NL__, retval);
@@ -68,7 +68,7 @@ void DEPD_testOpenRO(void)
     int retval;
 
     SF_OSAL_printf("Enter path: ");
-    getline(userInput, REC_SESSION_NAME_MAX_LEN);
+    SF_OSAL_getline(userInput, REC_SESSION_NAME_MAX_LEN);
 
     retval = instance.open(userInput, Deployment::READ);
     SF_OSAL_printf("Returned %d" __NL__, retval);
@@ -81,7 +81,7 @@ void DEPD_testOpenWO(void)
     int retval;
 
     SF_OSAL_printf("Enter path: ");
-    getline(userInput, REC_SESSION_NAME_MAX_LEN);
+    SF_OSAL_getline(userInput, REC_SESSION_NAME_MAX_LEN);
 
     retval = instance.open(userInput, Deployment::WRITE);
     SF_OSAL_printf("Returned %d" __NL__, retval);
@@ -94,7 +94,7 @@ void DEPD_testWrite(void)
     int retval;
 
     SF_OSAL_printf("Enter data: ");
-    getline(userInput, SF_CLI_MAX_CMD_LEN);
+    SF_OSAL_getline(userInput, SF_CLI_MAX_CMD_LEN);
 
     retval = instance.write(userInput, strlen(userInput));
     SF_OSAL_printf("Returned %d" __NL__, retval);
@@ -116,7 +116,7 @@ void DEPD_testRead(void)
     int retval;
 
     SF_OSAL_printf("Enter number of bytes to read: ");
-    getline(userInput, SF_CLI_MAX_CMD_LEN);
+    SF_OSAL_getline(userInput, SF_CLI_MAX_CMD_LEN);
     n_bytes = atoi(userInput);
 
     if (n_bytes < 1)
@@ -141,7 +141,7 @@ void DEPD_testSeek(void)
     int retval;
 
     SF_OSAL_printf("Enter location to seek to: ");
-    getline(userInput, SF_CLI_MAX_CMD_LEN);
+    SF_OSAL_getline(userInput, SF_CLI_MAX_CMD_LEN);
     n_bytes = atoi(userInput);
 
     retval = instance.seek(n_bytes);
@@ -173,7 +173,7 @@ void DEPD_testTruncate(void)
     int retval;
 
     SF_OSAL_printf("Enter size to truncate to: ");
-    getline(userInput, SF_CLI_MAX_CMD_LEN);
+    SF_OSAL_getline(userInput, SF_CLI_MAX_CMD_LEN);
     n_bytes = atoi(userInput);
 
     retval = instance.truncate(n_bytes);

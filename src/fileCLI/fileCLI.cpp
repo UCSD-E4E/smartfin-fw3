@@ -1,21 +1,20 @@
 #include "fileCLI.hpp"
 
+#include "Particle.h"
+#include "cellular/encoding/base64.h"
+#include "cellular/encoding/base85.h"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
-#include "cellular/encoding/base64.h"
-#include "cellular/encoding/base85.h"
 #include "product.hpp"
 #include "system.hpp"
-
-#include "Particle.h"
 
 #include <ctype.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <sys/syslimits.h>
 
 static char path_buffer[PATH_MAX];
 
@@ -57,8 +56,11 @@ void FileCLI::execute(void)
     this->dir_stack[this->current_dir] = opendir("/");
     if (NULL == this->dir_stack[this->current_dir])
     {
-        FLOG_AddError(FLOG_FS_OPENDIR_FAIL,
-            (uint32_t)this->dir_stack[this->current_dir]);
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+        FLOG_AddError(FLOG_FS_OPENDIR_FAIL, (uint32_t)this->dir_stack[this->current_dir]);
+#elif SF_PLATFORM == SF_PLATFORM_GLIBC
+        FLOG_AddError(FLOG_FS_OPENDIR_FAIL, this->current_dir);
+#endif
         SF_OSAL_printf("Failed to open root" __NL__);
         return;
     }
@@ -67,7 +69,7 @@ void FileCLI::execute(void)
     {
         SF_OSAL_printf(":>");
         memset(input_buffer, 0, FILE_CLI_INPUT_BUFFER_LEN);
-        getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+        SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
         cmd = findCommand(input_buffer);
         if (!cmd)
         {
@@ -194,7 +196,7 @@ void FileCLI::change_dir(void)
     rewinddir(cwd);
     SF_OSAL_printf(__NL__);
     SF_OSAL_printf("Enter the number of the directory to change to: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
     if (cmd_val == same_dir_idx)
@@ -234,13 +236,14 @@ void FileCLI::print_dir(void)
 
 void FileCLI::deleteFile(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
-    DIR* cwd = this->dir_stack[this->current_dir];
-    struct dirent* dirent;
+    DIR *cwd = this->dir_stack[this->current_dir];
+    struct dirent *dirent;
     char f_type;
     long idx;
     int cmd_val;
-    const char* path;
+    const char *path;
 
     idx = telldir(cwd);
     while ((dirent = readdir(cwd)))
@@ -256,17 +259,14 @@ void FileCLI::deleteFile(void)
             break;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
-        SF_OSAL_printf("%d: %c %-16s" __NL__,
-            idx,
-            f_type,
-            dirent->d_name);
+        SF_OSAL_printf("%d: %c %-16s" __NL__, idx, f_type, dirent->d_name);
         idx = telldir(cwd);
     }
     rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to remove: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
     seekdir(cwd, cmd_val);
@@ -281,11 +281,13 @@ void FileCLI::deleteFile(void)
     }
     this->current_dir--;
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
+#endif
 }
 
 
 void hexdump(int fp, size_t file_len)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #define BYTES_PER_LINE 16
     size_t file_idx = 0;
     uint8_t byte_buffer[BYTES_PER_LINE + 1];
@@ -329,17 +331,18 @@ void hexdump(int fp, size_t file_len)
         SF_OSAL_printf(" |%s|" __NL__, (const char*)byte_buffer);
     }
     SF_OSAL_printf("%08x" __NL__, file_idx);
-
+#endif
 }
 
 void FileCLI::dumpHex(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
-    DIR* cwd = this->dir_stack[this->current_dir];
-    struct dirent* dirent;
+    DIR *cwd = this->dir_stack[this->current_dir];
+    struct dirent *dirent;
     long idx;
     int cmd_val;
-    const char* path;
+    const char *path;
     int fp;
     struct stat fstats;
 
@@ -352,16 +355,14 @@ void FileCLI::dumpHex(void)
             continue;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
-        SF_OSAL_printf("%d: %-16s" __NL__,
-            idx,
-            dirent->d_name);
+        SF_OSAL_printf("%d: %-16s" __NL__, idx, dirent->d_name);
         idx = telldir(cwd);
     }
     rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to hexdump: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
     seekdir(cwd, cmd_val);
@@ -389,10 +390,12 @@ void FileCLI::dumpHex(void)
 
     close(fp);
     this->current_dir--;
+#endif
 }
 
 void base85dump(int fp, size_t file_len)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     size_t file_idx = 0, bytes_read;
     uint8_t byte_buffer[SF_PACKET_SIZE];
     char encoded_buffer[SF_RECORD_SIZE];
@@ -402,15 +405,15 @@ void base85dump(int fp, size_t file_len)
     for (file_idx = 0; file_idx < file_len; file_idx += bytes_read)
     {
         bytes_read = read(fp, byte_buffer, SF_PACKET_SIZE);
-    #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
+#if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
         encodedLen = bintob85(encoded_buffer, byte_buffer, bytes_read) - encodedBuffer;
-    #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64
+#elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64
         encodedLen = SF_RECORD_SIZE;
         b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
-    #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
+#elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
         encodedLen = SF_RECORD_SIZE;
         urlsafe_b64_encode(byte_buffer, bytes_read, encoded_buffer, &encodedLen);
-    #endif
+#endif
         totalEncodedLen += encodedLen;
         SF_OSAL_printf("%s" __NL__, encoded_buffer);
         n_packets++;
@@ -418,16 +421,18 @@ void base85dump(int fp, size_t file_len)
 
     SF_OSAL_printf(__NL__ "%d chars of encoded data" __NL__, totalEncodedLen);
     SF_OSAL_printf("%d packets" __NL__, n_packets);
+#endif
 }
 
 void FileCLI::dumpBase85(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
-    DIR* cwd = this->dir_stack[this->current_dir];
-    struct dirent* dirent;
+    DIR *cwd = this->dir_stack[this->current_dir];
+    struct dirent *dirent;
     long idx;
     int cmd_val;
-    const char* path;
+    const char *path;
     int fp;
     struct stat fstats;
 
@@ -440,16 +445,14 @@ void FileCLI::dumpBase85(void)
             continue;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
-        SF_OSAL_printf("%d: %-16s" __NL__,
-            idx,
-            dirent->d_name);
+        SF_OSAL_printf("%d: %-16s" __NL__, idx, dirent->d_name);
         idx = telldir(cwd);
     }
     rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to dump: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
     seekdir(cwd, cmd_val);
@@ -473,12 +476,11 @@ void FileCLI::dumpBase85(void)
         return;
     }
 
-    SF_OSAL_printf("Publish Header: %s-%s" __NL__,
-        pSystemDesc->deviceID,
-        dirent->d_name);
+    SF_OSAL_printf("Publish Header: %s-%s" __NL__, pSystemDesc->deviceID, dirent->d_name);
     base85dump(fp, fstats.st_size);
 
     close(fp);
+#endif
 }
 
 void FileCLI::mkdir(void)
@@ -487,7 +489,7 @@ void FileCLI::mkdir(void)
     int result;
 
     SF_OSAL_printf("Enter new directory name: ");
-    getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
 
     result = ::mkdir(input_buffer, 0777);
     SF_OSAL_printf("Returned %d" __NL__, result);
