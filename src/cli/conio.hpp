@@ -63,12 +63,6 @@ extern "C"
      */
     void SF_OSAL_deinit_conio(void);
 
-    /**
-     * @brief Flushes any input buffer
-     *
-     */
-    void SF_OSAL_flush_input(void);
-
 #ifdef __cplusplus
 }
 #endif

@@ -49,11 +49,6 @@ extern "C"
 #endif
     }
 
-    void SF_OSAL_flush_input(void)
-    {
-        read_tail_idx = read_head_idx;
-    }
-
     int SF_OSAL_getch(void)
     {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
