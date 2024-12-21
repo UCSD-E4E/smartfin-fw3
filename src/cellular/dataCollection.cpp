@@ -10,13 +10,46 @@
 
 typedef struct Ensemble10_eventData_
 {
+    /**
+     * @brief Average temperature value of the water in Celsius provided
+     * by the temperature sensor
+     */
     double temperature;
+    /**
+     * @brief Truncated average of whether or not system in water over
+     * accumulation period
+     *
+     */
     int32_t water;
+    /**
+     * @brief Array saving average of the accumulated accelerometer data on the
+     * x, y, and z axis in g scaled up by 16834
+     */
     int32_t acc[3];
+    /**
+     * @brief Array of length 3 saving average of the accumulated gyroscope data
+     * on the x, y, and z axis in degrees per second scaled up by 131.072
+     */
     int32_t ang[3];
+    /**
+     * @brief Array of length 3 saving average of the accumulated magnetometer
+     * data on the x, y, and z axis in uT scaled down by 0.15.
+     *
+     */
     int32_t mag[3];
+    /**
+     * @brief Array of length 2 saving latitude and longitude values, multiplied 
+     * by 1e6, of the point at which data was collected
+     */
     int32_t location[2];
+    /**
+     * @brief Indicates if GNSS point is locked and more than 4 point 
+     * satellites in view
+     */
     uint8_t hasGPS;
+    /**
+     * @brief Number of times measurements gathered
+     */
     uint32_t accumulateCount;
 }Ensemble10_eventData_t;
 
