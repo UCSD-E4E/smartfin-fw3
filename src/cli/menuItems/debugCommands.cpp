@@ -147,7 +147,7 @@ void CLI_monitorTempSensor(void)
 
     while(1) 
     {
-        if(kbhit()) 
+        if (SF_OSAL_kbhit())
         {
             ch = SF_OSAL_getch();
             if('q' == ch) 
@@ -176,7 +176,7 @@ void CLI_monitorIMU(void)
     setupICM();
     while(1)
     {
-        if(kbhit()) 
+        if (SF_OSAL_kbhit())
         {
             ch = SF_OSAL_getch();
 
@@ -214,7 +214,7 @@ void CLI_monitorWetDry(void)
     SF_OSAL_printf("Reading    Status" __NL__);
     while(1)
     {
-        if(kbhit()) 
+        if (SF_OSAL_kbhit())
         {
             ch = SF_OSAL_getch();
 

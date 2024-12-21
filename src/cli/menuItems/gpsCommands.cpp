@@ -14,7 +14,7 @@ void CLI_GPS()
     int row = 0;
     for (row = 0; ; row++)
     {
-        if(kbhit()) 
+        if (SF_OSAL_kbhit())
         {
             ch = SF_OSAL_getch();
             if('q' == ch)

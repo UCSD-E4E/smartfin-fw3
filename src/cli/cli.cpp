@@ -91,7 +91,7 @@ void CLI::init(void)
     CLI_ledStatus.setActive();
 
     // While there is an avaliable character typed, get it
-    while (kbhit())
+    while (SF_OSAL_kbhit())
     {
         SF_OSAL_getch();
     }
