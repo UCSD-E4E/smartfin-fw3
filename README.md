@@ -24,8 +24,8 @@ base85          | 9c52d27 | MIT     | https://github.com/rafagafe/base85 | src/c
 # LED Behavior
 
 ## Status LED
-State              | Color    | Pattern
----------------------------------------
+|State              | Color    | Pattern|
+|-------------------|----------|--------|
 Charge             | Yellow   | Solid
 Sleep              | Black    | Solid
 CLI                | Red      | Solid
