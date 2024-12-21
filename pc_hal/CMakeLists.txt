@@ -3,6 +3,8 @@ project(smartfin_pc)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(Threads REQUIRED)
+
 include_directories(
     .    
     ../src/
@@ -47,3 +49,4 @@ set(SMARTFIN_SOURCE_FILES
     ../src/fileCLI/fileCLI.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
+target_link_libraries(smartfin_pc Threads::Threads)

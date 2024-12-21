@@ -17,16 +17,16 @@ extern "C"
     /**
      * @brief Checks if key is pressed
      *
-     * @return int whether key is pressed
+     * @return 1 if next keypress is available, otherwise 0
      */
-    int kbhit(void);
+    int SF_OSAL_kbhit(void);
     /**
      * @brief Pushes character to serial
-     * 
+     *
      * @param ch character to push
-     * @return int Sucsess value
+     * @return Printed char
      */
-    int putch(int ch);
+    int SF_OSAL_putch(int ch);
     /**
      * @brief Printf equivilent
      * 
@@ -50,6 +50,24 @@ extern "C"
      * @return The obtained character on success or EOF on failure.
      */
     int SF_OSAL_getch(void);
+
+    /**
+     * @brief Initializes the conio facility
+     *
+     */
+    void SF_OSAL_init_conio(void);
+
+    /**
+     * @brief Safely deinitializes the conio facility
+     *
+     */
+    void SF_OSAL_deinit_conio(void);
+
+    /**
+     * @brief Flushes any input buffer
+     *
+     */
+    void SF_OSAL_flush_input(void);
 
 #ifdef __cplusplus
 }
