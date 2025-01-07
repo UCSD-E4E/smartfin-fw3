@@ -24,6 +24,9 @@ typedef struct Ensemble10_eventData_
     /**
      * @brief Array saving average of the accumulated accelerometer data on the
      * x, y, and z axis in g scaled up by 16834
+     *
+     * Values {1, 0, 0} would have an array value of [0.000061, 0, 0]
+     * Values {16384, 0, 0} so the array values would be [1, 0, 0]
      */
     int32_t acc[3];
     /**
@@ -43,8 +46,12 @@ typedef struct Ensemble10_eventData_
      */
     int32_t location[2];
     /**
-     * @brief Indicates if GNSS point is locked and more than 4 point 
+     * @brief Indicates if GNSS point is locked and more than 4 point
      * satellites in view
+     *
+     * All possible values are [0,1]:
+     * 0 - less than 4 point satellites are in view thus GNSS point is not locked
+     * 1 - 4 or more point satellites are in view thus GNSS point is locked
      */
     uint8_t hasGPS;
     /**
