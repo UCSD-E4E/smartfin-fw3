@@ -12,9 +12,8 @@
 
 #include <string>
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
+#include <ncurses.h>
 #include <pthread.h>
-#include <stdio.h>
-#include <termios.h>
 #elif SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "Particle.h"
 #endif
@@ -25,13 +24,18 @@ pthread_t read_thread, write_thread;
 #define SF_OSAL_READ_BUFLEN 2048
 char SF_OSAL_inputBuffer[SF_OSAL_READ_BUFLEN];
 std::size_t read_head_idx = 0, read_tail_idx = 0;
+pthread_mutex_t read_mutex;
 
 void *read_loop(void *_)
 {
+    int ch;
     while (true)
     {
-        SF_OSAL_inputBuffer[read_head_idx % SF_OSAL_READ_BUFLEN] = getchar();
+        ch = wgetch(stdscr);
+        pthread_mutex_lock(&read_mutex);
+        SF_OSAL_inputBuffer[read_head_idx % SF_OSAL_READ_BUFLEN] = ch;
         read_head_idx++;
+        pthread_mutex_unlock(&read_mutex);
     }
     return nullptr;
 }
@@ -42,10 +46,14 @@ extern "C"
     // Determines if key has been pressed
     int SF_OSAL_kbhit(void)
     {
+        int rv;
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         return Serial.available();
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        return read_head_idx != read_tail_idx;
+        pthread_mutex_lock(&read_mutex);
+        rv = (read_head_idx != read_tail_idx);
+        pthread_mutex_unlock(&read_mutex);
+        return rv;
 #endif
     }
 
@@ -58,8 +66,10 @@ extern "C"
         }
         return Serial.read();
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
+        pthread_mutex_lock(&read_mutex);
         char retval = SF_OSAL_inputBuffer[read_tail_idx % SF_OSAL_READ_BUFLEN];
         read_tail_idx++;
+        pthread_mutex_unlock(&read_mutex);
         return retval;
 #endif
     }
@@ -71,8 +81,8 @@ extern "C"
         Serial.print((char)ch);
         return ch;
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        putchar(ch);
-        fflush(stdout);
+        waddch(stdscr, ch);
+        wrefresh(stdscr);
         return ch;
 #endif
     }
@@ -127,9 +137,8 @@ extern "C"
                     buffer[i++] = userInput;
                     SF_OSAL_putch(userInput);
                     break;
-                case '\r':
+                case '\n':
                     buffer[i++] = 0;
-                    SF_OSAL_putch('\r');
                     SF_OSAL_putch('\n');
                     return i;
                 }
@@ -148,8 +157,8 @@ extern "C"
         nBytes = vsnprintf(SF_OSAL_printfBuffer, SF_OSAL_PRINTF_BUFLEN, fmt, vargs);
         Serial.write(SF_OSAL_printfBuffer);
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        vprintf(fmt, vargs);
-        fflush(stdout);
+        vw_printw(stdscr, fmt, vargs);
+        wrefresh(stdscr);
 #endif
         va_end(vargs);
         return nBytes;
@@ -160,18 +169,20 @@ extern "C"
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         Serial.begin(SF_SERIAL_SPEED);
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        pthread_create(&read_thread, NULL, read_loop, NULL);
-        struct termios term;
-        tcgetattr(fileno(stdin), &term);
+        initscr();
+        noecho();
+        scrollok(stdscr, TRUE);
+        immedok(stdscr, TRUE);
 
-        term.c_lflag &= ~ECHO;
-        tcsetattr(fileno(stdin), 0, &term);
+        pthread_create(&read_thread, NULL, read_loop, NULL);
+        pthread_detach(read_thread);
 #endif
     }
 
     void SF_OSAL_deinit_conio(void)
     {
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
+        endwin();
 #endif
     }
 }

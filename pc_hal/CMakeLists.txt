@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Threads REQUIRED)
+find_package(Curses REQUIRED)
 
 include_directories(
     .    
@@ -12,6 +13,7 @@ include_directories(
     ../lib/gps-ublox/src
     ../lib/gps-nmea-parser/src
     ../lib/gps-quectel/src
+    ${CURSES_INCLUDE_DIR}
 )
 
 set(SMARTFIN_SOURCE_FILES
@@ -49,4 +51,7 @@ set(SMARTFIN_SOURCE_FILES
     ../src/fileCLI/fileCLI.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
-target_link_libraries(smartfin_pc Threads::Threads)
+target_link_libraries(smartfin_pc
+    Threads::Threads
+    ${CURSES_LIBRARIES}
+)
