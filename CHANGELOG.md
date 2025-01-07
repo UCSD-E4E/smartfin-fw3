@@ -1,3 +1,11 @@
+# [3.5.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.4.0...v3.5.0) (2025-01-07)
+
+
+### Features
+
+* switched backslashes to forward slashes ([c23d9d6](https://github.com/UCSD-E4E/smartfin-fw3/commit/c23d9d609e0f9bf91a3db291bc4dc5c9e97ca05c))
+* switched backslashes to forward slashes ([#161](https://github.com/UCSD-E4E/smartfin-fw3/issues/161)) ([2ca2141](https://github.com/UCSD-E4E/smartfin-fw3/commit/2ca214110213d5e7c0850c2ef229233106f8f239))
+
 # [3.4.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.3.3...v3.4.0) (2024-12-06)
 
 
