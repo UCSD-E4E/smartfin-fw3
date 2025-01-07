@@ -1,3 +1,21 @@
+# [3.4.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.3.3...v3.4.0) (2024-12-06)
+
+
+### Features
+
+* integrated water sensor into data collection ([19bee51](https://github.com/UCSD-E4E/smartfin-fw3/commit/19bee5190dec2b74050a940a6e61bb2def8d7ca2))
+* integrated water sensor into data collection ([#146](https://github.com/UCSD-E4E/smartfin-fw3/issues/146)) ([5e3ad08](https://github.com/UCSD-E4E/smartfin-fw3/commit/5e3ad08988300a0d64b60a0f7ca46c31b25a7497))
+
+## [3.3.3](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.3.2...v3.3.3) (2024-11-22)
+
+
+### Bug Fixes
+
+* Adds cstdarg include ([1ea0cc8](https://github.com/UCSD-E4E/smartfin-fw3/commit/1ea0cc8a4fb4795d1d6840bc629c41659805b8cc))
+* Adds cstdarg include ([#124](https://github.com/UCSD-E4E/smartfin-fw3/issues/124)) ([ffd41d7](https://github.com/UCSD-E4E/smartfin-fw3/commit/ffd41d7ec059ed799ddd2ff8d225641ae0b47a5c))
+* Switches to limits.h ([ee94566](https://github.com/UCSD-E4E/smartfin-fw3/commit/ee945662148bf821dabdfe3fc71311e718f389c7))
+* Switches to limits.h ([#129](https://github.com/UCSD-E4E/smartfin-fw3/issues/129)) ([379bcae](https://github.com/UCSD-E4E/smartfin-fw3/commit/379bcae1a4cb84f044ee2d4f2685df5f4ec72817))
+
 ## [3.3.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.3.1...v3.3.2) (2024-11-12)
 
 

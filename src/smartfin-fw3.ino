@@ -56,7 +56,7 @@ static STATES_e currentState;
 static StateMachine_t* findState(STATES_e state);
 static void initalizeTaskObjects(void);
 void mainThread(void* args);
-void printState(STATES_e state);
+static void printState(STATES_e state);
 
 // setup() runs once, when the device is first turned on.
 void setup() {

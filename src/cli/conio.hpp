@@ -1,8 +1,13 @@
 #ifndef __CONIO_HPP__
 #define __CONIO_HPP__
 
+#include <cstdarg>
 #include <stdint.h>
 
+/**
+ * @brief int length of character array SF_OSAL_printfBuffer
+ *
+ */
 #define SF_OSAL_PRINTF_BUFLEN   1536
 
 #ifdef __cplusplus
@@ -41,6 +46,7 @@ extern "C"
      * @brief Gets user input lin
      * @param buffer buffer to write too
      * @param buflen length of buffer
+     * @return length of the user input line
      */
     int getline(char* buffer, int buflen);
 
