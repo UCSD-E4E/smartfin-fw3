@@ -262,7 +262,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
         else
         {
             snprintf(
-                p_name_buf, NAME_MAX, "%08lu", static_cast<long unsigned int>(entry.session_idx));
+                p_name_buf, NAME_MAX, "%08u", entry.session_idx);
         }
         SF_OSAL_printf("Set name to %s" __NL__, p_name_buf);
         return 0;
