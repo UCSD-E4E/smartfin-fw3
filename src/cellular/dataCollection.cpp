@@ -25,8 +25,10 @@ typedef struct Ensemble10_eventData_
      * @brief Array saving average of the accumulated accelerometer data on the
      * x, y, and z axis in g scaled up by 16834
      *
-     * Values {1, 0, 0} would have an array value of [0.000061, 0, 0]
-     * Values {16384, 0, 0} so the array values would be [1, 0, 0]
+     * Values {1, 0, 0} would have an array value of [0.000061g, 0g, 0g]
+     * Values {16384, 0, 0} so the array values would be [1g, 0g, 0g]
+     * 
+     * g is approximately equal to 9.81 m/s^2
      */
     int32_t acc[3];
     /**
