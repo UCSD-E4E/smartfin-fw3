@@ -50,6 +50,7 @@ static inline void REC_build_data_filename(uint32_t session_idx,
 
 int Recorder::create_metadata_file(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     struct stat stat_result;
     int result = stat(METADATA_FILE, &stat_result);
     int fp;
@@ -121,11 +122,13 @@ int Recorder::create_metadata_file(void)
         return 0;
     }
     this->metadata_header_valid = true;
+#endif
     return 1;
 }
 
 int REC_create_data_root(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     struct stat stat_result;
 
     int result = stat(DATA_ROOT, &stat_result);
@@ -162,6 +165,7 @@ int REC_create_data_root(void)
     SF_OSAL_printf("REC::create_data_root: Failed to create: %d" __NL__, errno);
 #endif
     FLOG_AddError(FLOG_FS_MKDIR_FAIL, errno);
+#endif
     return 0;
 }
 
@@ -498,6 +502,7 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
 
 int Recorder::pop_metadata_entry(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     off_t final_length;
 
@@ -531,11 +536,13 @@ int Recorder::pop_metadata_entry(void)
         FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
         return 1;
     }
+#endif
     return 0;
 }
 
 int Recorder::push_metadata_entry(uint32_t session_idx)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     timestamp_entry_t entry;
 
@@ -572,11 +579,13 @@ int Recorder::push_metadata_entry(uint32_t session_idx)
         FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
         return 1;
     }
+#endif
     return 0;
 
 }
 int Recorder::set_metadata_entry_time(uint32_t session_idx, uint32_t timestamp)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     timestamp_entry_t entry;
     int bytes_read;
@@ -624,11 +633,13 @@ int Recorder::set_metadata_entry_time(uint32_t session_idx, uint32_t timestamp)
         FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
         return 5;
     }
+#endif
     return 0;
 }
 
 int Recorder::peek_last_metadata_entry(timestamp_entry_t& entry)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     off_t entry_pos;
     entry_pos = sizeof(metadata_header_t) + 
@@ -653,5 +664,6 @@ int Recorder::peek_last_metadata_entry(timestamp_entry_t& entry)
         FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
         return 3;
     }
+#endif
     return 0;
 }

@@ -34,6 +34,16 @@
                     "${workspaceFolder}/src"
                 ]
             }
+        },
+        {
+            "name": "cmake",
+            "includePath": [
+                "${workspaceFolder}/src"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "mergeConfigurations": true
         }
     ],
     "version": 4
