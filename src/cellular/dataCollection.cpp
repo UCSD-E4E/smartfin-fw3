@@ -10,13 +10,55 @@
 
 typedef struct Ensemble10_eventData_
 {
+    /**
+     * @brief Average temperature value of the water in Celsius provided
+     * by the temperature sensor
+     */
     double temperature;
+    /**
+     * @brief Truncated average of whether or not system in water over
+     * accumulation period
+     *
+     */
     int32_t water;
+    /**
+     * @brief Array saving average of the accumulated accelerometer data on the
+     * x, y, and z axis in g scaled up by 16834
+     *
+     * Values {1, 0, 0} would have an array value of [0.000061g, 0g, 0g]
+     * Values {16384, 0, 0} so the array values would be [1g, 0g, 0g]
+     * 
+     * g is approximately equal to 9.81 m/s^2
+     */
     int32_t acc[3];
+    /**
+     * @brief Array of length 3 saving average of the accumulated gyroscope data
+     * on the x, y, and z axis in degrees per second scaled up by 131.072
+     */
     int32_t ang[3];
+    /**
+     * @brief Array of length 3 saving average of the accumulated magnetometer
+     * data on the x, y, and z axis in uT scaled down by 0.15.
+     *
+     */
     int32_t mag[3];
+    /**
+     * @brief Array of length 2 saving latitude and longitude values, multiplied 
+     * by 1e6, of the point at which data was collected
+     */
     int32_t location[2];
+    /**
+     * @brief Indicates if GNSS point is locked and more than 4 point
+     * satellites in view
+     *
+     * All possible values are [0,1]:
+     * 0 - less than 4 point satellites are in view thus GNSS point is not locked
+     * 1 - 4 or more point satellites are in view thus GNSS point is locked
+     */
     uint8_t hasGPS;
+    /**
+     * @brief Number of times measurements gathered
+     */
     uint32_t accumulateCount;
 }Ensemble10_eventData_t;
 
