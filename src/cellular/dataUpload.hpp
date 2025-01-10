@@ -51,12 +51,26 @@ class DataUpload : public Task{
      */
     int initSuccess;
     system_tick_t lastConnectTime;
-    //In smartfin-fw2/src/dataUpload::DataUpload::exitState(void), we return based on the water sensor state.  If the system is in the water, we redeploy, otherwise we go to sleep.
-    //STATES_e exitState(void);
     /**
      * @brief Identifies if data upload is possible.
-     * Returns that the data upload is possible if: the recorder has data, is connected to a cloud
-     * service, is not in water, and the battery has enough voltage for an upload. If the system is currently in water, we redeploy, otherwise we go to sleep.
+     * | recorder has data | connected to cloud service | in water | battery has sufficient voltage | data upload is possible | smartfin redeploys | smartfin goes to sleep |
+     * |-------------------|----------------------------|----------|--------------------------------|-------------------------|--------------------|------------------------|
+     * | 0                 | 0                          | 0        | 0                              | 0                       | 0                  | 1                      |
+     * | 0                 | 0                          | 0        | 1                              | 0                       | 0                  | 1                      |
+     * | 0                 | 0                          | 1        | 0                              | 0                       | 0                  | 1                      |
+     * | 0                 | 0                          | 1        | 1                              | 0                       | 0                  | 1                      |
+     * | 0                 | 1                          | 0        | 0                              | 0                       | 0                  | 1                      |
+     * | 0                 | 1                          | 0        | 1                              | 0                       | 0                  | 1                      |
+     * | 0                 | 1                          | 1        | 0                              | 0                       | 0                  | 1                      |
+     * | 0                 | 1                          | 1        | 1                              | 0                       | 0                  | 1                      |
+     * | 1                 | 0                          | 0        | 0                              | 0                       | 0                  | 1                      |
+     * | 1                 | 0                          | 0        | 1                              | 0                       | 0                  | 1                      |
+     * | 1                 | 0                          | 1        | 0                              | 0                       | 0                  | 1                      |
+     * | 1                 | 0                          | 1        | 1                              | 0                       | 0                  | 1                      |
+     * | 1                 | 1                          | 0        | 0                              | 0                       | 0                  | 1                      |
+     * | 1                 | 1                          | 0        | 1                              | 1                       | 0                  | 0                      |
+     * | 1                 | 1                          | 1        | 0                              | 0                       | 1                  | 0                      |
+     * | 1                 | 1                          | 1        | 1                              | 0                       | 1                  | 0                      |
      * @return Returns state enumeration of STATE_UPLOAD, STATE_DEEP_SLEEP, or STATE_DEPLOYED upon execution.
      */
     STATES_e can_upload(void);
