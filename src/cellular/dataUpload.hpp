@@ -53,24 +53,11 @@ class DataUpload : public Task{
     system_tick_t lastConnectTime;
     /**
      * @brief Identifies if data upload is possible.
-     * | recorder has data | connected to cloud service | in water | battery has sufficient voltage | data upload is possible | smartfin redeploys | smartfin goes to sleep |
-     * |-------------------|----------------------------|----------|--------------------------------|-------------------------|--------------------|------------------------|
-     * | 0                 | 0                          | 0        | 0                              | 0                       | 0                  | 1                      |
-     * | 0                 | 0                          | 0        | 1                              | 0                       | 0                  | 1                      |
-     * | 0                 | 0                          | 1        | 0                              | 0                       | 0                  | 1                      |
-     * | 0                 | 0                          | 1        | 1                              | 0                       | 0                  | 1                      |
-     * | 0                 | 1                          | 0        | 0                              | 0                       | 0                  | 1                      |
-     * | 0                 | 1                          | 0        | 1                              | 0                       | 0                  | 1                      |
-     * | 0                 | 1                          | 1        | 0                              | 0                       | 0                  | 1                      |
-     * | 0                 | 1                          | 1        | 1                              | 0                       | 0                  | 1                      |
-     * | 1                 | 0                          | 0        | 0                              | 0                       | 0                  | 1                      |
-     * | 1                 | 0                          | 0        | 1                              | 0                       | 0                  | 1                      |
-     * | 1                 | 0                          | 1        | 0                              | 0                       | 0                  | 1                      |
-     * | 1                 | 0                          | 1        | 1                              | 0                       | 0                  | 1                      |
-     * | 1                 | 1                          | 0        | 0                              | 0                       | 0                  | 1                      |
-     * | 1                 | 1                          | 0        | 1                              | 1                       | 0                  | 0                      |
-     * | 1                 | 1                          | 1        | 0                              | 0                       | 1                  | 0                      |
-     * | 1                 | 1                          | 1        | 1                              | 0                       | 1                  | 0                      |
+     * 
+     * |                      | Return State                                                                                                                                                           |                                                                                                                                                                              |                                                                                                                                                                             |
+     * |----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+     * |                      | data upload is possible                                                                                                                                                | smartfin redeploys                                                                                                                                                           | smartfin goes to sleep                                                                                                                                                      |
+     * | required conditions: | All of the following conditions must be met:<br><br>- Recorder has data is TRUE<br>- Connected to cloud is TRUE<br>- In water is FALSE<br>- Sufficient voltage is TRUE | All of the following conditions must be met:<br><br>- Recorder has data is TRUE<br>- Connected to cloud is TRUE<br>- In water is TRUE<br>- Sufficient voltage: TRUE or FALSE | Any one of the conditions are met:<br><br>- Recorder has data is FALSE<br>- Connected to cloud is FALSE<br>- In water is FALSE at the same time sufficient voltage is FALSE |
      * @return Returns state enumeration of STATE_UPLOAD, STATE_DEEP_SLEEP, or STATE_DEPLOYED upon execution.
      */
     STATES_e can_upload(void);
