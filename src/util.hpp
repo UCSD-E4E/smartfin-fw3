@@ -17,4 +17,15 @@ void hexDump(const void *memoryLocation, size_t buflen);
 #define B_TO_N_ENDIAN_2(x)  N_TO_B_ENDIAN_2(x)
 #define B_TO_N_ENDIAN_4(x)  N_TO_B_ENDIAN_4(x)
 
+namespace SF::utils
+{
+    /**
+     * @brief Generates a uniform random number in the given range
+     *
+     * @param min Minimum value (inclusive)
+     * @param max Maximum value (exclusive)
+     * @return int random integer
+     */
+    int random(int min, int max);
+}; // namespace SF::utils
 #endif

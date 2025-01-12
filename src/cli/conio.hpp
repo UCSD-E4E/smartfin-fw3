@@ -1,8 +1,13 @@
 #ifndef __CONIO_HPP__
 #define __CONIO_HPP__
 
+#include <cstdarg>
 #include <stdint.h>
 
+/**
+ * @brief int length of character array SF_OSAL_printfBuffer
+ *
+ */
 #define SF_OSAL_PRINTF_BUFLEN   1536
 
 #ifdef __cplusplus
@@ -10,24 +15,18 @@ extern "C"
 {
 #endif
     /**
-     * @brief Gets character from serial
-     * 
-     * @return int key thats pressed
-     */
-    int getch(void);
-    /**
      * @brief Checks if key is pressed
-     * 
-     * @return int whether key is pressed
+     *
+     * @return 1 if next keypress is available, otherwise 0
      */
-    int kbhit(void);
+    int SF_OSAL_kbhit(void);
     /**
      * @brief Pushes character to serial
-     * 
+     *
      * @param ch character to push
-     * @return int Sucsess value
+     * @return Printed char
      */
-    int putch(int ch);
+    int SF_OSAL_putch(int ch);
     /**
      * @brief Printf equivilent
      * 
@@ -38,11 +37,31 @@ extern "C"
     int SF_OSAL_printf(const char* fmt, ...);
 
     /**
-     * @brief Gets user input lin
+     * @brief Gets user input line
      * @param buffer buffer to write too
      * @param buflen length of buffer
+     * @return length of the user input line
      */
-    int getline(char* buffer, int buflen);
+    int SF_OSAL_getline(char *buffer, int buflen);
+
+    /**
+     * @brief Reads the next character from stdin
+     *
+     * @return The obtained character on success or EOF on failure.
+     */
+    int SF_OSAL_getch(void);
+
+    /**
+     * @brief Initializes the conio facility
+     *
+     */
+    void SF_OSAL_init_conio(void);
+
+    /**
+     * @brief Safely deinitializes the conio facility
+     *
+     */
+    void SF_OSAL_deinit_conio(void);
 
 #ifdef __cplusplus
 }

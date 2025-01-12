@@ -26,6 +26,9 @@ typedef enum EnsembleID_
 }EnsembleID_e;
 
 #pragma pack(push, 1)
+/**
+ * @brief struct to contain header info for an ensemble
+ */
 typedef struct EnsembleHeader_
 {
     unsigned int ensembleType : 4;
