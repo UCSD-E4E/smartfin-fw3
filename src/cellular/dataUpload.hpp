@@ -63,23 +63,23 @@ public:
      */
     void exit(void);
 
-private:
-    //! Flag to indicate successful initialization.
+    private:
+    /**
+     * @brief Flag storing if data upload state successfully initializes.
+     * Variable storing 1 if system successfully enters data upload state, or 0 if system times out
+     * before entering data upload state.
+     */
     int initSuccess;
     //! Tracks the last connection attempt time.
     system_tick_t lastConnectTime;
-
     /**
-     * @brief State to transition to upon task exit.
-     *
-     * @return The exit state.
-     */
-    STATES_e exitState(void);
-
-    /**
-     * @brief Checks if data can be uploaded.
-     *
-     * @return The current state indicating upload readiness.
+     * @brief Identifies if data upload is possible.
+     * 
+     * |                      | Return State                                                                                                                                                           |                                                                                                                                                                              |                                                                                                                                                                             |
+     * |----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+     * |                      | data upload is possible                                                                                                                                                | smartfin redeploys                                                                                                                                                           | smartfin goes to sleep                                                                                                                                                      |
+     * | required conditions: | All of the following conditions must be met:<br><br>- Recorder has data is TRUE<br>- Connected to cloud is TRUE<br>- In water is FALSE<br>- Sufficient voltage is TRUE | All of the following conditions must be met:<br><br>- Recorder has data is TRUE<br>- Connected to cloud is TRUE<br>- In water is TRUE<br>- Sufficient voltage: TRUE or FALSE | Any one of the conditions are met:<br><br>- Recorder has data is FALSE<br>- Connected to cloud is FALSE<br>- In water is FALSE at the same time sufficient voltage is FALSE |
+     * @return Returns current state indicating upload readiness in form of state enumeration of STATE_UPLOAD, STATE_DEEP_SLEEP, or STATE_DEPLOYED upon execution.
      */
     STATES_e can_upload(void);
 };
