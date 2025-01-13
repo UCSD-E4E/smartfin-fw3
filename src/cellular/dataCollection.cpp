@@ -23,22 +23,29 @@ typedef struct Ensemble10_eventData_
     int32_t water;
     /**
      * @brief Array saving average of the accumulated accelerometer data on the
-     * x, y, and z axis in g scaled up by 16834
+     * x, y, and z axis such that acc[i] = acceleration[i] * 16384, where 
+     * `acceleration` is the acceleration in G's (multiple of Earth gravity), 
+     * and acc is the stored representation, stored as `int32_t`.Thus, acc[i] =
+     * 16384 = 1 G.
      *
-     * Values {1, 0, 0} would have an array value of [0.000061g, 0g, 0g]
-     * Values {16384, 0, 0} so the array values would be [1g, 0g, 0g]
-     * 
-     * g is approximately equal to 9.81 m/s^2
+     * G is approximately equal to 9.81 m/s^2
      */
     int32_t acc[3];
     /**
      * @brief Array of length 3 saving average of the accumulated gyroscope data
-     * on the x, y, and z axis in degrees per second scaled up by 131.072
+     * on the x, y, and z axis such that ang[i] = angular_velocity * 131.072,
+     * where 'angular_velocity' is the angular velocity in degrees per second and
+     * ang is the stored representation, stored as `int32_t`. Thus, ang[i] = 
+     * 131.072 = 1 degree/second
+     *
      */
     int32_t ang[3];
     /**
      * @brief Array of length 3 saving average of the accumulated magnetometer
-     * data on the x, y, and z axis in uT scaled down by 0.15.
+     * data on the x, y, and z axis in mag[i] = magnetic_field/0.15,
+     * where 'magnetic_field' is the magnetic_field in uT and
+     * mag is the stored representation, stored as `int32_t`. Thus, mag[i] =
+     * 1 = 0.15 degree/second
      *
      */
     int32_t mag[3];
