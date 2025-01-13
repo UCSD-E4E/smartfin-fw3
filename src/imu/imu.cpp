@@ -53,6 +53,15 @@ void setupICM(void)
 bool getAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
+    myICM.getAGMT();
+
+    if (myICM.status != ICM_20948_Stat_Ok)
+    {
+        SF_OSAL_printf("Failed to get accelerometer data");
+        return false;
+    }
+
     ICM_20948_AGMT_t agmt = myICM.getAGMT();
 
     *acc_x = getAccMG(agmt.acc.axes.x, agmt.fss.a);
