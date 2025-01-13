@@ -7,74 +7,73 @@
 class NVRAM
 {
     public:
-    typedef enum DATA_ID_
-    {
-        NVRAM_VALID,
-        BOOT_BEHAVIOR,
-        TMP116_CAL_VALUE,
-        TMP116_CAL_CURRENT_ATTEMPT,
-        TMP116_CAL_ATTEMPTS_TOTAL,
-        TMP116_CAL_DATA_COLLECTION_PERIOD_SEC,
-        TMP116_CAL_CYCLE_PERIOD_SEC,
-        UPLOAD_REATTEMPTS,
-        NO_UPLOAD_FLAG,
-        CLOUD_CONNECT_COUNTER,
-        NUM_DATA_IDs
-    }DATA_ID_e;
-
-    typedef struct nvramTableEntry_
-    {
-        DATA_ID_e id;
-
-        uint32_t addr;
-        uint32_t len;
-    }nvramTableEntry_t;
-
-    const nvramTableEntry_t LAYOUT[NUM_DATA_IDs] = 
-    {
-        {NVRAM_VALID, 0x0000, sizeof(uint8_t)},
-        {BOOT_BEHAVIOR, 0x0001, sizeof(uint8_t)},
-        {TMP116_CAL_VALUE, 0x0002, sizeof(uint16_t)},
-        {TMP116_CAL_CURRENT_ATTEMPT, 0x0004, sizeof(uint8_t)},
-        {TMP116_CAL_ATTEMPTS_TOTAL, 0x0005, sizeof(uint8_t)},
-        {TMP116_CAL_DATA_COLLECTION_PERIOD_SEC, 0x0008, sizeof(uint32_t)},
-        {TMP116_CAL_CYCLE_PERIOD_SEC, 0x000C, sizeof(uint32_t)},
-        {UPLOAD_REATTEMPTS, 0x0014, sizeof(uint8_t)},
-        {NO_UPLOAD_FLAG, 0x0015, sizeof(uint8_t)},
-        {CLOUD_CONNECT_COUNTER, 0x0016, sizeof(uint16_t)},
-
-    };
-    static NVRAM& getInstance(void);
-
-
-    /**
-     * @brief Get data from NVRAM memory
-     * 
-     * @tparam T Type
-     * @param dataID ID of data to get
-     * @param pData Data
-     * @return int Sucsess
-     */
-    template <typename T> int get(DATA_ID_e dataID, T& pData)
-    {
-        uint32_t addr;
-        const NVRAM::nvramTableEntry_t* tableEntry;
-
-        tableEntry = this->getTableEntry(dataID);
-        if(!tableEntry)
+        typedef enum DATA_ID_
         {
-            return 0;
-        }
+            NVRAM_VALID,
+            BOOT_BEHAVIOR,
+            TMP116_CAL_VALUE,
+            TMP116_CAL_CURRENT_ATTEMPT,
+            TMP116_CAL_ATTEMPTS_TOTAL,
+            TMP116_CAL_DATA_COLLECTION_PERIOD_SEC,
+            TMP116_CAL_CYCLE_PERIOD_SEC,
+            UPLOAD_REATTEMPTS,
+            NO_UPLOAD_FLAG,
+            CLOUD_CONNECT_COUNTER,
+            REUPLOAD_WAIT_TIME,
+            NUM_DATA_IDs
 
-        if(sizeof(pData) != tableEntry->len)
+        } DATA_ID_e;
+
+        typedef struct nvramTableEntry_
         {
-            return 0;
-        }
+            DATA_ID_e id;
 
-        addr = tableEntry->addr;
-        EEPROM.get(addr, pData);
-        return 1;
-    }
+            uint32_t addr;
+            uint32_t len;
+        } nvramTableEntry_t;
+
+        const nvramTableEntry_t LAYOUT[NUM_DATA_IDs] = {
+            {NVRAM_VALID, 0x0000, sizeof(uint8_t)},
+            {BOOT_BEHAVIOR, 0x0001, sizeof(uint8_t)},
+            {TMP116_CAL_VALUE, 0x0002, sizeof(uint16_t)},
+            {TMP116_CAL_CURRENT_ATTEMPT, 0x0004, sizeof(uint8_t)},
+            {TMP116_CAL_ATTEMPTS_TOTAL, 0x0005, sizeof(uint8_t)},
+            {TMP116_CAL_DATA_COLLECTION_PERIOD_SEC, 0x0008, sizeof(uint32_t)},
+            {TMP116_CAL_CYCLE_PERIOD_SEC, 0x000C, sizeof(uint32_t)},
+            {UPLOAD_REATTEMPTS, 0x0014, sizeof(uint8_t)},
+            {NO_UPLOAD_FLAG, 0x0015, sizeof(uint8_t)},
+            {CLOUD_CONNECT_COUNTER, 0x0016, sizeof(uint16_t)},
+            {REUPLOAD_WAIT_TIME, 0x0018, sizeof(uint16_t)}};
+        static NVRAM &getInstance(void);
+
+        /**
+         * @brief Get data from NVRAM memory
+         *
+         * @tparam T Type
+         * @param dataID ID of data to get
+         * @param pData Data
+         * @return int Sucsess
+         */
+        template <typename T> int get(DATA_ID_e dataID, T &pData)
+        {
+            uint32_t addr;
+            const NVRAM::nvramTableEntry_t *tableEntry;
+
+            tableEntry = this->getTableEntry(dataID);
+            if (!tableEntry)
+            {
+                return 0;
+            }
+
+            if (sizeof(pData) != tableEntry->len)
+            {
+                return 0;
+            }
+
+            addr = tableEntry->addr;
+            EEPROM.get(addr, pData);
+            return 1;
+        }
 
     /**
      * @brief Put data into memory

@@ -56,6 +56,23 @@ STATES_e DataUpload::can_upload(void)
 
 STATES_e DataUpload::run(void)
 {
+    uint16_t reupload_delay;
+
+    pSystemDesc->pNvram->get(NVRAM::REUPLOAD_WAIT_TIME, reupload_delay);
+    if (reupload_delay == 0)
+    {
+        pSystemDesc->pNvram->put(NVRAM::REUPLOAD_WAIT_TIME, 10);
+    }
+    else if (reupload_delay <= 900)
+    {
+        reupload_delay *= 2;
+    }
+    else
+    {
+        reupload_delay = 1800;
+    }
+    pSystemDesc->pNvram->put(NVRAM::REUPLOAD_WAIT_TIME, reupload_delay);
+
     uint8_t binary_packet_buffer[SF_PACKET_SIZE];
     char ascii_record_buffer[SF_RECORD_SIZE + 1];
     char publishName[DU_PUBLISH_ID_NAME_LEN + 1];
@@ -127,6 +144,7 @@ STATES_e DataUpload::run(void)
             FLOG_AddError(FLOG_UPL_PUB_FAIL, 0);
             return STATE_DEEP_SLEEP;
         case sf::cloud::SUCCESS:
+            pSystemDesc->pNvram->put(NVRAM::REUPLOAD_WAIT_TIME, 0);
             break;
         }
 
@@ -146,7 +164,6 @@ STATES_e DataUpload::run(void)
         }
     }
     return next_state;
-
 }
 
 void DataUpload::exit(void)
