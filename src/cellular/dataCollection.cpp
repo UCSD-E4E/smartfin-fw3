@@ -45,7 +45,7 @@ typedef struct Ensemble10_eventData_
      * data on the x, y, and z axis in mag[i] = magnetic_field/0.15,
      * where 'magnetic_field' is the magnetic_field in uT and
      * mag is the stored representation, stored as `int32_t`. Thus, mag[i] =
-     * 1 = 0.15 degree/second
+     * 1 = 0.15 uT
      *
      */
     int32_t mag[3];
