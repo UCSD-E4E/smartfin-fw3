@@ -18,9 +18,12 @@ public:
      */
     typedef enum State_
     {
-        READ,  /**< Read-only mode. */
-        WRITE, /**< Write-only mode. */
-        RDWR   /**< Read-write mode. */
+        /** Read-only mode. */
+        READ,
+        /** Write-only mode. */
+        WRITE,
+        /** Read-write mode. */
+        RDWR
     } State_e;
 
     /**
@@ -35,7 +38,7 @@ public:
      *
      * @param name Name of the session to open.
      * @param state File access state (READ, WRITE, RDWR).
-     * @return int 1 if successful, otherwise 0.
+     * @return  1 if successful, otherwise 0.
      */
     int open(const char* const name, State_e state);
 
@@ -44,7 +47,7 @@ public:
      *
      * @param pData Data to write.
      * @param nBytes Number of bytes to write.
-     * @return int Number of bytes written.
+     * @return  Number of bytes written.
      */
     int write(void* pData, size_t nBytes);
 
@@ -53,7 +56,7 @@ public:
      *
      * @param pData Buffer to store the read data.
      * @param nBytes Number of bytes to read.
-     * @return int Number of bytes read.
+     * @return Number of bytes read.
      */
     int read(void* pData, size_t nBytes);
 
@@ -61,28 +64,28 @@ public:
      * @brief Seek to a specific location in the file.
      *
      * @param loc Location to seek to.
-     * @return int 1 if successful, otherwise 0.
+     * @return 1 if successful, otherwise 0.
      */
     int seek(size_t loc);
 
     /**
      * @brief Gets the length of the file.
      *
-     * @return int Length of the file in bytes.
+     * @return Length of the file in bytes.
      */
     int getLength(void);
 
     /**
      * @brief Closes the current session.
      *
-     * @return int 1 if successful, otherwise 0.
+     * @return 1 if successful, otherwise 0.
      */
     int close(void);
 
     /**
      * @brief Removes the current file.
      *
-     * @return int 1 if successful, otherwise 0.
+     * @return 1 if successful, otherwise 0.
      */
     int remove(void);
 
@@ -90,7 +93,7 @@ public:
      * @brief Truncates the current file.
      *
      * @param nBytes Number of bytes to truncate the file to.
-     * @return int 1 if successful, otherwise 0.
+     * @return 1 if successful, otherwise 0.
      */
     int truncate(size_t nBytes);
 
