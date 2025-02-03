@@ -53,7 +53,6 @@ void setupICM(void)
 bool getAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-
     myICM.getAGMT();
 
     if (myICM.status != ICM_20948_Stat_Ok)
@@ -72,7 +71,6 @@ bool getAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 bool getGyroscope(float *gyr_x, float *gyr_y, float *gyr_z)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-
     myICM.getAGMT();
 
     if (myICM.status != ICM_20948_Stat_Ok)
@@ -92,7 +90,6 @@ bool getGyroscope(float *gyr_x, float *gyr_y, float *gyr_z)
 bool getMagnetometer(float *mag_x, float *mag_y, float *mag_z)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-
     myICM.getAGMT();
 
     if (myICM.status != ICM_20948_Stat_Ok)
