@@ -8,6 +8,9 @@
 
 #include "Particle.h"
 
+/**
+ * @brief Ensemble 10 state/accumulation structure
+ */
 typedef struct Ensemble10_eventData_
 {
     /**
@@ -69,9 +72,14 @@ typedef struct Ensemble10_eventData_
     uint32_t accumulateCount;
 }Ensemble10_eventData_t;
 
+/**
+ * @brief Ensemble 10 state/accumulation data
+ */
 static Ensemble10_eventData_t ensemble10Data;
 
-
+/**
+ * @brief implementation of Ensemble 10
+ */
 void SS_ensemble10Func()
 {
     int32_t lat, lng;
