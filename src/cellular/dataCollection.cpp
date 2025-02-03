@@ -9,7 +9,7 @@
 #include "Particle.h"
 
 /**
- * @brief struct for holding 10 measurements to upload
+ * @brief Ensemble 10 state/accumulation structure
  */
 typedef struct Ensemble10_eventData_
 {
@@ -24,13 +24,12 @@ typedef struct Ensemble10_eventData_
 }Ensemble10_eventData_t;
 
 /**
- * @brief staic variable for 10 measurements
+ * @brief Ensemble 10 state/accumulation data
  */
 static Ensemble10_eventData_t ensemble10Data;
 
 /**
- * @brief collects data with 10 measurmenets for upload
- * Sends to recorder
+ * @brief implementation of Ensemble 10
  */
 void SS_ensemble10Func()
 {
