@@ -68,7 +68,7 @@ As the Smartfin project is a UC San Diego project, contributors should be UC San
 
 In order to facilitate efficient project development, we ask that student contributors continually meet the following requirements:
 - Be enrolled as a student at UC San Diego.
-- Attend at least 80% of the weekly Smartfin technical meetings.
+- Attend at least 80% of the scheduled weekly Smartfin technical meetings during the past 90 days.
 - Commit at least 3 hours a week to development efforts outside of the technical meeting.
 - Remain in contact with the team throughout the week.
 - Be committed to continuous learning and development.
