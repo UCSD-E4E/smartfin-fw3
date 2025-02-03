@@ -4,7 +4,9 @@ Smartfin FW v3
 
 # Contributing
 
-Please see [docs/index.md](docs/index.md) for an overview of the codebase and how to get started contributing.
+Please review the following pages:
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [docs/index.md](docs/index.md)
 
 # External Library Register
 Library         | Version | License | Source                                           | Location

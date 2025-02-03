@@ -1,3 +1,13 @@
+## [3.6.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.6.0...v3.6.1) (2025-01-27)
+
+
+### Bug Fixes
+
+* changed format specifier ([fad43fc](https://github.com/UCSD-E4E/smartfin-fw3/commit/fad43fc5a41b1593af1dcb7816b7ffed2e94ab89))
+* explicit cast variable to prevent warning ([d7ebf8b](https://github.com/UCSD-E4E/smartfin-fw3/commit/d7ebf8b04a521750cc5f02ba3485e3f2fd301f7e))
+* explicit cast variable to prevent warning ([#157](https://github.com/UCSD-E4E/smartfin-fw3/issues/157)) ([9e4df01](https://github.com/UCSD-E4E/smartfin-fw3/commit/9e4df01d252f7e5db92cf9713c757f48247d7731))
+* used <cinttypes> to fix formatting issue ([1791138](https://github.com/UCSD-E4E/smartfin-fw3/commit/17911380b91d4f625032d472da9326f039452760))
+
 # [3.6.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.5.0...v3.6.0) (2025-01-07)
 
 

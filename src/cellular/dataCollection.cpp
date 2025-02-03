@@ -10,13 +10,62 @@
 
 typedef struct Ensemble10_eventData_
 {
+    /**
+     * @brief Average temperature value of the water in Celsius provided
+     * by the temperature sensor
+     */
     double temperature;
+    /**
+     * @brief Truncated average of whether or not system in water over
+     * accumulation period
+     *
+     */
     int32_t water;
+    /**
+     * @brief Array saving average of the accumulated accelerometer data on the
+     * x, y, and z axis such that acc[i] = acceleration[i] * 16384, where 
+     * `acceleration` is the acceleration in G's (multiple of Earth gravity), 
+     * and acc is the stored representation, stored as `int32_t`.Thus, acc[i] =
+     * 16384 = 1 G.
+     *
+     * G is approximately equal to 9.81 m/s^2
+     */
     int32_t acc[3];
+    /**
+     * @brief Array of length 3 saving average of the accumulated gyroscope data
+     * on the x, y, and z axis such that ang[i] = angular_velocity * 131.072,
+     * where 'angular_velocity' is the angular velocity in degrees per second and
+     * ang is the stored representation, stored as `int32_t`. Thus, ang[i] = 
+     * 131.072 = 1 degree/second
+     *
+     */
     int32_t ang[3];
+    /**
+     * @brief Array of length 3 saving average of the accumulated magnetometer
+     * data on the x, y, and z axis in mag[i] = magnetic_field/0.15,
+     * where 'magnetic_field' is the magnetic_field in uT and
+     * mag is the stored representation, stored as `int32_t`. Thus, mag[i] =
+     * 1 = 0.15 uT
+     *
+     */
     int32_t mag[3];
+    /**
+     * @brief Array of length 2 saving latitude and longitude values, multiplied 
+     * by 1e6, of the point at which data was collected
+     */
     int32_t location[2];
+    /**
+     * @brief Indicates if GNSS point is locked and more than 4 point
+     * satellites in view
+     *
+     * All possible values are [0,1]:
+     * 0 - less than 4 point satellites are in view thus GNSS point is not locked
+     * 1 - 4 or more point satellites are in view thus GNSS point is locked
+     */
     uint8_t hasGPS;
+    /**
+     * @brief Number of times measurements gathered
+     */
     uint32_t accumulateCount;
 }Ensemble10_eventData_t;
 
