@@ -14,6 +14,6 @@ COPY tests /code/tests
 COPY src /code/src
 
 RUN cmake ..
-RUN make -j
+RUN make -j smartfin_pc
 
 CMD ["./pc_hal/smartfin_pc"]
