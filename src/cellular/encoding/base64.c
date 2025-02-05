@@ -8,12 +8,22 @@
 #include "base64.h"
 #include <errno.h>
 
+//! base64 character table
 static const char b64_table[65] =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 "abcdefghijklmnopqrstuvwxyz"
                 "0123456789+/";
 
-
+/**
+ * @brief A Base-64 encode a buffer
+ *
+ * @param in Input buffer
+ * @param ilen Length of input buffer
+ * @param out Output buffer
+ * @param olen Size of output buffer, actual written on return
+ *
+ * @return 0 if success, otherwise errorcode
+ */
 int b64_encode(const uint8_t *in, size_t ilen, char *out, size_t *olen) {
     const uint8_t *in_end = in + ilen;
     const char *o = out;
@@ -54,7 +64,11 @@ int b64_encode(const uint8_t *in, size_t ilen, char *out, size_t *olen) {
     return 0;
 }
 
-/* convert char -> 6-bit value */
+/**
+ * @brief converts character to 6bit value
+ * @param c input character
+ * @return encoded character
+ */
 static inline uint32_t b64val(char c) {
     if ('A' <= c && c <= 'Z') {
         return c - 'A' + 0;
@@ -72,7 +86,16 @@ static inline uint32_t b64val(char c) {
         return 0;
     }
 }
-
+/**
+ * @brief Decodes a Base-64 encoded string
+ *
+ * @param in   Input buffer
+ * @param ilen Length of input buffer
+ * @param out  Output buffer
+ * @param olen Size of output buffer, actual written on return
+ *
+ * @return 0 if success, otherwise errorcode
+ */
 int b64_decode(const char *in, size_t ilen, uint8_t *out, size_t *olen) {
     const char *in_end = in + ilen;
     const uint8_t *o = out;
@@ -107,6 +130,11 @@ int b64_decode(const char *in, size_t ilen, uint8_t *out, size_t *olen) {
     return 0;
 }
 
+/**
+ * @brief converts base 64 encoded character to url safe encoding
+ * @param c base 64 encoded character
+ * @return url safe encoded character
+ */
 static inline char b64_to_safe(char c) {
     switch (c) {
         case '+':
@@ -120,6 +148,11 @@ static inline char b64_to_safe(char c) {
     }
 }
 
+/**
+ * @brief converts url safe encoding to base 64 encoded character
+ * @param c url safe encoding
+ * @return base 64 encoded character
+ */
 static inline char safe_to_b64(char c) {
     switch (c) {
         case '-':
@@ -133,6 +166,16 @@ static inline char safe_to_b64(char c) {
     }
 }
 
+/**
+ * @brief Encodes a url safe Base-64 string
+ *
+ * @param in   Input buffer
+ * @param ilen Length of input buffer
+ * @param out  Output buffer
+ * @param olen Size of output buffer, actual written on return
+ *
+ * @return 0 if success, otherwise errorcode
+ */
 int urlsafe_b64_encode(const uint8_t *in, size_t ilen, char *out, size_t *olen) {
     int ret = 0;
     char *out_end = NULL;
@@ -157,6 +200,16 @@ int urlsafe_b64_encode(const uint8_t *in, size_t ilen, char *out, size_t *olen) 
 
 }
 
+/**
+ * @brief Decodes a url safe Base-64 encoded string
+ *
+ * @param in   Input buffer
+ * @param ilen Length of input buffer
+ * @param out  Output buffer
+ * @param olen Size of output buffer, actual written on return
+ *
+ * @return 0 if success, otherwise errorcode
+ */
 int urlsafe_b64_decode(const char *in, size_t ilen, uint8_t *out, size_t *olen) {
     int ret = 0;
     char *in_end = NULL;
