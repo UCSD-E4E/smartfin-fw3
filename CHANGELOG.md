@@ -1,3 +1,11 @@
+## [3.6.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.6.1...v3.6.2) (2025-02-05)
+
+
+### Bug Fixes
+
+* in DataUpload, commented unused function & added docs ([c926f21](https://github.com/UCSD-E4E/smartfin-fw3/commit/c926f212c53b3e385c55a1b61574d8f6ab9332e3))
+* in DataUpload, commented unused function & added docs  ([#132](https://github.com/UCSD-E4E/smartfin-fw3/issues/132)) ([777380a](https://github.com/UCSD-E4E/smartfin-fw3/commit/777380ad6021f252d7ebc6f2507c77d296e6480e))
+
 ## [3.6.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.6.0...v3.6.1) (2025-01-27)
 
 
