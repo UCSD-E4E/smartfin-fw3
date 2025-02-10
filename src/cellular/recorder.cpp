@@ -42,10 +42,7 @@ static inline void REC_build_data_filename(uint32_t session_idx,
                                     char* p_filename_buf,
                                     size_t filename_buf_len)
 {
-    snprintf(p_filename_buf,
-             filename_buf_len,
-             DATA_ROOT "/%010lu.bin",
-             session_idx);
+    snprintf(p_filename_buf, filename_buf_len, DATA_ROOT "/%010" PRIu32 ".bin", session_idx);
 }
 
 int Recorder::create_metadata_file(void)
