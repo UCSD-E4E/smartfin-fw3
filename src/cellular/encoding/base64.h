@@ -5,6 +5,13 @@
 * Copyright (C) 2010 Creytiv.com
 */
 
+/**
+ * @defgroup Base64Codec Base64 Codec
+ * @brief Functions for Base64 and URL-safe Base64 encoding and decoding.
+ *
+ * @{
+ */
+
 #ifndef B64_H_
 #define B64_H_ (1)
 
@@ -63,3 +70,4 @@ int urlsafe_b64_decode(const char *in, size_t ilen, uint8_t *out, size_t *olen);
 #endif
 
 #endif // B64_H_
+/** @} */ // end of Base64Codec

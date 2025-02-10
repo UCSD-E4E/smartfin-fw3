@@ -63,24 +63,34 @@ public:
      */
     void exit(void);
 
-private:
-    //! Flag to indicate successful initialization.
-    int initSuccess;
-    //! Tracks the last connection attempt time.
-    system_tick_t lastConnectTime;
-
-    /**
-     * @brief State to transition to upon task exit.
-     *
-     * @return The exit state.
-     */
-    STATES_e exitState(void);
-
-    /**
-     * @brief Checks if data can be uploaded.
-     *
-     * @return The current state indicating upload readiness.
-     */
-    STATES_e can_upload(void);
+    private:
+        /**
+         * @brief Flag storing if data upload state successfully initializes.
+         * Variable storing 1 if system successfully enters data upload state, or 0
+         * if system times out before entering data upload state.
+         */
+        int initSuccess;
+        //! Tracks the last connection attempt time.
+        system_tick_t lastConnectTime;
+        /**
+         * @brief Identifies if data upload is possible.
+         *
+         * The following conditions must all be true for data upload:
+         * - Recorder has data
+         * - System is connected to cloud (this function will attempt to connect
+         * and will block up to SF_CELL_SIGNAL_TIMEOUT_MS to complete the attempt)
+         * - System is not in water
+         * - Battery voltage is greater than SF_BATTERY_UPLOAD_VOLTAGE
+         *
+         * If any of the above conditions do not hold, then this function will
+         * return STATE_DEEP_SLEEP or STATE_DEPLOYED.
+         *
+         * Note that if we are in the water, the system is intended to immediately
+         * wake out of sleep and self deploy if this runction returns
+         * STATE_DEEP_SLEEP.
+         * @return Indicates whether the system can upload (STATE_UPLOAD), or should
+         * enter sleep (STATE_DEEP_SLEEP) or deploy (STATE_DEPLOYED).
+         */
+        STATES_e can_upload(void);
 };
 #endif
