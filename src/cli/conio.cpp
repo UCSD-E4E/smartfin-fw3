@@ -148,6 +148,24 @@ extern "C"
                     buffer[i++] = 0;
                     SF_OSAL_putch('\n');
                     return i;
+                case 27: 
+                // Checking only for UP and DOWN scroll
+                    while (!SF_OSAL_kbhit()) {} // Wait for next byte
+                    char inp = SF_OSAL_getch();
+                    if (inp != '[')
+                        break;
+                    while (!SF_OSAL_kbhit()) {}
+                    inp = SF_OSAL_getch();
+                    switch (inp)
+                    {
+                    case 'A':
+                        scrl(-1);
+                        break;
+                    case 'B':
+                        scrl(1);
+                        break;
+                    }
+                    break;
                 }
             }
         }
