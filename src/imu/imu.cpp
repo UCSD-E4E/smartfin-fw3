@@ -55,6 +55,12 @@ bool getAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     ICM_20948_AGMT_t agmt = myICM.getAGMT();
 
+    if (myICM.status != ICM_20948_Stat_Ok)
+    {
+        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        return false;
+    }
+
     *acc_x = getAccMG(agmt.acc.axes.x, agmt.fss.a);
     *acc_y = getAccMG(agmt.acc.axes.y, agmt.fss.a);
     *acc_z = getAccMG(agmt.acc.axes.z, agmt.fss.a);
@@ -67,6 +73,12 @@ bool getGyroscope(float *gyr_x, float *gyr_y, float *gyr_z)
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     ICM_20948_AGMT_t agmt = myICM.getAGMT();
 
+    if (myICM.status != ICM_20948_Stat_Ok)
+    {
+        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        return false;
+    }
+
     *gyr_x = getGyrDPS(agmt.gyr.axes.x, agmt.fss.g);
     *gyr_y = getGyrDPS(agmt.gyr.axes.y, agmt.fss.g);
     *gyr_z = getGyrDPS(agmt.gyr.axes.z, agmt.fss.g);
@@ -78,6 +90,12 @@ bool getMagnetometer(float *mag_x, float *mag_y, float *mag_z)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     ICM_20948_AGMT_t agmt = myICM.getAGMT();
+
+    if (myICM.status != ICM_20948_Stat_Ok)
+    {
+        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        return false;
+    }
 
     *mag_x = getMagUT(agmt.mag.axes.x);
     *mag_y = getMagUT(agmt.mag.axes.y);
