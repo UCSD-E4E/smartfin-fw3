@@ -53,7 +53,7 @@ static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 static Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
 static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 
-static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN, WATER_DETECT_SURF_SESSION_INIT_WINDOW);
+static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN);
 
 static LocationServiceConfiguration create_location_service_config();
 
