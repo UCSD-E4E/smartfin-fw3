@@ -19,7 +19,6 @@
 #include "util.hpp"
 
 #include <errno.h>
-
 void DEPD_testOpenRW(void);
 void DEPD_testOpenRO(void);
 void DEPD_testOpenWO(void);
@@ -48,6 +47,13 @@ const Menu_t Session_debug_menu[] =
     {0, nullptr, nullptr, MENU_NULL}
 };
 
+/**
+ * @brief Tester function that prints whether the current deployment file
+ * has been opened in the read/write state
+ *
+ * 1 : successful
+ * 0 : otherwise
+ */
 void DEPD_testOpenRW(void)
 {
     Deployment& instance = Deployment::getInstance();
@@ -61,6 +67,13 @@ void DEPD_testOpenRW(void)
     SF_OSAL_printf("Returned %d" __NL__, retval);
 }
 
+/**
+ * @brief Tester function that prints whether the current deployment file
+ * has been opened in the read state
+ *
+ * 1 : successful
+ * 0 : otherwise
+ */
 void DEPD_testOpenRO(void)
 {
     Deployment& instance = Deployment::getInstance();
@@ -74,6 +87,13 @@ void DEPD_testOpenRO(void)
     SF_OSAL_printf("Returned %d" __NL__, retval);
 }
 
+/**
+ * @brief Tester function that prints whether the current deployment file
+ * has been opened in the write state
+ *
+ * 1 : successful
+ * 0 : otherwise
+ */
 void DEPD_testOpenWO(void)
 {
     Deployment& instance = Deployment::getInstance();
@@ -87,6 +107,10 @@ void DEPD_testOpenWO(void)
     SF_OSAL_printf("Returned %d" __NL__, retval);
 }
 
+/**
+ * @brief Tester function that prints the number of bytes written into the current
+ * deployment file
+ */
 void DEPD_testWrite(void)
 {
     Deployment& instance = Deployment::getInstance();
@@ -100,6 +124,13 @@ void DEPD_testWrite(void)
     SF_OSAL_printf("Returned %d" __NL__, retval);
 }
 
+/**
+ * @brief Tester function that prints whether the current deployment
+ * file has been successfully removed
+ * 
+ * 1 : successful
+ * 0 : otherwise
+ */
 void DEPD_testCloseFile(void)
 {
     Deployment& instance = Deployment::getInstance();
@@ -107,6 +138,10 @@ void DEPD_testCloseFile(void)
     SF_OSAL_printf("Returned %d" __NL__, retval);
 }
 
+/**
+ * @brief Tester function that prints the offset memory address, hex values, and 
+ * ASCII respresentation of the number of bytes in the current deployment file being read
+ */
 void DEPD_testRead(void)
 {
     Deployment& instance = Deployment::getInstance();
@@ -127,12 +162,20 @@ void DEPD_testRead(void)
 
     hexDump(data_buffer, retval);
 }
-
+/**
+ * @brief Prints the error message
+ */
 void DEPD_dumpErrno(void)
 {
     SF_OSAL_printf("errno: %s" __NL__, strerror(errno));
 }
-
+/**
+ * @brief Tester function that prints whether the choosen location was found in
+ * the current deployment file
+ * 
+ * 1 : successful
+ * 0 : otherwise
+ */
 void DEPD_testSeek(void)
 {
     char userInput[SF_CLI_MAX_CMD_LEN];
@@ -149,6 +192,12 @@ void DEPD_testSeek(void)
 
 }
 
+/**
+ * @brief Tester function that prints the length of the current deployment file
+ *
+ * >0 : successful
+ * 0 : otherwise
+ */
 void DEPD_testGetLength(void)
 {
     Deployment& instance = Deployment::getInstance();
@@ -158,6 +207,13 @@ void DEPD_testGetLength(void)
     SF_OSAL_printf("File Length: %d" __NL__, length);
 }
 
+/**
+ * @brief Tester function that prints whether the current deployment file was 
+ * successfully removed
+ *
+ * 1 : successful
+ * 0 : otherwise
+ */
 void DEPD_testRemove(void)
 {
     Deployment& instance = Deployment::getInstance();
@@ -165,6 +221,13 @@ void DEPD_testRemove(void)
     SF_OSAL_printf("Returned: %d" __NL__, retval);
 }
 
+/**
+ * @brief Tester function that prints whether the current deployment file 
+ * was successfully truncated
+ *
+ * 1 : successful
+ * 0 : otherwise
+ */
 void DEPD_testTruncate(void)
 {
     Deployment& instance = Deployment::getInstance();

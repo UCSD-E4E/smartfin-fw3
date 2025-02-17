@@ -1,3 +1,11 @@
+## [3.6.3](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.6.2...v3.6.3) (2025-02-10)
+
+
+### Bug Fixes
+
+* corrected format specifier ([f670c73](https://github.com/UCSD-E4E/smartfin-fw3/commit/f670c73402ad733dfe3c0aa270f5f479d440bc6b))
+* corrected format specifier ([#170](https://github.com/UCSD-E4E/smartfin-fw3/issues/170)) ([d074a97](https://github.com/UCSD-E4E/smartfin-fw3/commit/d074a97182b7b2c7299306b3c6c8f6f537f9f1ab))
+
 ## [3.6.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.6.1...v3.6.2) (2025-02-05)
 
 
