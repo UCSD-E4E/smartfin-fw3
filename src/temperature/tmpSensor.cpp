@@ -1,12 +1,12 @@
 /**
  * @file tmpSensor.cpp
- * @author @emilybthorpe
+ * @author Emily Thorpe <ethorpe@macalester.edu>
  * @brief Manages Temperature Sensor
  * @version 0.1
  * @date 2023-08-03
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 
 #include "tmpSensor.h"
