@@ -84,7 +84,7 @@ public:
     // resets the array to zero
     bool resetArray();
     // switch the window size parameter and clear the sum (for resumming)
-    void setWindowSize(uint8_t window_size_to_set);
+    void setWindowSize();
     // take a reading. Also returns the current in/out water status.
     uint8_t takeReading();
     // gets the current in/out of water status (return true = in water, false = out)
