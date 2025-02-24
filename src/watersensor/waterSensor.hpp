@@ -75,7 +75,7 @@ public:
      * @param water_detect_pin_to_set Pin that reads the sensor value
      * @param window_size Size of the moving sample window used for water detection
      */
-    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set, uint8_t window_size);
+    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set);
     /**
      * @brief Destroys the WaterSensor instance
      */
