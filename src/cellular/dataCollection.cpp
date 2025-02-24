@@ -104,21 +104,21 @@ void SS_ensemble10Func()
     // average data by accumulation count
     if (pData->accumulateCount > 0)
     {
-        Ensemble10_data_t &ens10 = ensData.data.ens10;
-        Ensemble11_data_t &ens11 = ensData.data.ens11;
         uint32_t &count = pData->accumulateCount;
-        ens10.rawTemp = N_TO_B_ENDIAN_2(temp / (0.0078125 * count));
-        ens10.rawAcceleration[0] = N_TO_B_ENDIAN_2(pData->acc[0] / count);
-        ens10.rawAcceleration[1] = N_TO_B_ENDIAN_2(pData->acc[1] / count);
-        ens10.rawAcceleration[2] = N_TO_B_ENDIAN_2(pData->acc[2] / count);
-        ens10.rawAngularVel[0] = N_TO_B_ENDIAN_2(pData->ang[0] / count);
-        ens10.rawAngularVel[1] = N_TO_B_ENDIAN_2(pData->ang[1] / count);
-        ens10.rawAngularVel[2] = N_TO_B_ENDIAN_2(pData->ang[2] / count);
-        ens10.rawMagField[0] = N_TO_B_ENDIAN_2(pData->mag[0] / count);
-        ens10.rawMagField[1] = N_TO_B_ENDIAN_2(pData->mag[1] / count);
-        ens10.rawMagField[2] = N_TO_B_ENDIAN_2(pData->mag[2] / count);
-        ens11.location[0] = N_TO_B_ENDIAN_4(pData->location[0] / count);
-        ens11.location[1] = N_TO_B_ENDIAN_4(pData->location[1] / count);
+
+        // Average using accumulated data instead of latest sample
+        ensData.data.ens10.rawTemp = N_TO_B_ENDIAN_2(pData->temperature / (0.0078125 * count));
+        ensData.data.ens10.rawAcceleration[0] = N_TO_B_ENDIAN_2(pData->acc[0] / count);
+        ensData.data.ens10.rawAcceleration[1] = N_TO_B_ENDIAN_2(pData->acc[1] / count);
+        ensData.data.ens10.rawAcceleration[2] = N_TO_B_ENDIAN_2(pData->acc[2] / count);
+        ensData.data.ens10.rawAngularVel[0] = N_TO_B_ENDIAN_2(pData->ang[0] / count);
+        ensData.data.ens10.rawAngularVel[1] = N_TO_B_ENDIAN_2(pData->ang[1] / count);
+        ensData.data.ens10.rawAngularVel[2] = N_TO_B_ENDIAN_2(pData->ang[2] / count);
+        ensData.data.ens10.rawMagField[0] = N_TO_B_ENDIAN_2(pData->mag[0] / count);
+        ensData.data.ens10.rawMagField[1] = N_TO_B_ENDIAN_2(pData->mag[1] / count);
+        ensData.data.ens10.rawMagField[2] = N_TO_B_ENDIAN_2(pData->mag[2] / count);
+        ensData.data.ens11.location[0] = N_TO_B_ENDIAN_4(pData->location[0] / count);
+        ensData.data.ens11.location[1] = N_TO_B_ENDIAN_4(pData->location[1] / count);
     }
 
     ensData.header.ensembleType = ENS_TEMP_IMU;
