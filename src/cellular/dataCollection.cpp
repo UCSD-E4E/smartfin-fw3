@@ -126,8 +126,8 @@ void SS_ensemble10Func()
     if(point.locked == 1 && point.satsInView > 4)
     {
         hasGPS = true;
-        lat = point.latitude;
-        lng = point.longitude;
+        lat = point.latitude * 1e7;
+        lng = point.longitude * 1e7;
     }
     else
     {
@@ -167,8 +167,8 @@ void SS_ensemble10Func()
     ensData.data.ens10.rawMagField[0] = N_TO_B_ENDIAN_2(pData->mag[0])  ;
     ensData.data.ens10.rawMagField[1] = N_TO_B_ENDIAN_2(pData->mag[1])  ;
     ensData.data.ens10.rawMagField[2] = N_TO_B_ENDIAN_2(pData->mag[2])  ;
-    ensData.data.ens11.location[0] = N_TO_B_ENDIAN_4(pData->location[0])  ;
-    ensData.data.ens11.location[1] = N_TO_B_ENDIAN_4(pData->location[1])  ;
+    ensData.data.ens11.location[0] = N_TO_B_ENDIAN_4(pData->location[0]/ 1e7)  ;
+    ensData.data.ens11.location[1] = N_TO_B_ENDIAN_4(pData->location[1]/ 1e7)  ;
 
 
     ensData.header.ensembleType = ENS_TEMP_IMU;
