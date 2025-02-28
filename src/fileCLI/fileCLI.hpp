@@ -3,9 +3,9 @@
 
 #include "Particle.h"
 
-#include <stddef.h>
 #include <dirent.h>
-#include <sys/syslimits.h>
+#include <limits.h>
+#include <stddef.h>
 
 #define FILE_CLI_INPUT_BUFFER_LEN   80
 #define FILE_CLI_MAX_DIR_DEPTH  4
@@ -112,14 +112,21 @@ class FileCLI{
      * @brief Index of the current directory in the directory stack.
      */
     int current_dir;
+
     /**
-     * @brief typedef for a menu entry for fileCli.
+     * @brief Structure representing a command menu entry for FileCLI.
+     *
      */
     typedef struct menu_
     {
-        //! Command character for the menu entry.
+        /**
+         * A character representing a user command. Will trigger a specific function.
+         */
         const char cmd;
-        //! Function pointer to the command handler.
+        /**
+         * A pointer to a place in flash memory or RAM where a function with properties is held.
+         * Executes the command associated with cmd.
+         */
         void (FileCLI::*fn)(void);
     } menu_t;
 
