@@ -4,7 +4,9 @@ Smartfin FW v3
 
 # Contributing
 
-Please see [docs/index.md](docs/index.md) for an overview of the codebase and how to get started contributing.
+Please review the following pages:
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [docs/index.md](docs/index.md)
 
 # External Library Register
 Library         | Version | License | Source                                           | Location
@@ -24,28 +26,35 @@ base85          | 9c52d27 | MIT     | https://github.com/rafagafe/base85 | src/c
 # LED Behavior
 
 ## Status LED
-State              | Color    | Pattern
----------------------------------------
-Charge             | Yellow   | Solid
-Sleep              | Black    | Solid
-CLI                | Red      | Solid
-Network Off        | Black    | Solid
-Network On         | Blue     | Solid
-Network Connecting | Blue     | Solid
-Network DHCP       | Blue     | Solid
-Cloud Connecting   | Blue     | Solid
-Cloud Connected    | Blue     | Blink
-Cloud Handshake    | Blue     | Blink
+| State              | Color  | Pattern  |
+|--------------------|--------|----------|
+| Charge             | Yellow | Solid    |
+| Sleep              | Black  | Solid    |
+| CLI                | Red    | Solid    |
+| Network Off        | Black  | Solid    |
+| Network On         | Blue   | Solid    |
+| Network Connecting | Blue   | Solid    |
+| Network DHCP       | Blue   | Solid    |
+| Cloud Connecting   | Blue   | Solid    |
+| Cloud Connected    | Blue   | Blink    |
+| Cloud Handshake    | Blue   | Blink    |
 
 
 ## Battery LED
-Condition                                    | Battery LED State   |
---------------------------------------------------------------------|
-No charger                                    | LED OFF             |
-Is charging and less than 60 ms have passed   | No Change           |
-Is charging and at least 60 ms have passed    | LED Blinking        |
-Not charging and less than 10 ms have passed  | No Change           |
-Not charging and at least 10 ms have passed   | LED ON              |
+| Condition                                    | Battery LED State |
+|----------------------------------------------|-------------------|
+| No charger                                   | LED OFF           |
+| Is charging and less than 60 ms have passed  | No Change         |
+| Is charging and at least 60 ms have passed   | LED Blinking      |
+| Not charging and less than 10 ms have passed | No Change         |
+| Not charging and at least 10 ms have passed  | LED ON            |
+
 
 ## Wet Dry LED
 TODO
+
+# Installation for for GCC
+Run in a Linux environment
+
+1. Install build-essentials and cmake, gdb
+2. Ensure submodules are initialized and updated

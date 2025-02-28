@@ -61,11 +61,10 @@ static void printState(STATES_e state);
 // setup() runs once, when the device is first turned on.
 void setup() {
     System.enableFeature(FEATURE_RESET_INFO);
-    Serial.begin(SF_SERIAL_SPEED);
+    SF_OSAL_init_conio();
 
     currentState = STATE_CLI;
 
-    
     FLOG_Initialize();
     time32_t bootTime = Time.now();
     FLOG_AddError(FLOG_SYS_START, bootTime); 

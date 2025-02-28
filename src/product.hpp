@@ -263,12 +263,18 @@
  * @brief Particle Platform Selector
  *
  */
-#define SF_PLATFORM_PARTICLE 0
+#define SF_PLATFORM_PARTICLE 1
 /**
  * @brief GCC Platform Selector
  *
  */
-#define SF_PLATFORM_GCC 1
+#define SF_PLATFORM_GLIBC 2
+
+/**
+ * @brief GoogleTest Platform Selector
+ *
+ */
+#define SF_PLATFORM_GOOGLETEST 3
 
 /**
  * @brief Smartfin Platform Designator
@@ -277,6 +283,6 @@
 #ifdef PARTICLE
 #define SF_PLATFORM SF_PLATFORM_PARTICLE
 #else
-#define SF_PLATFORM SF_PLATFORM_GCC
+#define SF_PLATFORM SF_PLATFORM_GLIBC
 #endif
 #endif // __PRODUCT_HPP__

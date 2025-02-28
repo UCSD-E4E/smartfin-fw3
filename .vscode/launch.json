@@ -18,13 +18,11 @@
             "request": "attach",
             "servertype": "openocd",
             "name": "Particle Debugger",
-            "showDevDebugOutput": "raw",
             "cwd": "${workspaceRoot}",
             "rtos": "FreeRTOS",
             "armToolchainPath": "${command:particle.getDebuggerCompilerDir}",
             "executable": "${command:particle.getDebuggerExecutable}",
             "serverpath": "${command:particle.getDebuggerOpenocdPath}",
-            "preLaunchTask": "Particle: Flash application for debug (local)",
             "searchDir": [
                 "${command:particle.getDebuggerSearchDir}"
             ],
@@ -35,33 +33,8 @@
                 "${command:particle.getDebuggerPostAttachCommands}"
             ],
             "particle": {
-                "version": "1.0.1",
+                "version": "1.1.0",
                 "debugger": "particle-debugger"
-            }
-        },
-        {
-            "type": "cortex-debug",
-            "request": "attach",
-            "servertype": "openocd",
-            "name": "Particle Programmer Shield",
-            "cwd": "${workspaceRoot}",
-            "rtos": "FreeRTOS",
-            "armToolchainPath": "${command:particle.getDebuggerCompilerDir}",
-            "executable": "${command:particle.getDebuggerExecutable}",
-            "serverpath": "${command:particle.getDebuggerOpenocdPath}",
-            "preLaunchTask": "Particle: Flash application for debug (local)",
-            "searchDir": [
-                "${command:particle.getDebuggerSearchDir}"
-            ],
-            "configFiles": [
-                "${command:particle.getDebuggerConfigFiles}"
-            ],
-            "postAttachCommands": [
-                "${command:particle.getDebuggerPostAttachCommands}"
-            ],
-            "particle": {
-                "version": "1.0.1",
-                "debugger": "particle-programmer-shield"
             }
         },
         {
@@ -74,7 +47,6 @@
             "armToolchainPath": "${command:particle.getDebuggerCompilerDir}",
             "executable": "${command:particle.getDebuggerExecutable}",
             "serverpath": "${command:particle.getDebuggerOpenocdPath}",
-            "preLaunchTask": "Particle: Flash application for debug (local)",
             "searchDir": [
                 "${command:particle.getDebuggerSearchDir}"
             ],
@@ -85,7 +57,7 @@
                 "${command:particle.getDebuggerPostAttachCommands}"
             ],
             "particle": {
-                "version": "1.0.1",
+                "version": "1.1.0",
                 "debugger": "generic-cmsis-dap"
             }
         }

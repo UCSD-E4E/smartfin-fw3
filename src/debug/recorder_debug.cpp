@@ -150,7 +150,7 @@ void REC_testPutBytes(void)
     Recorder* pRecorder = pSystemDesc->pRecorder;
 
     SF_OSAL_printf("Hex Input: ");
-    getline((char*) user_input, REC_MEMORY_BUFFER_SIZE);
+    SF_OSAL_getline((char *)user_input, REC_MEMORY_BUFFER_SIZE);
 
     memset(hex_buffer, 0, 3);
     input_length = strlen((char*) user_input);
@@ -180,12 +180,12 @@ void REC_testCreateBigSession(void)
     Recorder* pRecorder = pSystemDesc->pRecorder;
 
     SF_OSAL_printf("Size of session to create: ");
-    getline((char*) user_input, REC_MEMORY_BUFFER_SIZE);
+    SF_OSAL_getline((char *)user_input, REC_MEMORY_BUFFER_SIZE);
 
     input_length = atoi(user_input);
     for (hex_idx = 0; hex_idx < input_length; hex_idx++)
     {
-        rand_byte = random(256);
+        rand_byte = SF::utils::random(0, 256);
         switch (pRecorder->putBytes(&rand_byte, 1))
         {
         case 0:
@@ -206,7 +206,7 @@ void REC_testSetTime(void)
     int retval;
 
     SF_OSAL_printf("Enter start time: ");
-    getline(user_input, REC_MEMORY_BUFFER_SIZE);
+    SF_OSAL_getline(user_input, REC_MEMORY_BUFFER_SIZE);
     timestamp = atoi(user_input);
     SF_OSAL_printf("Setting time to %d (0x%04x)" __NL__, timestamp, timestamp);
     retval = pRecorder->setSessionTime(timestamp);

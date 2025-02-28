@@ -170,9 +170,9 @@ void WaterSensor::forceState(uint8_t water_detect_state)
 
 /**
  * @brief gets the current reading of the sensor (not the overall status w/ hystersis)
- * 
- * @return uint8_t 
- */ 
+ *
+ * @return uint8_t current reading of the sensor
+ */
 uint8_t WaterSensor::getCurrentReading()
 {
     uint8_t temp_8;

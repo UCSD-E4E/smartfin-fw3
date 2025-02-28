@@ -11,17 +11,20 @@
  * 
  * Modified by Emily Thorpe - Auguest 2023
  ***************************************************************/
-#include "ICM_20948.h" 
+
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "product.hpp"
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+#include "ICM_20948.h"
 
 #define SERIAL_PORT Serial
 
 #define WIRE_PORT Wire
 #define AD0_VAL 1
 
-ICM_20948_I2C myICM; 
-
+ICM_20948_I2C myICM;
+#endif
 
 float getAccMG( int16_t raw, uint8_t fss );
 float getGyrDPS( int16_t raw, uint8_t fss );
@@ -30,6 +33,7 @@ float getTmpC( int16_t raw );
 
 void setupICM(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     WIRE_PORT.begin();
     WIRE_PORT.setClock(400000);
 
@@ -42,47 +46,53 @@ void setupICM(void)
         SF_OSAL_printf("ICM fail");
         FLOG_AddError(FLOG_ICM_FAIL, 0);
     }
+#endif
 }
 
 
 bool getAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     ICM_20948_AGMT_t agmt = myICM.getAGMT();
-    
+
     *acc_x = getAccMG(agmt.acc.axes.x, agmt.fss.a);
     *acc_y = getAccMG(agmt.acc.axes.y, agmt.fss.a);
     *acc_z = getAccMG(agmt.acc.axes.z, agmt.fss.a);
-
+#endif
     return true;
 }
 
 bool getGyroscope(float *gyr_x, float *gyr_y, float *gyr_z)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     ICM_20948_AGMT_t agmt = myICM.getAGMT();
-    
+
     *gyr_x = getGyrDPS(agmt.gyr.axes.x, agmt.fss.g);
     *gyr_y = getGyrDPS(agmt.gyr.axes.y, agmt.fss.g);
     *gyr_z = getGyrDPS(agmt.gyr.axes.z, agmt.fss.g);
-
+#endif
     return true;
 }
 
 bool getMagnetometer(float *mag_x, float *mag_y, float *mag_z)
 {
-    ICM_20948_AGMT_t agmt = myICM.getAGMT();    
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    ICM_20948_AGMT_t agmt = myICM.getAGMT();
 
     *mag_x = getMagUT(agmt.mag.axes.x);
     *mag_y = getMagUT(agmt.mag.axes.y);
     *mag_z = getMagUT(agmt.mag.axes.z);
-
+#endif
     return true;
 }
 
 bool getTemperature(float *temperature)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     ICM_20948_AGMT_t agmt = myICM.getAGMT();
 
     *temperature = getTmpC(agmt.tmp.val);
+#endif
     return true;
 }
 
