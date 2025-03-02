@@ -127,6 +127,7 @@ extern "C"
                 userInput = SF_OSAL_getch();
                 switch (userInput)
                 {
+                case 127:
                 case '\b':
                     i--;
                     SF_OSAL_putch('\b');
