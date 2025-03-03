@@ -4,14 +4,14 @@
 #include <stdint.h>
 
 /**
- * @brief The tmpSensor class interacts with a MAX31725 temperature sensor by binding it to another MAX31725
- * sensor. It provides methods to confirm successful configuration register writing and geting sensor temperature data.
+ * @brief The tmpSensor adapter class wraps a MAX31725 temperature sensor. 
+ * It provides methods to confirm successful configuration register writing and getting sensor temperature data.
  */
 class tmpSensor {
 public:
     /**
-     * @brief Constructs a tmpSensor class object and binds it to a MAX31725 sensor
-     * @param sensor A reference to a MAX31725 sensor
+     * @brief Constructs a tmpSensor adapter class object
+     * @param sensor A reference to a MAX31725 sensor instance that the adapter will interface with
      */
     tmpSensor(MAX31725 &sensor);
     /**
@@ -19,13 +19,15 @@ public:
      * @return Boolean value of whether a MAX31725 sensor successfully wrote
      * to a configuration register
      * 
-     * 0 on success, negative number on failure
+     * true on success, false on failure
      */
     bool init();
     /**
-     * @brief Turns of MAX31725 sensor
+     * @brief Turns off MAX31725 sensor
      * @return Boolean value of whether a MAX31725 sensor successfully stopped writing
      * to a configuration register
+     * 
+     * true on successful stop and false otherwise
      */
     bool stop();
     /**
