@@ -109,6 +109,12 @@ bool getTemperature(float *temperature)
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     ICM_20948_AGMT_t agmt = myICM.getAGMT();
 
+    if (myICM.status != ICM_20948_Stat_Ok)
+    {
+        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        return false;
+    }
+    
     *temperature = getTmpC(agmt.tmp.val);
 #endif
     return true;
