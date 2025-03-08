@@ -21,8 +21,9 @@ size_t file_size = INITIAL_FILE_SIZE;
 size_t current_offset = 0;
 int fd;
 std::vector<CONIO_hist_line> Lines;
-
-extern "C" 
+size_t cur_bottom = 0;
+size_t bottom_idx = 0;
+extern "C"
 {
     void init_file_mapping()
     {
@@ -47,6 +48,8 @@ extern "C"
             close(fd);
             exit(1);
         }
+
+        Lines.push_back(CONIO_hist_line(mapped_memory, 0)); // Initialize the first line
     }
 
     void deinit_file_mapping()
@@ -90,7 +93,7 @@ extern "C"
         }
     }
 
-    void append_line(const std::string &line, bool NL_exists)
+    void write_line(const std::string &line, const bool NL_exists)
     {
         // Check if there's enough space, else resize
         if (current_offset + line.size() + 2 >= file_size)
@@ -98,16 +101,16 @@ extern "C"
             resize_file();
         }
 
-        char *current_pos = mapped_memory + current_offset;
-
-        strncpy(current_pos, line.c_str(), line.size());
+        strncpy(mapped_memory + current_offset, line.c_str(), line.size());
         current_offset += line.size();
-
-        Lines.push_back(CONIO_hist_line(current_pos, mapped_memory + current_offset - 1));
+        Lines[bottom_idx].len += line.size();
 
         if (NL_exists)
         {
+            Lines.push_back(CONIO_hist_line(mapped_memory + current_offset, 0));
             mapped_memory[current_offset++] = '\n';
+            bottom_idx++;
+            cur_bottom++;
         }
 
         msync(mapped_memory, file_size, MS_SYNC);

@@ -10,10 +10,10 @@
 typedef struct CONIO_history_line_
 {
     const char *beginning;
-    char *end;
+    size_t len;
     // Additional metadata may be necessary
 
-    CONIO_history_line_(const char *b, char* e) : beginning(b), end(e) {}
+    CONIO_history_line_(const char *b, size_t l) : beginning(b), len(l) {}
 } CONIO_hist_line;
 
 #ifdef __cplusplus
@@ -27,7 +27,8 @@ extern "C"
 
     void deinit_file_mapping(void);
 
-    void append_line(const std::string &line, bool NL_exists);
+    void write_line(const std::string &line, const bool NL_exists);
 }
-extern std::vector<CONIO_hist_line> Lines;
+extern size_t cur_bottom;
+extern size_t bottom_idx;
 #endif
