@@ -11,6 +11,9 @@
 
 #include "conioHistory.hpp"
 
+#include "product.hpp"
+
+#if SF_PLATFORM == SF_PLATFORM_GLIBC
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -116,3 +119,4 @@ extern "C"
         msync(mapped_memory, file_size, MS_SYNC);
     }
 }
+#endif
