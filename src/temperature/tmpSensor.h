@@ -23,16 +23,16 @@ public:
      */
     bool init();
     /**
-     * @brief Turns off MAX31725 sensor
+     * @brief Determines whether the MAX31725 sensor is functional
      * @return Boolean value of whether a MAX31725 sensor successfully stopped writing
-     * to a configuration register
-     * 
-     * true on successful stop and false otherwise
+     * to a configuration register, determining whether it is functional
+     *
+     * true on sensor being functional and false otherwise
      */
     bool stop();
     /**
      * @brief Gets the current temperature reading from the MAX31725 sensor
-     * @return temperature in degrees Celsius if successful in reading temperature, otherwise 0
+     * @return temperature in degrees Celsius
      */
     float getTemp();
 private:
