@@ -32,7 +32,7 @@ extern "C"
     {
         const char *env_path = std::getenv("E4E_SF_CONIO_HISTORY");
         env_path = env_path ? env_path : "/code/build/history.log";
-
+ 
         fd = open(env_path, O_RDWR | O_CREAT | O_TRUNC, 0666);
         if (fd < 0)
         {
@@ -52,7 +52,7 @@ extern "C"
             exit(1);
         }
 
-        Lines.push_back(CONIO_hist_line(mapped_memory, 0)); // Initialize the first line
+        Lines.push_back(CONIO_hist_line(0, 0)); // Initialize the first line
     }
 
     void deinit_file_mapping()
@@ -110,13 +110,21 @@ extern "C"
 
         if (NL_exists)
         {
-            Lines.push_back(CONIO_hist_line(mapped_memory + current_offset, 0));
+            Lines.push_back(CONIO_hist_line(current_offset, 0));
             mapped_memory[current_offset++] = '\n';
-            bottom_idx++;
-            cur_bottom++;
+            cur_bottom = ++bottom_idx;
         }
 
         msync(mapped_memory, file_size, MS_SYNC);
+    }
+
+    char *retrieve_line(const size_t line_idx)
+    {
+        size_t len = Lines[line_idx].len + 1;
+        char *line = (char *)malloc(len);
+        strncpy(line, mapped_memory + Lines[line_idx].offset, len);
+        line[len] = 0;
+        return line;
     }
 }
 #endif

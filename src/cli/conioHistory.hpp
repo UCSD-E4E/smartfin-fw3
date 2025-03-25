@@ -9,11 +9,11 @@
 
 typedef struct CONIO_history_line_
 {
-    const char *beginning;
+    size_t offset;
     size_t len;
     // Additional metadata may be necessary
 
-    CONIO_history_line_(const char *b, size_t l) : beginning(b), len(l) {}
+    CONIO_history_line_(size_t o, size_t l) : offset(o), len(l) {}
 } CONIO_hist_line;
 
 #ifdef __cplusplus
@@ -28,6 +28,8 @@ extern "C"
     void deinit_file_mapping(void);
 
     void write_line(const std::string &line, const bool NL_exists);
+
+    char *retrieve_line(const size_t line_idx);
 }
 extern size_t cur_bottom;
 extern size_t bottom_idx;
