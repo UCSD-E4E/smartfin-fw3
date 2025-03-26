@@ -36,7 +36,6 @@ extern "C"
         fd = open(env_path, O_RDWR | O_CREAT | O_TRUNC, 0666);
         if (fd < 0)
         {
-            perror("open");
             exit(1);
         }
 
@@ -47,7 +46,6 @@ extern "C"
         mapped_memory = (char *)mmap(nullptr, file_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (mapped_memory == MAP_FAILED)
         {
-            perror("mmap");
             close(fd);
             exit(1);
         }
@@ -74,7 +72,6 @@ extern "C"
         // Resize the file on disk
         if (ftruncate(fd, file_size) < 0)
         {
-            perror("resize");
             close(fd);
             exit(1);
         }
@@ -82,7 +79,6 @@ extern "C"
         // Unmap old memory and remap the file to the new size
         if (munmap(mapped_memory, file_size / FILE_RESIZE_FACTOR) == -1)
         {
-            perror("unmap");
             close(fd);
             exit(1);
         }
@@ -90,7 +86,6 @@ extern "C"
         mapped_memory = (char *)mmap(nullptr, file_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (mapped_memory == MAP_FAILED)
         {
-            perror("remap");
             close(fd);
             exit(1);
         }
