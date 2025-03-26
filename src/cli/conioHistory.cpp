@@ -110,8 +110,8 @@ extern "C"
 
         if (NL_exists)
         {
-            Lines.push_back(CONIO_hist_line(current_offset, 0));
             mapped_memory[current_offset++] = '\n';
+            Lines.push_back(CONIO_hist_line(current_offset, 0));
             cur_bottom = ++bottom_idx;
         }
 
@@ -120,10 +120,12 @@ extern "C"
 
     char *retrieve_line(const size_t line_idx)
     {
+        if (Lines[line_idx].len == 0)
+            return nullptr;
         size_t len = Lines[line_idx].len + 1;
         char *line = (char *)malloc(len);
         strncpy(line, mapped_memory + Lines[line_idx].offset, len);
-        line[len] = 0;
+        line[len - 1] = 0;
         return line;
     }
 }
