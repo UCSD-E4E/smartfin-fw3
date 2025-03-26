@@ -132,50 +132,106 @@ extern "C"
             if (SF_OSAL_kbhit())
             {
                 userInput = SF_OSAL_getch();
-                switch (userInput)
+
+                // Check only for UP and DOWN scroll (^[A and ^[B) first
+                if (userInput == 27)
                 {
-                case 127:
-                case '\b':
-                    if (i > 0) 
+                    while (!SF_OSAL_kbhit())
                     {
-                        i--;
-                        SF_OSAL_putch('\b');
-                        SF_OSAL_putch(' ');
-                        SF_OSAL_putch('\b');
-                        file_buf.pop_back();
-                    }
-                    break;
-                default:
-                    buffer[i++] = userInput;
-                    SF_OSAL_putch(userInput);
-                    file_buf += userInput;
-                    break;
-                case '\n':
-                    buffer[i++] = 0;
-                    SF_OSAL_putch('\n');
-                    write_line(file_buf, true);
-                    return i;
-                case 27: 
-                    // Checking only for UP and DOWN scroll (^[A and ^[B)
-                    while (!SF_OSAL_kbhit()) {} // Wait for next byte
+                    } // Wait for next byte
                     char inp = SF_OSAL_getch();
                     if (inp != '[')
                         break;
-                    while (!SF_OSAL_kbhit()) {}
-                    inp = SF_OSAL_getch();
-                    switch (inp)
+                    while (!SF_OSAL_kbhit())
                     {
-                    case 'A':
-                        scrl(-1);
-                        break;
-                    case 'B':
-                        scrl(1);
+                    }
+                    inp = SF_OSAL_getch();
+
+                    if (bottom_idx <= wind_h) // No need to scroll
+                    {
                         break;
                     }
-                    break;
+                    switch (inp)
+                    {
+                        case 'A':
+                        {
+                            size_t top_idx = cur_bottom - wind_h + 1;
+                            if (top_idx == 0) // Already at top
+                            {
+                                break;
+                            }
+                            wscrl(stdscr, -1);
+                            curs_set(0);
+                            move(0, 0);
+                            wrefresh(stdscr);
+                            cur_bottom--;
+
+                            char *line = retrieve_line(--top_idx);
+                            if (!line)
+                            {
+                                break;
+                            }
+                            wprintw(stdscr, "%s", line);
+                            wrefresh(stdscr);
+                            free(line);
+                            break;
+                        }
+                        case 'B':
+                        {
+                            if (cur_bottom == bottom_idx) // Already at bottom
+                            {
+                                break;
+                            }
+                            wscrl(stdscr, 1);
+                            curs_set(0);
+                            move(wind_h - 1, 0);
+                            wrefresh(stdscr);
+                            cur_bottom++;
+
+                            char *line = retrieve_line(cur_bottom);
+                            if (!line)
+                            {
+                                break;
+                            }
+                            wprintw(stdscr, "%s", line);
+                            wrefresh(stdscr);
+                            free(line);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    switch (userInput)
+                    {
+                        case 127:
+                        case '\b':
+                            if (i > 0)
+                            {
+                                i--;
+                                SF_OSAL_putch('\b');
+                                SF_OSAL_putch(' ');
+                                SF_OSAL_putch('\b');
+                                file_buf.pop_back();
+                            }
+                            break;
+                        default:
+                            buffer[i++] = userInput;
+                            SF_OSAL_putch(userInput);
+                            file_buf += userInput;
+                            break;
+                        case '\n':
+                            buffer[i++] = 0;
+                            SF_OSAL_putch('\n');
+                            write_line(file_buf, true);
+                            return i;
+                    }
                 }
             }
         }
+        // Exceeded buffer is automatically entered as command
+        SF_OSAL_putch('\n');
+        write_line(file_buf, true);
 #endif
         return i;
     }
