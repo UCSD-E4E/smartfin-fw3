@@ -2,10 +2,10 @@
  * Project smartfin-fw3
  * Description: System CLI commands
  * @file debugCommands.cpp
- * @author @emilybthorpe
+ * @author Emily Thorpe <ethorpe@macalester.edu>
  * @date Jul 20 2023
  *
-*/
+ */
 
 #include "systemCommands.hpp"
 
