@@ -126,8 +126,8 @@ void SS_ensemble10Func()
     if(point.locked == 1 && point.satsInView > 4)
     {
         hasGPS = true;
-        lat = point.latitude * 1e7;
-        lng = point.longitude * 1e7;
+        lat = point.latitude * 1e6;
+        lng = point.longitude * 1e6;
     }
     else
     {
