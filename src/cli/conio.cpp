@@ -216,6 +216,34 @@ extern "C"
                 else
                 {
                     buf_written = false;
+                    // Move window back to the bottom first if necessary
+                    if (cur_bottom != bottom_idx)
+                    {
+                        wclear(stdscr);
+                        char *line;
+                        for (size_t idx = bottom_idx - wind_h + 1; idx < bottom_idx; idx++)
+                        {
+                            line = retrieve_line(idx);
+                            if (!line)
+                            {
+                                wprintw(stdscr, "\n");
+                                break;
+                            }
+                            wprintw(stdscr, "%s\n", line);
+                            wrefresh(stdscr);
+                            free(line);
+                        }
+                        line = retrieve_line(bottom_idx);
+                        if (!line)
+                        {
+                            break;
+                        }
+                        wprintw(stdscr, "%s", line);
+                        wrefresh(stdscr);
+                        free(line);
+                        cur_bottom = bottom_idx;
+                        curs_set(1);
+                    }
                     switch (userInput)
                     {
                         case 127:
