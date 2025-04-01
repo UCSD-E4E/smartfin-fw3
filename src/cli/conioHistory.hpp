@@ -29,7 +29,11 @@ extern "C"
 
     void write_line(const std::string &line, const bool NL_exists);
 
+    void overwrite_last_line_at(const std::string &line, const size_t offset, const bool NL_exists);
+
     char *retrieve_line(const size_t line_idx);
+
+    size_t get_offset();
 }
 extern size_t cur_bottom;
 extern size_t bottom_idx;

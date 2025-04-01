@@ -28,6 +28,9 @@ std::size_t read_head_idx = 0, read_tail_idx = 0;
 pthread_mutex_t read_mutex;
 std::string file_buf;
 std::size_t wind_h, wind_w;
+// For deinit_conio to distinguish
+bool buf_written = false;
+size_t offset;
 
 void *read_loop(void *_)
 {
@@ -127,6 +130,7 @@ extern "C"
         }
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
         file_buf = "";
+        offset = get_offset();
         while (i < buflen)
         {
             if (SF_OSAL_kbhit())
@@ -160,6 +164,12 @@ extern "C"
                             {
                                 break;
                             }
+                            if (cur_bottom == bottom_idx)
+                            {
+                                // Save anything already written
+                                overwrite_last_line_at(file_buf, offset, false);
+                                buf_written = true;
+                            }
                             wscrl(stdscr, -1);
                             curs_set(0);
                             move(0, 0);
@@ -183,7 +193,6 @@ extern "C"
                                 break;
                             }
                             wscrl(stdscr, 1);
-                            curs_set(0);
                             move(wind_h - 1, 0);
                             wrefresh(stdscr);
                             cur_bottom++;
@@ -194,6 +203,10 @@ extern "C"
                                 break;
                             }
                             wprintw(stdscr, "%s", line);
+                            if (cur_bottom == bottom_idx)
+                            {
+                                curs_set(1);
+                            }
                             wrefresh(stdscr);
                             free(line);
                             break;
@@ -202,6 +215,7 @@ extern "C"
                 }
                 else
                 {
+                    buf_written = false;
                     switch (userInput)
                     {
                         case 127:
@@ -223,7 +237,7 @@ extern "C"
                         case '\n':
                             buffer[i++] = 0;
                             SF_OSAL_putch('\n');
-                            write_line(file_buf, true);
+                            overwrite_last_line_at(file_buf, offset, true);
                             return i;
                     }
                 }
@@ -290,7 +304,10 @@ extern "C"
     void SF_OSAL_deinit_conio(void)
     {
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
-        write_line(file_buf, false);
+        if (!buf_written)
+        {
+            overwrite_last_line_at(file_buf, offset, false);
+        }
         deinit_file_mapping();
         endwin();
 #endif

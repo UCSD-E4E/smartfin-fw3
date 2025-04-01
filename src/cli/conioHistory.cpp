@@ -113,6 +113,22 @@ extern "C"
         msync(mapped_memory, file_size, MS_SYNC);
     }
 
+    void overwrite_last_line_at(const std::string &line, const size_t offset, const bool NL_exists)
+    {
+        if (offset > current_offset)
+        {
+            return; // Invalid offset
+        }
+        // Clear out the file within the interval [offset, current_offset)
+        for (size_t i = offset; i < current_offset; i++)
+        {
+            mapped_memory[i] = 0;
+        }
+        Lines[bottom_idx].len -= current_offset - offset;
+        current_offset = offset;
+        write_line(line, NL_exists);
+    }
+
     char *retrieve_line(const size_t line_idx)
     {
         if (Lines[line_idx].len == 0)
@@ -122,6 +138,11 @@ extern "C"
         strncpy(line, mapped_memory + Lines[line_idx].offset, len);
         line[len - 1] = 0;
         return line;
+    }
+
+    size_t get_offset()
+    {
+        return current_offset;
     }
 }
 #endif
