@@ -21,6 +21,7 @@ set(SMARTFIN_SOURCE_FILES
     Particle_dummy.cpp
     ../src/cli/flog.cpp
     ../src/cli/conio.cpp
+    ../src/cli/conioHistory.cpp
     ../src/system.cpp
     ../src/cellular/sf_cloud.cpp
     ../src/sleepTask.cpp
