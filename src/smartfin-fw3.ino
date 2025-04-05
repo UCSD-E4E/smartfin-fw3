@@ -34,11 +34,11 @@ SYSTEM_THREAD(ENABLED);
 typedef struct StateMachine_
 {
     /**
-     * @brief Current device state
+     * @brief Device state associated with a task
      */
     STATES_e state;
     /**
-     * @brief Task for the current state
+     * @brief Task for the given device state
      */
     Task *task;
 } StateMachine_t;
