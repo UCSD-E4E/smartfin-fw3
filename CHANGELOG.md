@@ -1,3 +1,20 @@
+## [3.7.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.7.0...v3.7.1) (2025-03-30)
+
+
+### Bug Fixes
+
+* implement error logging for Temp read ([26098f0](https://github.com/UCSD-E4E/smartfin-fw3/commit/26098f011e377f02281d81b1ee01dbe2f4de9076))
+* IMU get sensor readings return values closes [#130](https://github.com/UCSD-E4E/smartfin-fw3/issues/130) ([#165](https://github.com/UCSD-E4E/smartfin-fw3/issues/165)) ([3c9b845](https://github.com/UCSD-E4E/smartfin-fw3/commit/3c9b8450e8ec02388ad929c4793031fab597e355))
+
+# [3.7.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.6.3...v3.7.0) (2025-03-02)
+
+
+### Features
+
+* data collection now averages data ([8fdff1a](https://github.com/UCSD-E4E/smartfin-fw3/commit/8fdff1ab17509547e105f0282d3fe89f6e3e8471))
+* data collection now averages data ([#145](https://github.com/UCSD-E4E/smartfin-fw3/issues/145)) ([90761be](https://github.com/UCSD-E4E/smartfin-fw3/commit/90761bed4dd9465c1303e234d118f7918877518c))
+* data collection now averages data properly with correct naming ([9b598bc](https://github.com/UCSD-E4E/smartfin-fw3/commit/9b598bc32343d743b49e2ceb09d3bc4863806c84))
+
 ## [3.6.3](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.6.2...v3.6.3) (2025-02-10)
 
 

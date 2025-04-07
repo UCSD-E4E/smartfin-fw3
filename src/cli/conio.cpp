@@ -102,10 +102,13 @@ extern "C"
                 switch (userInput)
                 {
                 case '\b':
-                    i--;
-                    SF_OSAL_putch('\b');
-                    SF_OSAL_putch(' ');
-                    SF_OSAL_putch('\b');
+                    if (i > 0)
+                    {
+                        i--;
+                        SF_OSAL_putch('\b');
+                        SF_OSAL_putch(' ');
+                        SF_OSAL_putch('\b');
+                    }
                     break;
                 default:
                     buffer[i++] = userInput;
@@ -127,11 +130,15 @@ extern "C"
                 userInput = SF_OSAL_getch();
                 switch (userInput)
                 {
+                case 127:
                 case '\b':
-                    i--;
-                    SF_OSAL_putch('\b');
-                    SF_OSAL_putch(' ');
-                    SF_OSAL_putch('\b');
+                    if (i > 0) 
+                    {
+                        i--;
+                        SF_OSAL_putch('\b');
+                        SF_OSAL_putch(' ');
+                        SF_OSAL_putch('\b');
+                    }
                     break;
                 default:
                     buffer[i++] = userInput;

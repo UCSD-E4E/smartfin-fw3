@@ -126,8 +126,8 @@ void SS_ensemble10Func()
     if(point.locked == 1 && point.satsInView > 4)
     {
         hasGPS = true;
-        lat = point.latitude;
-        lng = point.longitude;
+        lat = point.latitude * 1e6;
+        lng = point.longitude * 1e6;
     }
     else
     {
@@ -157,19 +157,26 @@ void SS_ensemble10Func()
 
     // ensData.header.elapsedTime_ds = Ens_getStartTime(pDeployment->startTime);
     // SF_OSAL_printf("Ensemble timestamp: %d\n", ensData.header.elapsedTime_ds);
-    ensData.data.ens10.rawTemp = N_TO_B_ENDIAN_2(temp / 0.0078125);
-    ensData.data.ens10.rawAcceleration[0] = N_TO_B_ENDIAN_2(pData->acc[0])  ;
-    ensData.data.ens10.rawAcceleration[1] = N_TO_B_ENDIAN_2(pData->acc[1])  ;
-    ensData.data.ens10.rawAcceleration[2] = N_TO_B_ENDIAN_2(pData->acc[2])  ;
-    ensData.data.ens10.rawAngularVel[0] = N_TO_B_ENDIAN_2(pData->ang[0])  ;
-    ensData.data.ens10.rawAngularVel[1] = N_TO_B_ENDIAN_2(pData->ang[1])  ;
-    ensData.data.ens10.rawAngularVel[2] = N_TO_B_ENDIAN_2(pData->ang[2])  ;
-    ensData.data.ens10.rawMagField[0] = N_TO_B_ENDIAN_2(pData->mag[0])  ;
-    ensData.data.ens10.rawMagField[1] = N_TO_B_ENDIAN_2(pData->mag[1])  ;
-    ensData.data.ens10.rawMagField[2] = N_TO_B_ENDIAN_2(pData->mag[2])  ;
-    ensData.data.ens11.location[0] = N_TO_B_ENDIAN_4(pData->location[0])  ;
-    ensData.data.ens11.location[1] = N_TO_B_ENDIAN_4(pData->location[1])  ;
 
+    // average data by accumulation count
+    if (pData->accumulateCount > 0)
+    {
+        uint32_t &count = pData->accumulateCount;
+
+        // Average using accumulated data instead of latest sample
+        ensData.data.ens10.rawTemp = N_TO_B_ENDIAN_2(pData->temperature / (0.0078125 * count));
+        ensData.data.ens10.rawAcceleration[0] = N_TO_B_ENDIAN_2(pData->acc[0] / count);
+        ensData.data.ens10.rawAcceleration[1] = N_TO_B_ENDIAN_2(pData->acc[1] / count);
+        ensData.data.ens10.rawAcceleration[2] = N_TO_B_ENDIAN_2(pData->acc[2] / count);
+        ensData.data.ens10.rawAngularVel[0] = N_TO_B_ENDIAN_2(pData->ang[0] / count);
+        ensData.data.ens10.rawAngularVel[1] = N_TO_B_ENDIAN_2(pData->ang[1] / count);
+        ensData.data.ens10.rawAngularVel[2] = N_TO_B_ENDIAN_2(pData->ang[2] / count);
+        ensData.data.ens10.rawMagField[0] = N_TO_B_ENDIAN_2(pData->mag[0] / count);
+        ensData.data.ens10.rawMagField[1] = N_TO_B_ENDIAN_2(pData->mag[1] / count);
+        ensData.data.ens10.rawMagField[2] = N_TO_B_ENDIAN_2(pData->mag[2] / count);
+        ensData.data.ens11.location[0] = N_TO_B_ENDIAN_4(pData->location[0] / count);
+        ensData.data.ens11.location[1] = N_TO_B_ENDIAN_4(pData->location[1] / count);
+    }
 
     ensData.header.ensembleType = ENS_TEMP_IMU;
     int x = pSystemDesc->pRecorder->putBytes(&ensData, sizeof(EnsembleHeader_t) + sizeof(Ensemble10_data_t));
