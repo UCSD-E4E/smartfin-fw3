@@ -90,9 +90,8 @@ extern "C"
      * @param line_idx Index of the line to be retrieved
      * @return char* of the line if successful
      */
-
     char *retrieve_line(const size_t line_idx);
-    
+
     /**
      * @brief Get the current offset of the file
      * 
