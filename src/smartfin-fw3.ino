@@ -26,12 +26,22 @@
 SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
-// Statemachine for handeling task-switching
+/**
+ * @brief State machine for handling task switching
+ *
+ * Associates a device state with a corresponding task
+ */
 typedef struct StateMachine_
 {
+    /**
+     * @brief Device state associated with a task
+     */
     STATES_e state;
-    Task* task;
-}StateMachine_t;
+    /**
+     * @brief Task for the given device state
+     */
+    Task *task;
+} StateMachine_t;
 
 static CLI cliTask;
 static ChargeTask chargeTask;
