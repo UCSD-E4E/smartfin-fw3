@@ -66,7 +66,14 @@ void deinit_file_mapping()
 
 void resize_file()
 {
-    file_size *= FILE_RESIZE_FACTOR;
+    if (file_size >= LINEAR_STEP_RESIZE)
+    {
+        file_size += LINEAR_STEP_RESIZE;
+    } 
+    else
+    {
+        file_size *= FILE_RESIZE_FACTOR;
+    }
 
     // Resize the file on disk
     if (ftruncate(fd, file_size) < 0)

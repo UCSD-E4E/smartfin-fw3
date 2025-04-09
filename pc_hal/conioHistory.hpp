@@ -15,6 +15,11 @@
  * 
  */
 #define FILE_RESIZE_FACTOR 2
+/**
+ * @brief Upon reaching a size of 32MB, increase file size in steps of 32MB
+ * 
+ */
+#define LINEAR_STEP_RESIZE 32 * 1024 * 1024
 
 /**
  * @brief C struct that contains the necessary metadata for a line in the history
