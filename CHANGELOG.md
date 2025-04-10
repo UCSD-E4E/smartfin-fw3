@@ -1,3 +1,11 @@
+## [3.7.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.7.1...v3.7.2) (2025-04-10)
+
+
+### Bug Fixes
+
+* consolidated SleepTask::BootBehavior accesses to NVRAM accesses ([274fc24](https://github.com/UCSD-E4E/smartfin-fw3/commit/274fc2435dd786c4b55da6ab69f48803fd45bcae))
+* consolidated SleepTask::BootBehavior accesses to NVRAM accesses ([#187](https://github.com/UCSD-E4E/smartfin-fw3/issues/187)) ([a368ae6](https://github.com/UCSD-E4E/smartfin-fw3/commit/a368ae61a42c31d241d6af6cf62e9ca24cb87445))
+
 ## [3.7.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.7.0...v3.7.1) (2025-03-30)
 
 
