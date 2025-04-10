@@ -8,8 +8,6 @@
 
 #include "consts.hpp"
 
-SleepTask::BOOT_BEHAVIOR_e SleepTask::bootBehavior;
-
 void SleepTask::init(void)
 {
 
@@ -26,20 +24,21 @@ void SleepTask::init(void)
         return;
     }
 
-    if(pSystemDesc->flags->batteryLow)
+    SleepTask::BOOT_BEHAVIOR_e behavior;
+    if(!pSystemDesc->pNvram->get(NVRAM::BOOT_BEHAVIOR, behavior) || pSystemDesc->flags->batteryLow)
     {
-        SleepTask::bootBehavior = BOOT_BEHAVIOR_NORMAL;
+        behavior = BOOT_BEHAVIOR_NORMAL;
     }
 
     // commit EEPROM before we bring down everything
-    pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, SleepTask::bootBehavior);
+    pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, behavior);
     pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, true);
 
 
     // bring down the system safely
     // SYS_deinitSys(); TODO
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    switch(SleepTask::bootBehavior)
+    switch(behavior)
     {
         case BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
 
@@ -82,20 +81,14 @@ void SleepTask::exit(void)
 
 void SleepTask::loadBootBehavior(void)
 {
-    uint8_t bootValid = 0;
+    uint8_t bootValid;
     if(!pSystemDesc->pNvram->get(NVRAM::NVRAM_VALID, bootValid))
     {
-        SleepTask::bootBehavior = SleepTask::BOOT_BEHAVIOR_NORMAL;
-        return;
+        bootValid = 0;
     }
 
     if(bootValid)
     {
-        if(!pSystemDesc->pNvram->get(NVRAM::BOOT_BEHAVIOR, SleepTask::bootBehavior))
-        {
-            SleepTask::bootBehavior = SleepTask::BOOT_BEHAVIOR_NORMAL;
-            return;
-        }
         bootValid = 0;
         if(!pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, bootValid))
         {
@@ -106,20 +99,23 @@ void SleepTask::loadBootBehavior(void)
     }
     else
     {
-        SleepTask::bootBehavior = SleepTask::BOOT_BEHAVIOR_NORMAL;
-        return;
+        pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, SleepTask::BOOT_BEHAVIOR_NORMAL);
     }
 }
 
 SleepTask::BOOT_BEHAVIOR_e SleepTask::getBootBehavior(void)
 {
-    return SleepTask::bootBehavior;
+    SleepTask::BOOT_BEHAVIOR_e behavior;
+    if(!pSystemDesc->pNvram->get(NVRAM::BOOT_BEHAVIOR, behavior))
+    {
+        behavior = BOOT_BEHAVIOR_NORMAL;
+    }
+    return behavior;
 }
 
 void SleepTask::setBootBehavior(SleepTask::BOOT_BEHAVIOR_e behavior)
 {
-    SleepTask::bootBehavior = behavior;
-    pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, SleepTask::bootBehavior);
+    pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, behavior);
     pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, true);
 
 }
