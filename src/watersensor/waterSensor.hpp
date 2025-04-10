@@ -13,6 +13,7 @@
 //  we might say when over 75% are 1s we are in the water and 25% are when
 //  we are out of the water (there is hystersis, starting with us out of the water)
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //Water Detect Defines//
 #define DEFAULT_WATER_SENSOR_LOW_PERCENTAGE 25
@@ -75,7 +76,7 @@ public:
      * @param water_detect_pin_to_set Pin that reads the sensor value
      * @param window_size Size of the moving sample window used for water detection
      */
-    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set, uint8_t window_size);
+    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set);
     /**
      * @brief Destroys the WaterSensor instance
      */
