@@ -368,7 +368,10 @@ static void CLI_monitorSensors(void)
         }
         if (sensors[ACCEL])
         {
-            getAccelerometer(accelData, accelData + 1, accelData + 2);
+            if (!getAccelerometer(accelData, accelData + 1, accelData + 2))
+            {
+                accelData[0] = nanf("");
+            }
         }
         if (sensors[GYRO])
         {
@@ -381,8 +384,16 @@ static void CLI_monitorSensors(void)
         if (sensors[DMP])
         {
             delayTime = 0;
-            getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2);
-            getDMPAccelerometerAcc(accelDMPData + 3);
+            if (!getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2))
+            {
+                accelDMPData[0] = nanf("");
+                accelDMPData[1] = nanf("");
+                accelDMPData[2] = nanf("");
+            }
+            if (!getDMPAccelerometerAcc(accelDMPData + 3))
+            {
+                accelDMPData[3] = nanf("");
+            }
             getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
             getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
         }

@@ -283,6 +283,7 @@ float getTmpC(int16_t raw)
 
 bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     icm_20948_DMP_data_t data;
     myICM.readDMPdataFromFIFO(&data);
     if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
@@ -295,12 +296,14 @@ bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z)
             return true;
         }
     }
+#endif
     return false;
 }
 
 // TODO: DMP Packet needs to include acceleration accuracy (header2)
 bool getDMPAccelerometerAcc(float *acc_acc)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     icm_20948_DMP_data_t data;
     myICM.readDMPdataFromFIFO(&data);
     if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
@@ -315,11 +318,13 @@ bool getDMPAccelerometerAcc(float *acc_acc)
     }
 
     FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
+#endif
     return false;
 }
 
 bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     icm_20948_DMP_data_t data;
     myICM.readDMPdataFromFIFO(&data);
     if ((data.header & DMP_header_bitmap_Quat9) != 0)
@@ -331,12 +336,13 @@ bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *ac
         *q0 = sqrt(1.0 - ((*q1 * *q1) + (*q2 * *q2) + (*q3 * *q3)));
         return true;
     }
-
+#endif
     return false;
 }
 
 bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     icm_20948_DMP_data_t data;
     myICM.readDMPdataFromFIFO(&data);
     if ((data.header & DMP_header_bitmap_Gyro) != 0)
@@ -346,12 +352,14 @@ bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
         *g_z = (float)data.Gyro_Calibr.Data.Z;
         return true;
     }
-
+#endif
     return false;
 }
 
 void whereDMP(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     // std::string sName(reinterpret_cast<char*>(name));
     SF_OSAL_printf("%hhu" __NL__, myICM.getWhoAmI());
+#endif
 }
