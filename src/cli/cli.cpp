@@ -21,6 +21,7 @@
 #include "menuItems/gpsCommands.hpp"
 #include "menuItems/systemCommands.hpp"
 #include "product.hpp"
+#include "rideTask.hpp"
 #include "sleepTask.hpp"
 #include "states.hpp"
 #include "system.hpp"
@@ -44,6 +45,7 @@ static void CLI_sleepSetSleepBehavior(void);
 static void CLI_sleepGetSleepBehavior(void);
 static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
+static void CLI_doEnsemble(void);
 
 const Menu_t CLI_menu[] = {
     {1, "display Menu", &CLI_displayMenu, MENU_CMD},
@@ -62,6 +64,7 @@ const Menu_t CLI_menu[] = {
     {14, "Recorder Test Menu", {.pMenu = Recorder_debug_menu}, MENU_SUBMENU},
     {15, "Session Test Menu", {.pMenu = Session_debug_menu}, MENU_SUBMENU},
     {16, "Display all sensors", &CLI_monitorSensors, MENU_CMD},
+    {20, "Do Ensemble Function", &CLI_doEnsemble, MENU_CMD},
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
@@ -472,4 +475,47 @@ static void CLI_monitorSensors(void)
         count++;
         delay(delayTime);
     }
+}
+
+static void CLI_doEnsemble(void)
+{
+    char input_buffer[SF_CLI_MAX_CMD_LEN];
+    std::uint8_t packet_buffer[SF_PACKET_SIZE];
+    char packet_name_buffer[particle::protocol::MAX_EVENT_NAME_LENGTH + 1];
+    int idx = 0;
+
+    for (; deploymentSchedule[idx].init; idx++)
+    {
+        SF_OSAL_printf("%3d: %s" __NL__, idx, deploymentSchedule[idx].taskName);
+    }
+    SF_OSAL_printf("Enter ensemble to run: ");
+    SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    int user_input = atoi(input_buffer);
+    if (user_input < 0 || user_input >= idx)
+    {
+        SF_OSAL_printf("Invalid index" __NL__);
+        return;
+    }
+    DeploymentSchedule_t &ensemble = deploymentSchedule[user_input];
+    SF_OSAL_printf("Running %s" __NL__, ensemble.taskName);
+
+    pSystemDesc->pRecorder->openSession();
+    ensemble.init(&ensemble);
+    ensemble.measure(&ensemble);
+    pSystemDesc->pRecorder->closeSession();
+    SF_OSAL_printf("Done" __NL__);
+    int nBytes = pSystemDesc->pRecorder->getLastPacket(packet_buffer,
+                                                       SF_PACKET_SIZE,
+                                                       packet_name_buffer,
+                                                       particle::protocol::MAX_EVENT_NAME_LENGTH);
+    if (nBytes < 0)
+    {
+        SF_OSAL_printf("Failed to get last packet: %d" __NL__, nBytes);
+        return;
+    }
+    SF_OSAL_printf("Packet name: %s" __NL__, packet_name_buffer);
+    SF_OSAL_printf("Packet size: %d" __NL__, nBytes);
+    SF_OSAL_printf("Packet data:" __NL__);
+    hexDump(packet_buffer, nBytes);
+    pSystemDesc->pRecorder->popLastPacket(nBytes);
 }
