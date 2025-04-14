@@ -24,6 +24,8 @@
  * Modified by Emily Thorpe - Auguest 2023
  ***************************************************************/
 
+#include "imu/imu.hpp"
+
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
@@ -54,6 +56,14 @@
  */
 ICM_20948_I2C myICM;
 #endif
+
+/**
+ * @brief Quaterinion Scale Factor
+ *
+ * 2^30
+ *
+ */
+#define Q_SCALE 1073741824.0f
 
 /**
  * @brief Converts the raw acceleration to G
@@ -329,9 +339,9 @@ bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *ac
     myICM.readDMPdataFromFIFO(&data);
     if ((data.header & DMP_header_bitmap_Quat9) != 0)
     {
-        *q1 = ((double)data.Quat9.Data.Q1) / GIB;
-        *q2 = ((double)data.Quat9.Data.Q2) / GIB;
-        *q3 = ((double)data.Quat9.Data.Q3) / GIB;
+        *q1 = ((double)data.Quat9.Data.Q1) / Q_SCALE;
+        *q2 = ((double)data.Quat9.Data.Q2) / Q_SCALE;
+        *q3 = ((double)data.Quat9.Data.Q3) / Q_SCALE;
         //*acc = (double)data.Quat9.Data.Accuracy;
         *q0 = sqrt(1.0 - ((*q1 * *q1) + (*q2 * *q2) + (*q3 * *q3)));
         return true;
@@ -362,4 +372,53 @@ void whereDMP(void)
     // std::string sName(reinterpret_cast<char*>(name));
     SF_OSAL_printf("%hhu" __NL__, myICM.getWhoAmI());
 #endif
+}
+
+bool getDMPData(IMU_DMPData_t &data)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    icm_20948_DMP_data_t dmpData;
+    myICM.readDMPdataFromFIFO(&dmpData);
+    if (myICM.status != ICM_20948_Stat_Ok && myICM.status != ICM_20948_Stat_FIFOMoreDataAvail)
+    {
+        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
+        return false;
+    }
+
+    if (dmpData.header & DMP_header_bitmap_Accel)
+    {
+        data.acc[0] = (float)dmpData.Raw_Accel.Data.X;
+        data.acc[1] = (float)dmpData.Raw_Accel.Data.Y;
+        data.acc[2] = (float)dmpData.Raw_Accel.Data.Z;
+    }
+
+    if (dmpData.header & DMP_header_bitmap_Header2)
+    {
+        if (dmpData.header2 & DMP_header2_bitmap_Accel_Accuracy)
+        {
+            data.acc_acc = dmpData.Accel_Accuracy;
+        }
+    }
+    if (dmpData.header & DMP_header_bitmap_Gyro)
+    {
+        data.gyr[0] = (float)dmpData.Gyro_Calibr.Data.X;
+        data.gyr[1] = (float)dmpData.Gyro_Calibr.Data.Y;
+        data.gyr[2] = (float)dmpData.Gyro_Calibr.Data.Z;
+    }
+    if (dmpData.header & DMP_header_bitmap_Quat9)
+    {
+        data.quat[0] = ((double)dmpData.Quat9.Data.Q1) / Q_SCALE;
+        data.quat[1] = ((double)dmpData.Quat9.Data.Q2) / Q_SCALE;
+        data.quat[2] = ((double)dmpData.Quat9.Data.Q3) / Q_SCALE;
+        data.quat[3] = sqrt(1.0 - ((data.quat[0] * data.quat[0]) + (data.quat[1] * data.quat[1]) +
+                                   (data.quat[2] * data.quat[2])));
+    }
+    if (dmpData.header & DMP_header_bitmap_Compass)
+    {
+        data.mag[0] = (float)dmpData.Compass.Data.X;
+        data.mag[1] = (float)dmpData.Compass.Data.Y;
+        data.mag[2] = (float)dmpData.Compass.Data.Z;
+    }
+#endif
+    return true;
 }

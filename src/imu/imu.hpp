@@ -12,6 +12,18 @@
 #ifndef __ICM20648_HPP__
 #define __ICM20648_HPP__
 
+#include <cstdint>
+
+typedef struct
+{
+    float acc[3];
+    float acc_acc;
+    float gyr[3];
+    float mag[3];
+    double quat[4];
+    double quat_acc;
+} IMU_DMPData_t;
+
 /** Do a measurement on the gyroscope
  *
  * @param[out] temperature temp value in Celsius
@@ -102,4 +114,13 @@ bool getDMPAccelerometerAcc(float *acc_acc);
 void setupICM(void);
 
 void whereDMP(void);
+
+/**
+ * @brief Get the DMP data from the FIFO
+ *
+ * @param data Reference to the IMU_DMPData_t structure to populate with the
+ * DMP data
+ * @return True if measurement was successful, otherwise False
+ */
+bool getDMPData(IMU_DMPData_t &data);
 #endif

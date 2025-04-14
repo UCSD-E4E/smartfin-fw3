@@ -9,6 +9,7 @@
 #include "cli.hpp"
 
 #include "Particle.h"
+#include "cli/flog.hpp"
 #include "cliDebug.hpp"
 #include "conio.hpp"
 #include "consts.hpp"
@@ -239,11 +240,12 @@ static void CLI_monitorSensors(void)
 {
     char ch;
     float accelData[3] = {0, 0, 0};
-    float accelDMPData[4] = {0, 0, 0, 0};
+    // float accelDMPData[4] = {0, 0, 0, 0};
     float gyroData[3] = {0, 0, 0};
-    float gyroDMPData[3] = {0, 0, 0};
+    // float gyroDMPData[3] = {0, 0, 0};
     float magData[3] = {0, 0, 0};
-    double quatData[5] = {0, 0, 0, 0, 0};
+    // double quatData[5] = {0, 0, 0, 0, 0};
+    IMU_DMPData_t DMPData = {0};
     float tmpData = 0;
     float wdCR = 0;
     float wdLS = 0;
@@ -384,18 +386,38 @@ static void CLI_monitorSensors(void)
         if (sensors[DMP])
         {
             delayTime = 0;
-            if (!getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2))
+            DMPData.acc[0] = NAN;
+            DMPData.acc[1] = NAN;
+            DMPData.acc[2] = NAN;
+            DMPData.acc_acc = NAN;
+            DMPData.gyr[0] = NAN;
+            DMPData.gyr[1] = NAN;
+            DMPData.gyr[2] = NAN;
+            DMPData.mag[0] = NAN;
+            DMPData.mag[1] = NAN;
+            DMPData.mag[2] = NAN;
+            DMPData.quat[0] = NAN;
+            DMPData.quat[1] = NAN;
+            DMPData.quat[2] = NAN;
+            DMPData.quat[3] = NAN;
+            DMPData.quat_acc = NAN;
+            if (!getDMPData(DMPData))
             {
-                accelDMPData[0] = nanf("");
-                accelDMPData[1] = nanf("");
-                accelDMPData[2] = nanf("");
+                SF_OSAL_printf("DMP fail!" __NL__);
+                FLOG_AddError(FLOG_ICM_FAIL, 1);
             }
-            if (!getDMPAccelerometerAcc(accelDMPData + 3))
-            {
-                accelDMPData[3] = nanf("");
-            }
-            getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
-            getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
+            // if (!getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2))
+            // {
+            //     accelDMPData[0] = nanf("");
+            //     accelDMPData[1] = nanf("");
+            //     accelDMPData[2] = nanf("");
+            // }
+            // if (!getDMPAccelerometerAcc(accelDMPData + 3))
+            // {
+            //     accelDMPData[3] = nanf("");
+            // }
+            // getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
+            // getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
         }
         if (sensors[TEMP])
         {
@@ -407,31 +429,31 @@ static void CLI_monitorSensors(void)
             wdLS = pSystemDesc->pWaterSensor->getLastStatus();
         }
 
-        std::map<std::string, float> sensorData = {
-            {"ax", accelData[0]},
-            {"ay", accelData[1]},
-            {"az", accelData[2]},
-            {"gx", gyroData[0]},
-            {"gy", gyroData[1]},
-            {"gz", gyroData[2]},
-            {"mx", magData[0]},
-            {"my", magData[1]},
-            {"mz", magData[2]},
-            {"temp", tmpData},
-            {"wd cr", wdCR},
-            {"wd ls", wdLS},
-            {"dax", accelDMPData[0]},
-            {"day", accelDMPData[1]},
-            {"daz", accelDMPData[2]},
-            {"a acc", accelDMPData[3]},
-            {"dgx", gyroDMPData[0]},
-            {"dgy", gyroDMPData[1]},
-            {"dgz", gyroDMPData[2]},
-            {"dq1", quatData[0]},
-            {"dq2", quatData[1]},
-            {"dq3", quatData[2]},
-            {"dq0", quatData[3]},
-            {"dqacc", quatData[4]}
+        std::map<std::string, float> sensorData = {{"ax", accelData[0]},
+                                                   {"ay", accelData[1]},
+                                                   {"az", accelData[2]},
+                                                   {"gx", gyroData[0]},
+                                                   {"gy", gyroData[1]},
+                                                   {"gz", gyroData[2]},
+                                                   {"mx", magData[0]},
+                                                   {"my", magData[1]},
+                                                   {"mz", magData[2]},
+                                                   {"temp", tmpData},
+                                                   {"wd cr", wdCR},
+                                                   {"wd ls", wdLS},
+
+                                                   {"dax", DMPData.acc[0]},
+                                                   {"day", DMPData.acc[1]},
+                                                   {"daz", DMPData.acc[2]},
+                                                   {"a acc", DMPData.acc_acc},
+                                                   {"dgx", DMPData.gyr[0]},
+                                                   {"dgy", DMPData.gyr[1]},
+                                                   {"dgz", DMPData.gyr[2]},
+                                                   {"dq1", DMPData.quat[0]},
+                                                   {"dq2", DMPData.quat[1]},
+                                                   {"dq3", DMPData.quat[2]},
+                                                   {"dq0", DMPData.quat[3]},
+                                                   {"dqacc", DMPData.quat_acc}
 
         };
         if (count % 10 == 0)
