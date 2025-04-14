@@ -1,3 +1,18 @@
+# [3.8.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.7.2...v3.8.0) (2025-04-14)
+
+
+### Bug Fixes
+
+* Adds error catching for monitorSensors ([a0c5e3a](https://github.com/UCSD-E4E/smartfin-fw3/commit/a0c5e3ac510f3a66d5f298f01b4925f3c51fa456))
+* Adds platform guards ([27ca69b](https://github.com/UCSD-E4E/smartfin-fw3/commit/27ca69bc8e19562e0660da95c90342e04c5d98e4))
+
+
+### Features
+
+* Adds DMP functions ([fd2d848](https://github.com/UCSD-E4E/smartfin-fw3/commit/fd2d848628854add6c66b7ed7ee84b7eb2f42246))
+* Adds monitorSensors ([d837a91](https://github.com/UCSD-E4E/smartfin-fw3/commit/d837a919dcb87f79a3db4827e02ca323343bd5f8))
+* vendored ICM-20948, enables DMP ([4e04b69](https://github.com/UCSD-E4E/smartfin-fw3/commit/4e04b69215dce11a6377e9578f3cbdfe4a4921d2))
+
 ## [3.7.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.7.1...v3.7.2) (2025-04-10)
 
 
