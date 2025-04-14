@@ -1,3 +1,11 @@
+## [3.8.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.8.1...v3.8.2) (2025-04-14)
+
+
+### Bug Fixes
+
+* Adds Particle.process to loop ([127ede1](https://github.com/UCSD-E4E/smartfin-fw3/commit/127ede146ccdc2666be39c94c5f12f5273d0ff76))
+* Adds Particle.process to loop ([#198](https://github.com/UCSD-E4E/smartfin-fw3/issues/198)) ([86ed434](https://github.com/UCSD-E4E/smartfin-fw3/commit/86ed434d362a55e3acb7df632d2cb172d130c7fe))
+
 ## [3.8.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.8.0...v3.8.1) (2025-04-14)
 
 
