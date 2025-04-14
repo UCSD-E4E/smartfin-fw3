@@ -1,3 +1,10 @@
+## [3.8.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.8.0...v3.8.1) (2025-04-14)
+
+
+### Bug Fixes
+
+* Consolidated DMP data access ([48bffc3](https://github.com/UCSD-E4E/smartfin-fw3/commit/48bffc398aa8f3c28af3759d7d863b0ded98cc68))
+
 # [3.8.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.7.2...v3.8.0) (2025-04-14)
 
 
