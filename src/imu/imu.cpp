@@ -28,6 +28,9 @@
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "product.hpp"
+
+#include <cmath>
+
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "ICM-20948/ICM_20948.h"
 
@@ -276,4 +279,79 @@ float getMagUT(int16_t raw)
 float getTmpC(int16_t raw)
 {
     return (((float)raw) / 333.87);
+}
+
+bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z)
+{
+    icm_20948_DMP_data_t data;
+    myICM.readDMPdataFromFIFO(&data);
+    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
+    {
+        if ((data.header & DMP_header_bitmap_Accel) != 0)
+        {
+            *acc_x = (float)data.Raw_Accel.Data.X;
+            *acc_y = (float)data.Raw_Accel.Data.Y;
+            *acc_z = (float)data.Raw_Accel.Data.Z;
+            return true;
+        }
+    }
+    return false;
+}
+
+// TODO: DMP Packet needs to include acceleration accuracy (header2)
+bool getDMPAccelerometerAcc(float *acc_acc)
+{
+    icm_20948_DMP_data_t data;
+    myICM.readDMPdataFromFIFO(&data);
+    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
+    {
+
+        if (((data.header & DMP_header_bitmap_Header2) != 0) &&
+            ((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0))
+        {
+            *acc_acc = data.Accel_Accuracy;
+            return true;
+        }
+    }
+
+    FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
+    return false;
+}
+
+bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc)
+{
+    icm_20948_DMP_data_t data;
+    myICM.readDMPdataFromFIFO(&data);
+    if ((data.header & DMP_header_bitmap_Quat9) != 0)
+    {
+        *q1 = ((double)data.Quat9.Data.Q1) / GIB;
+        *q2 = ((double)data.Quat9.Data.Q2) / GIB;
+        *q3 = ((double)data.Quat9.Data.Q3) / GIB;
+        //*acc = (double)data.Quat9.Data.Accuracy;
+        *q0 = sqrt(1.0 - ((*q1 * *q1) + (*q2 * *q2) + (*q3 * *q3)));
+        return true;
+    }
+
+    return false;
+}
+
+bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
+{
+    icm_20948_DMP_data_t data;
+    myICM.readDMPdataFromFIFO(&data);
+    if ((data.header & DMP_header_bitmap_Gyro) != 0)
+    {
+        *g_x = (float)data.Gyro_Calibr.Data.X;
+        *g_y = (float)data.Gyro_Calibr.Data.Y;
+        *g_z = (float)data.Gyro_Calibr.Data.Z;
+        return true;
+    }
+
+    return false;
+}
+
+void whereDMP(void)
+{
+    // std::string sName(reinterpret_cast<char*>(name));
+    SF_OSAL_printf("%hhu" __NL__, myICM.getWhoAmI());
 }
