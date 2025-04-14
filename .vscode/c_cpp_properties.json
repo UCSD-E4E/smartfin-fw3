@@ -4,7 +4,8 @@
             "name": "Particle",
             "includePath": [
                 "${workspaceFolder}/src",
-                "~/.particle/toolchains/deviceOS/5.3.0/user/inc"
+                "~/.particle/toolchains/deviceOS/5.3.0/user/inc",
+                "${workspaceFolder}/lib/tracker-edge/src"
             ],
             "defines": [
                 "_DEBUG",
