@@ -26,6 +26,7 @@ STATES_e ChargeTask::run(void)
 {
     while(1)
     {
+        Particle.process();
         if (SF_OSAL_kbhit())
         {
             this->inputBuffer[CLI_BUFFER_LEN - 1] = SF_OSAL_getch();
