@@ -10,13 +10,10 @@
  */
 #ifndef __RIDE_TASK_HPP__
 #define __RIDE_TASK_HPP__
+#include "Particle.h"
 #include "deploy/scheduler.hpp"
 #include "product.hpp"
 #include "task.hpp"
-
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "Particle.h"
-#endif
 
 /**
  * @class RideTask

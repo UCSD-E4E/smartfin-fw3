@@ -4,7 +4,7 @@
  */
 #include "ensembles.hpp"
 
-#include "cellular/ensembleTypes.hpp"
+#include "deploy/ensembleTypes.hpp"
 #include "imu/imu.hpp"
 #include "product.hpp"
 #include "scheduler.hpp"
@@ -66,6 +66,7 @@ void SS_ensemble08Init(DeploymentSchedule_t *pDeployment)
 
 void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     float temp;
     uint8_t water;
     int32_t lat, lng;
@@ -183,10 +184,12 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 
         memset(pData, 0, sizeof(Ensemble10_eventData_t));
     }
+#endif
 }
 
 void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     float battVoltage;
     Ensemble07_eventData_t *pData = (Ensemble07_eventData_t *)pDeployment->state.pData;
 #pragma pack(push, 1)
@@ -215,10 +218,12 @@ void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
         pSystemDesc->pRecorder->putData(ensData);
         memset(pData, 0, sizeof(Ensemble07_eventData_t));
     }
+#endif
 }
 
 void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     float temp;
     uint8_t water;
 
@@ -257,6 +262,7 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         pSystemDesc->pRecorder->putData(ens);
         memset(pData, 0, sizeof(Ensemble08_eventData_t));
     }
+#endif
 }
 
 void SS_fwVerInit(DeploymentSchedule_t *pDeployment)

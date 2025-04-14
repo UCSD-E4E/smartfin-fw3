@@ -74,7 +74,8 @@ STATES_e RideTask::run(void)
 
         RIDE_setFileName(this->startTime);
 
-        SCH_error_e retval = this->scheduler.getNextTask(&pNextEvent, &nextEventTime, millis());
+        SCH_error_e retval =
+            this->scheduler.getNextTask(&pNextEvent, (std::uint32_t *)&nextEventTime, millis());
         // Check if scheduler failed to find nextEvent
         if (TASK_SEARCH_FAIL == retval)
         {

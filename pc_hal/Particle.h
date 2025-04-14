@@ -186,6 +186,7 @@ enum
     RGB_COLOR_BLUE = 0x000000ff,
     RGB_COLOR_RED = 0x00ff0000,
     RGB_COLOR_YELLOW = 0x0000ffff,
+    RGB_COLOR_WHITE = 0x00ffffff,
 };
 
 class LEDSystemTheme
