@@ -1,3 +1,15 @@
+/**
+ * @file imu.cpp
+ * @author Owen Lyke
+ * @author Emily Thorpe (ethorpe@macalester.edu)
+ * @author Nathan Hui (nthui@ucsd.edu)
+ * @brief
+ * @version 0.2
+ * @date 2024-10-31
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 /****************************************************************
  * Example1_Basics.ino
  * ICM 20948 Arduino Library Demo
@@ -8,28 +20,71 @@
  * Please see License.md for the license information.
  *
  * Distributed as-is; no warranty is given.
- * 
+ *
  * Modified by Emily Thorpe - Auguest 2023
  ***************************************************************/
 
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "consts.hpp"
 #include "product.hpp"
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "ICM_20948.h"
+#include "ICM-20948/ICM_20948.h"
 
-#define SERIAL_PORT Serial
-
+/**
+ * @brief I2C Handle
+ *
+ */
 #define WIRE_PORT Wire
+
+/**
+ * @brief ICM20948 I2C Address Selector Bit
+ *
+ * Set to 0 on final design, set to 1 for dev board.
+ *
+ */
 #define AD0_VAL 1
 
+/**
+ * @brief ICM Module Handle
+ *
+ */
 ICM_20948_I2C myICM;
 #endif
 
-float getAccMG( int16_t raw, uint8_t fss );
-float getGyrDPS( int16_t raw, uint8_t fss );
-float getMagUT( int16_t raw );
-float getTmpC( int16_t raw );
+/**
+ * @brief Converts the raw acceleration to G
+ *
+ * @param raw Raw accelerometer values
+ * @param fss Full Scale Selector
+ * @return Acceleration reading in g
+ */
+static float getAccMG(int16_t raw, uint8_t fss);
+
+/**
+ * @brief Converts the raw gyroscope to degrees per second
+ *
+ * @param raw Raw gyroscope values
+ * @param fss Full Scale Selector
+ * @return Gyroscope reading in degrees per second
+ */
+static float getGyrDPS(int16_t raw, uint8_t fss);
+
+/**
+ * @brief Converts the raw magnetometer values to microtesla
+ *
+ * @param raw Raw magnetometer values
+ * @return Magnetometer reading in microtesla
+ */
+static float getMagUT(int16_t raw);
+
+/**
+ * @brief Converts the raw temperature values to Celsius
+ *
+ * @param raw Raw temperature values
+ * @return Temperature in Celsius
+ */
+static float getTmpC(int16_t raw);
 
 void setupICM(void)
 {
@@ -38,17 +93,66 @@ void setupICM(void)
     WIRE_PORT.setClock(400000);
 
     myICM.begin(WIRE_PORT, AD0_VAL);
+    // myICM.enableDebugging();
 
-    SF_OSAL_printf("Initialization of the sensor returned: ");
-    SF_OSAL_printf(myICM.statusString());
+    SF_OSAL_printf("Initialization of the sensor returned: %s" __NL__, myICM.statusString());
     if (myICM.status != ICM_20948_Stat_Ok)
     {
-        SF_OSAL_printf("ICM fail");
-        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        SF_OSAL_printf("ICM fail" __NL__);
+        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
+    }
+
+    // DMP sensor options are defined in ICM_20948_DMP.h
+    //    INV_ICM20948_SENSOR_ACCELEROMETER               (16-bit accel)
+    //    INV_ICM20948_SENSOR_GYROSCOPE                   (16-bit gyro + 32-bit calibrated gyro)
+    //    INV_ICM20948_SENSOR_RAW_ACCELEROMETER           (16-bit accel)
+    //    INV_ICM20948_SENSOR_RAW_GYROSCOPE               (16-bit gyro + 32-bit calibrated gyro)
+    //    INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED (16-bit compass)
+    //    INV_ICM20948_SENSOR_GYROSCOPE_UNCALIBRATED      (16-bit gyro)
+    //    INV_ICM20948_SENSOR_STEP_DETECTOR               (Pedometer Step Detector)
+    //    INV_ICM20948_SENSOR_STEP_COUNTER                (Pedometer Step Detector)
+    //    INV_ICM20948_SENSOR_GAME_ROTATION_VECTOR        (32-bit 6-axis quaternion)
+    //    INV_ICM20948_SENSOR_ROTATION_VECTOR             (32-bit 9-axis quaternion + heading
+    //    accuracy) INV_ICM20948_SENSOR_GEOMAGNETIC_ROTATION_VECTOR (32-bit Geomag RV + heading
+    //    accuracy) INV_ICM20948_SENSOR_GEOMAGNETIC_FIELD           (32-bit calibrated compass)
+    //    INV_ICM20948_SENSOR_GRAVITY                     (32-bit 6-axis quaternion)
+    //    INV_ICM20948_SENSOR_LINEAR_ACCELERATION         (16-bit accel + 32-bit 6-axis quaternion)
+    //    INV_ICM20948_SENSOR_ORIENTATION                 (32-bit 9-axis quaternion + heading
+    //    accuracy)
+
+    bool success = true;
+    ICM_20948_Status_e status = myICM.initializeDMP();
+    success &= (status == ICM_20948_Stat_Ok);
+    // Enable the DMP sensors you want
+    // Configuring DMP to output data at multiple ODRs:
+    // DMP is capable of outputting multiple sensor data at different rates to FIFO.
+    // Setting value can be calculated as follows:
+    // Value = (DMP running rate / ODR ) - 1
+    // E.g. For a 5Hz ODR rate when DMP is running at 55Hz, value = (55/5) - 1 = 10.
+    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
+    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
+    success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
+    success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);
+    success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);
+
+    // Enable the FIFO
+    success &= (myICM.enableFIFO() == ICM_20948_Stat_Ok);
+
+    // Enable the DMP
+    success &= (myICM.enableDMP() == ICM_20948_Stat_Ok);
+
+    // Reset DMP
+    success &= (myICM.resetDMP() == ICM_20948_Stat_Ok);
+
+    // Reset FIFO
+    success &= (myICM.resetFIFO() == ICM_20948_Stat_Ok);
+    if (success == false)
+    {
+        SF_OSAL_printf("DMP fail!" __NL__);
+        FLOG_AddError(FLOG_ICM_FAIL, 1);
     }
 #endif
 }
-
 
 bool getAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 {
@@ -114,36 +218,62 @@ bool getTemperature(float *temperature)
         FLOG_AddError(FLOG_ICM_FAIL, 0);
         return false;
     }
-    
+
     *temperature = getTmpC(agmt.tmp.val);
 #endif
     return true;
 }
 
-float getAccMG( int16_t raw, uint8_t fss ){
-  switch(fss){
-    case 0 : return (((float)raw)/16.384); break;
-    case 1 : return (((float)raw)/8.192); break;
-    case 2 : return (((float)raw)/4.096); break;
-    case 3 : return (((float)raw)/2.048); break;
-    default : return 0; break;
-  }
+float getAccMG(int16_t raw, uint8_t fss)
+{
+    switch (fss)
+    {
+    case 0:
+        return (((float)raw) / 16.384);
+        break;
+    case 1:
+        return (((float)raw) / 8.192);
+        break;
+    case 2:
+        return (((float)raw) / 4.096);
+        break;
+    case 3:
+        return (((float)raw) / 2.048);
+        break;
+    default:
+        return 0;
+        break;
+    }
 }
 
-float getGyrDPS( int16_t raw, uint8_t fss ){
-  switch(fss){
-    case 0 : return (((float)raw)/131); break;
-    case 1 : return (((float)raw)/65.5); break;
-    case 2 : return (((float)raw)/32.8); break;
-    case 3 : return (((float)raw)/16.4); break;
-    default : return 0; break;
-  }
+float getGyrDPS(int16_t raw, uint8_t fss)
+{
+    switch (fss)
+    {
+    case 0:
+        return (((float)raw) / 131);
+        break;
+    case 1:
+        return (((float)raw) / 65.5);
+        break;
+    case 2:
+        return (((float)raw) / 32.8);
+        break;
+    case 3:
+        return (((float)raw) / 16.4);
+        break;
+    default:
+        return 0;
+        break;
+    }
 }
 
-float getMagUT( int16_t raw ){
-  return (((float)raw)*0.15);
+float getMagUT(int16_t raw)
+{
+    return (((float)raw) * 0.15);
 }
 
-float getTmpC( int16_t raw ){
-  return (((float)raw)/333.87);
+float getTmpC(int16_t raw)
+{
+    return (((float)raw) / 333.87);
 }
