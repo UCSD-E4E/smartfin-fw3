@@ -9,17 +9,15 @@
 
 #include "systemCommands.hpp"
 
+#include "Particle.h"
+#include "cellular/sf_cloud.hpp"
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "cellular/dataCollection.hpp"
-#include "cellular/sf_cloud.hpp"
 #include "consts.hpp"
 #include "states.hpp"
 #include "system.hpp"
 #include "vers.hpp"
-
-#include "Particle.h"
 
 void CLI_connect(void)
 {

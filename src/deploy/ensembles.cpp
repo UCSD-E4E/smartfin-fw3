@@ -15,7 +15,6 @@
 #include "Particle.h"
 #endif
 
-// define ensemble structs
 typedef struct Ensemble10_eventData_
 {
     int16_t temperature;
