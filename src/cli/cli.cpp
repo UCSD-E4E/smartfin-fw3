@@ -40,6 +40,7 @@ static LEDStatus CLI_ledStatus;
 
 static void CLI_setState(void);
 static void CLI_displaySystemState(void);
+static void CLI_dumpSystemState(void);
 static void CLI_displayNVRAM(void);
 static void CLI_sleepSetSleepBehavior(void);
 static void CLI_sleepGetSleepBehavior(void);
@@ -68,6 +69,7 @@ const Menu_t CLI_menu[] = {
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
+    {103, "Dump System State", &CLI_dumpSystemState, MENU_CMD},
     {200, "Sleep - Set Sleep Behavior", &CLI_sleepSetSleepBehavior, MENU_CMD},
     {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior, MENU_CMD},
     {300, "Display Reset Reason", &CLI_displayResetReason, MENU_CMD},
@@ -153,6 +155,10 @@ static void CLI_setState(void)
 static void CLI_displaySystemState(void)
 {
     SYS_displaySys();
+}
+static void CLI_dumpSystemState(void)
+{
+    SYS_dumpSys(0);
 }
 
 static void CLI_displayNVRAM(void)
