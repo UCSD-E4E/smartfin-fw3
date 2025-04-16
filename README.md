@@ -58,3 +58,32 @@ Run in a Linux environment
 
 1. Install build-essentials and cmake, gdb
 2. Ensure submodules are initialized and updated
+
+# Connecting via Serial
+## Windows
+1. We recommend using a serial terminal such as PuTTY.
+2. Find the COM port for the Smartfin using Device Manager.
+3. Open PuTTY.
+4. Set the `Connection Type` to `Serial`.
+5. Set `Serial Line` to the COM port discovered in Device Manager (e.g. COM3).
+
+Note that there is no need to modify the `Speed`, as Smartfin uses Serial over
+USB, which does not have a physical speed parameter.
+
+6. Select the `Terminal` category.
+7. Ensure the `Implicit CR in every LF` checkbox is checked.
+8. Click `Open`.
+9. Type in `#CLI` without hitting `ENTER` to access the CLI.
+
+## MacOS and Linux
+1. We recommend using a serial terminal such as `minicom` or `picocom`.
+2. Find the tty port for the Smartfin by running `ls /dev/tty*` in the terminal.
+3. Open the port using the following command:
+```
+picocom --omap lfcrlf /dev/ttyUSB0
+```
+where `/dev/ttyUSB0` is the correct TTY port for the Smartfin.
+
+You may need to run this command as `sudo` if your user is not part of the
+`dialout` group!
+4. Type in `#CLI` without hitting `ENTER` to access the CLI.
