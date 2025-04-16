@@ -505,10 +505,16 @@ static void CLI_doEnsemble(void)
     DeploymentSchedule_t &ensemble = deploymentSchedule[user_input];
     SF_OSAL_printf("Running %s" __NL__, ensemble.taskName);
 
+    pSystemDesc->pChargerCheck->stop();
+    // pSystemDesc->pWaterCheck->stop();
     pSystemDesc->pRecorder->openSession();
+    SYS_dumpSys(2);
     ensemble.init(&ensemble);
     ensemble.measure(&ensemble);
+    SYS_dumpSys(2);
     pSystemDesc->pRecorder->closeSession();
+    pSystemDesc->pChargerCheck->start();
+    // pSystemDesc->pWaterCheck->start();
     SF_OSAL_printf("Done" __NL__);
     int nBytes = pSystemDesc->pRecorder->getLastPacket(packet_buffer,
                                                        SF_PACKET_SIZE,
