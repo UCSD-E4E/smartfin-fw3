@@ -52,6 +52,7 @@ const FLOG_Message_t FLOG_Message[] = {{FLOG_SYS_START, "System Start"},
                                        {FLOG_SYS_UNKNOWNSTATE, "Unknown State"},
                                        {FLOG_RESET_REASON, "Reset Reason"},
                                        {FLOG_CHARGER_REMOVED, "Charger removed"},
+                                       {FLOG_RESET_REASON_DATA, "Reset Reason Data"},
 
                                        {FLOG_CAL_BURST, "Calibrate Burst"},
                                        {FLOG_CAL_INIT, "Calibrate Initialization"},

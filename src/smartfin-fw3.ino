@@ -77,6 +77,7 @@ void setup()
     SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
 
     FLOG_AddError(FLOG_RESET_REASON, System.resetReason());
+    FLOG_AddError(FLOG_RESET_REASON_DATA, System.resetReasonData());
 
     SYS_initSys();
 
