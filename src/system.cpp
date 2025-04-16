@@ -308,3 +308,66 @@ void SYS_displaySys(void)
     SF_OSAL_printf("Cellular On: %d" __NL__, Cellular.isOn());
     SF_OSAL_printf("Cellular Ready: %d" __NL__, Cellular.ready());
 }
+
+void SYS_dumpSys(int indent)
+{
+    char indent_str[33];
+    if (indent > 32)
+    {
+        indent = 32;
+    }
+    if (indent < 0)
+    {
+        indent = 0;
+    }
+    memset(indent_str, ' ', 32);
+    indent_str[indent] = 0;
+
+    {
+        SF_OSAL_printf("%sDevice ID: %s" __NL__, indent_str, pSystemDesc->deviceID);
+    }
+    {
+        SF_OSAL_printf("%sLocation Service: 0x%08x" __NL__, indent_str, pSystemDesc->pLocService);
+        SF_OSAL_printf("%sLocation Service Status: %d" __NL__,
+                       indent_str,
+                       pSystemDesc->pLocService->isActive());
+    }
+    {
+        SF_OSAL_printf("%sRecorder: 0x%08x" __NL__, indent_str, pSystemDesc->pRecorder);
+    }
+    {
+        SF_OSAL_printf("%sCharger Check: 0x%08x" __NL__, indent_str, pSystemDesc->pChargerCheck);
+        SF_OSAL_printf("%sCharger Check Active: %d" __NL__,
+                       indent_str,
+                       pSystemDesc->pChargerCheck->isActive());
+    }
+    {
+        SF_OSAL_printf("%sWater Check: 0x%08x" __NL__, indent_str, pSystemDesc->pWaterCheck);
+        SF_OSAL_printf(
+            "%sWater Check Active: %d" __NL__, indent_str, pSystemDesc->pWaterCheck->isActive());
+    }
+    {
+        SF_OSAL_printf("%sNVRAM: 0x%08x" __NL__, indent_str, pSystemDesc->pNvram);
+    }
+    {
+        SF_OSAL_printf("%sWater Sensor: 0x%08x" __NL__, indent_str, pSystemDesc->pWaterSensor);
+    }
+    {
+        SF_OSAL_printf("%sBattery LED: 0x%08x" __NL__, indent_str, pSystemDesc->pBatteryLED);
+    }
+    {
+        SF_OSAL_printf("%sWater LED: 0x%08x" __NL__, indent_str, pSystemDesc->pWaterLED);
+    }
+    {
+        SF_OSAL_printf("%sTemp Sensor: 0x%08x" __NL__, indent_str, pSystemDesc->pTempSensor);
+    }
+    {
+        SF_OSAL_printf("%sSystem Theme: 0x%08x" __NL__, indent_str, pSystemDesc->systemTheme);
+    }
+    {
+        SF_OSAL_printf("%sBattery: 0x%08x" __NL__, indent_str, pSystemDesc->pBattery);
+    }
+    {
+        SF_OSAL_printf("%sSystem Flags: 0x%08x" __NL__, indent_str, pSystemDesc->flags);
+    }
+}

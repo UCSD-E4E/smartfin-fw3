@@ -57,6 +57,13 @@ void SYS_initSys(void);
  */
 void SYS_displaySys(void);
 
+/**
+ * @brief Dumps a text view of all system components and state
+ * 
+ * @param indent Indentation amount.
+ */
+void SYS_dumpSys(int indent);
+
 extern SystemDesc_t* pSystemDesc;
 
 #endif
