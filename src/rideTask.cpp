@@ -46,7 +46,8 @@ RideTask::RideTask() : scheduler(deploymentSchedule)
 void RideTask::init()
 {
     SF_OSAL_printf("Entering STATE_DEPLOYED" __NL__);
-    pSystemDesc->pChargerCheck->start();
+    pSystemDesc->pChargerCheck->stop();
+    // pSystemDesc->pWaterCheck->stop();
     this->ledStatus.setColor(RIDE_RGB_LED_COLOR);
     this->ledStatus.setPattern(RIDE_RGB_LED_PATTERN_GPS);
     this->ledStatus.setPeriod(RIDE_RGB_LED_PERIOD_GPS);
@@ -113,6 +114,8 @@ void RideTask::exit(void)
 {
     SF_OSAL_printf("Closing session" __NL__);
     pSystemDesc->pRecorder->closeSession();
+    pSystemDesc->pChargerCheck->start();
+    // pSystemDesc->pWaterCheck->start();
     // Deinitialize sensors
     // pSystemDesc->pTempSensor->stop();
     // pSystemDesc->pCompass->close();
