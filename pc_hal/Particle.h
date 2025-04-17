@@ -296,6 +296,10 @@ public:
     {
         return RESET_REASON_NONE;
     }
+    uint32_t resetReasonData()
+    {
+        return 0x00;
+    }
 
     String &deviceID(void)
     {
