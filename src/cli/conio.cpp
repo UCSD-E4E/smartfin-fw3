@@ -12,6 +12,7 @@
 
 #include <string>
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
+#include "conioHistory.hpp"
 #include <ncurses.h>
 #include <pthread.h>
 #elif SF_PLATFORM == SF_PLATFORM_PARTICLE
@@ -25,6 +26,11 @@ pthread_t read_thread, write_thread;
 char SF_OSAL_inputBuffer[SF_OSAL_READ_BUFLEN];
 std::size_t read_head_idx = 0, read_tail_idx = 0;
 pthread_mutex_t read_mutex;
+std::string file_buf;
+std::size_t wind_h, wind_w;
+// For deinit_conio to distinguish
+bool buf_written = false;
+size_t offset;
 
 void *read_loop(void *_)
 {
@@ -123,34 +129,151 @@ extern "C"
             }
         }
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
+        file_buf = "";
+        offset = get_offset();
         while (i < buflen)
         {
             if (SF_OSAL_kbhit())
             {
                 userInput = SF_OSAL_getch();
-                switch (userInput)
+
+                // Check only for UP and DOWN scroll (^[A and ^[B) first
+                if (userInput == 27)
                 {
-                case 127:
-                case '\b':
-                    if (i > 0) 
+                    while (!SF_OSAL_kbhit())
                     {
-                        i--;
-                        SF_OSAL_putch('\b');
-                        SF_OSAL_putch(' ');
-                        SF_OSAL_putch('\b');
+                    } // Wait for next byte
+                    char inp = SF_OSAL_getch();
+                    if (inp != '[')
+                        break;
+                    while (!SF_OSAL_kbhit())
+                    {
                     }
-                    break;
-                default:
-                    buffer[i++] = userInput;
-                    SF_OSAL_putch(userInput);
-                    break;
-                case '\n':
-                    buffer[i++] = 0;
-                    SF_OSAL_putch('\n');
-                    return i;
+                    inp = SF_OSAL_getch();
+
+                    if (bottom_idx <= wind_h) // No need to scroll
+                    {
+                        break;
+                    }
+                    switch (inp)
+                    {
+                        case 'A':
+                        {
+                            size_t top_idx = cur_bottom - wind_h + 1;
+                            if (top_idx == 0) // Already at top
+                            {
+                                break;
+                            }
+                            if (cur_bottom == bottom_idx)
+                            {
+                                // Save anything already written
+                                overwrite_last_line_at(file_buf, offset, false);
+                                buf_written = true;
+                            }
+                            wscrl(stdscr, -1);
+                            curs_set(0);
+                            move(0, 0);
+                            wrefresh(stdscr);
+                            cur_bottom--;
+
+                            char *line = retrieve_line(--top_idx);
+                            if (!line)
+                            {
+                                break;
+                            }
+                            wprintw(stdscr, "%s", line);
+                            wrefresh(stdscr);
+                            free(line);
+                            break;
+                        }
+                        case 'B':
+                        {
+                            if (cur_bottom == bottom_idx) // Already at bottom
+                            {
+                                break;
+                            }
+                            wscrl(stdscr, 1);
+                            move(wind_h - 1, 0);
+                            wrefresh(stdscr);
+                            cur_bottom++;
+
+                            char *line = retrieve_line(cur_bottom);
+                            if (!line)
+                            {
+                                break;
+                            }
+                            wprintw(stdscr, "%s", line);
+                            if (cur_bottom == bottom_idx)
+                            {
+                                curs_set(1);
+                            }
+                            wrefresh(stdscr);
+                            free(line);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    buf_written = false;
+                    // Move window back to the bottom first if necessary
+                    if (cur_bottom != bottom_idx)
+                    {
+                        wclear(stdscr);
+                        char *line;
+                        for (size_t idx = bottom_idx - wind_h + 1; idx < bottom_idx; idx++)
+                        {
+                            line = retrieve_line(idx);
+                            if (!line)
+                            {
+                                wprintw(stdscr, "\n");
+                                break;
+                            }
+                            wprintw(stdscr, "%s\n", line);
+                            wrefresh(stdscr);
+                            free(line);
+                        }
+                        line = retrieve_line(bottom_idx);
+                        if (!line)
+                        {
+                            break;
+                        }
+                        wprintw(stdscr, "%s", line);
+                        wrefresh(stdscr);
+                        free(line);
+                        cur_bottom = bottom_idx;
+                        curs_set(1);
+                    }
+                    switch (userInput)
+                    {
+                        case 127:
+                        case '\b':
+                            if (i > 0)
+                            {
+                                i--;
+                                SF_OSAL_putch('\b');
+                                SF_OSAL_putch(' ');
+                                SF_OSAL_putch('\b');
+                                file_buf.pop_back();
+                            }
+                            break;
+                        default:
+                            buffer[i++] = userInput;
+                            SF_OSAL_putch(userInput);
+                            file_buf += userInput;
+                            break;
+                        case '\n':
+                            buffer[i++] = 0;
+                            SF_OSAL_putch('\n');
+                            overwrite_last_line_at(file_buf, offset, true);
+                            return i;
+                    }
                 }
             }
         }
+        // Exceeded buffer is automatically entered as command
+        SF_OSAL_putch('\n');
+        write_line(file_buf, true);
 #endif
         return i;
     }
@@ -164,7 +287,24 @@ extern "C"
         nBytes = vsnprintf(SF_OSAL_printfBuffer, SF_OSAL_PRINTF_BUFLEN, fmt, vargs);
         Serial.write(SF_OSAL_printfBuffer);
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        vw_printw(stdscr, fmt, vargs);
+        int size = vsnprintf(nullptr, 0, fmt, vargs);
+        va_end(vargs);
+
+        va_start(vargs, fmt);
+        std::string formatted(size + 1, '\0');
+        vsnprintf(&formatted[0], size + 1, fmt, vargs);
+        va_end(vargs);
+
+        formatted.pop_back(); // remove the null terminator
+        wprintw(stdscr, "%s", formatted.c_str());
+
+        size_t start = 0, end;
+        while ((end = formatted.find('\n', start)) != std::string::npos)
+        {
+            write_line(formatted.substr(start, end - start), true); // Extract line
+            start = end + 1; // Move past '\n'
+        }
+        write_line(formatted.substr(start), false);
         wrefresh(stdscr);
 #endif
         va_end(vargs);
@@ -181,6 +321,9 @@ extern "C"
         scrollok(stdscr, TRUE);
         immedok(stdscr, TRUE);
 
+        init_file_mapping();
+        getmaxyx(stdscr, wind_h, wind_w);
+
         pthread_create(&read_thread, NULL, read_loop, NULL);
         pthread_detach(read_thread);
 #endif
@@ -189,6 +332,11 @@ extern "C"
     void SF_OSAL_deinit_conio(void)
     {
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
+        if (!buf_written)
+        {
+            overwrite_last_line_at(file_buf, offset, false);
+        }
+        deinit_file_mapping();
         endwin();
 #endif
     }
