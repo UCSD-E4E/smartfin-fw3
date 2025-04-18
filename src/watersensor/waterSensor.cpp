@@ -7,11 +7,10 @@
 uint8_t water_detect_array[WATER_DETECT_ARRAY_SIZE];
 
 WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set,
-                         uint8_t water_detect_pin_to_set, 
-                         uint8_t window_size) : 
+                         uint8_t water_detect_pin_to_set) : 
                          water_detect_en_pin(water_detect_en_pin_to_set), 
                          water_detect_pin(water_detect_pin_to_set), 
-                         moving_window_size(window_size)
+                         moving_window_size(WATER_DETECT_ARRAY_SIZE)
 {
 }
 
@@ -43,7 +42,7 @@ bool WaterSensor::resetArray()
 void WaterSensor::setWindowSize(uint8_t window_size_to_set)
 {
     // swtich the window parameter and clear the sum (for resumming)
-    moving_window_size = window_size_to_set;
+    moving_window_size = WATER_DETECT_ARRAY_SIZE;
     array_sum = 0;
 
     // sum all of the array items from the current location backward for the entire window,
