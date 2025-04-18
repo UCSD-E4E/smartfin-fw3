@@ -6,6 +6,10 @@
 #define I2C_NO_ERROR    (0)
 #define I2C_ERROR       (-1)
 
+/**
+ * @brief The I2C driver class handles serial communication with I2C devices.
+ * It provides methods to read data from and write data to addressed I2C slaves. 
+ */
 class I2C {
 public:
     /** Read from an I2C slave
