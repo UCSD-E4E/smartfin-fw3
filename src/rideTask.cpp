@@ -14,6 +14,7 @@
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "deploy/ensembles.hpp"
+#include "imu/imu.hpp"
 #include "product.hpp"
 #include "system.hpp"
 
@@ -58,6 +59,7 @@ void RideTask::init()
 
     this->scheduler.initializeScheduler();
     pSystemDesc->pRecorder->openSession();
+    setupICM();
 }
 
 /**
