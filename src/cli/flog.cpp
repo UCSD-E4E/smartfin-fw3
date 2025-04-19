@@ -71,6 +71,8 @@ const FLOG_Message_t FLOG_Message[] = {{FLOG_SYS_START, "System Start"},
                                        {FLOG_MAG_MODE_FAIL, "Compass Mode Set Fail"},
                                        {FLOG_ICM_FAIL, "ICM Fail"},
 
+                                       {FLOG_ICM_DMP_INIT_FAIL, "ICM DMP Init Fail"},
+
                                        {FLOG_RIDE_INIT_TIMEOUT, "Ride init Timeout"},
                                        {FLOG_SCHEDULER_FAILED, "Scheduler failed"},
                                        {FLOG_SCHEDULER_DELAY_EXCEEDED, "Ensemble skipped"},
