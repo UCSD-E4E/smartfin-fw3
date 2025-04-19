@@ -47,13 +47,22 @@ class Timer
     void (*cb)(void);
     bool one_shot;
 
+private:
+    bool active;
+
 public:
     Timer(int period, void (*fn)(void), bool one_shot = false);
     void start(void)
     {
+        this->active = true;
     }
     void stop(void)
     {
+        this->active = false;
+    }
+    bool isActive()
+    {
+        return this->active;
     }
 };
 

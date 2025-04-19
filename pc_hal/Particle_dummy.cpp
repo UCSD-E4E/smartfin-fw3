@@ -51,7 +51,7 @@ ParticleClass &__fetch_global_particle()
 }
 
 Timer::Timer(int period, void (*fn)(void), bool one_shot)
-    : period(period), cb(fn), one_shot(one_shot)
+    : period(period), cb(fn), one_shot(one_shot), active(false)
 {
 }
 
