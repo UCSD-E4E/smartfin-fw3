@@ -48,6 +48,10 @@ static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
 static void CLI_doEnsemble(void);
 
+static std::uint8_t packet_buffer[SF_PACKET_SIZE];
+static char input_buffer[SF_CLI_MAX_CMD_LEN];
+static char packet_name_buffer[particle::protocol::MAX_EVENT_NAME_LENGTH + 1];
+
 const Menu_t CLI_menu[] = {
     {1, "display Menu", &CLI_displayMenu, MENU_CMD},
     {2, "disconnect particle", &CLI_disconnect, MENU_CMD},
@@ -116,7 +120,6 @@ void CLI_displayMenu(void)
 
 void CLI_hexdump(void)
 {
-    char input_buffer[SF_CLI_MAX_CMD_LEN];
     char *pEndTok;
     const void *pBuffer;
     size_t buffer_length;
@@ -131,7 +134,6 @@ void CLI_hexdump(void)
 
 static void CLI_setState(void)
 {
-    char input_buffer[SF_CLI_MAX_CMD_LEN];
     char *pEndTok;
     STATES_e nextState;
 
@@ -169,7 +171,6 @@ static void CLI_displayNVRAM(void)
 
 static void CLI_sleepSetSleepBehavior(void)
 {
-    char input_buffer[SF_CLI_MAX_CMD_LEN];
     char *pEndTok;
     SleepTask::BOOT_BEHAVIOR_e boot_behavior;
     SF_OSAL_printf("Boot Behavior Code: ");
@@ -273,9 +274,8 @@ static void CLI_monitorSensors(void)
     bool sensors[NUM_SENSORS] = {false};
 
     SF_OSAL_printf("Enter delay time (ms): ");
-    char dt[SF_CLI_MAX_CMD_LEN];
-    SF_OSAL_getline(dt, SF_CLI_MAX_CMD_LEN);
-    int delayTime = atoi(dt);
+    SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    int delayTime = atoi(input_buffer);
     SF_OSAL_printf("Delay set to %d ms" __NL__, delayTime);
     SF_OSAL_printf("a - acceleraction, g - gyroscope, m - magnetometer, t - temp, w - wet/dry, d - "
                    "dmp" __NL__);
@@ -485,9 +485,6 @@ static void CLI_monitorSensors(void)
 
 static void CLI_doEnsemble(void)
 {
-    char input_buffer[SF_CLI_MAX_CMD_LEN];
-    std::uint8_t packet_buffer[SF_PACKET_SIZE];
-    char packet_name_buffer[particle::protocol::MAX_EVENT_NAME_LENGTH + 1];
     int idx = 0;
 
     for (; deploymentSchedule[idx].init; idx++)
@@ -506,7 +503,8 @@ static void CLI_doEnsemble(void)
     SF_OSAL_printf("Running %s" __NL__, ensemble.taskName);
 
     pSystemDesc->pChargerCheck->stop();
-    // pSystemDesc->pWaterCheck->stop();
+    pSystemDesc->pWaterCheck->stop();
+    setupICM();
     pSystemDesc->pRecorder->openSession();
     SYS_dumpSys(2);
     ensemble.init(&ensemble);
@@ -514,7 +512,7 @@ static void CLI_doEnsemble(void)
     SYS_dumpSys(2);
     pSystemDesc->pRecorder->closeSession();
     pSystemDesc->pChargerCheck->start();
-    // pSystemDesc->pWaterCheck->start();
+    pSystemDesc->pWaterCheck->start();
     SF_OSAL_printf("Done" __NL__);
     int nBytes = pSystemDesc->pRecorder->getLastPacket(packet_buffer,
                                                        SF_PACKET_SIZE,
