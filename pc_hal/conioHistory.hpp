@@ -1,7 +1,7 @@
 #ifndef __CONIOHISTORY_HPP__
 #define __CONIOHISTORY_HPP__
 
-#include <cstring>
+#include <stdint.h>
 #include <string>
 #include <vector>
 
@@ -22,7 +22,7 @@
 #define LINEAR_STEP_RESIZE 32 * 1024 * 1024
 
 /**
- * @brief C struct that contains the necessary metadata for a line in the history
+ * @brief Struct that contains the necessary metadata for a line in the history
  * 
  */
 typedef struct CONIO_history_line_
@@ -37,15 +37,44 @@ typedef struct CONIO_history_line_
      * 
      */
     size_t len;
+    /**
+     * @brief Display flag: 0 do not display, 1 display to window
+     * 
+     */
+    uint32_t display : 1;
+    /**
+     * @brief More Framgents flag: 0 no successive fragments, 1 more fragments for the line
+     * 
+     */
+    uint32_t more_frag : 1;
+    /**
+     * @brief Fragment sequence number within the line
+     * 
+     */
+    uint32_t frag_seq : 30;
     // Additional metadata may be necessary
 
     /**
-     * @brief Construct a new conio history line object
+     * @brief Construct a new conio history line object with manually set parameters
      * 
      * @param o Starting offset
      * @param l Current length of the line
+     * @param d Display flag
+     * @param mf More Fragments flag
+     * @param fs Fragment sequence number
      */
-    CONIO_history_line_(size_t o, size_t l) : offset(o), len(l) {}
+    CONIO_history_line_(size_t o, size_t l, uint32_t d, uint32_t mf, uint32_t fs) : offset(o), len(l), display(d), more_frag(mf), frag_seq(fs) {}
+    /**
+     * @brief Construct a new conio history line object with default flags
+     * 
+     * @param o Starting offset
+     */
+    CONIO_history_line_(size_t o) : offset(o) {
+        len = 0;
+        display = 0;
+        more_frag = 0;
+        frag_seq = 0;
+    }
 } CONIO_hist_line;
 
 /**
@@ -99,6 +128,12 @@ char *retrieve_line(const size_t line_idx);
  * @return Current offset of the file
  */
 size_t get_offset();
+
+/**
+ * @brief Flag set to coalesce writes to log file.
+ * 
+ */
+extern bool coalesce;
 
 /**
  * @brief Keeps track of the bottom index of the CLI window

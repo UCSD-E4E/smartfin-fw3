@@ -14,10 +14,11 @@
 #include "product.hpp"
 
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
+#include <cstdlib>
+#include <cstring>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <cstdlib>
 
 char *mapped_memory = nullptr;
 size_t file_size = INITIAL_FILE_SIZE;
@@ -26,6 +27,7 @@ int fd;
 std::vector<CONIO_hist_line> Lines;
 size_t cur_bottom = 0;
 size_t bottom_idx = 0;
+bool coalesce = false;
 
 void init_file_mapping()
 {
@@ -49,7 +51,7 @@ void init_file_mapping()
         exit(1);
     }
 
-    Lines.push_back(CONIO_hist_line(0, 0)); // Initialize the first line
+    Lines.push_back(CONIO_hist_line(0)); // Initialize the first line
 }
 
 void deinit_file_mapping()
@@ -112,7 +114,7 @@ void write_line(const std::string &line, const bool NL_exists)
     if (NL_exists)
     {
         mapped_memory[current_offset++] = '\n';
-        Lines.push_back(CONIO_hist_line(current_offset, 0));
+        Lines.push_back(CONIO_hist_line(current_offset));
         cur_bottom = ++bottom_idx;
     }
 
