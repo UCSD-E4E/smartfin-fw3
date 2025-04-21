@@ -135,7 +135,7 @@ float MAX31725::read_reg_as_temperature(uint8_t reg)
         return temperature;
     } else {
         SF_OSAL_printf("%s: register is invalid, %d r" __NL__, __func__, reg);
-        return 0;
+        return 0.0f / 0.0f; // returns NaN
     }
 }
 
