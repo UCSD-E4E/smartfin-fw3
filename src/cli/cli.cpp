@@ -238,6 +238,39 @@ void CLI_displayResetReason(void)
     SF_OSAL_printf(__NL__);
 }
 
+typedef struct
+{
+    const char *header;
+    bool active;
+    float value;
+} CLI_MON_SENSOR_data_t;
+
+CLI_MON_SENSOR_data_t sensor_headers[] = {{"ax", false, NAN},    // 0
+                                          {"ay", false, NAN},    // 1
+                                          {"az", false, NAN},    // 2
+                                          {"gx", false, NAN},    // 3
+                                          {"gy", false, NAN},    // 4
+                                          {"gz", false, NAN},    // 5
+                                          {"mx", false, NAN},    // 6
+                                          {"my", false, NAN},    // 7
+                                          {"mz", false, NAN},    // 8
+                                          {"temp", false, NAN},  // 9
+                                          {"wd cr", false, NAN}, // 10
+                                          {"wd ls", false, NAN}, // 11
+                                          {"dax", false, NAN},   // 12
+                                          {"day", false, NAN},   // 13
+                                          {"daz", false, NAN},   // 14
+                                          {"a acc", false, NAN}, // 15
+                                          {"dgx", false, NAN},   // 16
+                                          {"dgy", false, NAN},   // 17
+                                          {"dgz", false, NAN},   // 18
+                                          {"dq1", false, NAN},   // 19
+                                          {"dq2", false, NAN},   // 20
+                                          {"dq3", false, NAN},   // 21
+                                          {"dq0", false, NAN},   // 22
+                                          {"dqacc", false, NAN}, // 23
+                                          {NULL, false, NAN}};
+
 /**
  * @brief CLI Monitor Sensors
  *
@@ -248,17 +281,8 @@ void CLI_displayResetReason(void)
  */
 static void CLI_monitorSensors(void)
 {
-    char ch;
-    float accelData[3] = {0, 0, 0};
-    // float accelDMPData[4] = {0, 0, 0, 0};
-    float gyroData[3] = {0, 0, 0};
-    // float gyroDMPData[3] = {0, 0, 0};
-    float magData[3] = {0, 0, 0};
-    // double quatData[5] = {0, 0, 0, 0, 0};
+    char ch = ' ';
     IMU_DMPData_t DMPData = {0};
-    float tmpData = 0;
-    float wdCR = 0;
-    float wdLS = 0;
     pSystemDesc->pChargerCheck->stop();
     pSystemDesc->pWaterCheck->stop();
     setupICM();
@@ -281,8 +305,8 @@ static void CLI_monitorSensors(void)
     SF_OSAL_printf("Delay set to %d ms" __NL__, delayTime);
     SF_OSAL_printf("a - acceleraction, g - gyroscope, m - magnetometer, t - temp, w - wet/dry, d - "
                    "dmp" __NL__);
-    bool valid = true;
-    while (valid)
+    bool valid = false;
+    while (ch != 'x')
     {
         SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w, d), x to quit: ");
         ch = SF_OSAL_getch();
@@ -292,82 +316,94 @@ static void CLI_monitorSensors(void)
         {
         case 'a':
             sensors[ACCEL] = true;
+            valid = true;
             break;
         case 'g':
             sensors[GYRO] = true;
+            valid = true;
             break;
         case 'm':
             sensors[MAG] = true;
+            valid = true;
             break;
         case 't':
             sensors[TEMP] = true;
+            valid = true;
             break;
         case 'w':
             sensors[WET_DRY] = true;
+            valid = true;
             break;
         case 'd':
             sensors[DMP] = true;
+            valid = true;
             break;
         case 'x':
-            valid = false;
             break;
         default:
             SF_OSAL_printf("invalid input" __NL__);
         }
     }
     SF_OSAL_printf(__NL__);
-    std::vector<std::string> headers;
-    if (sensors[ACCEL])
-    {
-        headers.push_back("ax");
-        headers.push_back("ay");
-        headers.push_back("az");
-    }
-    if (sensors[GYRO])
-    {
-        headers.push_back("gx");
-        headers.push_back("gy");
-        headers.push_back("gz");
-    }
-    if (sensors[MAG])
-    {
-        headers.push_back("mx");
-        headers.push_back("my");
-        headers.push_back("mz");
-    }
-    if (sensors[TEMP])
-    {
-        headers.push_back("temp");
-    }
-    if (sensors[WET_DRY])
-    {
-        headers.push_back("wd lr");
-        headers.push_back("wd ls");
-    }
-    if (sensors[DMP])
-    {
-        // headers.push_back("dq1");
-        // headers.push_back("dq2");
-        // headers.push_back("dq3");
-        // headers.push_back("dq0");
-        // headers.push_back("dqacc");
-        headers.push_back("dax");
-        headers.push_back("day");
-        headers.push_back("daz");
-        headers.push_back("a acc");
-        // headers.push_back("dcx");
-        // headers.push_back("dcy");
-        // headers.push_back("dcz");
-    }
-
     // if no headers, return now
-    if (headers.size() == 0)
+    if (!valid)
     {
         pSystemDesc->pChargerCheck->start();
         pSystemDesc->pWaterCheck->start();
         return;
     }
 
+    for (CLI_MON_SENSOR_data_t *pEntry = sensor_headers; pEntry->header; pEntry++)
+    {
+        pEntry->active = false;
+    }
+    if (sensors[ACCEL])
+    {
+        sensor_headers[0].active = true;
+        sensor_headers[1].active = true;
+        sensor_headers[2].active = true;
+    }
+    if (sensors[GYRO])
+    {
+        sensor_headers[3].active = true;
+        sensor_headers[4].active = true;
+        sensor_headers[5].active = true;
+    }
+    if (sensors[MAG])
+    {
+        sensor_headers[6].active = true;
+        sensor_headers[7].active = true;
+        sensor_headers[8].active = true;
+    }
+    if (sensors[TEMP])
+    {
+        sensor_headers[9].active = true;
+    }
+    if (sensors[WET_DRY])
+    {
+        sensor_headers[10].active = true;
+        sensor_headers[11].active = true;
+    }
+    if (sensors[DMP])
+    {
+        // acc
+        sensor_headers[12].active = true;
+        sensor_headers[13].active = true;
+        sensor_headers[14].active = true;
+        sensor_headers[15].active = true;
+
+        // gyr
+        sensor_headers[16].active = true;
+        sensor_headers[17].active = true;
+        sensor_headers[18].active = true;
+
+        // quat
+        sensor_headers[19].active = true;
+        sensor_headers[20].active = true;
+        sensor_headers[21].active = true;
+        sensor_headers[22].active = true;
+        sensor_headers[23].active = true;
+    }
     int count = 0;
 
     while (1)
@@ -383,18 +419,23 @@ static void CLI_monitorSensors(void)
         }
         if (sensors[ACCEL])
         {
-            if (!getAccelerometer(accelData, accelData + 1, accelData + 2))
+            if (!getAccelerometer(
+                    &sensor_headers[0].value, &sensor_headers[1].value, &sensor_headers[2].value))
             {
-                accelData[0] = nanf("");
+                sensor_headers[0].value = NAN;
+                sensor_headers[1].value = NAN;
+                sensor_headers[2].value = NAN;
             }
         }
         if (sensors[GYRO])
         {
-            getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+            getGyroscope(
+                &sensor_headers[3].value, &sensor_headers[4].value, &sensor_headers[5].value);
         }
         if (sensors[MAG])
         {
-            getMagnetometer(magData, magData + 1, magData + 2);
+            getMagnetometer(
+                &sensor_headers[6].value, &sensor_headers[7].value, &sensor_headers[8].value);
         }
         if (sensors[DMP])
         {
@@ -419,67 +460,53 @@ static void CLI_monitorSensors(void)
                 SF_OSAL_printf("DMP fail!" __NL__);
                 FLOG_AddError(FLOG_ICM_FAIL, 1);
             }
-            // if (!getDMPAccelerometer(accelDMPData, accelDMPData + 1, accelDMPData + 2))
-            // {
-            //     accelDMPData[0] = nanf("");
-            //     accelDMPData[1] = nanf("");
-            //     accelDMPData[2] = nanf("");
-            // }
-            // if (!getDMPAccelerometerAcc(accelDMPData + 3))
-            // {
-            //     accelDMPData[3] = nanf("");
-            // }
-            // getDMPGyroscope(gyroDMPData, gyroDMPData + 1, gyroDMPData + 2);
-            // getDMPQuaternion(quatData, quatData + 1, quatData + 2, quatData + 3, quatData + 4);
+            sensor_headers[12].value = DMPData.acc[0];
+            sensor_headers[13].value = DMPData.acc[1];
+            sensor_headers[14].value = DMPData.acc[2];
+
+            sensor_headers[15].value = DMPData.acc_acc;
+
+            sensor_headers[16].value = DMPData.gyr[0];
+            sensor_headers[17].value = DMPData.gyr[1];
+            sensor_headers[18].value = DMPData.gyr[2];
+
+            sensor_headers[19].value = DMPData.quat[0];
+            sensor_headers[20].value = DMPData.quat[1];
+            sensor_headers[21].value = DMPData.quat[2];
+            sensor_headers[22].value = DMPData.quat[3];
+
+            sensor_headers[23].value = DMPData.quat_acc;
         }
         if (sensors[TEMP])
         {
-            tmpData = pSystemDesc->pTempSensor->getTemp();
+            sensor_headers[9].value = pSystemDesc->pTempSensor->getTemp();
         }
+        sensor_headers[10].value = NAN;
+        sensor_headers[11].value = NAN;
         if (sensors[WET_DRY])
         {
-            wdCR = pSystemDesc->pWaterSensor->getCurrentReading();
-            wdLS = pSystemDesc->pWaterSensor->getLastStatus();
+
+            sensor_headers[10].value = pSystemDesc->pWaterSensor->getCurrentReading();
+            sensor_headers[11].value = pSystemDesc->pWaterSensor->getLastStatus();
         }
 
-        std::map<std::string, float> sensorData = {{"ax", accelData[0]},
-                                                   {"ay", accelData[1]},
-                                                   {"az", accelData[2]},
-                                                   {"gx", gyroData[0]},
-                                                   {"gy", gyroData[1]},
-                                                   {"gz", gyroData[2]},
-                                                   {"mx", magData[0]},
-                                                   {"my", magData[1]},
-                                                   {"mz", magData[2]},
-                                                   {"temp", tmpData},
-                                                   {"wd cr", wdCR},
-                                                   {"wd ls", wdLS},
-
-                                                   {"dax", DMPData.acc[0]},
-                                                   {"day", DMPData.acc[1]},
-                                                   {"daz", DMPData.acc[2]},
-                                                   {"a acc", DMPData.acc_acc},
-                                                   {"dgx", DMPData.gyr[0]},
-                                                   {"dgy", DMPData.gyr[1]},
-                                                   {"dgz", DMPData.gyr[2]},
-                                                   {"dq1", DMPData.quat[0]},
-                                                   {"dq2", DMPData.quat[1]},
-                                                   {"dq3", DMPData.quat[2]},
-                                                   {"dq0", DMPData.quat[3]},
-                                                   {"dqacc", DMPData.quat_acc}
-
-        };
         if (count % 10 == 0)
         {
-            for (const auto &header : headers)
+            for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
             {
-                SF_OSAL_printf("|   %s    |\t", header.c_str());
+                if (it->active)
+                {
+                    SF_OSAL_printf("|   %s    |\t", it->header);
+                }
             }
             SF_OSAL_printf(__NL__);
         }
-        for (const auto &header : headers)
+        for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
         {
-            SF_OSAL_printf(" %8.4f\t", sensorData.at(header));
+            if (it->active)
+            {
+                SF_OSAL_printf(" %8.4f\t", it->value);
+            }
         }
         SF_OSAL_printf(__NL__);
         count++;
