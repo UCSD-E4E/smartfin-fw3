@@ -1,3 +1,30 @@
+# [3.9.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.8.2...v3.9.0) (2025-04-22)
+
+
+### Bug Fixes
+
+* Adds charger and water check inhibit ([cfefff9](https://github.com/UCSD-E4E/smartfin-fw3/commit/cfefff94eb551e58c8176634733b866bd85a2b7c))
+* Adds checks for DMP init, fix AD0 ([f650f7c](https://github.com/UCSD-E4E/smartfin-fw3/commit/f650f7c415b77580c5428662bf70b1f408813490))
+* Adds debugging and timer config ([3cba017](https://github.com/UCSD-E4E/smartfin-fw3/commit/3cba017c5bd32b199cb6a7603a5a5ba148605c84))
+* Adds setupICM ([174cb06](https://github.com/UCSD-E4E/smartfin-fw3/commit/174cb06ff385a153970cc6fe2fada7321198ebff))
+* Consolidated ensembles ([5c6fdeb](https://github.com/UCSD-E4E/smartfin-fw3/commit/5c6fdebf5cd7bce53b458d8e2e27b013c91b71b7))
+* Consolidates buffers ([28a5d83](https://github.com/UCSD-E4E/smartfin-fw3/commit/28a5d83d2ea20f7cae80a89e7c66d8b9fd8ee684))
+* Disables ensemble ([c0bbc63](https://github.com/UCSD-E4E/smartfin-fw3/commit/c0bbc638bb126115382d62383b82977c590b79ab))
+* Fixes charger task ride behavior ([f40711c](https://github.com/UCSD-E4E/smartfin-fw3/commit/f40711c0c6e7b19fa0be3ff626f2baba6c063b56))
+* Fixes dummy ([f7c576b](https://github.com/UCSD-E4E/smartfin-fw3/commit/f7c576b97c3feb0fea33518c13ed8c44342d4d08))
+* Fixes monitorSensors ([379b19a](https://github.com/UCSD-E4E/smartfin-fw3/commit/379b19aab2ff320dbb0180a492621d8854f9462b))
+* Fixes PC build ([02c2344](https://github.com/UCSD-E4E/smartfin-fw3/commit/02c23446520620283bb579fa947c8c7877544064))
+* Fixes PC build and moves ensembleTypes to deploy ([07384dc](https://github.com/UCSD-E4E/smartfin-fw3/commit/07384dc4cf6b2edd346e18b302d0a7e22deefd49))
+* Implements resetReasonData for pc_hal ([15b200f](https://github.com/UCSD-E4E/smartfin-fw3/commit/15b200fb66193497aabf687678e98409350f0eaf))
+
+
+### Features
+
+* Adds additional system dump command ([ffa2322](https://github.com/UCSD-E4E/smartfin-fw3/commit/ffa23221056bcf45edbff8c9d4355253167818f3))
+* Adds menu for system dump ([d9ee06c](https://github.com/UCSD-E4E/smartfin-fw3/commit/d9ee06c12be5034255b2f68ad4d743847900eae3))
+* Adds reset reason data logging ([14afb1f](https://github.com/UCSD-E4E/smartfin-fw3/commit/14afb1f2a4fe91130ecf3e8016cd5ad25c041367))
+* Implementing ensembles and ride task ([75e7561](https://github.com/UCSD-E4E/smartfin-fw3/commit/75e7561d91d4e24694bf6621f6ba1bfc700cb3c1))
+
 ## [3.8.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.8.1...v3.8.2) (2025-04-14)
 
 
