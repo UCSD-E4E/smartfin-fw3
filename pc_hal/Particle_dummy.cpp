@@ -107,6 +107,11 @@ void LocationService::setFastLock(bool enable)
 {
 }
 
+bool LocationService::isActive()
+{
+    return true;
+}
+
 LocationService::LocationService()
 {
 }
