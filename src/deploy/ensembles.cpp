@@ -11,6 +11,8 @@
 #include "system.hpp"
 #include "util.hpp"
 #include "vers.hpp"
+
+#include <cmath>
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "Particle.h"
 #endif
@@ -66,12 +68,12 @@ void SS_ensemble08Init(DeploymentSchedule_t *pDeployment)
 void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    float temp;
-    uint8_t water;
-    int32_t lat, lng;
-    float accelData[3];
-    float gyroData[3];
-    float magData[3];
+    float temp = NAN;
+    uint8_t water = UINT8_MAX;
+    int32_t lat = INT32_MAX, lng = INT32_MAX;
+    float accelData[3] = {NAN, NAN, NAN};
+    float gyroData[3] = {NAN, NAN, NAN};
+    float magData[3] = {NAN, NAN, NAN};
     bool hasGPS = false;
     Ensemble10_eventData_t *pData = (Ensemble10_eventData_t *)pDeployment->state.pData;
 
@@ -88,31 +90,31 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 #pragma pack(pop)
 
     // Obtain measurements
-    temp = pSystemDesc->pTempSensor->getTemp();
-    water = pSystemDesc->pWaterSensor->getCurrentReading();
-    getAccelerometer(accelData, accelData + 1, accelData + 2);
-    getGyroscope(gyroData, gyroData + 1, gyroData + 2);
-    getMagnetometer(magData, magData + 1, magData + 2);
+    // temp = pSystemDesc->pTempSensor->getTemp();
+    // water = pSystemDesc->pWaterSensor->getCurrentReading();
+    // getAccelerometer(accelData, accelData + 1, accelData + 2);
+    // getGyroscope(gyroData, gyroData + 1, gyroData + 2);
+    // getMagnetometer(magData, magData + 1, magData + 2);
 
-    // GPS
-    bool locked;
-    unsigned int satsInView;
-    ubloxGPS *ubloxGps_(nullptr);
-    locked = (ubloxGps_->getLock()) ? 1 : 0;
-    gps_sat_t sats_in_view_desc[NUM_SAT_DESC];
-    satsInView = ubloxGps_->getSatellitesDesc(sats_in_view_desc);
-    if (locked && satsInView > 4)
-    {
-        hasGPS = true;
-        lat = ubloxGps_->getLatitude();
-        lng = ubloxGps_->getLongitude();
-    }
-    else
-    {
-        hasGPS = false;
-        lat = pData->location[0];
-        lng = pData->location[1];
-    }
+    // // GPS
+    // bool locked;
+    // unsigned int satsInView;
+    // ubloxGPS *ubloxGps_(nullptr);
+    // locked = (ubloxGps_->getLock()) ? 1 : 0;
+    // gps_sat_t sats_in_view_desc[NUM_SAT_DESC];
+    // satsInView = ubloxGps_->getSatellitesDesc(sats_in_view_desc);
+    // if (locked && satsInView > 4)
+    // {
+    //     hasGPS = true;
+    //     lat = ubloxGps_->getLatitude();
+    //     lng = ubloxGps_->getLongitude();
+    // }
+    // else
+    // {
+    //     hasGPS = false;
+    //     lat = pData->location[0];
+    //     lng = pData->location[1];
+    // }
 
     // Accumulate measurements
     pData->temperature += temp;
