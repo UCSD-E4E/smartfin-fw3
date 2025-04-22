@@ -259,6 +259,8 @@ static void CLI_monitorSensors(void)
     float tmpData = 0;
     float wdCR = 0;
     float wdLS = 0;
+    pSystemDesc->pChargerCheck->stop();
+    pSystemDesc->pWaterCheck->stop();
     setupICM();
     SF_OSAL_printf(__NL__);
 
@@ -361,6 +363,8 @@ static void CLI_monitorSensors(void)
     // if no headers, return now
     if (headers.size() == 0)
     {
+        pSystemDesc->pChargerCheck->start();
+        pSystemDesc->pWaterCheck->start();
         return;
     }
 
@@ -481,6 +485,8 @@ static void CLI_monitorSensors(void)
         count++;
         delay(delayTime);
     }
+    pSystemDesc->pChargerCheck->start();
+    pSystemDesc->pWaterCheck->start();
 }
 
 static void CLI_doEnsemble(void)
