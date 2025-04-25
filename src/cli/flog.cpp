@@ -150,10 +150,12 @@ void FLOG_DisplayLog(void)
 
     for (; i < flogData.numEntries; i++)
     {
-        SF_OSAL_printf("%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT __NL__,
-            flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
-            FLOG_FindMessage((FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
-            flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
+        SF_OSAL_printf("%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT " (%12" PRId32 ")" __NL__,
+                       flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
+                       FLOG_FindMessage(
+                           (FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
+                       flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param,
+                       flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
     }
     SF_OSAL_printf("\n");
 }
