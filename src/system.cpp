@@ -139,6 +139,11 @@ static int SYS_initWaterSensor(void)
     digitalWrite(WATER_MFG_TEST_EN, LOW);
     systemDesc.pWaterSensor = &waterSensor;
     ledTimer.start();
+
+    // Take an initial reading to ensure that subsequent initialization operations
+    // work properly
+    waterSensor.update();
+
     return 1;
 }
 
@@ -169,6 +174,7 @@ static int SYS_initLEDs(void)
  */
 void SYS_chargerTask(void)
 {
+    bool previous_state = systemFlags.hasCharger;
     bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING;
     systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
     static int chargedTimestamp;
@@ -206,10 +212,12 @@ void SYS_chargerTask(void)
     }
     else
     {
-        chargedTimestamp = 0;
-        chargedTimestamp = 0;
-        FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
-        systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
+        if (previous_state)
+        {
+            FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
+            chargedTimestamp = 0;
+            systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
+        }
     }
 }
 
