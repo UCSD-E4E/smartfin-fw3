@@ -104,7 +104,14 @@ void CLI::init(void)
 
 STATES_e CLI::run(void)
 {
-    MNU_executeMenu(CLI_menu);
+    switch (MNU_executeMenu(CLI_menu))
+    {
+    case -1: // Abort due to USB terminal disconnect
+        CLI_nextState = STATE_DEEP_SLEEP;
+        break;
+    default:
+        break;
+    }
     return CLI_nextState;
 }
 
