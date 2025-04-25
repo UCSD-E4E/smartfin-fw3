@@ -37,7 +37,7 @@ typedef struct SystemDesc_
      */
     LocationService* pLocService;
      /**
-     * @brief Pointer toRecorder object that stores and manages data packets
+     * @brief Pointer to Recorder object that stores and manages data packets
      * 
      */
     Recorder* pRecorder;
@@ -63,7 +63,7 @@ typedef struct SystemDesc_
      */    
     WaterSensor* pWaterSensor;
     /**
-     * @brief Pointer to Timer object that handles LED state when charging
+     * @brief Pointer to WaterSensor object that handles LED state when charging
      * 
      * on if charged and charger plugged in,
      * blinking if charging,
@@ -71,7 +71,7 @@ typedef struct SystemDesc_
      */
     SFLed* pBatteryLED;
     /**
-     * @brief Pointer to Timer object that handles LED state to indicate whether in water
+     * @brief Pointer to SFLed object that handles LED state to indicate whether in water
      * 
      * on if in water, off otherwise
      */
