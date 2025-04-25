@@ -30,6 +30,7 @@ typedef struct SystemDesc_
     Recorder* pRecorder;
     Timer* pChargerCheck;
     Timer* pWaterCheck;
+    std::size_t water_check_count;
     NVRAM* pNvram;
     WaterSensor* pWaterSensor;
     SFLed* pBatteryLED;

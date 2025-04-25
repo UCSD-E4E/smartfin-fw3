@@ -40,7 +40,8 @@ extern "C"
      * @brief Gets user input line
      * @param buffer buffer to write too
      * @param buflen length of buffer
-     * @return length of the user input line
+     * @return length of the user input line.  If -1, we have aborted due
+     * to USB terminal disconnect
      */
     int SF_OSAL_getline(char *buffer, int buflen);
 

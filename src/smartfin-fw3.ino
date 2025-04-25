@@ -82,16 +82,6 @@ void setup()
     SYS_initSys();
 
     initalizeTaskObjects();
-
-    currentState = STATE_CHARGE;
-
-    if (!sf::cloud::initialize_counter())
-    {
-        if (currentState == STATE_UPLOAD)
-        {
-            currentState = STATE_CHARGE;
-        }
-    }
 }
 
 // loop() runs over and over again, as quickly as it can execute.
@@ -135,9 +125,31 @@ static void initalizeTaskObjects(void)
 
     switch (SleepTask::getBootBehavior())
     {
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
+        currentState = STATE_UPLOAD;
+        break;
     default:
-    case SleepTask::BOOT_BEHAVIOR_NORMAL:
-        currentState = SF_DEFAULT_STATE;
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NOT_SET:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_CONTINUE:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_END:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_START:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NORMAL:
+        if (pSystemDesc->pWaterSensor->getLastReading())
+        {
+            currentState = STATE_DEPLOYED;
+        }
+        else if (pSystemDesc->pRecorder->hasData())
+        {
+            currentState = STATE_UPLOAD;
+        }
+        else if (pSystemDesc->flags->hasCharger)
+        {
+            currentState = SF_DEFAULT_STATE;
+        }
+        else
+        {
+            currentState = STATE_DEEP_SLEEP;
+        }
         break;
     }
 }

@@ -34,6 +34,8 @@ void SleepTask::init(void)
     pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, behavior);
     pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, true);
 
+    // Set WATER_EN LOW so that we can wake from it
+    digitalWrite(WATER_DETECT_EN_PIN, LOW);
 
     // bring down the system safely
     // SYS_deinitSys(); TODO
@@ -43,7 +45,7 @@ void SleepTask::init(void)
         case BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
 
             SF_OSAL_printf("REUPLOAD" __NL__);
-            if(digitalRead(WKP_PIN) == HIGH)
+            if (digitalRead(WKP_PIN) == HIGH)
             {
                 System.sleep(SLEEP_MODE_SOFTPOWEROFF);
                 break;

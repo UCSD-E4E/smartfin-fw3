@@ -33,9 +33,10 @@ void MNU_displayMenu(const Menu_t* pMenu)
     }
 }
 
-void MNU_executeMenu(const Menu_t* pMenu)
+int MNU_executeMenu(const Menu_t *pMenu)
 {
     const Menu_t* cmd;
+    int retval;
 
     MNU_displayMenu(pMenu);
 
@@ -44,7 +45,12 @@ void MNU_executeMenu(const Menu_t* pMenu)
     {
         SF_OSAL_printf(">");
         memset(userInput, 0, SF_CLI_MAX_CMD_LEN);
-        SF_OSAL_getline(userInput, SF_CLI_MAX_CMD_LEN);
+        retval = SF_OSAL_getline(userInput, SF_CLI_MAX_CMD_LEN);
+        if (retval == -1)
+        {
+            // Abort due to USB terminal disconnect
+            return -1;
+        }
 
         if (strlen(userInput) == 0)
         {
@@ -85,4 +91,5 @@ void MNU_executeMenu(const Menu_t* pMenu)
             MNU_displayMenu(pMenu);
         }
     }
+    return 0;
 }

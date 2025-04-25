@@ -33,9 +33,15 @@
  * Water Detect Pin
  */
 #define WATER_DETECT_PIN      A6
+
+/**
+ * @brief Water Detection Status LED
+ *
+ */
+#define WATER_STATUS_LED D9
 /**
  * @brief Manufacturing Water Detect Pin
- * 
+ *
  */
 #define WATER_MFG_TEST_EN     A3
 

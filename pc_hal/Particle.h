@@ -419,7 +419,8 @@ typedef enum
     A5,
     A6,
     A7,
-    WKP
+    WKP,
+    D9,
 } __PC_HAL_PIN_DEFs;
 
 typedef enum
