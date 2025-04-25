@@ -1,3 +1,16 @@
+## [3.9.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.9.0...v3.9.1) (2025-04-25)
+
+
+### Bug Fixes
+
+* Adds decimal output ([dfd6371](https://github.com/UCSD-E4E/smartfin-fw3/commit/dfd63711c2d8a7d9bd66e6d29f4072fc7c8d63f6))
+* Consolidates charger removed messages ([564fc0b](https://github.com/UCSD-E4E/smartfin-fw3/commit/564fc0be0dd376e9b7427c25d27d4c79652842ab))
+* Fixes PC Hal pin defs ([a097b9e](https://github.com/UCSD-E4E/smartfin-fw3/commit/a097b9e51622173eb4cbff55052f10d7f9e1f279))
+* Fixes state sequencing ([9376c11](https://github.com/UCSD-E4E/smartfin-fw3/commit/9376c117446272be13a347ec79b75ea2a4e3e7f1))
+* Fixes water sensor and LED ([ce1fa85](https://github.com/UCSD-E4E/smartfin-fw3/commit/ce1fa859405e66d8d65d67ca2b6c1bb050cc8c1c))
+* Fixes water sensor behavior ([#208](https://github.com/UCSD-E4E/smartfin-fw3/issues/208)) ([5dc4ffd](https://github.com/UCSD-E4E/smartfin-fw3/commit/5dc4ffd0dbf34207274ceb6bab2669bffe3e65df))
+* Fixing state transitions ([70805c0](https://github.com/UCSD-E4E/smartfin-fw3/commit/70805c05079dac3bd5884a31b031348338624bfe))
+
 # [3.9.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.8.2...v3.9.0) (2025-04-22)
 
 
