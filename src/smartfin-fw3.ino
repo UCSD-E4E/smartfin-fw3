@@ -1,27 +1,24 @@
 /*
  * Project smartfin-fw3
- * Description: 
+ * Description:
  * Author:
  * Date:
  */
 #include "Particle.h"
-
-#include "states.hpp"
-#include "task.hpp"
-#include "product.hpp"
-#include "consts.hpp"
-#include "system.hpp"
-
-#include "mfgTest/mfgTest.hpp"
-
+#include "cellular/dataUpload.hpp"
+#include "cellular/sf_cloud.hpp"
+#include "chargeTask.hpp"
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "cellular/sf_cloud.hpp"
+#include "consts.hpp"
+#include "mfgTest/mfgTest.hpp"
+#include "product.hpp"
+#include "rideTask.hpp"
 #include "sleepTask.hpp"
-#include "chargeTask.hpp"
-#include "cellular/dataUpload.hpp"
-
+#include "states.hpp"
+#include "system.hpp"
+#include "task.hpp"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
@@ -48,28 +45,27 @@ static ChargeTask chargeTask;
 static SleepTask sleepTask;
 static DataUpload uploadTask;
 static MfgTest mfgTask;
-
+static RideTask rideTask;
 
 // Holds the list of states and coresponding tasks
-static StateMachine_t stateMachine[] = 
-{
-    {STATE_CLI, &cliTask},
-    {STATE_DEEP_SLEEP, &sleepTask},
-    {STATE_CHARGE, &chargeTask},
-    {STATE_UPLOAD, &uploadTask},
-    {STATE_MFG_TEST, &mfgTask},
-    {STATE_NULL, NULL}
-};
+static StateMachine_t stateMachine[] = {{STATE_CLI, &cliTask},
+                                        {STATE_DEEP_SLEEP, &sleepTask},
+                                        {STATE_CHARGE, &chargeTask},
+                                        {STATE_UPLOAD, &uploadTask},
+                                        {STATE_MFG_TEST, &mfgTask},
+                                        {STATE_DEPLOYED, &rideTask},
+                                        {STATE_NULL, NULL}};
 
 static STATES_e currentState;
 
-static StateMachine_t* findState(STATES_e state);
+static StateMachine_t *findState(STATES_e state);
 static void initalizeTaskObjects(void);
-void mainThread(void* args);
+void mainThread(void *args);
 static void printState(STATES_e state);
 
 // setup() runs once, when the device is first turned on.
-void setup() {
+void setup()
+{
     System.enableFeature(FEATURE_RESET_INFO);
     SF_OSAL_init_conio();
 
@@ -77,34 +73,27 @@ void setup() {
 
     FLOG_Initialize();
     time32_t bootTime = Time.now();
-    FLOG_AddError(FLOG_SYS_START, bootTime); 
+    FLOG_AddError(FLOG_SYS_START, bootTime);
     SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
 
     FLOG_AddError(FLOG_RESET_REASON, System.resetReason());
+    FLOG_AddError(FLOG_RESET_REASON_DATA, System.resetReasonData());
 
     SYS_initSys();
 
     initalizeTaskObjects();
-
-    currentState = STATE_CHARGE;
-
-    if (!sf::cloud::initialize_counter())
-    {
-        if (currentState == STATE_UPLOAD)
-        {
-            currentState = STATE_CHARGE;
-        }
-    }
 }
 
 // loop() runs over and over again, as quickly as it can execute.
-void loop() {
+void loop()
+{
     mainThread(NULL);
 }
 
-void mainThread(void* args) {
+void mainThread(void *args)
+{
 
-    StateMachine_t* pState;
+    StateMachine_t *pState;
     // Starting main thread
 
     pState = findState(currentState);
@@ -113,7 +102,8 @@ void mainThread(void* args) {
     FLOG_AddError(FLOG_SYS_STARTSTATE, currentState);
     printState(currentState);
 
-    if (pState == NULL) {
+    if (pState == NULL)
+    {
         pState = findState(SF_DEFAULT_STATE);
     }
 
@@ -124,7 +114,7 @@ void mainThread(void* args) {
     pState->task->exit();
 }
 
-static void initalizeTaskObjects(void) 
+static void initalizeTaskObjects(void)
 {
     currentState = SF_DEFAULT_STATE;
 
@@ -133,18 +123,40 @@ static void initalizeTaskObjects(void)
     bool no_upload_flag;
     pSystemDesc->pNvram->get(NVRAM::NO_UPLOAD_FLAG, no_upload_flag);
 
-    switch(SleepTask::getBootBehavior())
+    switch (SleepTask::getBootBehavior())
     {
-        default:
-        case SleepTask::BOOT_BEHAVIOR_NORMAL:
-              currentState = SF_DEFAULT_STATE;
-            break;
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
+        currentState = STATE_UPLOAD;
+        break;
+    default:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NOT_SET:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_CONTINUE:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_END:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_START:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NORMAL:
+        if (pSystemDesc->pWaterSensor->getLastReading())
+        {
+            currentState = STATE_DEPLOYED;
+        }
+        else if (pSystemDesc->pRecorder->hasData())
+        {
+            currentState = STATE_UPLOAD;
+        }
+        else if (pSystemDesc->flags->hasCharger)
+        {
+            currentState = SF_DEFAULT_STATE;
+        }
+        else
+        {
+            currentState = STATE_DEEP_SLEEP;
+        }
+        break;
     }
 }
 
-static StateMachine_t* findState(STATES_e state)
+static StateMachine_t *findState(STATES_e state)
 {
-    StateMachine_t* pStates;
+    StateMachine_t *pStates;
     // SF_OSAL_printf("Searching for %d" __NL__, state);
     for (pStates = stateMachine; pStates->task; pStates++)
     {
@@ -154,17 +166,16 @@ static StateMachine_t* findState(STATES_e state)
         //                pStates->task);
         if (pStates->state == state)
         {
-        return pStates;
+            return pStates;
         }
     }
     SF_OSAL_printf("State not found!");
     return NULL;
 }
 
-
 static void printState(STATES_e state)
 {
-    const char* pStateName;
+    const char *pStateName;
     if (state >= STATE_N_STATES)
     {
         // Illegal state value

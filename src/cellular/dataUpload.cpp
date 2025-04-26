@@ -28,7 +28,14 @@ STATES_e DataUpload::can_upload(void)
 {
     if (!pSystemDesc->pRecorder->hasData())
     {
-        return STATE_DEEP_SLEEP;
+        if (pSystemDesc->flags->hasCharger)
+        {
+            return STATE_CHARGE;
+        }
+        else
+        {
+            return STATE_DEEP_SLEEP;
+        }
     }
 
     if (!sf::cloud::is_connected())

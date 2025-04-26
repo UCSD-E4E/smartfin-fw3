@@ -1,4 +1,7 @@
 #include "waterSensor.hpp"
+
+#include "cli/conio.hpp"
+#include "consts.hpp"
 #include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
 #include "cli/conio.hpp"
 

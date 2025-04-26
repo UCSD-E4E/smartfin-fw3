@@ -5,7 +5,10 @@
             "includePath": [
                 "${workspaceFolder}/src",
                 "~/.particle/toolchains/deviceOS/5.3.0/user/inc",
-                "${workspaceFolder}/lib/tracker-edge/src"
+                "${workspaceFolder}/lib/tracker-edge/src",
+                "${workspaceFolder}/lib/gps-ublox/src",
+                "${workspaceFolder}/lib/gps-nmea-parser/src",
+                "${workspaceFolder}/lib/gps-quectel/src"
             ],
             "defines": [
                 "_DEBUG",
