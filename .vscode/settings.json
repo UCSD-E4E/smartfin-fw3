@@ -73,7 +73,7 @@
     "plantuml.render": "PlantUMLServer",
     "plantuml.server": "https://www.plantuml.com/plantuml",
     "C_Cpp.formatting": "clangFormat",
-    "editor.formatOnPaste": true,
+    "editor.formatOnPaste": false,
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "modifications",
     "editor.formatOnType": true,

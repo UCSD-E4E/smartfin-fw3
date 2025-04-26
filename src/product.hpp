@@ -33,9 +33,15 @@
  * Water Detect Pin
  */
 #define WATER_DETECT_PIN      A6
+
+/**
+ * @brief Water Detection Status LED
+ *
+ */
+#define WATER_STATUS_LED D9
 /**
  * @brief Manufacturing Water Detect Pin
- * 
+ *
  */
 #define WATER_MFG_TEST_EN     A3
 
@@ -124,6 +130,16 @@
 #define SF_CLI_RGB_LED_PATTERN      LED_PATTERN_SOLID
 #define SF_CLI_RGB_LED_PERIOD       3000
 #define SF_CLI_RGB_LED_PRIORITY     LED_PRIORITY_IMPORTANT
+
+/**
+ * The Ride RGB LED Color
+ */
+#define RIDE_RGB_LED_COLOR RGB_COLOR_WHITE
+#define RIDE_RGB_LED_PATTERN_GPS LED_PATTERN_BLINK
+#define RIDE_RGB_LED_PERIOD_GPS 500
+#define RIDE_RGB_LED_PATTERN_NOGPS LED_PATTERN_SOLID
+#define RIDE_RGB_LED_PERIOD_NOGPS 0
+#define RIDE_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
 
 /**
  * The Data Upload RGB LED Color
