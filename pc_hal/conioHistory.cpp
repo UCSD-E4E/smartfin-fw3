@@ -25,9 +25,11 @@ size_t file_size = INITIAL_FILE_SIZE;
 size_t current_offset = 0;
 int fd;
 std::vector<CONIO_hist_line> Lines;
-size_t cur_bottom = 0;
+std::vector<size_t> display_starts;
+size_t cur_bottom_display = 0;
+size_t bottom_display = 0;
 size_t bottom_idx = 0;
-bool coalesce = false;
+bool display = false;
 
 void init_file_mapping()
 {
@@ -115,7 +117,7 @@ void write_line(const std::string &line, const bool NL_exists)
     {
         mapped_memory[current_offset++] = '\n';
         Lines.push_back(CONIO_hist_line(current_offset));
-        cur_bottom = ++bottom_idx;
+        cur_bottom_display = ++bottom_idx;
     }
 
     msync(mapped_memory, file_size, MS_SYNC);

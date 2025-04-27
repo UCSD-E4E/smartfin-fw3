@@ -69,12 +69,7 @@ typedef struct CONIO_history_line_
      * 
      * @param o Starting offset
      */
-    CONIO_history_line_(size_t o) : offset(o) {
-        len = 0;
-        display = 0;
-        more_frag = 0;
-        frag_seq = 0;
-    }
+    CONIO_history_line_(size_t o) : offset(o), len(0), display(0), more_frag(0), frag_seq(0) {}
 } CONIO_hist_line;
 
 /**
@@ -130,19 +125,19 @@ char *retrieve_line(const size_t line_idx);
 size_t get_offset();
 
 /**
- * @brief Flag set to coalesce writes to log file.
+ * @brief Flag set to display line for CLI window.
  * 
  */
-extern bool coalesce;
+extern bool display;
 
 /**
  * @brief Keeps track of the bottom index of the CLI window
  * 
  */
-extern size_t cur_bottom;
+extern size_t cur_bottom_display;
 /**
- * @brief Keeps track of the bottom of the file
+ * @brief Keeps track of the bottom of the display lines
  * 
  */
-extern size_t bottom_idx;
+extern size_t bottom_display;
 #endif

@@ -151,7 +151,7 @@ extern "C"
                     }
                     inp = SF_OSAL_getch();
 
-                    if (bottom_idx <= wind_h) // No need to scroll
+                    if (bottom_display <= wind_h) // No need to scroll
                     {
                         break;
                     }
@@ -159,12 +159,12 @@ extern "C"
                     {
                         case 'A':
                         {
-                            size_t top_idx = cur_bottom - wind_h + 1;
+                            size_t top_idx = cur_bottom_display - wind_h + 1;
                             if (top_idx == 0) // Already at top
                             {
                                 break;
                             }
-                            if (cur_bottom == bottom_idx)
+                            if (cur_bottom_display == bottom_display)
                             {
                                 // Save anything already written
                                 overwrite_last_line_at(file_buf, offset, false);
@@ -174,7 +174,7 @@ extern "C"
                             curs_set(0);
                             move(0, 0);
                             wrefresh(stdscr);
-                            cur_bottom--;
+                            cur_bottom_display--;
 
                             char *line = retrieve_line(--top_idx);
                             if (!line)
@@ -188,22 +188,22 @@ extern "C"
                         }
                         case 'B':
                         {
-                            if (cur_bottom == bottom_idx) // Already at bottom
+                            if (cur_bottom_display == bottom_display) // Already at bottom
                             {
                                 break;
                             }
                             wscrl(stdscr, 1);
                             move(wind_h - 1, 0);
                             wrefresh(stdscr);
-                            cur_bottom++;
+                            cur_bottom_display++;
 
-                            char *line = retrieve_line(cur_bottom);
+                            char *line = retrieve_line(cur_bottom_display);
                             if (!line)
                             {
                                 break;
                             }
                             wprintw(stdscr, "%s", line);
-                            if (cur_bottom == bottom_idx)
+                            if (cur_bottom_display == bottom_display)
                             {
                                 curs_set(1);
                             }
@@ -217,11 +217,11 @@ extern "C"
                 {
                     buf_written = false;
                     // Move window back to the bottom first if necessary
-                    if (cur_bottom != bottom_idx)
+                    if (cur_bottom_display != bottom_display)
                     {
                         wclear(stdscr);
                         char *line;
-                        for (size_t idx = bottom_idx - wind_h + 1; idx < bottom_idx; idx++)
+                        for (size_t idx = bottom_display - wind_h + 1; idx < bottom_display; idx++)
                         {
                             line = retrieve_line(idx);
                             if (!line)
@@ -233,7 +233,7 @@ extern "C"
                             wrefresh(stdscr);
                             free(line);
                         }
-                        line = retrieve_line(bottom_idx);
+                        line = retrieve_line(bottom_display);
                         if (!line)
                         {
                             break;
@@ -241,7 +241,7 @@ extern "C"
                         wprintw(stdscr, "%s", line);
                         wrefresh(stdscr);
                         free(line);
-                        cur_bottom = bottom_idx;
+                        cur_bottom_display = bottom_display;
                         curs_set(1);
                     }
                     switch (userInput)
