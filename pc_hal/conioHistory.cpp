@@ -140,9 +140,21 @@ void write_line(const std::string &line, const bool NL_exists)
     }
     else if (!display && Lines[bottom_idx].display)
     {
-        // Fragment the display line
-        Lines[bottom_idx++].more_frag = 1;
-        Lines.push_back(CONIO_hist_line(current_offset));
+        if (Lines[bottom_idx].len == 0)
+        {
+            // Convert empty display line to non-display line
+            Lines[bottom_idx].display = 0;
+            if (display_starts[bottom_display] == bottom_idx)
+            {
+                display_starts.pop_back();
+                bottom_display--;
+            }
+        }
+        else {
+            // Fragment the display line
+            Lines[bottom_idx++].more_frag = 1;
+            Lines.push_back(CONIO_hist_line(current_offset));
+        }
     }
     strncpy(mapped_memory + current_offset, line.c_str(), line.size());
     current_offset += line.size();
@@ -174,13 +186,32 @@ void overwrite_last_line_at(const std::string &line, const size_t offset, const 
     write_line(line, NL_exists);
 }
 
-char *retrieve_line(const size_t line_idx)
+char *retrieve_display_line(const size_t line_idx)
 {
-    if (Lines[line_idx].len == 0)
+    size_t true_idx = display_starts[line_idx]; // Grab the true index
+    if (Lines[true_idx].len == 0)
         return nullptr;
-    size_t len = Lines[line_idx].len + 1;
+    std::vector<size_t> relevant_offsets, relevant_lens;
+    // Collect any fragments and their relevant metadata
+    while (Lines[true_idx].more_frag)
+    {
+        relevant_lens.push_back(Lines[true_idx].len);
+        relevant_offsets.push_back(Lines[true_idx].offset);
+        true_idx += 2; // Fragments only exist because true_idx + 1 is non-display line
+    }
+    relevant_lens.push_back(Lines[true_idx].len);
+    relevant_offsets.push_back(Lines[true_idx].offset);
+
+    size_t len = 1;
+    for (size_t i = 0; i < relevant_lens.size(); i++)
+        len += relevant_lens[i];
+
     char *line = (char *)malloc(len);
-    strncpy(line, mapped_memory + Lines[line_idx].offset, len);
+    size_t pos = 0;
+    for (size_t i = 0; i < relevant_lens.size(); i++)
+    {
+        memcpy(line + pos, mapped_memory + relevant_offsets[i], relevant_lens[i]);
+    }
     line[len - 1] = 0;
     return line;
 }
