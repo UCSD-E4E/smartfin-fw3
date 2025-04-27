@@ -109,15 +109,50 @@ void write_line(const std::string &line, const bool NL_exists)
         resize_file();
     }
 
+    // Set or create bottom line depending on display flag
+    if (display && !Lines[bottom_idx].display)
+    {
+        if (Lines[bottom_idx].len == 0)
+        {
+            // Default line struct converted to display line
+            Lines[bottom_idx].display = 1;
+            bottom_display = display_starts.size();
+            display_starts.push_back(bottom_idx);
+            cur_bottom_display = bottom_display;
+        }
+        else {
+            int fs = 0;
+            // Check if fragmented display line exists for frag_seq num
+            int64_t possible_frag = bottom_idx - 1;
+            if (possible_frag >= 0 && Lines[possible_frag].more_frag)
+            {
+                fs = Lines[possible_frag].frag_seq + 1;
+            }
+            // Not a fragment, update display starts
+            else {
+                bottom_display = display_starts.size();
+                display_starts.push_back(bottom_idx + 1);
+                cur_bottom_display = bottom_display;
+            }
+            Lines.push_back(CONIO_hist_line(current_offset, 0, 1, 0, fs));
+            bottom_idx++;
+        }
+    }
+    else if (!display && Lines[bottom_idx].display)
+    {
+        // Fragment the display line
+        Lines[bottom_idx++].more_frag = 1;
+        Lines.push_back(CONIO_hist_line(current_offset));
+    }
     strncpy(mapped_memory + current_offset, line.c_str(), line.size());
     current_offset += line.size();
     Lines[bottom_idx].len += line.size();
 
-    if (NL_exists)
+    if (display && NL_exists)
     {
         mapped_memory[current_offset++] = '\n';
         Lines.push_back(CONIO_hist_line(current_offset));
-        cur_bottom_display = ++bottom_idx;
+        bottom_idx++;
     }
 
     msync(mapped_memory, file_size, MS_SYNC);
