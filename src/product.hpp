@@ -11,6 +11,41 @@
 #ifndef __PRODUCT_HPP__
 #define __PRODUCT_HPP__
 
+/*******************************************************************************
+ * Platform Configuration
+ ******************************************************************************/
+/**
+ * @brief Particle Platform Selector
+ *
+ */
+#define SF_PLATFORM_PARTICLE 1
+/**
+ * @brief GCC Platform Selector
+ *
+ */
+#define SF_PLATFORM_GLIBC 2
+
+/**
+ * @brief GoogleTest Platform Selector
+ *
+ */
+#define SF_PLATFORM_GOOGLETEST 3
+
+/**
+ * @brief Smartfin Platform Designator
+ *
+ */
+#ifdef PARTICLE
+/** 
+ * @brief Defines the platform being used in the system
+ */
+#define SF_PLATFORM SF_PLATFORM_PARTICLE
+#else
+#define SF_PLATFORM SF_PLATFORM_GLIBC
+#endif
+#endif // __PRODUCT_HPP__
+
+
 /******************************************************************************
  * Pin Definitions
  *****************************************************************************/
@@ -53,53 +88,6 @@
 
 
 /*******************************************************************************
- * Peripheral Configurations
- ******************************************************************************/
-/**
- * @brief Serial Debugging Baud Rate
- */
-#define SERIAL_DEBUG_BAUD_RATE 115200
-/**
- * SPI Flash Size
- */
-#define SF_FLASH_SIZE_MB    4
-
-/**
- * Window sizes are how many water detect samples are looked at in a moving 
- * average to determine if we are in or out of the water.  Generally a sample
- * happens 1/second
- */
-#define WATER_DETECT_SURF_SESSION_INIT_WINDOW   40
-
-/**
- * How long (in us) to turn on water detection circuit when looking for water
- */
-#define WATER_DETECT_EN_TIME_US     1000
-
-/**
- * Charging voltage (mV)
- */
-#define SF_CHARGE_VOLTAGE   4112
-
-/**
- * @brief Below what battery voltage should the system shutdown
- * 
- */
-#define SF_BATTERY_SHUTDOWN_VOLTAGE 3.0
-
-/**
- * @brief Particle IO device
- * 
- */
-#define PARTICLE_IO 1
-/**
- * @brief hardware revision
- * 
- */
-#define HARDWARE_REV 3
-
-
-/*******************************************************************************
  * System Configuration
  ******************************************************************************/
 /**
@@ -129,6 +117,10 @@
  */
 #define SF_DEFAULT_STATE   STATE_CHARGE
 
+
+/*******************************************************************************
+ * CLI RGB LED Configuration
+ ******************************************************************************/
 /**
  * The CLI RGB LED Color
  */
@@ -146,6 +138,9 @@
  */
 #define SF_CLI_RGB_LED_PRIORITY     LED_PRIORITY_IMPORTANT
 
+/*******************************************************************************
+ * RIDE RGB LED Configuration
+ ******************************************************************************/
 /**
  * The Ride RGB LED Color
  */
@@ -171,6 +166,11 @@
  */
 #define RIDE_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
 
+
+
+/*******************************************************************************
+ * Data Upload RGB LED Configuration
+ ******************************************************************************/
 /**
  * The Data Upload RGB LED Color
  */
@@ -180,6 +180,11 @@
  */
 #define SF_DUP_RGB_LED_PERIOD       500
 
+
+
+/*******************************************************************************
+ * Temperature Calibrator RGB LED Configuration
+ ******************************************************************************/
 /**
  * The Temperature Calibrator RGB LED color
  */
@@ -197,43 +202,40 @@
  */
 #define SF_TCAL_RGB_LED_PRIORITY    LED_PRIORITY_IMPORTANT
 
+
+
+/*******************************************************************************
+ * Peripheral Configurations
+ ******************************************************************************/
+/**
+ * @brief Serial Debugging Baud Rate
+ */
+#define SERIAL_DEBUG_BAUD_RATE 115200
+/**
+ * SPI Flash Size
+ */
+#define SF_FLASH_SIZE_MB    4
+
+/**
+ * @brief Particle IO device
+ * 
+ */
+#define PARTICLE_IO 1
+/**
+ * @brief hardware revision
+ * 
+ */
+#define HARDWARE_REV 3
+
+
+
+/******************************************************************************
+ * Battery and Power Configuration
+ *****************************************************************************/
 /**
  * Minimum battery voltage to start an upload
  */ 
 #define SF_BATTERY_UPLOAD_VOLTAGE 3.6
-
-/**
- * how long to stay in data upload without a cell signal/connection/succesful upload
- */
-#define SF_CELL_SIGNAL_TIMEOUT_MS 300000
-
-/**
- * Max size of the window/how large the FIFO array is
- */
-#define WATER_DETECT_ARRAY_SIZE 200
-
-/**
- * @brief Seconds to sleep between upload attempts
- * 
- */
-#define SF_UPLOAD_REATTEMPT_DELAY_SEC 600
- /**
-  * @brief Milliseconds between transmit attempts
-  *
-  */
-#define SF_UPLOAD_MS_PER_TRANSMIT   1000
-
-/**
- * @brief how many ms is a GPS data point valid for a given data log
- * 
- */
-#define GPS_AGE_VALID_MS 5000
-
-/**
- * @brief How long to wait for a cell connection in during manufacturing test
- * 
- */
-#define MANUFACTURING_CELL_TIMEOUT_MS 180000
 
 /**
  * @brief A voltage that's slightly higher than the max battery voltage
@@ -241,6 +243,95 @@
  */
 #define SF_BATTERY_MAX_VOLTAGE 4.3
 
+/**
+ * Charging voltage (mV)
+ */
+#define SF_CHARGE_VOLTAGE   4112
+
+/**
+ * @brief Below what battery voltage should the system shutdown
+ * 
+ */
+#define SF_BATTERY_SHUTDOWN_VOLTAGE 3.0
+
+
+
+/******************************************************************************
+ * Upload and Communication Configuration
+ *****************************************************************************/
+ /** 
+ * @brief Baud rate for serial communication.
+ */
+#define SF_SERIAL_SPEED 9600
+
+/** 
+ * @brief Maximum length of a command line in the CLI.
+ */
+#define SF_CLI_MAX_CMD_LEN 100
+
+/** 
+ * @brief Maximum length for a name field
+ */
+#define SF_NAME_MAX 64
+
+/**
+ * @brief Maximum number of attempts to connect to the cloud
+ * 
+ */
+#define SF_CLOUD_CONNECT_MAX_ATTEMPTS   5
+
+
+
+/******************************************************************************
+ * Data Upload Configuration
+ *****************************************************************************/
+/**
+ * how long to stay in data upload without a cell signal/connection/succesful upload
+ */
+#define SF_CELL_SIGNAL_TIMEOUT_MS 300000
+
+/**
+ * @brief Seconds to sleep between upload attempts
+ * 
+ */
+#define SF_UPLOAD_REATTEMPT_DELAY_SEC 600
+
+/**
+  * @brief Milliseconds between transmit attempts
+  *
+  */
+ #define SF_UPLOAD_MS_PER_TRANSMIT   1000
+
+ /**
+ * @brief how many ms is a GPS data point valid for a given data log
+ * 
+ */
+#define GPS_AGE_VALID_MS 5000
+
+/******************************************************************************
+ * Water Detection Configuration
+ *****************************************************************************/
+/**
+ * Max size of the window/how large the FIFO array is
+ */
+#define WATER_DETECT_ARRAY_SIZE 200
+/**
+ * Window sizes are how many water detect samples are looked at in a moving 
+ * average to determine if we are in or out of the water.  Generally a sample
+ * happens 1/second
+ */
+#define WATER_DETECT_SURF_SESSION_INIT_WINDOW   40
+
+/**
+ * How long (in us) to turn on water detection circuit when looking for water
+ */
+#define WATER_DETECT_EN_TIME_US     1000
+
+
+
+/******************************************************************************
+ * Product and Version Information
+ *****************************************************************************/
 /**
  * @brief Lost Bird Smartfin Z7 Product ID
  * 
@@ -259,12 +350,28 @@
  */
 #define PRODUCT_VERSION_USE_HEX 0
 
+
+/******************************************************************************
+ * Debugging and Testing Configuration
+ *****************************************************************************/
 /**
  * @brief Enable initialization delay
  * 
  */
 // #define SF_ENABLE_DEBUG_DELAY   15
 
+
+/**
+ * @brief How long to wait for a cell connection in during manufacturing test
+ * 
+ */
+#define MANUFACTURING_CELL_TIMEOUT_MS 180000
+
+
+
+/******************************************************************************
+ * Encoding Configuration
+ *****************************************************************************/
 /**
  * @brief Base85 encoding flag
  * 
@@ -311,56 +418,3 @@
   */
 #define SF_RECORD_SIZE  1024
 #endif
-
-
-/** 
- * @brief Baud rate for serial communication.
- */
-#define SF_SERIAL_SPEED 9600
-
-/** 
- * @brief Maximum length of a command line in the CLI.
- */
-#define SF_CLI_MAX_CMD_LEN 100
-
-/** 
- * @brief Maximum length for a name field
- */
-#define SF_NAME_MAX 64
-
-/**
- * @brief Maximum number of attempts to connect to the cloud
- * 
- */
-#define SF_CLOUD_CONNECT_MAX_ATTEMPTS   5
-
-/**
- * @brief Particle Platform Selector
- *
- */
-#define SF_PLATFORM_PARTICLE 1
-/**
- * @brief GCC Platform Selector
- *
- */
-#define SF_PLATFORM_GLIBC 2
-
-/**
- * @brief GoogleTest Platform Selector
- *
- */
-#define SF_PLATFORM_GOOGLETEST 3
-
-/**
- * @brief Smartfin Platform Designator
- *
- */
-#ifdef PARTICLE
-/** 
- * @brief Defines the platform being used in the system
- */
-#define SF_PLATFORM SF_PLATFORM_PARTICLE
-#else
-#define SF_PLATFORM SF_PLATFORM_GLIBC
-#endif
-#endif // __PRODUCT_HPP__
