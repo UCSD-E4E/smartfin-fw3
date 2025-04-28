@@ -233,6 +233,14 @@ static void SYS_waterTask(void)
     {
         systemDesc.pWaterLED->setState(SFLed::SFLED_STATE_OFF);
     }
+    if (systemDesc.pWaterSensor->getLastStatus())
+    {
+        systemFlags.inWater = true;
+    }
+    else
+    {
+        systemFlags.inWater = false;
+    }
 }
 
 /**

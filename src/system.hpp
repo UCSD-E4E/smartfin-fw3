@@ -19,6 +19,12 @@ typedef volatile struct SystemFlags_
 {
     bool batteryLow;
     bool hasCharger;
+    /**
+     * @brief This flag is set to true when the filtered wet/dry status is wet
+     *
+     * This is only updated by the waterCheck timer.  This will not be
+     * functional in DEEP_SLEEP or DEPLOYED
+     */
     bool inWater;
 }SystemFlags_t;
 
