@@ -492,8 +492,8 @@ static void CLI_monitorSensors(void)
         sensor_headers[11].value = NAN;
         if (sensors[WET_DRY])
         {
-
-            sensor_headers[10].value = pSystemDesc->pWaterSensor->getCurrentReading();
+            pSystemDesc->pWaterSensor->update();
+            sensor_headers[10].value = pSystemDesc->pWaterSensor->getLastReading();
             sensor_headers[11].value = pSystemDesc->pWaterSensor->getLastStatus();
         }
 
