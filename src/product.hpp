@@ -174,6 +174,14 @@
  */
 #define SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS 300000
 
+/**
+ * @brief Flag allowing deploy while in charge
+ *
+ * This should not be allowed in production, but is useful during debug.  Set
+ * to 0 for production
+ *
+ */
+#define SF_CHARGE_ALLOW_DEPLOY 1
 
 /**
  * @brief Seconds to sleep between upload attempts
