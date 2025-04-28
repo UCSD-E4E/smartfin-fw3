@@ -99,7 +99,7 @@ STATES_e RideTask::run(void)
             FLOG_AddError(FLOG_SCHEDULER_FAILED, TASK_SEARCH_FAIL);
             return STATE_UPLOAD;
         }
-        SF_OSAL_printf("Next task is %s" __NL__, pNextEvent->taskName);
+        SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
         delay(nextEventTime - millis());
         SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
         pNextEvent->measure(pNextEvent);
