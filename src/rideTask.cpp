@@ -22,7 +22,7 @@
  * @see SCH_getNextEvent
  */
 DeploymentSchedule_t deploymentSchedule[] = {
-    {SS_fwVerFunc, SS_fwVerInit, 1, UINT32_MAX, 0, 0, "FW VER", {0}},
+    {SS_fwVerFunc, SS_fwVerInit, 1, UINT32_MAX, 10, 0, "FW VER", {0}},
     {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
     {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}
 };
