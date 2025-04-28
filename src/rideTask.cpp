@@ -48,7 +48,6 @@ void RideTask::init()
 {
     SF_OSAL_printf("Entering STATE_DEPLOYED" __NL__);
     pSystemDesc->pChargerCheck->stop();
-    // pSystemDesc->pWaterCheck->stop();
     this->ledStatus.setColor(RIDE_RGB_LED_COLOR);
     this->ledStatus.setPattern(RIDE_RGB_LED_PATTERN_GPS);
     this->ledStatus.setPeriod(RIDE_RGB_LED_PERIOD_GPS);
@@ -72,6 +71,21 @@ STATES_e RideTask::run(void)
     system_tick_t nextEventTime;
 
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
+
+    while (1)
+    {
+        // Wait for positive in-water signal.  This is run by waterCheck
+        if (pSystemDesc->pWaterSensor->getLastStatus())
+        {
+            break;
+        }
+        else if (millis() - this->startTime > SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS)
+        {
+            return STATE_DEEP_SLEEP;
+        }
+        delay(1000);
+    }
+
     while (1)
     {
 
@@ -117,7 +131,6 @@ void RideTask::exit(void)
     SF_OSAL_printf("Closing session" __NL__);
     pSystemDesc->pRecorder->closeSession();
     pSystemDesc->pChargerCheck->start();
-    // pSystemDesc->pWaterCheck->start();
     // Deinitialize sensors
     // pSystemDesc->pTempSensor->stop();
     // pSystemDesc->pCompass->close();

@@ -167,6 +167,13 @@
  */
 #define WATER_DETECT_ARRAY_SIZE 200
 
+/**
+ * @brief How long to stay in session init while waiting to get into water
+ * before going to sleep
+ *
+ */
+#define SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS 300000
+
 
 /**
  * @brief Seconds to sleep between upload attempts

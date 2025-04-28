@@ -16,6 +16,7 @@ WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set,
                          water_detect_pin(water_detect_pin_to_set), 
                          moving_window_size(window_size)
 {
+    memset(water_detect_array, 0, WATER_DETECT_ARRAY_SIZE);
 }
 
 WaterSensor::~WaterSensor()
