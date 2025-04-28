@@ -35,7 +35,6 @@
 #include "i2c/mbed.h"
 #include "cli/conio.hpp"
 #include "consts.hpp"
-#include "consts.hpp"
 
 #if PARTICLE_IO
 #define printf Serial.printf
@@ -135,7 +134,7 @@ float MAX31725::read_reg_as_temperature(uint8_t reg)
         return temperature;
     } else {
         SF_OSAL_printf("%s: register is invalid, %d r" __NL__, __func__, reg);
-        return 0.0f / 0.0f; // returns NaN
+        return NAN;
     }
 }
 
