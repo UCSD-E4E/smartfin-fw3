@@ -69,8 +69,6 @@ void setup()
     System.enableFeature(FEATURE_RESET_INFO);
     SF_OSAL_init_conio();
 
-    currentState = STATE_CLI;
-
     FLOG_Initialize();
     time32_t bootTime = Time.now();
     FLOG_AddError(FLOG_SYS_START, bootTime);
