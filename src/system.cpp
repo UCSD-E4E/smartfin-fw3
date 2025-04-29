@@ -316,7 +316,6 @@ void SYS_displaySys(void)
     SF_OSAL_printf("Battery LED: 0x%08x" __NL__, pSystemDesc->pBatteryLED);
     SF_OSAL_printf("Battery Low Flag: %d" __NL__, pSystemDesc->flags->batteryLow);
     SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
-    SF_OSAL_printf("In Water Flag: %d" __NL__, pSystemDesc->flags->inWater);
 
     SF_OSAL_printf(__NL__);
     SF_OSAL_printf("Particle Connected: %d" __NL__, Particle.connected());

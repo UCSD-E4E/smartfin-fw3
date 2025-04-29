@@ -44,6 +44,13 @@ STATES_e ChargeTask::run(void)
             return STATE_DEEP_SLEEP;
         }
 
+#if SF_CHARGE_ALLOW_DEPLOY == 1
+        if (pSystemDesc->pWaterSensor->getLastStatus())
+        {
+            return STATE_DEPLOYED;
+        }
+#endif
+
         os_thread_yield();
     }
 }

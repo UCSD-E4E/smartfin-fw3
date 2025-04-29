@@ -69,8 +69,6 @@ void setup()
     System.enableFeature(FEATURE_RESET_INFO);
     SF_OSAL_init_conio();
 
-    currentState = STATE_CLI;
-
     FLOG_Initialize();
     time32_t bootTime = Time.now();
     FLOG_AddError(FLOG_SYS_START, bootTime);
@@ -116,7 +114,6 @@ void mainThread(void *args)
 
 static void initalizeTaskObjects(void)
 {
-    currentState = SF_DEFAULT_STATE;
 
     SleepTask::loadBootBehavior();
 
@@ -134,7 +131,7 @@ static void initalizeTaskObjects(void)
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_END:
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_START:
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NORMAL:
-        if (pSystemDesc->pWaterSensor->getLastReading())
+        if (pSystemDesc->pWaterSensor->getCurrentReading())
         {
             currentState = STATE_DEPLOYED;
         }

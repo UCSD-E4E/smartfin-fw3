@@ -22,10 +22,9 @@
  * @see SCH_getNextEvent
  */
 DeploymentSchedule_t deploymentSchedule[] = {
-    {SS_fwVerFunc, SS_fwVerInit, 1, UINT32_MAX, 0, 0, "FW VER", {0}},
+    {SS_fwVerFunc, SS_fwVerInit, 1, UINT32_MAX, 10, 0, "FW VER", {0}},
     {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
-    {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}
-};
+    {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
 
 /**
  * @brief creates file name for log
@@ -48,7 +47,6 @@ void RideTask::init()
 {
     SF_OSAL_printf("Entering STATE_DEPLOYED" __NL__);
     pSystemDesc->pChargerCheck->stop();
-    // pSystemDesc->pWaterCheck->stop();
     this->ledStatus.setColor(RIDE_RGB_LED_COLOR);
     this->ledStatus.setPattern(RIDE_RGB_LED_PATTERN_GPS);
     this->ledStatus.setPeriod(RIDE_RGB_LED_PERIOD_GPS);
@@ -72,6 +70,21 @@ STATES_e RideTask::run(void)
     system_tick_t nextEventTime;
 
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
+
+    while (1)
+    {
+        // Wait for positive in-water signal.  This is run by waterCheck
+        if (pSystemDesc->pWaterSensor->getLastStatus())
+        {
+            break;
+        }
+        else if (millis() - this->startTime > SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS)
+        {
+            return STATE_DEEP_SLEEP;
+        }
+        delay(1000);
+    }
+
     while (1)
     {
 
@@ -86,8 +99,12 @@ STATES_e RideTask::run(void)
             FLOG_AddError(FLOG_SCHEDULER_FAILED, TASK_SEARCH_FAIL);
             return STATE_UPLOAD;
         }
-        SF_OSAL_printf("Next task is %s" __NL__, pNextEvent->taskName);
-        delay(nextEventTime - millis());
+        SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
+        Particle.process();
+        while (millis() < nextEventTime)
+        {
+            delay(1);
+        }
         SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
         pNextEvent->measure(pNextEvent);
         SF_OSAL_printf("Ends at %" PRId32 __NL__, (std::uint32_t)millis());
@@ -117,7 +134,6 @@ void RideTask::exit(void)
     SF_OSAL_printf("Closing session" __NL__);
     pSystemDesc->pRecorder->closeSession();
     pSystemDesc->pChargerCheck->start();
-    // pSystemDesc->pWaterCheck->start();
     // Deinitialize sensors
     // pSystemDesc->pTempSensor->stop();
     // pSystemDesc->pCompass->close();
