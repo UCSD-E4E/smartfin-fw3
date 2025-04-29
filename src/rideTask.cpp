@@ -69,8 +69,6 @@ STATES_e RideTask::run(void)
     DeploymentSchedule_t *pNextEvent = NULL;
     system_tick_t nextEventTime;
 
-    SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
-
     while (1)
     {
         // Wait for positive in-water signal.  This is run by waterCheck
@@ -84,6 +82,7 @@ STATES_e RideTask::run(void)
         }
         delay(1000);
     }
+    SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
 
     while (1)
     {
@@ -95,14 +94,25 @@ STATES_e RideTask::run(void)
         // Check if scheduler failed to find nextEvent
         if (TASK_SEARCH_FAIL == retval)
         {
-            SF_OSAL_printf("getNextEvent is null! Exiting RideTask..." __NL__);
+            SF_OSAL_printf("getNextEvent is null! Sleeping forever..." __NL__);
             FLOG_AddError(FLOG_SCHEDULER_FAILED, TASK_SEARCH_FAIL);
-            return STATE_UPLOAD;
+            nextEventTime = UINT32_MAX;
         }
-        SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
-        Particle.process();
+        else
+        {
+            SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
+        }
         while (millis() < nextEventTime)
         {
+            Particle.process();
+            if (!pSystemDesc->pWaterSensor->getLastStatus())
+            {
+                return STATE_UPLOAD;
+            }
+            if (pSystemDesc->flags->batteryLow)
+            {
+                return STATE_DEEP_SLEEP;
+            }
             delay(1);
         }
         SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());

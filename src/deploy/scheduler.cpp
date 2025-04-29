@@ -82,6 +82,12 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         StateInformation &currentEventState = scheduleTable[idx].state;
         std::uint32_t runTime = currentEventState.nextRunTime;
 
+        // if runTime is infinite, skip
+        if (runTime == UINT32_MAX)
+        {
+            continue;
+        }
+
         // check if a delay exists
         std::uint32_t difference = currentTime - runTime;
 
@@ -90,7 +96,7 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
             runTime = currentTime;
         }
 
-        if (difference >= (int)currentEvent.maxDelay)
+        if (difference >= currentEvent.maxDelay)
         {
             //! TODO: send warning
         }
@@ -114,7 +120,14 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         {
             *p_nextEvent = &currentEvent;
             *p_nextTime = runTime;
-            currentEventState.nextRunTime = runTime + currentEvent.ensembleInterval;
+            if (currentEvent.ensembleInterval == UINT32_MAX)
+            {
+                currentEventState.nextRunTime = UINT32_MAX;
+            }
+            else
+            {
+                currentEventState.nextRunTime = runTime + currentEvent.ensembleInterval;
+            }
 
             currentEventState.measurementCount++;
 
