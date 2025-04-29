@@ -114,7 +114,6 @@ void mainThread(void *args)
 
 static void initalizeTaskObjects(void)
 {
-    currentState = SF_DEFAULT_STATE;
 
     SleepTask::loadBootBehavior();
 
@@ -132,7 +131,7 @@ static void initalizeTaskObjects(void)
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_END:
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_START:
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NORMAL:
-        if (pSystemDesc->pWaterSensor->getLastReading())
+        if (pSystemDesc->pWaterSensor->getCurrentReading())
         {
             currentState = STATE_DEPLOYED;
         }

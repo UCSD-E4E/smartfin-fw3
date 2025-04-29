@@ -45,7 +45,7 @@ STATES_e ChargeTask::run(void)
         }
 
 #if SF_CHARGE_ALLOW_DEPLOY == 1
-        if (pSystemDesc->flags->inWater)
+        if (pSystemDesc->pWaterSensor->getLastStatus())
         {
             return STATE_DEPLOYED;
         }
