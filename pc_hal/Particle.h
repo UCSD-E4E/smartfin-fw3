@@ -47,13 +47,22 @@ class Timer
     void (*cb)(void);
     bool one_shot;
 
+private:
+    bool active;
+
 public:
     Timer(int period, void (*fn)(void), bool one_shot = false);
     void start(void)
     {
+        this->active = true;
     }
     void stop(void)
     {
+        this->active = false;
+    }
+    bool isActive()
+    {
+        return this->active;
     }
 };
 
@@ -186,6 +195,7 @@ enum
     RGB_COLOR_BLUE = 0x000000ff,
     RGB_COLOR_RED = 0x00ff0000,
     RGB_COLOR_YELLOW = 0x0000ffff,
+    RGB_COLOR_WHITE = 0x00ffffff,
 };
 
 class LEDSystemTheme
@@ -294,6 +304,10 @@ public:
     __RESET_REASON_t resetReason()
     {
         return RESET_REASON_NONE;
+    }
+    uint32_t resetReasonData()
+    {
+        return 0x00;
     }
 
     String &deviceID(void)
@@ -405,7 +419,8 @@ typedef enum
     A5,
     A6,
     A7,
-    WKP
+    WKP,
+    D9,
 } __PC_HAL_PIN_DEFs;
 
 typedef enum

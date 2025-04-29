@@ -52,6 +52,10 @@ typedef struct SystemDesc_
      */
     Timer* pWaterCheck;
     /**
+     * @brief Counts number of times device is checked for if it is in water
+     */
+    std::size_t water_check_count;
+    /**
      * @brief Point to NVRAM object that handles non-volatile memory storage
      * 
      * persists system state during deep sleep and power cycle
@@ -114,6 +118,13 @@ void SYS_initSys(void);
  * 
  */
 void SYS_displaySys(void);
+
+/**
+ * @brief Dumps a text view of all system components and state
+ * 
+ * @param indent Indentation amount.
+ */
+void SYS_dumpSys(int indent);
 
 extern SystemDesc_t* pSystemDesc;
 
