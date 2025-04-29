@@ -115,7 +115,7 @@ static int SYS_initTasks(void)
 
     systemDesc.pChargerCheck = &chargerTimer;
     systemDesc.pWaterCheck = &waterTimer;
-    waterTimer.start();
+    systemDesc.pWaterCheck->start();
 
     return 1;
 }
