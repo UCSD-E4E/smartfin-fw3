@@ -1,3 +1,17 @@
+## [3.9.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.9.1...v3.9.2) (2025-04-29)
+
+
+### Bug Fixes
+
+* Adds timing output ([2a1525a](https://github.com/UCSD-E4E/smartfin-fw3/commit/2a1525aceef69897c50d8f892b2b83ea46f766fd))
+* Allows deploy while in charge ([ff35549](https://github.com/UCSD-E4E/smartfin-fw3/commit/ff35549940dfcc42d4522f2cd1bbb506991bc166))
+* Fixes context window ([acc968c](https://github.com/UCSD-E4E/smartfin-fw3/commit/acc968c4897c21a1b2643878754af9b821e13818))
+* Fixes inWater flag behavior ([87b5328](https://github.com/UCSD-E4E/smartfin-fw3/commit/87b5328495892b6bca1fc394501dbba59d17ec2d))
+* Fixes monitorSensors water ([fc39bc7](https://github.com/UCSD-E4E/smartfin-fw3/commit/fc39bc760a20bcfb5e1c318e87f3cb5d7ea28357))
+* Fixes schele ([367280d](https://github.com/UCSD-E4E/smartfin-fw3/commit/367280d0c48da4c0056aafbfe5d7077f722d1f19))
+* Fixes sensor utilization and staging ([a88d7d7](https://github.com/UCSD-E4E/smartfin-fw3/commit/a88d7d7d135111c3036aef59ebad43017486bdf7))
+* Removes extraneous state configuration ([5999b32](https://github.com/UCSD-E4E/smartfin-fw3/commit/5999b328e59186df4dad31a7489caa3c3de0dc23))
+
 ## [3.9.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.9.0...v3.9.1) (2025-04-25)
 
 
