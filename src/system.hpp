@@ -63,7 +63,7 @@ typedef struct SystemDesc_
      */    
     WaterSensor* pWaterSensor;
     /**
-     * @brief Pointer to WaterSensor object that handles LED state when charging
+     * @brief Pointer to SFLed object that handles LED state when charging
      * 
      * on if charged and charger plugged in,
      * blinking if charging,
