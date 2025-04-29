@@ -74,6 +74,7 @@ STATES_e DataUpload::run(void)
     if (!this->initSuccess)
     {
         SF_OSAL_printf("Failed to init\n");
+        FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0401);
         return STATE_DEEP_SLEEP;
     }
 
@@ -87,11 +88,13 @@ STATES_e DataUpload::run(void)
             // We already know that there is data, but we aren't able to retrieve
             // it.  This can indicate recorder failure.
             FLOG_AddError(FLOG_UPL_OPEN_FAIL, 0);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0402);
             return STATE_DEEP_SLEEP;
         case -1:
         case -3:
             // Either active session (bug) or buffer overflow (bug)
             SF_OSAL_printf("Failed to retrieve data: %d" __NL__, nBytesToEncode);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0403);
             return STATE_CLI;
         default:
             break;
@@ -114,6 +117,7 @@ STATES_e DataUpload::run(void)
         {
             // size limit violation is bug
             SF_OSAL_printf("Failed to encode: %d" __NL__, retval);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0404);
             return STATE_CLI;
         }
 
@@ -127,12 +131,15 @@ STATES_e DataUpload::run(void)
         case sf::cloud::OVERSIZE_DATA:
         case sf::cloud::OVERSIZE_NAME:
             SF_OSAL_printf("Failed to publish: %d" __NL__, retval);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0405);
             return STATE_CLI;
         case sf::cloud::NOT_CONNECTED:
             FLOG_AddError(FLOG_UPL_CONNECT_FAIL, 1);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0406);
             return STATE_DEEP_SLEEP;
         case sf::cloud::PUBLISH_FAIL:
             FLOG_AddError(FLOG_UPL_PUB_FAIL, 0);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0407);
             return STATE_DEEP_SLEEP;
         case sf::cloud::SUCCESS:
             break;
@@ -148,11 +155,13 @@ STATES_e DataUpload::run(void)
         case -2:
             // This is a bug
             SF_OSAL_printf("Session failure" __NL__);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0408);
             return STATE_CLI;
         case 0:
             break;
         }
     }
+    FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0409);
     return next_state;
 
 }

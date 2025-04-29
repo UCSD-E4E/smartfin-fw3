@@ -123,6 +123,7 @@ static void initalizeTaskObjects(void)
     switch (SleepTask::getBootBehavior())
     {
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
+        FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0001);
         currentState = STATE_UPLOAD;
         break;
     default:
@@ -133,18 +134,22 @@ static void initalizeTaskObjects(void)
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NORMAL:
         if (pSystemDesc->pWaterSensor->getCurrentReading())
         {
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0002);
             currentState = STATE_DEPLOYED;
         }
         else if (pSystemDesc->pRecorder->hasData())
         {
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0003);
             currentState = STATE_UPLOAD;
         }
         else if (pSystemDesc->flags->hasCharger)
         {
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0004);
             currentState = SF_DEFAULT_STATE;
         }
         else
         {
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0005);
             currentState = STATE_DEEP_SLEEP;
         }
         break;
