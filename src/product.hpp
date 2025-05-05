@@ -19,6 +19,7 @@
  *
  */
 #define SF_PLATFORM_PARTICLE 1
+
 /**
  * @brief GCC Platform Selector
  *
@@ -46,6 +47,7 @@
 #endif // __PRODUCT_HPP__
 
 
+
 /******************************************************************************
  * Pin Definitions
  *****************************************************************************/
@@ -64,21 +66,17 @@
  * Water Detect Enable Pin
  */
 #define WATER_DETECT_EN_PIN   A2
+
 /**
  * Water Detect Pin
  */
 #define WATER_DETECT_PIN      A6
+
 /**
  * @brief Manufacturing Water Detect Pin
  * 
  */
 #define WATER_MFG_TEST_EN     A3
-
-/**
- * @brief ICM20648 Address
- * 
- */
-#define SF_ICM20648_ADDR    (0x68 << 1)
 
 /**
  * @brief Wakeup pin 
@@ -95,27 +93,42 @@
  * 
  */
 #define RIDE_DATA_DIR "ridedata"
+
 /**
  * @brief Object name length in LittleFS filesystem
  * 
  */
-
 #define LITTLEFS_OBJ_NAME_LEN 31
+
 /**
- * @brief Flags tto enabale or disable use of ICM20648 temperature sensor
+ * @brief Flags to enable or disable use of ICM20648 temperature sensor
  * 
  */
 #define USE_ICM_TEMP_SENSOR 0
 
 /**
+ * The default state that the Smartfin is in
+ */
+#define SF_DEFAULT_STATE   STATE_CHARGE
+
+/** 
+ * @brief Maximum length for a name field
+ */
+#define SF_NAME_MAX 64
+
+
+/*******************************************************************************
+ * CLI Configuration
+ ******************************************************************************/
+/**
  * how long to stay in CLI mode if there are no key presses at all
  */
 #define CLI_NO_INPUT_TIMEOUT_MS 600000
 
-/**
- * The default state that the Smartfin comes up in
+/** 
+ * @brief Maximum length of a command line in the CLI.
  */
-#define SF_DEFAULT_STATE   STATE_CHARGE
+#define SF_CLI_MAX_CMD_LEN 100
 
 
 /*******************************************************************************
@@ -125,18 +138,22 @@
  * The CLI RGB LED Color
  */
 #define SF_CLI_RGB_LED_COLOR        RGB_COLOR_RED
+
 /**
  * The CLI RGB LED Pattern
  */
 #define SF_CLI_RGB_LED_PATTERN      LED_PATTERN_SOLID
+
 /**
  * The CLI RGB LED behavior period
  */
 #define SF_CLI_RGB_LED_PERIOD       3000
+
 /**
  * The CLI RGB LED Priority
  */
 #define SF_CLI_RGB_LED_PRIORITY     LED_PRIORITY_IMPORTANT
+
 
 /*******************************************************************************
  * RIDE RGB LED Configuration
@@ -145,27 +162,31 @@
  * The Ride RGB LED Color
  */
 #define RIDE_RGB_LED_COLOR RGB_COLOR_WHITE
+
 /**
  * The Ride RGB LED pattern when GPS is in use
  */
 #define RIDE_RGB_LED_PATTERN_GPS LED_PATTERN_BLINK
+
 /**
  * The Ride RGB LED period when GPS is in use
  */
 #define RIDE_RGB_LED_PERIOD_GPS 500
+
 /**
  * The Ride RGB LED pattern when GPS is not in use
  */
 #define RIDE_RGB_LED_PATTERN_NOGPS LED_PATTERN_SOLID
+
 /**
  * The Ride RGB LED period when GPS is not in use
  */
 #define RIDE_RGB_LED_PERIOD_NOGPS 0
+
 /**
  * The Ride RGB LED Priority
  */
 #define RIDE_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
-
 
 
 /*******************************************************************************
@@ -175,11 +196,11 @@
  * The Data Upload RGB LED Color
  */
 #define SF_DUP_RGB_LED_COLOR        RGB_COLOR_BLUE
+
 /**
  * The Data Upload RGB LED behavior period
  */
 #define SF_DUP_RGB_LED_PERIOD       500
-
 
 
 /*******************************************************************************
@@ -189,19 +210,21 @@
  * The Temperature Calibrator RGB LED color
  */
 #define SF_TCAL_RGB_LED_COLOR       RGB_COLOR_ORANGE
+
 /**
  * The Temperature Calibrator RGB LED pattern
  */
 #define SF_TCAL_RGB_LED_PATTERN     LED_PATTERN_FADE
+
 /**
  * The Temperature Calibrator RGB LED behavior period
  */
 #define SF_TCAL_RGB_LED_PERIOD      3000
+
 /**
  * The Temperature Calibrator RGB LED Priority
  */
 #define SF_TCAL_RGB_LED_PRIORITY    LED_PRIORITY_IMPORTANT
-
 
 
 /*******************************************************************************
@@ -211,6 +234,7 @@
  * @brief Serial Debugging Baud Rate
  */
 #define SERIAL_DEBUG_BAUD_RATE 115200
+
 /**
  * SPI Flash Size
  */
@@ -221,12 +245,18 @@
  * 
  */
 #define PARTICLE_IO 1
+
 /**
  * @brief hardware revision
  * 
  */
 #define HARDWARE_REV 3
 
+/**
+ * @brief ICM20648 Address
+ * 
+ */
+#define SF_ICM20648_ADDR    (0x68 << 1)
 
 
 /******************************************************************************
@@ -255,7 +285,6 @@
 #define SF_BATTERY_SHUTDOWN_VOLTAGE 3.0
 
 
-
 /******************************************************************************
  * Upload and Communication Configuration
  *****************************************************************************/
@@ -264,27 +293,12 @@
  */
 #define SF_SERIAL_SPEED 9600
 
-/** 
- * @brief Maximum length of a command line in the CLI.
- */
-#define SF_CLI_MAX_CMD_LEN 100
-
-/** 
- * @brief Maximum length for a name field
- */
-#define SF_NAME_MAX 64
-
 /**
  * @brief Maximum number of attempts to connect to the cloud
  * 
  */
 #define SF_CLOUD_CONNECT_MAX_ATTEMPTS   5
 
-
-
-/******************************************************************************
- * Data Upload Configuration
- *****************************************************************************/
 /**
  * how long to stay in data upload without a cell signal/connection/succesful upload
  */
@@ -308,6 +322,7 @@
  */
 #define GPS_AGE_VALID_MS 5000
 
+
 /******************************************************************************
  * Water Detection Configuration
  *****************************************************************************/
@@ -315,6 +330,7 @@
  * Max size of the window/how large the FIFO array is
  */
 #define WATER_DETECT_ARRAY_SIZE 200
+
 /**
  * Window sizes are how many water detect samples are looked at in a moving 
  * average to determine if we are in or out of the water.  Generally a sample
@@ -337,6 +353,7 @@
  * 
  */
 #define PRODUCT_ID_SMARTFIN_Z7  8977
+
 /**
  * @brief UCSD Smartfin Product ID
  * 
@@ -358,8 +375,6 @@
  * @brief Enable initialization delay
  * 
  */
-// #define SF_ENABLE_DEBUG_DELAY   15
-
 
 /**
  * @brief How long to wait for a cell connection in during manufacturing test
@@ -377,22 +392,24 @@
  * 
  */
 #define SF_UPLOAD_BASE85 1
+
 /**
  * @brief Base64 encoding flag
  * 
  */
 #define SF_UPLOAD_BASE64 2
+
 /**
  * @brief Base64url encoding flag
  * 
  */
 #define SF_UPLOAD_BASE64URL 3
+
 /**
  * @brief Upload encoding type
  * 
  */
 #define SF_UPLOAD_ENCODING SF_UPLOAD_BASE64URL
-
 
 #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
  /**
