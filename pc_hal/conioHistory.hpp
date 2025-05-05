@@ -20,6 +20,11 @@
  * 
  */
 #define LINEAR_STEP_RESIZE 32 * 1024 * 1024
+/**
+ * @brief Max size of a single log file is 1GB
+ * 
+ */
+#define MAX_FILE_SIZE 1024 * 1024 * 1024
 
 /**
  * @brief Struct that contains the necessary metadata for a line in the history

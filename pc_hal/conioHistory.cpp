@@ -103,6 +103,11 @@ void resize_file()
 
 void write_line(const std::string &line, const bool NL_exists)
 {
+    // TEMPORARY: Stop writing to file at max size
+    if (current_offset + line.size() + 2 >= MAX_FILE_SIZE)
+    {
+        return;
+    }
     // Check if there's enough space, else resize
     if (current_offset + line.size() + 2 >= file_size)
     {
@@ -188,6 +193,11 @@ void overwrite_last_line_at(const std::string &line, const size_t offset, const 
 
 char *retrieve_display_line(const size_t line_idx)
 {
+    // Invalid line index
+    if (line_idx >= display_starts.size())
+    {
+        return nullptr;
+    }
     size_t true_idx = display_starts[line_idx]; // Grab the true index
     if (Lines[true_idx].len == 0)
         return nullptr;
