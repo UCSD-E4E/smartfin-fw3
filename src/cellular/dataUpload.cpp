@@ -28,7 +28,14 @@ STATES_e DataUpload::can_upload(void)
 {
     if (!pSystemDesc->pRecorder->hasData())
     {
-        return STATE_DEEP_SLEEP;
+        if (pSystemDesc->flags->hasCharger)
+        {
+            return STATE_CHARGE;
+        }
+        else
+        {
+            return STATE_DEEP_SLEEP;
+        }
     }
 
     if (!sf::cloud::is_connected())
@@ -102,7 +109,8 @@ STATES_e DataUpload::run(void)
         // Encode
         memset(ascii_record_buffer, 0, SF_RECORD_SIZE + 1);
         nBytesToSend = SF_RECORD_SIZE + 1;
-        if (retval = urlsafe_b64_encode(binary_packet_buffer, nBytesToEncode, ascii_record_buffer, &nBytesToSend))
+        if ((retval = urlsafe_b64_encode(
+                 binary_packet_buffer, nBytesToEncode, ascii_record_buffer, &nBytesToSend)))
         {
             // size limit violation is bug
             SF_OSAL_printf("Failed to encode: %d" __NL__, retval);

@@ -48,7 +48,7 @@
  * Set to 0 on final design, set to 1 for dev board.
  *
  */
-#define AD0_VAL 1
+#define AD0_VAL 0
 
 /**
  * @brief ICM Module Handle
@@ -135,6 +135,11 @@ void setupICM(void)
 
     bool success = true;
     ICM_20948_Status_e status = myICM.initializeDMP();
+    if (status != ICM_20948_Stat_Ok)
+    {
+        SF_OSAL_printf("DMP Initialization failed due to %d" __NL__, status);
+        FLOG_AddError(FLOG_ICM_DMP_INIT_FAIL, status);
+    }
     success &= (status == ICM_20948_Stat_Ok);
     // Enable the DMP sensors you want
     // Configuring DMP to output data at multiple ODRs:

@@ -24,7 +24,7 @@
 
 char SYS_deviceID[32];
 
-SystemDesc_t systemDesc, *pSystemDesc = &systemDesc;
+SystemDesc_t systemDesc = {0}, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
 static LEDSystemTheme ledTheme;
@@ -48,6 +48,7 @@ MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
 tmpSensor tempSensor(max31725);
 
 static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
+static SFLed waterLED(WATER_STATUS_LED, SFLed::SFLED_STATE_OFF);
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 static Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
@@ -75,6 +76,8 @@ void SYS_initSys(void)
     SYS_initFS();
     SYS_initWaterSensor();
     SYS_initLEDs();
+
+    pinMode(WKP, INPUT);
 
     systemDesc.pBattery = &battery_desc;    
 }
@@ -130,17 +133,26 @@ static int SYS_initTempSensor(void)
 static int SYS_initWaterSensor(void)
 {
     pinMode(WATER_DETECT_EN_PIN, OUTPUT);
+    digitalWrite(WATER_DETECT_EN_PIN, HIGH);
     pinMode(WATER_DETECT_PIN, INPUT);
     pinMode(WATER_MFG_TEST_EN, OUTPUT);
     digitalWrite(WATER_MFG_TEST_EN, LOW);
     systemDesc.pWaterSensor = &waterSensor;
     ledTimer.start();
+
+    // Take an initial reading to ensure that subsequent initialization operations
+    // work properly
+    waterSensor.update();
+
     return 1;
 }
 
 static int SYS_initLEDs(void)
 {
     batteryLED.init();
+    systemDesc.pBatteryLED = &batteryLED;
+    waterLED.init();
+    systemDesc.pWaterLED = &waterLED;
 
     ledTheme.setSignal(LED_SIGNAL_NETWORK_OFF, 0x000000, LED_PATTERN_SOLID);
     ledTheme.setSignal(LED_SIGNAL_NETWORK_ON, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
@@ -150,8 +162,7 @@ static int SYS_initLEDs(void)
     ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTING, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
     ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTED, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
     ledTheme.setSignal(LED_SIGNAL_CLOUD_HANDSHAKE, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
-    
-    systemDesc.pBatteryLED = &batteryLED;
+
     systemDesc.systemTheme = &ledTheme;
     return 1;
 }
@@ -163,6 +174,7 @@ static int SYS_initLEDs(void)
  */
 void SYS_chargerTask(void)
 {
+    bool previous_state = systemFlags.hasCharger;
     bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING;
     systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
     static int chargedTimestamp;
@@ -200,15 +212,18 @@ void SYS_chargerTask(void)
     }
     else
     {
-        chargedTimestamp = 0;
-        chargedTimestamp = 0;
-        FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
-        systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
+        if (previous_state)
+        {
+            FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
+            chargedTimestamp = 0;
+            systemDesc.pBatteryLED->setState(SFLed::SFLED_STATE_OFF);
+        }
     }
 }
 
 static void SYS_waterTask(void)
 {
+    systemDesc.water_check_count++;
     systemDesc.pWaterSensor->update();
     if(systemDesc.pWaterSensor->getLastReading())
     {
@@ -301,10 +316,76 @@ void SYS_displaySys(void)
     SF_OSAL_printf("Battery LED: 0x%08x" __NL__, pSystemDesc->pBatteryLED);
     SF_OSAL_printf("Battery Low Flag: %d" __NL__, pSystemDesc->flags->batteryLow);
     SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
-    SF_OSAL_printf("In Water Flag: %d" __NL__, pSystemDesc->flags->inWater);
 
     SF_OSAL_printf(__NL__);
     SF_OSAL_printf("Particle Connected: %d" __NL__, Particle.connected());
     SF_OSAL_printf("Cellular On: %d" __NL__, Cellular.isOn());
     SF_OSAL_printf("Cellular Ready: %d" __NL__, Cellular.ready());
+}
+
+void SYS_dumpSys(int indent)
+{
+    char indent_str[33];
+    if (indent > 32)
+    {
+        indent = 32;
+    }
+    if (indent < 0)
+    {
+        indent = 0;
+    }
+    memset(indent_str, ' ', 32);
+    indent_str[indent] = 0;
+
+    {
+        SF_OSAL_printf("%sDevice ID: %s" __NL__, indent_str, pSystemDesc->deviceID);
+    }
+    {
+        SF_OSAL_printf("%sLocation Service: 0x%08x" __NL__, indent_str, pSystemDesc->pLocService);
+        SF_OSAL_printf("%s  Location Service Status: %d" __NL__,
+                       indent_str,
+                       pSystemDesc->pLocService->isActive());
+    }
+    {
+        SF_OSAL_printf("%sRecorder: 0x%08x" __NL__, indent_str, pSystemDesc->pRecorder);
+    }
+    {
+        SF_OSAL_printf("%sCharger Check: 0x%08x" __NL__, indent_str, pSystemDesc->pChargerCheck);
+        SF_OSAL_printf("%s  Charger Check Active: %d" __NL__,
+                       indent_str,
+                       pSystemDesc->pChargerCheck->isActive());
+    }
+    {
+        SF_OSAL_printf("%sWater Check: 0x%08x" __NL__, indent_str, pSystemDesc->pWaterCheck);
+        SF_OSAL_printf(
+            "%s  Water Check Active: %d" __NL__, indent_str, pSystemDesc->pWaterCheck->isActive());
+        SF_OSAL_printf(
+            "%s  Water Check Exec Count: %d" __NL__, indent_str, systemDesc.water_check_count);
+    }
+    {
+        SF_OSAL_printf("%sNVRAM: 0x%08x" __NL__, indent_str, pSystemDesc->pNvram);
+    }
+    {
+        SF_OSAL_printf("%sWater Sensor: 0x%08x" __NL__, indent_str, pSystemDesc->pWaterSensor);
+    }
+    {
+        SF_OSAL_printf("%sBattery LED: 0x%08x" __NL__, indent_str, pSystemDesc->pBatteryLED);
+    }
+    {
+        SF_OSAL_printf("%sWater LED: 0x%08x" __NL__, indent_str, pSystemDesc->pWaterLED);
+        SF_OSAL_printf(
+            "%s  Water LED State: %d" __NL__, indent_str, pSystemDesc->pWaterLED->getState());
+    }
+    {
+        SF_OSAL_printf("%sTemp Sensor: 0x%08x" __NL__, indent_str, pSystemDesc->pTempSensor);
+    }
+    {
+        SF_OSAL_printf("%sSystem Theme: 0x%08x" __NL__, indent_str, pSystemDesc->systemTheme);
+    }
+    {
+        SF_OSAL_printf("%sBattery: 0x%08x" __NL__, indent_str, pSystemDesc->pBattery);
+    }
+    {
+        SF_OSAL_printf("%sSystem Flags: 0x%08x" __NL__, indent_str, pSystemDesc->flags);
+    }
 }

@@ -11,7 +11,7 @@
 #include "product.hpp"
 
 #define FW_MAJOR_VERSION    3
-#define FW_MINOR_VERSION    8
+#define FW_MINOR_VERSION    9
 #define FW_BUILD_NUM        2
 #define FW_BRANCH           ""
 
