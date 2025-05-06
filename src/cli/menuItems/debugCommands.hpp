@@ -62,4 +62,10 @@ void CLI_doMfgTest(void);
  * 
  */
 void CLI_fileCLI(void);
+/**
+ * @brief Initialize Cloud Counters
+ *
+ */
+void CLI_initCloudCounters(void);
+
 #endif

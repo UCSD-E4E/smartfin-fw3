@@ -8,29 +8,21 @@
 */
 #include "debugCommands.hpp"
 
-
-#include "system.hpp"
-
+#include "Particle.h"
+#include "cellular/recorder.hpp"
+#include "cellular/sf_cloud.hpp"
+#include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "cli/cli.hpp"
-#include "states.hpp"
-#include "fileCLI/fileCLI.hpp"
-
-#include <fcntl.h>
-#include <dirent.h>
-
-#include "product.hpp"
-
-#include "imu/imu.hpp"
 #include "consts.hpp"
-#include "cellular/recorder.hpp"
+#include "fileCLI/fileCLI.hpp"
+#include "imu/imu.hpp"
+#include "product.hpp"
+#include "states.hpp"
 #include "system.hpp"
 
-
-#include "Particle.h"
-
-
+#include <dirent.h>
+#include <fcntl.h>
 
 void CLI_restart(void)
 {
@@ -238,4 +230,9 @@ void CLI_fileCLI(void)
 {
     FileCLI cli;
     cli.execute();
+}
+
+void CLI_initCloudCounters(void)
+{
+    sf::cloud::initialize_counter();
 }

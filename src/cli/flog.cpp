@@ -105,6 +105,8 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_REC_SESSION_CLOSED, "Write to Closed Session"},
 
     {FLOG_CELL_DISCONN_FAIL, "Cellular failed to disconnect"},
+    {FLOG_CELL_CONNECT_FAIL_ATTEMPT_EXCEEDED, "Cellular connect attempts exceeded"},
+    {FLOG_CELL_CONNECT_FAIL_TIMEOUT, "Cellular connect timeout"},
 
     {FLOG_SW_NULLPTR, "Software Null Pointer"},
     {FLOG_DEBUG, "debug point"},
