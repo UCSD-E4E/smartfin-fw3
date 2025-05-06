@@ -36,6 +36,29 @@ typedef struct EnsembleHeader_
 }EnsembleHeader_t;
 
 /**
+ * @brief Ensemble 01 - Temperature
+ *
+ * This contains temperature + water
+ *
+ */
+typedef struct Ensemble01_data_
+{
+    /**
+     * @brief Scaled temperature + water
+     *
+     * If the temperature source is from the IMU, then the scaled temperature
+     * can be retrieved with RAW_TEMP / 333.87 + 21.0. Otherwise, the scaled
+     * temperature can be retrieved with RAW_TEMP / 128.0. If the temperature is
+     * < 0, then the water detect pin did not detect water, and the real
+     * temperature in degrees C is SCALED_TEMP + 100. Otherwise, the water
+     * detect pin did detect water, and the real temperature in degrees C is
+     * SCALED_TEMP.
+     *
+     */
+    int16_t raw_temp;
+} Ensemble01_data_t;
+
+/**
  * @brief Ensemble 07 - Battery
  * 
  */
