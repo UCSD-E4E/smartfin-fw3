@@ -19,4 +19,7 @@ void SS_ensemble08Init(DeploymentSchedule_t *pDeployment);
 void SS_fwVerInit(DeploymentSchedule_t *pDeployment);
 void SS_fwVerFunc(DeploymentSchedule_t *pDeployment);
 
+void SS_Ensemble01_Init(DeploymentSchedule_t *pDeployment);
+void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment);
+
 #endif //__ENSEMBLES_HPP__
