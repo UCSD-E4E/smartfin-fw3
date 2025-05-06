@@ -10,7 +10,9 @@
  */
 #include "deploy/scheduler.hpp"
 
+#include "cli/conio.hpp"
 #include "cli/flog.hpp"
+#include "consts.hpp"
 
 #include <cstring>
 
@@ -30,7 +32,6 @@ Scheduler::Scheduler(DeploymentSchedule_t schedule[]) : scheduleTable(schedule)
 void Scheduler::initializeScheduler()
 {
     DeploymentSchedule_t *pDeployment = this->scheduleTable;
-    std::uint32_t lastEndTime = 0;
     this->tableSize = 0;
     if (this->scheduleTable == nullptr)
     {
@@ -81,10 +82,17 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         DeploymentSchedule_t &currentEvent = scheduleTable[idx];
         StateInformation &currentEventState = scheduleTable[idx].state;
         std::uint32_t runTime = currentEventState.nextRunTime;
-
+        // SF_OSAL_printf("Ensemble %s: {'nextRunTime': %u, 'currentTime': %u, "
+        //                "'maxDelay': %u, 'interval': %u}" __NL__,
+        //                currentEvent.taskName,
+        //                currentEvent.state.nextRunTime,
+        //                currentTime,
+        //                currentEvent.maxDelay,
+        //                currentEvent.ensembleInterval);
         // if runTime is infinite, skip
         if (runTime == UINT32_MAX)
         {
+            // SF_OSAL_printf("Skipping - runTime is inf" __NL__);
             continue;
         }
 
@@ -103,14 +111,17 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         std::uint32_t delay = difference > 0 ? difference : 0;
 
         // Finish time of task
-        int expected_completion = runTime + currentEvent.maxDuration;
+        uint32_t expected_completion = runTime + currentEvent.maxDuration;
 
         bool canRun = true;
         // Iterate through all tasks of higher prioirty.
         for (int j = 0; (j < idx) && canRun; j++)
         {
-            if ((int)scheduleTable[j].state.nextRunTime < expected_completion)
+            if (scheduleTable[j].state.nextRunTime < expected_completion)
             {
+                // SF_OSAL_printf("This can't run because %s needs to run at %u" __NL__,
+                //                scheduleTable[j].taskName,
+                //                scheduleTable[j].state.nextRunTime);
                 canRun = false;
             }
         }
@@ -119,14 +130,21 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         if (canRun)
         {
             *p_nextEvent = &currentEvent;
-            *p_nextTime = runTime;
+            if (currentTime > currentEvent.state.nextRunTime)
+            {
+                *p_nextTime = currentTime;
+            }
+            else
+            {
+                *p_nextTime = currentEvent.state.nextRunTime;
+            }
             if (currentEvent.ensembleInterval == UINT32_MAX)
             {
                 currentEventState.nextRunTime = UINT32_MAX;
             }
             else
             {
-                currentEventState.nextRunTime = runTime + currentEvent.ensembleInterval;
+                currentEventState.nextRunTime = *p_nextTime + currentEvent.ensembleInterval;
             }
 
             currentEventState.measurementCount++;
