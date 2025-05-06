@@ -102,24 +102,26 @@ STATES_e RideTask::run(void)
         }
         else
         {
-            SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
+            // SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
         }
         while (millis() < nextEventTime)
         {
             Particle.process();
             if (!pSystemDesc->pWaterSensor->getLastStatus())
             {
+                SF_OSAL_printf("Out of water!" __NL__);
                 return STATE_UPLOAD;
             }
             if (pSystemDesc->flags->batteryLow)
             {
+                SF_OSAL_printf("Low Battery!" __NL__);
                 return STATE_DEEP_SLEEP;
             }
             delay(1);
         }
-        SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
+        // SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
         pNextEvent->measure(pNextEvent);
-        SF_OSAL_printf("Ends at %" PRId32 __NL__, (std::uint32_t)millis());
+        // SF_OSAL_printf("Ends at %" PRId32 __NL__, (std::uint32_t)millis());
 
         // pNextEvent->lastMeasurementTime = nextEventTime;
 
