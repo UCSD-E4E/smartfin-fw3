@@ -1,3 +1,50 @@
+# [3.10.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.9.2...v3.10.0) (2025-05-07)
+
+
+### Bug Fixes
+
+* Adds debugging for cellular ([ad8820b](https://github.com/UCSD-E4E/smartfin-fw3/commit/ad8820b8b868636d746e8870ed278effe7a48676))
+* Adds state transition justifications ([b4e0259](https://github.com/UCSD-E4E/smartfin-fw3/commit/b4e0259eb0e255f4fe2dd4c852bde63d8ca9c802))
+* Adds test for temperature/water encoding ([2d2987c](https://github.com/UCSD-E4E/smartfin-fw3/commit/2d2987ca1928bafb354fafd609702cddba6d567e))
+* Allows fast deploy from charge ([5859775](https://github.com/UCSD-E4E/smartfin-fw3/commit/58597759b2114533c237193740c1e26c41f133db))
+* Cleans up output ([88769f3](https://github.com/UCSD-E4E/smartfin-fw3/commit/88769f3000aca6f1304eedf18d08809748f970dc))
+* Fixes scheduler ([a761577](https://github.com/UCSD-E4E/smartfin-fw3/commit/a761577b766eab92eb08f88f70c53c20390e5f67))
+* Fixing scheduler ([c0c604a](https://github.com/UCSD-E4E/smartfin-fw3/commit/c0c604aaebbe7f242c3572bd7db0d78254eb9573))
+* Updates notebook run ([73456a4](https://github.com/UCSD-E4E/smartfin-fw3/commit/73456a4f615b3de2b2cbf49502f9f797a6db5b7e))
+
+
+### Features
+
+* Adds Ens 1 to the schedule ([ad2abef](https://github.com/UCSD-E4E/smartfin-fw3/commit/ad2abefaa8f73f0ad99a9d3b7886f9282ff3a38d))
+* Adds Ensemble01 implementation ([7c46d5e](https://github.com/UCSD-E4E/smartfin-fw3/commit/7c46d5ef91ead2d3e9063a7361d1d480c1d9fd1f))
+
+## [3.9.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.9.1...v3.9.2) (2025-04-29)
+
+
+### Bug Fixes
+
+* Adds timing output ([2a1525a](https://github.com/UCSD-E4E/smartfin-fw3/commit/2a1525aceef69897c50d8f892b2b83ea46f766fd))
+* Allows deploy while in charge ([ff35549](https://github.com/UCSD-E4E/smartfin-fw3/commit/ff35549940dfcc42d4522f2cd1bbb506991bc166))
+* Fixes context window ([acc968c](https://github.com/UCSD-E4E/smartfin-fw3/commit/acc968c4897c21a1b2643878754af9b821e13818))
+* Fixes inWater flag behavior ([87b5328](https://github.com/UCSD-E4E/smartfin-fw3/commit/87b5328495892b6bca1fc394501dbba59d17ec2d))
+* Fixes monitorSensors water ([fc39bc7](https://github.com/UCSD-E4E/smartfin-fw3/commit/fc39bc760a20bcfb5e1c318e87f3cb5d7ea28357))
+* Fixes schele ([367280d](https://github.com/UCSD-E4E/smartfin-fw3/commit/367280d0c48da4c0056aafbfe5d7077f722d1f19))
+* Fixes sensor utilization and staging ([a88d7d7](https://github.com/UCSD-E4E/smartfin-fw3/commit/a88d7d7d135111c3036aef59ebad43017486bdf7))
+* Removes extraneous state configuration ([5999b32](https://github.com/UCSD-E4E/smartfin-fw3/commit/5999b328e59186df4dad31a7489caa3c3de0dc23))
+
+## [3.9.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.9.0...v3.9.1) (2025-04-25)
+
+
+### Bug Fixes
+
+* Adds decimal output ([dfd6371](https://github.com/UCSD-E4E/smartfin-fw3/commit/dfd63711c2d8a7d9bd66e6d29f4072fc7c8d63f6))
+* Consolidates charger removed messages ([564fc0b](https://github.com/UCSD-E4E/smartfin-fw3/commit/564fc0be0dd376e9b7427c25d27d4c79652842ab))
+* Fixes PC Hal pin defs ([a097b9e](https://github.com/UCSD-E4E/smartfin-fw3/commit/a097b9e51622173eb4cbff55052f10d7f9e1f279))
+* Fixes state sequencing ([9376c11](https://github.com/UCSD-E4E/smartfin-fw3/commit/9376c117446272be13a347ec79b75ea2a4e3e7f1))
+* Fixes water sensor and LED ([ce1fa85](https://github.com/UCSD-E4E/smartfin-fw3/commit/ce1fa859405e66d8d65d67ca2b6c1bb050cc8c1c))
+* Fixes water sensor behavior ([#208](https://github.com/UCSD-E4E/smartfin-fw3/issues/208)) ([5dc4ffd](https://github.com/UCSD-E4E/smartfin-fw3/commit/5dc4ffd0dbf34207274ceb6bab2669bffe3e65df))
+* Fixing state transitions ([70805c0](https://github.com/UCSD-E4E/smartfin-fw3/commit/70805c05079dac3bd5884a31b031348338624bfe))
+
 # [3.9.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.8.2...v3.9.0) (2025-04-22)
 
 

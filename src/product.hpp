@@ -73,8 +73,14 @@
 #define WATER_DETECT_PIN      A6
 
 /**
+ * @brief Water Detection Status LED
+ *
+ */
+#define WATER_STATUS_LED      D9
+
+/**
  * @brief Manufacturing Water Detect Pin
- * 
+ *
  */
 #define WATER_MFG_TEST_EN     A3
 
@@ -284,6 +290,21 @@
  */
 #define SF_BATTERY_SHUTDOWN_VOLTAGE 3.0
 
+/**
+ * @brief How long to stay in session init while waiting to get into water
+ * before going to sleep
+ *
+ */
+#define SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS 300000
+
+/**
+ * @brief Flag allowing deploy while in charge
+ *
+ * This should not be allowed in production, but is useful during debug.  Set
+ * to 0 for production
+ *
+ */
+#define SF_CHARGE_ALLOW_DEPLOY 1
 
 /******************************************************************************
  * Upload and Communication Configuration

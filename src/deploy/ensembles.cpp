@@ -1,6 +1,9 @@
 /**
  * @file ensembles.cpp
  * @brief Contains definitions of ensembles (updated version of smartfin-fw2 ensembles)
+ *
+ * \defgroup ensemble_imp Ensemble Implementation
+ * @{
  */
 #include "ensembles.hpp"
 
@@ -17,6 +20,100 @@
 #include "Particle.h"
 #endif
 
+/**
+ * @brief Ensemble 01 (Temperature)
+ *
+ * See https://github.com/UCSD-E4E/smartfin-fw3/wiki/Smartfin-Publish-Data-Format#temperature-0x01
+ *
+ * \defgroup ensemble_01 Temperature (0x01)
+ * @{
+ */
+
+/**
+ * @brief Ensemble 01 (Temperature) data structure
+ *
+ * This structure contains the temperature and water data accumulation fields.
+ *
+ */
+typedef struct
+{
+    float temperature;
+    int16_t water;
+    uint32_t accumulateCount;
+} Ensemble01_eventData_t;
+/**
+ * @brief Ensemble 01 (Temperature) data store
+ *
+ */
+static Ensemble01_eventData_t ensemble01Data;
+
+/**
+ * @brief Ensemble 01 (Temperature) Initialization
+ *
+ * This function initializes all of the support structures for Ensemble 01.
+ *
+ * We only support external temperature sensor.
+ *
+ * @param pDeployment Deployment data
+ */
+void SS_Ensemble01_Init(DeploymentSchedule_t *pDeployment)
+{
+    memset(&ensemble01Data, 0x00, sizeof(Ensemble01_eventData_t));
+    pDeployment->state.pData = &ensemble01Data;
+}
+
+/**
+ * @brief Ensemble 01 (Temperature) Function
+ *
+ * This function accumulates and decimates data for Ensemble 01
+ *
+ * We only support external temperature sensor.
+ *
+ * @param pDeployment Deployment data
+ */
+void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment)
+{
+    float temp;
+    int water;
+    // Accumulate data
+    Ensemble01_eventData_t *pData = (Ensemble01_eventData_t *)pDeployment->state.pData;
+
+#pragma pack(push, 1)
+    struct
+    {
+        EnsembleHeader_t header;
+        Ensemble01_data_t data;
+    } ensData;
+#pragma pack(pop)
+
+    temp = pSystemDesc->pTempSensor->getTemp();
+    water = pSystemDesc->pWaterSensor->getLastReading();
+    // FIXME: change error catch
+    if (0 != temp)
+    {
+        pData->temperature += temp;
+        pData->water += water;
+        pData->accumulateCount += 1;
+    }
+
+    if (pData->accumulateCount == pDeployment->measurementsToAccumulate)
+    {
+        // We have accumulated enough to average, average, write, and reset
+        water = pData->water / pDeployment->measurementsToAccumulate;
+        temp = pData->temperature / pDeployment->measurementsToAccumulate;
+
+        // populate ensemble
+        ensData.header.ensembleType = ENS_TEMP;
+        ensData.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.nextRunTime);
+        ensData.data.raw_temp = 128 * (temp - 100 * water);
+
+        // Commit ensemble
+        pSystemDesc->pRecorder->putBytes(&ensData, sizeof(ensData));
+    }
+}
+
+/** @}*/
+
 typedef struct Ensemble10_eventData_
 {
     int16_t temperature;
@@ -28,6 +125,7 @@ typedef struct Ensemble10_eventData_
     uint8_t hasGPS;
     uint32_t accumulateCount;
 } Ensemble10_eventData_t;
+static Ensemble10_eventData_t ensemble10Data;
 
 typedef struct Ensemble08_eventData_
 {
@@ -36,16 +134,26 @@ typedef struct Ensemble08_eventData_
 
     uint32_t accumulateCount;
 } Ensemble08_eventData_t;
+static Ensemble08_eventData_t ensemble08Data;
 
 typedef struct Ensemble07_eventData_
 {
     uint16_t battVoltage;
     uint32_t accumulateCount;
 } Ensemble07_eventData_t;
-
-static Ensemble10_eventData_t ensemble10Data;
 static Ensemble07_eventData_t ensemble07Data;
-static Ensemble08_eventData_t ensemble08Data;
+
+/**
+ * @}
+ */
+
+/**
+ * @brief Ensemble Functions
+ *
+ * \defgroup ens_fn Ensemble Functions
+ * \addtogroup ens_fn
+ * @{
+ */
 
 void SS_ensemble10Init(DeploymentSchedule_t *pDeployment)
 {
@@ -266,10 +374,27 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
 #endif
 }
 
+/**
+ * @brief Firmware Ensemble
+ * \defgroup fw_ens Firmware Ensemble
+ * \addtogroup fw_ens
+ * @{
+ */
+
+/**
+ * @brief Firmware Ensemble Initialization
+ *
+ * @param pDeployment Deployment schedule block
+ */
 void SS_fwVerInit(DeploymentSchedule_t *pDeployment)
 {
     (void)pDeployment;
 }
+/**
+ * @brief Firmware Ensemble execute
+ *
+ * @param pDeployment Deployment schedule block
+ */
 void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
 {
 #pragma pack(push, 1)
@@ -293,3 +418,5 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
                           FW_BRANCH);
     pSystemDesc->pRecorder->putBytes(&ens, sizeof(EnsembleHeader_t) + sizeof(uint8_t) + ens.nChars);
 }
+/** @} */
+/** @} */

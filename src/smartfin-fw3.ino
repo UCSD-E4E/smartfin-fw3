@@ -69,8 +69,6 @@ void setup()
     System.enableFeature(FEATURE_RESET_INFO);
     SF_OSAL_init_conio();
 
-    currentState = STATE_CLI;
-
     FLOG_Initialize();
     time32_t bootTime = Time.now();
     FLOG_AddError(FLOG_SYS_START, bootTime);
@@ -82,16 +80,6 @@ void setup()
     SYS_initSys();
 
     initalizeTaskObjects();
-
-    currentState = STATE_CHARGE;
-
-    if (!sf::cloud::initialize_counter())
-    {
-        if (currentState == STATE_UPLOAD)
-        {
-            currentState = STATE_CHARGE;
-        }
-    }
 }
 
 // loop() runs over and over again, as quickly as it can execute.
@@ -126,7 +114,6 @@ void mainThread(void *args)
 
 static void initalizeTaskObjects(void)
 {
-    currentState = SF_DEFAULT_STATE;
 
     SleepTask::loadBootBehavior();
 
@@ -135,9 +122,36 @@ static void initalizeTaskObjects(void)
 
     switch (SleepTask::getBootBehavior())
     {
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
+        FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0001);
+        currentState = STATE_UPLOAD;
+        break;
     default:
-    case SleepTask::BOOT_BEHAVIOR_NORMAL:
-        currentState = SF_DEFAULT_STATE;
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NOT_SET:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_CONTINUE:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_END:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_TMP_CAL_START:
+    case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NORMAL:
+        if (pSystemDesc->pWaterSensor->getCurrentReading())
+        {
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0002);
+            currentState = STATE_DEPLOYED;
+        }
+        else if (pSystemDesc->pRecorder->hasData())
+        {
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0003);
+            currentState = STATE_UPLOAD;
+        }
+        else if (pSystemDesc->flags->hasCharger)
+        {
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0004);
+            currentState = SF_DEFAULT_STATE;
+        }
+        else
+        {
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0005);
+            currentState = STATE_DEEP_SLEEP;
+        }
         break;
     }
 }

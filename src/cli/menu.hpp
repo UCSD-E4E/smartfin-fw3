@@ -83,8 +83,9 @@ void MNU_displayMenu(const Menu_t* pMenu);
 
 /**
  * @brief Executes the given menu
- * 
+ *
  * @param pMenu Menu to execute
+ * @return 0 on normal execution, -1 on abort due to USB terminal disconnect
  */
-void MNU_executeMenu(const Menu_t* pMenu);
+int MNU_executeMenu(const Menu_t *pMenu);
 #endif

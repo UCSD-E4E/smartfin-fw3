@@ -104,7 +104,14 @@ void CLI::init(void)
 
 STATES_e CLI::run(void)
 {
-    MNU_executeMenu(CLI_menu);
+    switch (MNU_executeMenu(CLI_menu))
+    {
+    case -1: // Abort due to USB terminal disconnect
+        CLI_nextState = STATE_DEEP_SLEEP;
+        break;
+    default:
+        break;
+    }
     return CLI_nextState;
 }
 
@@ -485,8 +492,8 @@ static void CLI_monitorSensors(void)
         sensor_headers[11].value = NAN;
         if (sensors[WET_DRY])
         {
-
-            sensor_headers[10].value = pSystemDesc->pWaterSensor->getCurrentReading();
+            pSystemDesc->pWaterSensor->update();
+            sensor_headers[10].value = pSystemDesc->pWaterSensor->getLastReading();
             sensor_headers[11].value = pSystemDesc->pWaterSensor->getLastStatus();
         }
 
