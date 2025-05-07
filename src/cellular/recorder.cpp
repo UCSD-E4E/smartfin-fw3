@@ -200,6 +200,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
      */
     if (!this->metadata_header_valid)
     {
+        FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 1);
         return 1;
     }
     /*
@@ -208,6 +209,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
     */
     if (!hasData())
     {
+        FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 2);
         return 2;
     }
 
@@ -231,7 +233,11 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
         if (!session.open(this->filename_buffer, Deployment::RDWR))
         {
             SF_OSAL_printf("REC::OPEN Fail to open %s" __NL__, this->filename_buffer);
-            return 3;
+            FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 3);
+            // Instead of returning an error code, skip this file
+            // return 3;
+            pop_metadata_entry();
+            continue;
         }
 
         /*
@@ -243,6 +249,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
             if (1 != session.remove())
             {
                 SF_OSAL_printf("REC::OPEN Failed to remove empty session!" __NL__);
+                FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 4);
                 return 4;
             }
             /*
@@ -268,6 +275,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
         SF_OSAL_printf("Set name to %s" __NL__, p_name_buf);
         return 0;
     }
+    FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 5);
     return 5;
 }
 
@@ -297,8 +305,8 @@ int Recorder::getLastPacket(void* pBuffer,
     {
         // memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
         #ifdef REC_DEBUG
-        SF_OSAL_printf("Failed to open last session" __NL__);
-        #endif
+        SF_OSAL_printf("Failed to open last session for get" __NL__);
+#endif
         return -2;
     }
 
@@ -363,8 +371,8 @@ int Recorder::popLastPacket(size_t len)
     {
         // memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
         #ifdef REC_DEBUG
-        SF_OSAL_printf("Failed to open last session" __NL__);
-        #endif
+        SF_OSAL_printf("Failed to open last session for pop" __NL__);
+#endif
         return -2;
     }
 
