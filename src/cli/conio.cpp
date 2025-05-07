@@ -21,15 +21,50 @@
 
 char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
-pthread_t read_thread, write_thread;
+/**
+ * @brief Separate thread for reading in keyboard input
+ * 
+ */
+pthread_t read_thread;
+/**
+ * @brief Length for read buffer
+ * 
+ */
 #define SF_OSAL_READ_BUFLEN 2048
+/**
+ * @brief Buffer for keyboard input
+ * 
+ */
 char SF_OSAL_inputBuffer[SF_OSAL_READ_BUFLEN];
+/**
+ * @brief Head points to last keyboard inputted. Tail points to last input read by the program.
+ * 
+ */
 std::size_t read_head_idx = 0, read_tail_idx = 0;
+/**
+ * @brief Mutex used for functions accessing the inputBuffer
+ * 
+ */
 pthread_mutex_t read_mutex;
+/**
+ * @brief Buffer used for writing to log file in SF_OSAL_getline function
+ * 
+ */
 std::string file_buf;
+/**
+ * @brief Dimensions of the ncurses CLI window
+ * 
+ */
 std::size_t wind_h, wind_w;
-// For deinit_conio to distinguish
+/**
+ * @brief Flag to allow deinit_conio to distinguish if SF_OSAL_getline has already written file_buf into log file
+ * 
+ */
 bool buf_written = false;
+/**
+ * @brief Allows conio to know where in the log file that it may need to write to.
+ * 
+ */
 size_t offset;
 
 void *read_loop(void *_)
