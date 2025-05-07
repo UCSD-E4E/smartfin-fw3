@@ -176,7 +176,7 @@ extern "C"
                 userInput = SF_OSAL_getch();
 
                 // Check only for UP and DOWN scroll (^[A and ^[B) first
-                if (userInput == 27)
+                if (userInput == '\x1B')
                 {
                     while (!SF_OSAL_kbhit())
                     {
@@ -284,7 +284,7 @@ extern "C"
                     }
                     switch (userInput)
                     {
-                        case 127:
+                        case '\x7F':
                         case '\b':
                             if (i > 0)
                             {
