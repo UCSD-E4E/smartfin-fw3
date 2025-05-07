@@ -103,6 +103,7 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_FS_READ_FAIL, "file ftrunc fail"},
     {FLOG_REC_SETUP_FAIL, "Recorder setup failed"},
     {FLOG_REC_SESSION_CLOSED, "Write to Closed Session"},
+    {FLOG_REC_OPEN_LAST_SESSION_FAIL, "Recorder open last session fail"},
 
     {FLOG_CELL_DISCONN_FAIL, "Cellular failed to disconnect"},
     {FLOG_CELL_CONNECT_FAIL_ATTEMPT_EXCEEDED, "Cellular connect attempts exceeded"},
