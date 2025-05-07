@@ -111,8 +111,8 @@ extern "C"
         char retval = SF_OSAL_inputBuffer[read_tail_idx % SF_OSAL_READ_BUFLEN];
         read_tail_idx++;
         pthread_mutex_unlock(&read_mutex);
-        if (!display)
-            write_line(std::string(1, retval), false);
+        if (!conioHistory::display)
+            conioHistory::write_line(std::string(1, retval), false);
         return retval;
 #endif
     }
@@ -166,9 +166,9 @@ extern "C"
             }
         }
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        display = true;
+        conioHistory::display = true;
         file_buf = "";
-        offset = get_offset();
+        offset = conioHistory::get_offset();
         while (i < buflen)
         {
             if (SF_OSAL_kbhit())
@@ -189,7 +189,7 @@ extern "C"
                     }
                     inp = SF_OSAL_getch();
 
-                    if (bottom_display <= wind_h) // No need to scroll
+                    if (conioHistory::bottom_display <= wind_h) // No need to scroll
                     {
                         break;
                     }
@@ -197,24 +197,24 @@ extern "C"
                     {
                         case 'A':
                         {
-                            size_t top_idx = cur_bottom_display - wind_h + 1;
+                            size_t top_idx = conioHistory::cur_bottom_display - wind_h + 1;
                             if (top_idx == 0) // Already at top
                             {
                                 break;
                             }
-                            if (cur_bottom_display == bottom_display)
+                            if (conioHistory::cur_bottom_display == conioHistory::bottom_display)
                             {
                                 // Save anything already written
-                                overwrite_last_line_at(file_buf, offset, false);
+                                conioHistory::overwrite_last_line_at(file_buf, offset, false);
                                 buf_written = true;
                             }
                             wscrl(stdscr, -1);
                             curs_set(0);
                             move(0, 0);
                             wrefresh(stdscr);
-                            cur_bottom_display--;
+                            conioHistory::cur_bottom_display--;
 
-                            char *line = retrieve_display_line(--top_idx);
+                            char *line = conioHistory::retrieve_display_line(--top_idx);
                             if (!line)
                             {
                                 break;
@@ -226,22 +226,24 @@ extern "C"
                         }
                         case 'B':
                         {
-                            if (cur_bottom_display == bottom_display) // Already at bottom
+                            if (conioHistory::cur_bottom_display ==
+                                conioHistory::bottom_display) // Already at bottom
                             {
                                 break;
                             }
                             wscrl(stdscr, 1);
                             move(wind_h - 1, 0);
                             wrefresh(stdscr);
-                            cur_bottom_display++;
+                            conioHistory::cur_bottom_display++;
 
-                            char *line = retrieve_display_line(cur_bottom_display);
+                            char *line = conioHistory::retrieve_display_line(
+                                conioHistory::cur_bottom_display);
                             if (!line)
                             {
                                 break;
                             }
                             wprintw(stdscr, "%s", line);
-                            if (cur_bottom_display == bottom_display)
+                            if (conioHistory::cur_bottom_display == conioHistory::bottom_display)
                             {
                                 curs_set(1);
                             }
@@ -255,13 +257,15 @@ extern "C"
                 {
                     buf_written = false;
                     // Move window back to the bottom first if necessary
-                    if (cur_bottom_display != bottom_display)
+                    if (conioHistory::cur_bottom_display != conioHistory::bottom_display)
                     {
                         wclear(stdscr);
                         char *line;
-                        for (size_t idx = bottom_display - wind_h + 1; idx < bottom_display; idx++)
+                        for (size_t idx = conioHistory::bottom_display - wind_h + 1;
+                             idx < conioHistory::bottom_display;
+                             idx++)
                         {
-                            line = retrieve_display_line(idx);
+                            line = conioHistory::retrieve_display_line(idx);
                             if (!line)
                             {
                                 wprintw(stdscr, "\n");
@@ -271,7 +275,7 @@ extern "C"
                             wrefresh(stdscr);
                             free(line);
                         }
-                        line = retrieve_display_line(bottom_display);
+                        line = conioHistory::retrieve_display_line(conioHistory::bottom_display);
                         if (!line)
                         {
                             break;
@@ -279,7 +283,7 @@ extern "C"
                         wprintw(stdscr, "%s", line);
                         wrefresh(stdscr);
                         free(line);
-                        cur_bottom_display = bottom_display;
+                        conioHistory::cur_bottom_display = conioHistory::bottom_display;
                         curs_set(1);
                     }
                     switch (userInput)
@@ -303,8 +307,8 @@ extern "C"
                         case '\n':
                             buffer[i++] = 0;
                             SF_OSAL_putch('\n');
-                            overwrite_last_line_at(file_buf, offset, true);
-                            display = false;
+                            conioHistory::overwrite_last_line_at(file_buf, offset, true);
+                            conioHistory::display = false;
                             return i;
                     }
                 }
@@ -312,8 +316,8 @@ extern "C"
         }
         // Exceeded buffer is automatically entered as command
         SF_OSAL_putch('\n');
-        write_line(file_buf, true);
-        display = false;
+        conioHistory::write_line(file_buf, true);
+        conioHistory::display = false;
 #endif
         return i;
     }
@@ -327,7 +331,7 @@ extern "C"
         nBytes = vsnprintf(SF_OSAL_printfBuffer, SF_OSAL_PRINTF_BUFLEN, fmt, vargs);
         Serial.write(SF_OSAL_printfBuffer);
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        display = true;
+        conioHistory::display = true;
         int size = vsnprintf(nullptr, 0, fmt, vargs);
         va_end(vargs);
 
@@ -342,12 +346,12 @@ extern "C"
         size_t start = 0, end;
         while ((end = formatted.find('\n', start)) != std::string::npos)
         {
-            write_line(formatted.substr(start, end - start), true); // Extract line
+            conioHistory::write_line(formatted.substr(start, end - start), true); // Extract line
             start = end + 1; // Move past '\n'
         }
-        write_line(formatted.substr(start), false);
+        conioHistory::write_line(formatted.substr(start), false);
         wrefresh(stdscr);
-        display = false;
+        conioHistory::display = false;
 #endif
         va_end(vargs);
         return nBytes;
@@ -363,7 +367,7 @@ extern "C"
         scrollok(stdscr, TRUE);
         immedok(stdscr, TRUE);
 
-        init_file_mapping();
+        conioHistory::init_file_mapping();
         getmaxyx(stdscr, wind_h, wind_w);
 
         pthread_create(&read_thread, NULL, read_loop, NULL);
@@ -376,9 +380,9 @@ extern "C"
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
         if (!buf_written)
         {
-            overwrite_last_line_at(file_buf, offset, false);
+            conioHistory::overwrite_last_line_at(file_buf, offset, false);
         }
-        deinit_file_mapping();
+        conioHistory::deinit_file_mapping();
         endwin();
 #endif
     }
