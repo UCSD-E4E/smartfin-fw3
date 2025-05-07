@@ -21,9 +21,15 @@
 
 void CLI_connect(void)
 {
-
-    sf::cloud::wait_connect(30000);
-    SF_OSAL_printf("Connected" __NL__);
+    int retval = sf::cloud::wait_connect(30000, true);
+    if (0 == retval)
+    {
+        SF_OSAL_printf("Connected" __NL__);
+    }
+    else
+    {
+        SF_OSAL_printf("Failed to connect: %d" __NL__, retval);
+    }
 }
 
 void CLI_disconnect(void)

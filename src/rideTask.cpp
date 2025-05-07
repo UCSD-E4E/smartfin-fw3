@@ -22,8 +22,10 @@
  * @see SCH_getNextEvent
  */
 DeploymentSchedule_t deploymentSchedule[] = {
+    // measure, init, accumulate, interval, duration, delay, name, state
     {SS_fwVerFunc, SS_fwVerInit, 1, UINT32_MAX, 10, 0, "FW VER", {0}},
-    {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
+    {SS_Ensemble01_Func, SS_Ensemble01_Init, 1, 1000, 50, 0, "Temp", {0}},
+    // {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
     {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
 
 /**
@@ -69,8 +71,6 @@ STATES_e RideTask::run(void)
     DeploymentSchedule_t *pNextEvent = NULL;
     system_tick_t nextEventTime;
 
-    SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
-
     while (1)
     {
         // Wait for positive in-water signal.  This is run by waterCheck
@@ -84,6 +84,7 @@ STATES_e RideTask::run(void)
         }
         delay(1000);
     }
+    SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
 
     while (1)
     {
@@ -95,19 +96,32 @@ STATES_e RideTask::run(void)
         // Check if scheduler failed to find nextEvent
         if (TASK_SEARCH_FAIL == retval)
         {
-            SF_OSAL_printf("getNextEvent is null! Exiting RideTask..." __NL__);
+            SF_OSAL_printf("getNextEvent is null! Sleeping forever..." __NL__);
             FLOG_AddError(FLOG_SCHEDULER_FAILED, TASK_SEARCH_FAIL);
-            return STATE_UPLOAD;
+            nextEventTime = UINT32_MAX;
         }
-        SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
-        Particle.process();
+        else
+        {
+            // SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
+        }
         while (millis() < nextEventTime)
         {
+            Particle.process();
+            if (!pSystemDesc->pWaterSensor->getLastStatus())
+            {
+                SF_OSAL_printf("Out of water!" __NL__);
+                return STATE_UPLOAD;
+            }
+            if (pSystemDesc->flags->batteryLow)
+            {
+                SF_OSAL_printf("Low Battery!" __NL__);
+                return STATE_DEEP_SLEEP;
+            }
             delay(1);
         }
-        SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
+        // SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
         pNextEvent->measure(pNextEvent);
-        SF_OSAL_printf("Ends at %" PRId32 __NL__, (std::uint32_t)millis());
+        // SF_OSAL_printf("Ends at %" PRId32 __NL__, (std::uint32_t)millis());
 
         // pNextEvent->lastMeasurementTime = nextEventTime;
 
