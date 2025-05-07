@@ -236,7 +236,10 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
             FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 3);
             // Instead of returning an error code, skip this file
             // return 3;
-            pop_metadata_entry();
+            if (pop_metadata_entry())
+            {
+                return 3;
+            }
             continue;
         }
 
@@ -506,6 +509,11 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
     return 0;
 }
 
+/**
+ * @brief Pops a metadata entry
+ *
+ * @return int 1 on failure, otherwise 0
+ */
 int Recorder::pop_metadata_entry(void)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
