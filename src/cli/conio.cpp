@@ -336,20 +336,20 @@ extern "C"
         va_end(vargs);
 
         va_start(vargs, fmt);
-        std::string formatted(size + 1, '\0');
-        vsnprintf(&formatted[0], size + 1, fmt, vargs);
+        char formatted[size + 1];
+        vsnprintf(formatted, size + 1, fmt, vargs);
         va_end(vargs);
 
-        formatted.pop_back(); // remove the null terminator
-        wprintw(stdscr, "%s", formatted.c_str());
+        wprintw(stdscr, "%s", formatted);
 
+        std::string full_line = formatted;
         size_t start = 0, end;
-        while ((end = formatted.find('\n', start)) != std::string::npos)
+        while ((end = full_line.find('\n', start)) != std::string::npos)
         {
-            conioHistory::write_line(formatted.substr(start, end - start), true); // Extract line
+            conioHistory::write_line(full_line.substr(start, end - start), true); // Extract line
             start = end + 1; // Move past '\n'
         }
-        conioHistory::write_line(formatted.substr(start), false);
+        conioHistory::write_line(full_line.substr(start), false);
         wrefresh(stdscr);
         conioHistory::display = false;
 #endif
