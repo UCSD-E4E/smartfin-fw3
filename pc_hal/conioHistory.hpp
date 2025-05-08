@@ -107,9 +107,7 @@ namespace conioHistory
 
     /**
      * @brief Clears the file from the given offset to EOF and writes the file at that offset
-     * @details This function is not safe to use without proper implementation knowledge and assumes
-     * that the offset provided is for the last line struct of file. Improper usage can break the
-     * history logging system
+     * @details This function is not safe to use without proper implementation knowledge and assumes that the offset provided is for the last line struct of file. Improper usage can break the history logging system
      *
      * @param line Line to be written
      * @param offset Starting offset point to write
@@ -119,8 +117,7 @@ namespace conioHistory
 
     /**
      * @brief Retrives the display line from the given index
-     * @details This function dynamically allocates memory for the line. The user must free it after
-     * usage. A nullptr is returned if the line is empty at the index
+     * @details This function dynamically allocates memory for the line. The user must free it after usage. A nullptr is returned if the line is empty at the index
      *
      * @param line_idx Index of the line to be retrieved
      * @return char* of the line if successful
@@ -135,8 +132,8 @@ namespace conioHistory
     size_t get_offset();
 
     /**
-     * @brief Flag set to display line for CLI window.
-     *
+     * @brief Flag set to display line for CLI window
+     * @details This flag should be set for functions that will put characters/strings into the ncurses CLI window, such as SF_OSAL_getline and SF_OSAL_printf found in conio.cpp
      */
     extern bool display;
 
