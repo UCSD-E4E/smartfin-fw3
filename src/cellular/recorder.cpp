@@ -695,6 +695,7 @@ char path_buf[PATH_MAX + 1];
  */
 int rmtree(DIR *const dir_to_remove, char *const prefix)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     const struct dirent *dir_entry;
     int retval;
     char *const next_path_element = prefix + strlen(prefix);
@@ -757,10 +758,14 @@ int rmtree(DIR *const dir_to_remove, char *const prefix)
         return 1;
     }
     return 0;
+#else
+    return 1;
+#endif
 }
 
 int Recorder::reformat(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int retval;
     // Check that nothing is open
     if (this->pSession)
@@ -809,4 +814,7 @@ int Recorder::reformat(void)
         return 1;
     }
     return 0;
+#else
+    return 1;
+#endif
 }
