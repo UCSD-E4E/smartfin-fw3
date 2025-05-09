@@ -81,7 +81,7 @@ int Recorder::create_metadata_file(void)
             this->metadata_header_valid = true;
             return 1;
         }
-    #ifdef REC_DEBUG
+#ifdef REC_DEBUG
         SF_OSAL_printf("REC::create_metadata_file: dir in the way!" __NL__);
     #endif
         unlink(METADATA_FILE);
@@ -90,7 +90,7 @@ int Recorder::create_metadata_file(void)
     {
         if (ENOENT != errno)
         {
-        #ifdef REC_DEBUG
+#ifdef REC_DEBUG
             SF_OSAL_printf("REC::create_metadata_file: Failed to stat: %d" __NL__,
                            errno);
         #endif
@@ -200,6 +200,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
      */
     if (!this->metadata_header_valid)
     {
+        FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 1);
         return 1;
     }
     /*
@@ -208,6 +209,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
     */
     if (!hasData())
     {
+        FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 2);
         return 2;
     }
 
@@ -231,7 +233,14 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
         if (!session.open(this->filename_buffer, Deployment::RDWR))
         {
             SF_OSAL_printf("REC::OPEN Fail to open %s" __NL__, this->filename_buffer);
-            return 3;
+            FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 3);
+            // Instead of returning an error code, skip this file
+            // return 3;
+            if (pop_metadata_entry())
+            {
+                return 3;
+            }
+            continue;
         }
 
         /*
@@ -243,6 +252,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
             if (1 != session.remove())
             {
                 SF_OSAL_printf("REC::OPEN Failed to remove empty session!" __NL__);
+                FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 4);
                 return 4;
             }
             /*
@@ -268,6 +278,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
         SF_OSAL_printf("Set name to %s" __NL__, p_name_buf);
         return 0;
     }
+    FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 5);
     return 5;
 }
 
@@ -297,8 +308,8 @@ int Recorder::getLastPacket(void* pBuffer,
     {
         // memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
         #ifdef REC_DEBUG
-        SF_OSAL_printf("Failed to open last session" __NL__);
-        #endif
+        SF_OSAL_printf("Failed to open last session for get" __NL__);
+#endif
         return -2;
     }
 
@@ -363,8 +374,8 @@ int Recorder::popLastPacket(size_t len)
     {
         // memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
         #ifdef REC_DEBUG
-        SF_OSAL_printf("Failed to open last session" __NL__);
-        #endif
+        SF_OSAL_printf("Failed to open last session for pop" __NL__);
+#endif
         return -2;
     }
 
@@ -417,11 +428,13 @@ int Recorder::openSession()
 {
     if (!this->metadata_header_valid)
     {
+        FLOG_AddError(FLOG_REC_INVALID_METADATA, 0);
         return 0;
     }
     if (nullptr != this->pSession)
     {
         SF_OSAL_printf("Double open!" __NL__);
+        FLOG_AddError(FLOG_REC_DOUBLE_OPEN, 0);
         return 0;
     }
 
@@ -498,6 +511,11 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
     return 0;
 }
 
+/**
+ * @brief Pops a metadata entry
+ *
+ * @return int 1 on failure, otherwise 0
+ */
 int Recorder::pop_metadata_entry(void)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE

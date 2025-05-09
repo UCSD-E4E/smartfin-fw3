@@ -85,7 +85,7 @@ void CLI::init(void)
 {
     VERS_printBanner();
 
-    CLI_nextState = STATE_CLI;
+    CLI_nextState = STATE_CHARGE;
 
     pSystemDesc->pChargerCheck->start();
 
