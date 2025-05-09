@@ -58,7 +58,10 @@ void RideTask::init()
     this->startTime = millis();
 
     this->scheduler.initializeScheduler();
-    pSystemDesc->pRecorder->openSession();
+    if (!pSystemDesc->pRecorder->openSession())
+    {
+        SF_OSAL_printf("Failed to open session!" __NL__);
+    }
     setupICM();
 }
 
@@ -82,6 +85,7 @@ STATES_e RideTask::run(void)
         {
             return STATE_DEEP_SLEEP;
         }
+        Particle.process();
         delay(1000);
     }
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
