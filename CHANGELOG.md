@@ -1,3 +1,15 @@
+# [3.12.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.11.0...v3.12.0) (2025-05-09)
+
+
+### Bug Fixes
+
+* not supported implementation for non particle ([9ff8757](https://github.com/UCSD-E4E/smartfin-fw3/commit/9ff8757dbe97c50bf24a23ec1d7329e2496ec59e))
+
+
+### Features
+
+* Adds format ([b5b314d](https://github.com/UCSD-E4E/smartfin-fw3/commit/b5b314d64f4e5632c01a4b16bf2ce5e7cfcbe479))
+
 # [3.11.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.10.0...v3.11.0) (2025-05-09)
 
 
