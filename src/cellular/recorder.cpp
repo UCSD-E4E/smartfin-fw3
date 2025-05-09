@@ -81,7 +81,7 @@ int Recorder::create_metadata_file(void)
             this->metadata_header_valid = true;
             return 1;
         }
-    #ifdef REC_DEBUG
+#ifdef REC_DEBUG
         SF_OSAL_printf("REC::create_metadata_file: dir in the way!" __NL__);
     #endif
         unlink(METADATA_FILE);
@@ -90,7 +90,7 @@ int Recorder::create_metadata_file(void)
     {
         if (ENOENT != errno)
         {
-        #ifdef REC_DEBUG
+#ifdef REC_DEBUG
             SF_OSAL_printf("REC::create_metadata_file: Failed to stat: %d" __NL__,
                            errno);
         #endif
@@ -428,11 +428,13 @@ int Recorder::openSession()
 {
     if (!this->metadata_header_valid)
     {
+        FLOG_AddError(FLOG_REC_INVALID_METADATA, 0);
         return 0;
     }
     if (nullptr != this->pSession)
     {
         SF_OSAL_printf("Double open!" __NL__);
+        FLOG_AddError(FLOG_REC_DOUBLE_OPEN, 0);
         return 0;
     }
 
