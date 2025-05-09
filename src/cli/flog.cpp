@@ -108,6 +108,14 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_REC_DOUBLE_OPEN, "Recorder double open"},
     {FLOG_REC_OPEN_SESSION_FAIL, "Recorder open session fail"},
 
+    {FLOG_REC_FORMAT_OPEN, "Recorder format - open files"},
+    {FLOG_REC_FORMAT_RM_FILE, "Recorder format - unable to remove file"},
+    {FLOG_REC_RMTREE_RM_FILE, "Recorder rmtree - unable to remove file"},
+    {FLOG_REC_RMTREE_READDIR, "Recorder rmtree - readdir failed"},
+    {FLOG_REC_RMTREE_RMDIR, "Recorder rmtree - rmdir failed"},
+    {FLOG_REC_RMTREE_OPENDIR, "Recorder rmtree - opendir failed"},
+    {FLOG_REC_FORMAT_RMTREE, "Recorder format - unable to rmtree"},
+
     {FLOG_CELL_DISCONN_FAIL, "Cellular failed to disconnect"},
     {FLOG_CELL_CONNECT_FAIL_ATTEMPT_EXCEEDED, "Cellular connect attempts exceeded"},
     {FLOG_CELL_CONNECT_FAIL_TIMEOUT, "Cellular connect timeout"},
@@ -158,7 +166,7 @@ void FLOG_DisplayLog(void)
 
     for (; i < flogData.numEntries; i++)
     {
-        SF_OSAL_printf("%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT " (%12" PRId32 ")" __NL__,
+        SF_OSAL_printf("%8d %48s, parameter: 0x%08" FLOG_PARAM_FMT " (%12" PRId32 ")" __NL__,
                        flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
                        FLOG_FindMessage(
                            (FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
