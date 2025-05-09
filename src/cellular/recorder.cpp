@@ -683,3 +683,138 @@ int Recorder::peek_last_metadata_entry(timestamp_entry_t& entry)
 #endif
     return 0;
 }
+
+char path_buf[PATH_MAX + 1];
+/**
+ * @brief Recursively removes the entries inside this directory
+ *
+ * @param dir_to_remove Directory to remove the contents of
+ * @param prefix Unix path (including path separator) representing the directory.
+ * This buffer must have enough space to store all possible path names.
+ * @return int 0 on success, otherwise 1
+ */
+int rmtree(DIR *const dir_to_remove, char *const prefix)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    const struct dirent *dir_entry;
+    int retval;
+    char *const next_path_element = prefix + strlen(prefix);
+    errno = 0;
+    for (dir_entry = readdir(dir_to_remove); dir_entry; dir_entry = readdir(dir_to_remove))
+    {
+        if (dir_entry->d_type & DT_REG)
+        {
+            // This is a regular file.  Make full path, then unlink
+            strncpy(next_path_element, dir_entry->d_name, NAME_MAX);
+            errno = 0;
+            retval = unlink(prefix);
+            *next_path_element = 0;
+            if (-1 == retval)
+            {
+                FLOG_AddError(FLOG_REC_RMTREE_RM_FILE, errno);
+                return 1;
+            }
+        }
+        else if (dir_entry->d_type & DT_DIR)
+        {
+            if (strcmp(dir_entry->d_name, ".") == 0 || strcmp(dir_entry->d_name, "..") == 0)
+            {
+                // this is the current/upper directory, continue
+                errno = 0;
+                continue;
+            }
+            // This is a regular directory.  Make full path, then rmtree it
+            strncpy(next_path_element, dir_entry->d_name, NAME_MAX);
+            strcat(next_path_element, PATH_SEP);
+            errno = 0;
+            DIR *next_dir = opendir(prefix);
+            if (!next_dir)
+            {
+                FLOG_AddError(FLOG_REC_RMTREE_OPENDIR, errno);
+                return 1;
+            }
+            SF_OSAL_printf("rmtree %s", prefix);
+            retval = rmtree(next_dir, prefix);
+            closedir(next_dir);
+            if (retval)
+            {
+                *next_path_element = 0;
+                return 1;
+            }
+            errno = 0;
+            retval = rmdir(prefix);
+            *next_path_element = 0;
+            if (retval)
+            {
+                FLOG_AddError(FLOG_REC_RMTREE_RMDIR, errno);
+                return 1;
+            }
+        }
+        errno = 0;
+    }
+    if (errno)
+    {
+        FLOG_AddError(FLOG_REC_RMTREE_READDIR, errno);
+        return 1;
+    }
+    return 0;
+#else
+    return 1;
+#endif
+}
+
+int Recorder::reformat(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    int retval;
+    // Check that nothing is open
+    if (this->pSession)
+    {
+        return 1;
+    }
+
+    // stat DATA_ROOT
+    struct stat data_root_stat;
+    if (0 == stat(DATA_ROOT, &data_root_stat))
+    {
+        // This path exists!  is it a file or a dir?
+        if (data_root_stat.st_mode & S_IFREG)
+        {
+            // This is a file!
+            // Remove it
+            if (-1 == unlink(DATA_ROOT))
+            {
+                // failed to remove
+                FLOG_AddError(FLOG_REC_FORMAT_RM_FILE, errno);
+                return 1;
+            }
+            // File doesn't exist anymore, we can move on
+        }
+        else if (data_root_stat.st_mode & S_IFDIR)
+        {
+            // This is a folder.  We need to recursively search and remove it.
+            memset(path_buf, 0, NAME_MAX + 1);
+            strncpy(path_buf, DATA_ROOT, PATH_MAX);
+            strcat(path_buf, PATH_SEP);
+            DIR *data_dir = opendir(DATA_ROOT);
+            retval = rmtree(data_dir, path_buf);
+            closedir(data_dir);
+            if (retval)
+            {
+                FLOG_AddError(FLOG_REC_FORMAT_RMTREE, 0);
+                return 1;
+            }
+        }
+    }
+
+    // At this point, `/data` should not exist.
+    if (!this->init())
+    {
+        // this logs its own FLOG, no need to do so again
+        return 1;
+    }
+    return 0;
+#else
+    return 1;
+#endif
+}
