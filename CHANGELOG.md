@@ -1,3 +1,20 @@
+# [3.11.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.10.0...v3.11.0) (2025-05-09)
+
+
+### Bug Fixes
+
+* Adds debugging statements and particle process ([99cea1f](https://github.com/UCSD-E4E/smartfin-fw3/commit/99cea1fc1e9d519fe6741e94a0290f975520a314))
+* Adds FLOG entries ([f5799c4](https://github.com/UCSD-E4E/smartfin-fw3/commit/f5799c468c0529d491b6ae88cbe8c1b9a013ba4d))
+* Adjusts open fail behavior ([55e3f4f](https://github.com/UCSD-E4E/smartfin-fw3/commit/55e3f4fc556ceccc4cac37ba92561dc798ee0068))
+* Fixes delay computation ([b9fea05](https://github.com/UCSD-E4E/smartfin-fw3/commit/b9fea05d03c395d155047eafcd5b088d767e46bb))
+* Fixes deploy ([#228](https://github.com/UCSD-E4E/smartfin-fw3/issues/228)) ([3bc9543](https://github.com/UCSD-E4E/smartfin-fw3/commit/3bc95435416fb64437d44500f88001b924f251e8)), closes [#226](https://github.com/UCSD-E4E/smartfin-fw3/issues/226)
+* Prohibit loop on failure ([6ace4b8](https://github.com/UCSD-E4E/smartfin-fw3/commit/6ace4b87e51c1c8330c8978ab9c770a0092ca2cd))
+
+
+### Features
+
+* Changes CLI exit to default to STATE_CHARGE ([1544ee9](https://github.com/UCSD-E4E/smartfin-fw3/commit/1544ee95130cf03a3cb29ebebe79f4ed21b9cd19))
+
 # [3.10.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.9.2...v3.10.0) (2025-05-07)
 
 
