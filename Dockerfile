@@ -14,6 +14,20 @@ COPY tests /code/tests
 COPY src /code/src
 
 RUN cmake ..
-RUN make -j smartfin_pc
+#>>>>
+#RUN make -j smartfin_pc
+#>>>>
 
-CMD ["./pc_hal/smartfin_pc"]
+#RUN make -j
+
+RUN make -j googletests
+
+#>>>>
+RUN ctest --output-on-failure
+#>>>>
+
+#CMD ["./pc_hal/smartfin_pc"]
+
+#>>>>
+CMD ["./googletests"]
+#>>>>
