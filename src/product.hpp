@@ -396,7 +396,7 @@
  * @brief Enable initialization delay
  * 
  */
-
+// #define SF_ENABLE_DEBUG_DELAY   15
 /**
  * @brief How long to wait for a cell connection in during manufacturing test
  * 
