@@ -167,7 +167,7 @@ void setupICM(void)
     if (success == false)
     {
         SF_OSAL_printf("DMP fail!" __NL__);
-        FLOG_AddError(FLOG_ICM_FAIL, 1);
+        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
     }
 #endif
 }
@@ -179,7 +179,7 @@ bool getAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 
     if (myICM.status != ICM_20948_Stat_Ok)
     {
-        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
         return false;
     }
 
@@ -197,7 +197,7 @@ bool getGyroscope(float *gyr_x, float *gyr_y, float *gyr_z)
 
     if (myICM.status != ICM_20948_Stat_Ok)
     {
-        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
         return false;
     }
 
@@ -215,7 +215,7 @@ bool getMagnetometer(float *mag_x, float *mag_y, float *mag_z)
 
     if (myICM.status != ICM_20948_Stat_Ok)
     {
-        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
         return false;
     }
 
@@ -233,7 +233,7 @@ bool getTemperature(float *temperature)
 
     if (myICM.status != ICM_20948_Stat_Ok)
     {
-        FLOG_AddError(FLOG_ICM_FAIL, 0);
+        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
         return false;
     }
 
