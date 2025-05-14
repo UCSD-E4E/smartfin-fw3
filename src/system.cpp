@@ -132,6 +132,7 @@ static int SYS_initTempSensor(void)
 
 static int SYS_initWaterSensor(void)
 {
+    uint8_t water_sensor_window = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
     pinMode(WATER_DETECT_EN_PIN, OUTPUT);
     digitalWrite(WATER_DETECT_EN_PIN, HIGH);
     pinMode(WATER_DETECT_PIN, INPUT);
@@ -140,6 +141,18 @@ static int SYS_initWaterSensor(void)
     systemDesc.pWaterSensor = &waterSensor;
     ledTimer.start();
 
+    // TODO: remove this once NVRAM defaults exist
+    systemDesc.pNvram->put(NVRAM::DATA_ID_e::WATER_DETECT_WINDOW_LEN,
+                           WATER_DETECT_SURF_SESSION_INIT_WINDOW);
+    if (!systemDesc.pNvram->get(NVRAM::DATA_ID_e::WATER_DETECT_WINDOW_LEN, water_sensor_window))
+    {
+        water_sensor_window = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
+        // We don't really care about the return value
+        systemDesc.pNvram->put(NVRAM::DATA_ID_e::WATER_DETECT_WINDOW_LEN,
+                               WATER_DETECT_SURF_SESSION_INIT_WINDOW);
+    }
+
+    waterSensor.setWindowSize(water_sensor_window);
     // Take an initial reading to ensure that subsequent initialization operations
     // work properly
     waterSensor.update();
@@ -367,6 +380,8 @@ void SYS_dumpSys(int indent)
     }
     {
         SF_OSAL_printf("%sWater Sensor: 0x%08x" __NL__, indent_str, pSystemDesc->pWaterSensor);
+        SF_OSAL_printf(
+            "%s  Window Size: %hu" __NL__, indent_str, pSystemDesc->pWaterSensor->getWindowSize());
     }
     {
         SF_OSAL_printf("%sBattery LED: 0x%08x" __NL__, indent_str, pSystemDesc->pBatteryLED);

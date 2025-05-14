@@ -40,11 +40,15 @@ bool WaterSensor::resetArray()
 
 /**
  * @brief Set window size to value
- * 
- * @param window_size_to_set 
+ *
+ * @param window_size_to_set
  */
 void WaterSensor::setWindowSize(uint8_t window_size_to_set)
 {
+    if (window_size_to_set > WATER_DETECT_ARRAY_SIZE)
+    {
+        window_size_to_set = WATER_DETECT_ARRAY_SIZE;
+    }
     // swtich the window parameter and clear the sum (for resumming)
     moving_window_size = WATER_DETECT_ARRAY_SIZE;
     array_sum = 0;
@@ -249,4 +253,9 @@ uint8_t WaterSensor::waterDetectArrayLocation(int16_t location, int16_t offset)
     {
         return (location + offset);
     }
+}
+
+uint8_t WaterSensor::getWindowSize(void)
+{
+    return this->moving_window_size;
 }
