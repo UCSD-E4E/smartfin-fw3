@@ -1,3 +1,14 @@
+## [3.12.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.12.0...v3.12.1) (2025-05-14)
+
+
+### Bug Fixes
+
+* Adds NVRAM interface and docstrings ([447cdfb](https://github.com/UCSD-E4E/smartfin-fw3/commit/447cdfbf7c183b531a63efa150bc39a8d3038040))
+* consolidate water sensor array length ([#186](https://github.com/UCSD-E4E/smartfin-fw3/issues/186)) ([90dc412](https://github.com/UCSD-E4E/smartfin-fw3/commit/90dc412a6b37b695e611a3d945cf929728947488))
+* removed inconsistent and redundant array length ([69f2a69](https://github.com/UCSD-E4E/smartfin-fw3/commit/69f2a69edf8dc3961596a1d8e850be7417247388))
+* water sensor parameter removed ([55a207e](https://github.com/UCSD-E4E/smartfin-fw3/commit/55a207e67cbb179f4c4e3444eaac718cb9afeff7))
+* workflow testing ([d257f31](https://github.com/UCSD-E4E/smartfin-fw3/commit/d257f3185bd3305895d99309e0f73f6fc659a148))
+
 # [3.12.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.11.0...v3.12.0) (2025-05-09)
 
 
