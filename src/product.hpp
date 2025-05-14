@@ -316,4 +316,10 @@
 #else
 #define SF_PLATFORM SF_PLATFORM_GLIBC
 #endif
+
+/**
+ * @brief Inhibit Upload Flag
+ *
+ */
+// #define SF_INHIBIT_UPLOAD
 #endif // __PRODUCT_HPP__
