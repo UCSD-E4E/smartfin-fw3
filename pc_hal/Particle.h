@@ -461,7 +461,8 @@ typedef enum
     OS_THREAD_PRIORITY_DEFAULT = 2
 } os_thread_prio_t;
 
-#define OS_THREAD_STACK_SIZE_DEFAULT 4 * 1024
+#define OS_THREAD_STACK_SIZE_DEFAULT 1024
+#define OS_THREAD_STACK_SIZE_HIGH 4 * 1024
 
 class Thread
 {
