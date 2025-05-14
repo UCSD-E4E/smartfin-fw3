@@ -371,14 +371,6 @@ bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
     return false;
 }
 
-void whereDMP(void)
-{
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    // std::string sName(reinterpret_cast<char*>(name));
-    SF_OSAL_printf("%hhu" __NL__, myICM.getWhoAmI());
-#endif
-}
-
 bool getDMPData(IMU_DMPData_t &data)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE

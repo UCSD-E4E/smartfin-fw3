@@ -113,8 +113,6 @@ bool getDMPAccelerometerAcc(float *acc_acc);
  */
 void setupICM(void);
 
-void whereDMP(void);
-
 /**
  * @brief Get the DMP data from the FIFO
  *
