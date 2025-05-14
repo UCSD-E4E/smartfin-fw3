@@ -60,8 +60,15 @@ static STATES_e currentState;
 
 static StateMachine_t *findState(STATES_e state);
 static void initalizeTaskObjects(void);
-void mainThread(void *args);
+void mainFunc(void);
+void mainLoop(void *args);
 static void printState(STATES_e state);
+
+/**
+ * @brief Main thread object
+ *
+ */
+Thread __sf_main_thread;
 
 // setup() runs once, when the device is first turned on.
 void setup()
@@ -80,15 +87,37 @@ void setup()
     SYS_initSys();
 
     initalizeTaskObjects();
+    __sf_main_thread = Thread(
+        "SF_main", mainLoop, NULL, OS_THREAD_PRIORITY_DEFAULT, OS_THREAD_STACK_SIZE_DEFAULT_HIGH);
 }
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop()
 {
-    mainThread(NULL);
+    // mainThread(NULL);
+    delay(1);
 }
 
-void mainThread(void *args)
+/**
+ * @brief Main loop
+ *
+ * Core thread loop
+ *
+ * @param args
+ */
+void mainLoop(void *args)
+{
+    while (1)
+    {
+        mainFunc();
+    }
+}
+
+/**
+ * @brief Main loop function
+ *
+ */
+void mainFunc(void)
 {
 
     StateMachine_t *pState;
