@@ -142,10 +142,7 @@ class os_queue_t
 {
 };
 
-class Thread
-{
-};
-#define os_thread_yield() ;
+#define os_thread_yield() delay(1)
 
 enum
 {
