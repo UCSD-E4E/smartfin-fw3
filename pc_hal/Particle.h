@@ -11,11 +11,13 @@
 #ifndef __PC_HAL_PARTICLE_H__
 #define __PC_HAL_PARTICLE_H__
 
+#include <chrono>
 #include <cstdarg>
 #include <cstdint>
 #include <cstring>
 #include <functional>
 #include <string>
+#include <thread>
 #define retained
 class EEPROMClass
 {
@@ -347,9 +349,11 @@ public:
 
     void delay(std::uint32_t ms)
     {
+        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
     }
     void delayMicroseconds(std::size_t us)
     {
+        std::this_thread::sleep_for(std::chrono::microseconds(us));
     }
     String format(uint32_t timestamp, const char *fmt)
     {
@@ -451,4 +455,27 @@ namespace particle
         const std::size_t MAX_EVENT_NAME_LENGTH = 64;
     } // namespace protocol
 } // namespace particle
+
+typedef enum
+{
+    OS_THREAD_PRIORITY_DEFAULT = 2
+} os_thread_prio_t;
+
+#define OS_THREAD_STACK_SIZE_DEFAULT 4 * 1024
+
+class Thread
+{
+private:
+    std::thread _thread;
+
+public:
+    Thread(const char *name,
+           void (*function)(void *),
+           void *function_param = NULL,
+           os_thread_prio_t priority = OS_THREAD_PRIORITY_DEFAULT,
+           std::size_t stack_size = OS_THREAD_STACK_SIZE_DEFAULT)
+        : _thread(function, function_param)
+    {
+    }
+};
 #endif // __PC_HAL_PARTICLE_H__
