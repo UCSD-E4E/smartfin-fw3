@@ -459,7 +459,7 @@ typedef enum
 } os_thread_prio_t;
 
 #define OS_THREAD_STACK_SIZE_DEFAULT 1024
-#define OS_THREAD_STACK_SIZE_HIGH 4 * 1024
+#define OS_THREAD_STACK_SIZE_DEFAULT_HIGH 4 * 1024
 
 class Thread
 {
@@ -473,6 +473,9 @@ public:
            os_thread_prio_t priority = OS_THREAD_PRIORITY_DEFAULT,
            std::size_t stack_size = OS_THREAD_STACK_SIZE_DEFAULT)
         : _thread(function, function_param)
+    {
+    }
+    Thread()
     {
     }
 };
