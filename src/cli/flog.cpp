@@ -53,6 +53,8 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_SYS_UNKNOWNSTATE, "Unknown State"},
     {FLOG_RESET_REASON, "Reset Reason"},
     {FLOG_CHARGER_REMOVED, "Charger removed"},
+    {FLOG_RESET_REASON_DATA, "Reset Reason Data"},
+    {FLOG_SYS_STARTSTATE_JUSTIFICATION, "Starting state justification"},
 
     {FLOG_CAL_BURST, "Calibrate Burst"},
     {FLOG_CAL_INIT, "Calibrate Initialization"},
@@ -71,7 +73,11 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_MAG_MODE_FAIL, "Compass Mode Set Fail"},
     {FLOG_ICM_FAIL, "ICM Fail"},
 
+    {FLOG_ICM_DMP_INIT_FAIL, "ICM DMP Init Fail"},
+
     {FLOG_RIDE_INIT_TIMEOUT, "Ride init Timeout"},
+    {FLOG_SCHEDULER_FAILED, "Scheduler failed"},
+    {FLOG_SCHEDULER_DELAY_EXCEEDED, "Ensemble skipped"},
 
     {FLOG_UPLOAD_NO_UPLOAD, "Upload - No Upload Flag set"},
     {FLOG_UPL_BATT_LOW, "Upload Battery low"},
@@ -94,16 +100,29 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_FS_WRITE_FAIL, "file write fail"},
     {FLOG_FS_CLOSE_FAIL, "file close fail"},
     {FLOG_FS_FTRUNC_FAIL, "file ftrunc fail"},
-    {FLOG_FS_READ_FAIL, "file ftrunc fail"},
+    {FLOG_FS_READ_FAIL, "file read fail"},
     {FLOG_REC_SETUP_FAIL, "Recorder setup failed"},
     {FLOG_REC_SESSION_CLOSED, "Write to Closed Session"},
+    {FLOG_REC_OPEN_LAST_SESSION_FAIL, "Recorder open last session fail"},
+    {FLOG_REC_INVALID_METADATA, "Recorder metadata invalid"},
+    {FLOG_REC_DOUBLE_OPEN, "Recorder double open"},
+    {FLOG_REC_OPEN_SESSION_FAIL, "Recorder open session fail"},
+
+    {FLOG_REC_FORMAT_OPEN, "Recorder format - open files"},
+    {FLOG_REC_FORMAT_RM_FILE, "Recorder format - unable to remove file"},
+    {FLOG_REC_RMTREE_RM_FILE, "Recorder rmtree - unable to remove file"},
+    {FLOG_REC_RMTREE_READDIR, "Recorder rmtree - readdir failed"},
+    {FLOG_REC_RMTREE_RMDIR, "Recorder rmtree - rmdir failed"},
+    {FLOG_REC_RMTREE_OPENDIR, "Recorder rmtree - opendir failed"},
+    {FLOG_REC_FORMAT_RMTREE, "Recorder format - unable to rmtree"},
 
     {FLOG_CELL_DISCONN_FAIL, "Cellular failed to disconnect"},
+    {FLOG_CELL_CONNECT_FAIL_ATTEMPT_EXCEEDED, "Cellular connect attempts exceeded"},
+    {FLOG_CELL_CONNECT_FAIL_TIMEOUT, "Cellular connect timeout"},
 
     {FLOG_SW_NULLPTR, "Software Null Pointer"},
     {FLOG_DEBUG, "debug point"},
-    {FLOG_NULL, NULL}
-};
+    {FLOG_NULL, NULL}};
 
 void FLOG_Initialize(void)
 {
@@ -147,10 +166,12 @@ void FLOG_DisplayLog(void)
 
     for (; i < flogData.numEntries; i++)
     {
-        SF_OSAL_printf("%8d %32s, parameter: 0x%08" FLOG_PARAM_FMT __NL__,
-            flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
-            FLOG_FindMessage((FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
-            flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
+        SF_OSAL_printf("%8d %48s, parameter: 0x%08" FLOG_PARAM_FMT " (%12" PRId32 ")" __NL__,
+                       flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].timestamp_ms,
+                       FLOG_FindMessage(
+                           (FLOG_CODE_e)flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].errorCode),
+                       flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param,
+                       flogData.flogEntries[i & (FLOG_NUM_ENTRIES - 1)].param);
     }
     SF_OSAL_printf("\n");
 }

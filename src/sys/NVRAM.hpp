@@ -49,11 +49,13 @@ class NVRAM
 
     /**
      * @brief Get data from NVRAM memory
+     *
+     * On success, `&pData` will have the value of the data from NVRAM written.
      * 
      * @tparam T Type
      * @param dataID ID of data to get
      * @param pData Data
-     * @return int Sucsess
+     * @return 1 if successful, otherwise 0
      */
     template <typename T> int get(DATA_ID_e dataID, T& pData)
     {
@@ -82,7 +84,7 @@ class NVRAM
      * @tparam T Typename
      * @param dataID Data ID
      * @param pData data
-     * @return int Sucsess value
+     * @return 1 on success, otherwise 0
      */
     template <typename T> int put(DATA_ID_e dataID, const T& pData)
     {

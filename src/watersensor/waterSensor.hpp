@@ -1,3 +1,15 @@
+/**
+ * @file waterSensor.hpp
+ * @author Nathan Hui (nthui@ucsd.edu)
+ * @brief Water Presence Detection Sensor
+ * @version 0.1
+ * @date 2025-04-16
+ *
+ * @copyright Copyright (c) 2025
+ *
+ * @defgroup Water Presence Detection Sensor
+ * @{
+ */
 #ifndef __WATERSENSOR_H__
 #define __WATERSENSOR_H__
 #include "Particle.h"
@@ -126,3 +138,4 @@ private:
 };
 
 #endif
+/** @} */

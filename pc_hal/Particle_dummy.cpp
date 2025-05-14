@@ -51,7 +51,7 @@ ParticleClass &__fetch_global_particle()
 }
 
 Timer::Timer(int period, void (*fn)(void), bool one_shot)
-    : period(period), cb(fn), one_shot(one_shot)
+    : period(period), cb(fn), one_shot(one_shot), active(false)
 {
 }
 
@@ -105,6 +105,11 @@ int LocationService::start(bool restart)
 }
 void LocationService::setFastLock(bool enable)
 {
+}
+
+bool LocationService::isActive()
+{
+    return true;
 }
 
 LocationService::LocationService()
