@@ -46,6 +46,7 @@ extern "C"
 
     /**
      * @brief Reads the next character from stdin
+     * @details If the character is invalid, this function consumes the character and blocks until the next character can be read from stdin. This process continues until the character is valid.
      *
      * @return The obtained character on success or EOF on failure.
      */
