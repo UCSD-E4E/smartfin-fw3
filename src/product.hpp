@@ -11,9 +11,11 @@
 #ifndef __PRODUCT_HPP__
 #define __PRODUCT_HPP__
 
-/*******************************************************************************
- * Platform Configuration
- ******************************************************************************/
+/**
+ * \defgroup platform_config Platform Configuration
+ * @{
+ */
+
 /**
  * @brief Particle Platform Selector
  *
@@ -44,13 +46,14 @@
 #else
 #define SF_PLATFORM SF_PLATFORM_GLIBC
 #endif
-#endif // __PRODUCT_HPP__
+/**@}*/
 
 
+/**
+ * \defgroup pin_def Pin Definitions
+ * @{
+ */
 
-/******************************************************************************
- * Pin Definitions
- *****************************************************************************/
 /**
  * USB Power Detection Pin TODO
  */
@@ -89,11 +92,14 @@
  * 
  */
 #define WKP_PIN               A7
+/**@}*/
 
 
-/*******************************************************************************
- * System Configuration
- ******************************************************************************/
+/**
+ * \defgroup sys_config System Configuration
+ * @{
+ */
+
 /**
  * @brief Directory path for storing ride data.
  * 
@@ -122,10 +128,18 @@
  */
 #define SF_NAME_MAX 64
 
+ /** 
+ * @brief Baud rate for serial communication.
+ */
+#define SF_SERIAL_SPEED 9600
+/**@}*/
 
-/*******************************************************************************
- * CLI Configuration
- ******************************************************************************/
+
+/**
+ * \defgroup cli_config CLI Configuration
+ * @{
+ */
+
 /**
  * how long to stay in CLI mode if there are no key presses at all
  */
@@ -135,11 +149,14 @@
  * @brief Maximum length of a command line in the CLI.
  */
 #define SF_CLI_MAX_CMD_LEN 100
+/**@}*/
 
 
-/*******************************************************************************
- * CLI RGB LED Configuration
- ******************************************************************************/
+/**
+ * \defgroup cli_led_config CLI RGB LEB Configuration
+ * @{
+ */
+
 /**
  * The CLI RGB LED Color
  */
@@ -159,11 +176,14 @@
  * The CLI RGB LED Priority
  */
 #define SF_CLI_RGB_LED_PRIORITY     LED_PRIORITY_IMPORTANT
+/**@}*/
 
 
-/*******************************************************************************
- * RIDE RGB LED Configuration
- ******************************************************************************/
+/**
+ * \defgroup ride_led_config RIDE RGB LED Configuration
+ * @{
+ */
+
 /**
  * The Ride RGB LED Color
  */
@@ -193,11 +213,14 @@
  * The Ride RGB LED Priority
  */
 #define RIDE_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
+/**@}*/
 
 
-/*******************************************************************************
- * Data Upload RGB LED Configuration
- ******************************************************************************/
+/**
+ * \defgroup upload_led_config Data Upload RGB LED Configuration
+ * @{
+ */
+
 /**
  * The Data Upload RGB LED Color
  */
@@ -207,11 +230,14 @@
  * The Data Upload RGB LED behavior period
  */
 #define SF_DUP_RGB_LED_PERIOD       500
+/**@}*/
 
 
-/*******************************************************************************
- * Temperature Calibrator RGB LED Configuration
- ******************************************************************************/
+/**
+ * \defgroup temperature_led_config Temperature Calibrator RGB LED Configuration
+ * @{
+ */
+
 /**
  * The Temperature Calibrator RGB LED color
  */
@@ -231,11 +257,14 @@
  * The Temperature Calibrator RGB LED Priority
  */
 #define SF_TCAL_RGB_LED_PRIORITY    LED_PRIORITY_IMPORTANT
+/**@}*/
 
 
-/*******************************************************************************
- * Peripheral Configurations
- ******************************************************************************/
+/**
+ * \defgroup peripheral_config Peripheral Configuration
+ * @{
+ */
+
 /**
  * @brief Serial Debugging Baud Rate
  */
@@ -263,11 +292,14 @@
  * 
  */
 #define SF_ICM20648_ADDR    (0x68 << 1)
+/**@}*/
 
 
-/******************************************************************************
- * Battery and Power Configuration
- *****************************************************************************/
+/**
+ * \defgroup battery_power_config Battery and Power Configuration
+ * @{
+ */
+
 /**
  * Minimum battery voltage to start an upload
  */ 
@@ -305,14 +337,13 @@
  *
  */
 #define SF_CHARGE_ALLOW_DEPLOY 1
+/**@}*/
 
-/******************************************************************************
- * Upload and Communication Configuration
- *****************************************************************************/
- /** 
- * @brief Baud rate for serial communication.
+
+/**
+ * \defgroup upload_config Upload and Communication Configuration
+ * @{
  */
-#define SF_SERIAL_SPEED 9600
 
 /**
  * @brief Maximum number of attempts to connect to the cloud
@@ -343,95 +374,6 @@
  */
 #define GPS_AGE_VALID_MS 5000
 
-
-/******************************************************************************
- * Water Detection Configuration
- *****************************************************************************/
-/**
- * Max size of the window/how large the FIFO array is
- */
-#define WATER_DETECT_ARRAY_SIZE 200
-
-/**
- * Window sizes are how many water detect samples are looked at in a moving 
- * average to determine if we are in or out of the water.  Generally a sample
- * happens 1/second
- */
-#define WATER_DETECT_SURF_SESSION_INIT_WINDOW   40
-
-/**
- * How long (in us) to turn on water detection circuit when looking for water
- */
-#define WATER_DETECT_EN_TIME_US     1000
-
-
-
-/******************************************************************************
- * Product and Version Information
- *****************************************************************************/
-/**
- * @brief Lost Bird Smartfin Z7 Product ID
- * 
- */
-#define PRODUCT_ID_SMARTFIN_Z7  8977
-
-/**
- * @brief UCSD Smartfin Product ID
- * 
- */
-#define PRODUCT_ID_UCSD_SMARTFIN    17293
-
-/**
- * @brief Set to use a hexadecimal product version, otherwise use a decimal
- * product version
- * 
- */
-#define PRODUCT_VERSION_USE_HEX 0
-
-
-/******************************************************************************
- * Debugging and Testing Configuration
- *****************************************************************************/
-/**
- * @brief Enable initialization delay
- * 
- */
-// #define SF_ENABLE_DEBUG_DELAY   15
-/**
- * @brief How long to wait for a cell connection in during manufacturing test
- * 
- */
-#define MANUFACTURING_CELL_TIMEOUT_MS 180000
-
-
-
-/******************************************************************************
- * Encoding Configuration
- *****************************************************************************/
-/**
- * @brief Base85 encoding flag
- * 
- */
-#define SF_UPLOAD_BASE85 1
-
-/**
- * @brief Base64 encoding flag
- * 
- */
-#define SF_UPLOAD_BASE64 2
-
-/**
- * @brief Base64url encoding flag
- * 
- */
-#define SF_UPLOAD_BASE64URL 3
-
-/**
- * @brief Upload encoding type
- * 
- */
-#define SF_UPLOAD_ENCODING SF_UPLOAD_BASE64URL
-
 #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
  /**
   * How many bytes to store chunks of data in on the SPI flash.
@@ -456,3 +398,103 @@
   */
 #define SF_RECORD_SIZE  1024
 #endif
+/**@}*/
+
+
+/**
+ * \defgroup water_config Water Detection Configuration
+ * @{
+ */
+
+/**
+ * Max size of the window/how large the FIFO array is
+ */
+#define WATER_DETECT_ARRAY_SIZE 200
+
+/**
+ * Window sizes are how many water detect samples are looked at in a moving 
+ * average to determine if we are in or out of the water.  Generally a sample
+ * happens 1/second
+ */
+#define WATER_DETECT_SURF_SESSION_INIT_WINDOW   40
+
+/**
+ * How long (in us) to turn on water detection circuit when looking for water
+ */
+#define WATER_DETECT_EN_TIME_US     1000
+/**@}*/
+
+
+/**
+ * \defgroup product_version-info Product and Version Information
+ * @{
+ */
+
+/**
+ * @brief Lost Bird Smartfin Z7 Product ID
+ * 
+ */
+#define PRODUCT_ID_SMARTFIN_Z7  8977
+
+/**
+ * @brief UCSD Smartfin Product ID
+ * 
+ */
+#define PRODUCT_ID_UCSD_SMARTFIN    17293
+
+/**
+ * @brief Set to use a hexadecimal product version, otherwise use a decimal
+ * product version
+ * 
+ */
+#define PRODUCT_VERSION_USE_HEX 0
+/**@}*/
+
+
+/**
+ * \defgroup debug_config Debugging and Testing Configuration
+ * @{
+ */
+/**
+ * @brief Enable initialization delay
+ * 
+ */
+// #define SF_ENABLE_DEBUG_DELAY   15
+/**
+ * @brief How long to wait for a cell connection in during manufacturing test
+ * 
+ */
+#define MANUFACTURING_CELL_TIMEOUT_MS 180000
+/**@}*/
+
+
+/**
+ * \defgroup encoding_config Encoding Configuration
+ * @{
+ */
+/**
+ * @brief Base85 encoding flag
+ * 
+ */
+#define SF_UPLOAD_BASE85 1
+
+/**
+ * @brief Base64 encoding flag
+ * 
+ */
+#define SF_UPLOAD_BASE64 2
+
+/**
+ * @brief Base64url encoding flag
+ * 
+ */
+#define SF_UPLOAD_BASE64URL 3
+
+/**
+ * @brief Upload encoding type
+ * 
+ */
+#define SF_UPLOAD_ENCODING SF_UPLOAD_BASE64URL
+/**@}*/
+
+#endif // __PRODUCT_HPP__
