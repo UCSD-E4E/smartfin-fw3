@@ -311,9 +311,12 @@
  * @brief Smartfin Platform Designator
  *
  */
-#ifdef PARTICLE
-#define SF_PLATFORM SF_PLATFORM_PARTICLE
-#else
-#define SF_PLATFORM SF_PLATFORM_GLIBC
+#ifndef SF_PLATFORM
+    #ifdef PARTICLE
+        #define SF_PLATFORM SF_PLATFORM_PARTICLE
+    #else
+        #define SF_PLATFORM SF_PLATFORM_GLIBC
+    #endif
 #endif
+
 #endif // __PRODUCT_HPP__
