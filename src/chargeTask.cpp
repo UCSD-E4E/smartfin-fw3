@@ -26,6 +26,7 @@ STATES_e ChargeTask::run(void)
 {
     while(1)
     {
+        Particle.process();
         if (SF_OSAL_kbhit())
         {
             this->inputBuffer[CLI_BUFFER_LEN - 1] = SF_OSAL_getch();
@@ -39,10 +40,16 @@ STATES_e ChargeTask::run(void)
         //Check if currently charging using chargerCheck
         if (!pSystemDesc->flags->hasCharger)
         {
-            FLOG_AddError(FLOG_CHARGER_REMOVED, 0);
             SF_OSAL_printf("Going to sleep" __NL__);
             return STATE_DEEP_SLEEP;
         }
+
+#if SF_CHARGE_ALLOW_DEPLOY == 1
+        if (pSystemDesc->pWaterSensor->getLastReading())
+        {
+            return STATE_DEPLOYED;
+        }
+#endif
 
         os_thread_yield();
     }

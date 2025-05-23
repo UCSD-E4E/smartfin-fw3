@@ -66,9 +66,13 @@ static void REC_testCreateBigSession(void);
  *
  */
 static void REC_testPopLastPacket(void);
+/**
+ * @brief Format recorder
+ *
+ */
+static void REC_format(void);
 
-const Menu_t Recorder_debug_menu[] =
-{
+const Menu_t Recorder_debug_menu[] = {
     {1, "Check Has Data", &REC_testHasData, MENU_CMD},
     {2, "Get Num Files", &REC_testNumFiles, MENU_CMD},
     {3, "Open Session", &REC_testOpen, MENU_CMD},
@@ -78,8 +82,8 @@ const Menu_t Recorder_debug_menu[] =
     {7, "Get Last Packet", &REC_testGetLastPacket, MENU_CMD},
     {8, "Create big session", &REC_testCreateBigSession, MENU_CMD},
     {9, "Pop Last Packet", &REC_testPopLastPacket, MENU_CMD},
-    {0, nullptr, nullptr, MENU_NULL}
-};
+    {10, "Format recorder", &REC_format, MENU_CMD},
+    {0, nullptr, nullptr, MENU_NULL}};
 
 void REC_testHasData(void)
 {
@@ -221,4 +225,18 @@ void REC_testPopLastPacket(void)
     retval = pRecorder->popLastPacket(SF_PACKET_SIZE);
 
     SF_OSAL_printf("Returned %d" __NL__, retval);
+}
+
+/**
+ * To "format" the filesystem, we need to delete `/data` and `.metadata`.
+ *
+ * This will necessitate re-initializing the recorder, since we mirror the
+ * metadata header.
+ *
+ */
+void REC_format(void)
+{
+    Recorder *pRecorder = pSystemDesc->pRecorder;
+    int retval = pRecorder->reformat();
+    SF_OSAL_printf("Reformat: %d" __NL__, retval);
 }

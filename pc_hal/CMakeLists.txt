@@ -50,6 +50,10 @@ set(SMARTFIN_SOURCE_FILES
     ../src/debug/recorder_debug.cpp
     ../src/debug/session_debug.cpp
     ../src/fileCLI/fileCLI.cpp
+    ../src/rideTask.cpp
+    ../src/deploy/scheduler.cpp
+    ../src/deploy/ensembles.cpp
+    ../src/deploy/ensembleTypes.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
 target_link_libraries(smartfin_pc

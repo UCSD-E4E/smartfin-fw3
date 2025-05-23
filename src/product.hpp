@@ -33,9 +33,15 @@
  * Water Detect Pin
  */
 #define WATER_DETECT_PIN      A6
+
+/**
+ * @brief Water Detection Status LED
+ *
+ */
+#define WATER_STATUS_LED D9
 /**
  * @brief Manufacturing Water Detect Pin
- * 
+ *
  */
 #define WATER_MFG_TEST_EN     A3
 
@@ -126,6 +132,16 @@
 #define SF_CLI_RGB_LED_PRIORITY     LED_PRIORITY_IMPORTANT
 
 /**
+ * The Ride RGB LED Color
+ */
+#define RIDE_RGB_LED_COLOR RGB_COLOR_WHITE
+#define RIDE_RGB_LED_PATTERN_GPS LED_PATTERN_BLINK
+#define RIDE_RGB_LED_PERIOD_GPS 500
+#define RIDE_RGB_LED_PATTERN_NOGPS LED_PATTERN_SOLID
+#define RIDE_RGB_LED_PERIOD_NOGPS 0
+#define RIDE_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
+
+/**
  * The Data Upload RGB LED Color
  */
 #define SF_DUP_RGB_LED_COLOR        RGB_COLOR_BLUE
@@ -151,6 +167,21 @@
  */
 #define WATER_DETECT_ARRAY_SIZE 200
 
+/**
+ * @brief How long to stay in session init while waiting to get into water
+ * before going to sleep
+ *
+ */
+#define SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS 300000
+
+/**
+ * @brief Flag allowing deploy while in charge
+ *
+ * This should not be allowed in production, but is useful during debug.  Set
+ * to 0 for production
+ *
+ */
+#define SF_CHARGE_ALLOW_DEPLOY 1
 
 /**
  * @brief Seconds to sleep between upload attempts

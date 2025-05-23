@@ -39,6 +39,10 @@ const char* BUILD_TIME = __TIME__;
 #error Build Value exceeds field width!
 #endif
 
+#if SF_CHARGE_ALLOW_DEPLOY == 1
+#warning Deploy is currently allowed during charge mode!
+#endif
+
 void VERS_printBanner(void)
 {
     SF_OSAL_printf(__NL__ "Smartfin FW v%d.%d.%d%s" __NL__, FW_MAJOR_VERSION, FW_MINOR_VERSION, FW_BUILD_NUM, FW_BRANCH);

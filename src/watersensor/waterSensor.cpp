@@ -1,4 +1,7 @@
 #include "waterSensor.hpp"
+
+#include "cli/conio.hpp"
+#include "consts.hpp"
 #include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
 #include "cli/conio.hpp"
 
@@ -7,12 +10,12 @@
 uint8_t water_detect_array[WATER_DETECT_ARRAY_SIZE];
 
 WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set,
-                         uint8_t water_detect_pin_to_set, 
-                         uint8_t window_size) : 
+                         uint8_t water_detect_pin_to_set) : 
                          water_detect_en_pin(water_detect_en_pin_to_set), 
                          water_detect_pin(water_detect_pin_to_set), 
-                         moving_window_size(window_size)
+                         moving_window_size(WATER_DETECT_ARRAY_SIZE)
 {
+    memset(water_detect_array, 0, WATER_DETECT_ARRAY_SIZE);
 }
 
 WaterSensor::~WaterSensor()
@@ -37,13 +40,17 @@ bool WaterSensor::resetArray()
 
 /**
  * @brief Set window size to value
- * 
- * @param window_size_to_set 
+ *
+ * @param window_size_to_set
  */
 void WaterSensor::setWindowSize(uint8_t window_size_to_set)
 {
+    if (window_size_to_set > WATER_DETECT_ARRAY_SIZE)
+    {
+        window_size_to_set = WATER_DETECT_ARRAY_SIZE;
+    }
     // swtich the window parameter and clear the sum (for resumming)
-    moving_window_size = window_size_to_set;
+    moving_window_size = WATER_DETECT_ARRAY_SIZE;
     array_sum = 0;
 
     // sum all of the array items from the current location backward for the entire window,
@@ -246,4 +253,9 @@ uint8_t WaterSensor::waterDetectArrayLocation(int16_t location, int16_t offset)
     {
         return (location + offset);
     }
+}
+
+uint8_t WaterSensor::getWindowSize(void)
+{
+    return this->moving_window_size;
 }

@@ -13,7 +13,7 @@
 namespace sf::cloud
 {
     system_tick_t last_publish_time = 0;
-    int wait_connect(int timeout_ms)
+    int wait_connect(int timeout_ms, bool bypass_attempts)
     {
         uint16_t n_attempts;
         system_tick_t end_time = millis() + timeout_ms;
@@ -23,8 +23,9 @@ namespace sf::cloud
             return SUCCESS;
         }
         nvram.get(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
-        if (n_attempts > SF_CLOUD_CONNECT_MAX_ATTEMPTS)
+        if (!bypass_attempts && n_attempts > SF_CLOUD_CONNECT_MAX_ATTEMPTS)
         {
+            FLOG_AddError(FLOG_CELL_CONNECT_FAIL_ATTEMPT_EXCEEDED, n_attempts);
             return ATTEMPTS_EXCEEDED;
         }
         n_attempts++;
@@ -35,10 +36,11 @@ namespace sf::cloud
             Particle.process();
             if (millis() > end_time)
             {
+                FLOG_AddError(FLOG_CELL_CONNECT_FAIL_TIMEOUT, timeout_ms);
                 return TIMEOUT;
             }
         }
-        n_attempts--;
+        n_attempts = 0;
         nvram.put(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
         return SUCCESS;
     }

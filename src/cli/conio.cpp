@@ -17,6 +17,7 @@
 #include <pthread.h>
 #elif SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "Particle.h"
+#include "system.hpp"
 #endif
 
 char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
@@ -239,6 +240,12 @@ extern "C"
                     SF_OSAL_putch('\n');
                     return i;
                 }
+            }
+
+            // If we get USB disconnect, abort
+            if (!pSystemDesc->flags->hasCharger)
+            {
+                return -1;
             }
         }
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC

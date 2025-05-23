@@ -68,14 +68,10 @@ class SleepTask : public Task {
      */
     static BOOT_BEHAVIOR_e getBootBehavior(void);
     /**
-     * @brief Load boot behavior onto board
+     * @brief Load initial boot behavior to NVRAM
      */
     static void loadBootBehavior(void);
     private:
-    /**
-     * @brief Stores current Boot Behavior
-     */
-    static BOOT_BEHAVIOR_e bootBehavior;
     /**
      * @brief Manages LED status display settings
      */

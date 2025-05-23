@@ -1,3 +1,15 @@
+/**
+ * @file waterSensor.hpp
+ * @author Nathan Hui (nthui@ucsd.edu)
+ * @brief Water Presence Detection Sensor
+ * @version 0.1
+ * @date 2025-04-16
+ *
+ * @copyright Copyright (c) 2025
+ *
+ * @defgroup Water Presence Detection Sensor
+ * @{
+ */
 #ifndef __WATERSENSOR_H__
 #define __WATERSENSOR_H__
 #include "Particle.h"
@@ -12,6 +24,7 @@
 //  if we are taking samples 1/second with a moving window of 10 samples
 //  we might say when over 75% are 1s we are in the water and 25% are when
 //  we are out of the water (there is hystersis, starting with us out of the water)
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //Water Detect Defines//
@@ -73,9 +86,8 @@ public:
      *
      * @param water_detect_en_pin Pin that enables the water sensor
      * @param water_detect_pin_to_set Pin that reads the sensor value
-     * @param window_size Size of the moving sample window used for water detection
      */
-    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set, uint8_t window_size);
+    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set);
     /**
      * @brief Destroys the WaterSensor instance
      */
@@ -85,6 +97,13 @@ public:
     bool resetArray();
     // switch the window size parameter and clear the sum (for resumming)
     void setWindowSize(uint8_t window_size_to_set);
+
+    /**
+     * @brief Retrieves the current window size
+     *
+     * @return Window size
+     */
+    uint8_t getWindowSize(void);
     // take a reading. Also returns the current in/out water status.
     uint8_t takeReading();
     // gets the current in/out of water status (return true = in water, false = out)
@@ -125,3 +144,4 @@ private:
 };
 
 #endif
+/** @} */

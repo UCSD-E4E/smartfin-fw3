@@ -1,6 +1,12 @@
 #ifndef __TASK_HPP__
 #define __TASK_HPP__
 #include "states.hpp"
+/**
+ * @brief Task interface which defines methods for basic structure of tasks to be implemented by other task classes.
+ * 
+ * specifies methods to initialize, run, and exit a task.
+ * 
+ */
 class Task{
     public:
     /**
@@ -14,6 +20,8 @@ class Task{
      * needs to occur, in which case the state to change to should be returned.
      * Once the state to change to is returned, Task::exit will be called to
      * clean up from this state.
+     * 
+     * @returns STATES_e state to change to
      */
     virtual STATES_e run(void) = 0;
 
