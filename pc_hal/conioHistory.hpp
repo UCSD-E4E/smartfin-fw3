@@ -12,7 +12,7 @@
 #ifndef __CONIOHISTORY_HPP__
 #define __CONIOHISTORY_HPP__
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -73,19 +73,19 @@ typedef struct CONIO_history_line_
     /**
      * @brief Construct a new conio history line object with manually set parameters
      * 
-     * @param o Starting offset
-     * @param l Current length of the line
-     * @param d Display flag
-     * @param mf More Fragments flag
-     * @param fs Fragment sequence number
+     * @param _offset Starting offset
+     * @param _len Current length of the line
+     * @param _display Display flag
+     * @param _more_frag More Fragments flag
+     * @param _frag_seq Fragment sequence number
      */
-    CONIO_history_line_(std::size_t o, std::size_t l, std::uint32_t d, std::uint32_t mf, std::uint32_t fs) : offset(o), len(l), display(d), more_frag(mf), frag_seq(fs) {}
+    CONIO_history_line_(std::size_t _offset, std::size_t _len, std::uint32_t _display, std::uint32_t _more_frag, std::uint32_t _frag_seq) : offset(_offset), len(_len), display(_display), more_frag(_more_frag), frag_seq(_frag_seq) {}
     /**
      * @brief Construct a new conio history line object with default flags
      * 
-     * @param o Starting offset
+     * @param _offset Starting offset
      */
-    CONIO_history_line_(std::size_t o) : offset(o), len(0), display(0), more_frag(0), frag_seq(0) {}
+    CONIO_history_line_(std::size_t _offset) : offset(_offset), len(0), display(0), more_frag(0), frag_seq(0) {}
 } CONIO_hist_line;
 
 namespace conioHistory

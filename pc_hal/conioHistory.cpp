@@ -14,7 +14,7 @@
 #include "product.hpp"
 
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
-#include <stdint.h>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
