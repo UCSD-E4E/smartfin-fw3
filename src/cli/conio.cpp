@@ -66,7 +66,7 @@ bool buf_written = false;
  * @brief Allows conio to know where in the log file that it may need to write to.
  * 
  */
-size_t offset;
+std::size_t offset;
 
 void *read_loop(void *_)
 {
@@ -124,7 +124,7 @@ extern "C"
                 {
                 case KEY_UP:
                 {
-                    size_t top_idx = conioHistory::cur_bottom_display - wind_h + 1;
+                    std::size_t top_idx = conioHistory::cur_bottom_display - wind_h + 1;
                     if (top_idx == 0) // Already at top
                     {
                         break;
@@ -264,7 +264,7 @@ extern "C"
                 {
                     wclear(stdscr);
                     char *line;
-                    for (size_t idx = conioHistory::bottom_display - wind_h + 1;
+                    for (std::size_t idx = conioHistory::bottom_display - wind_h + 1;
                             idx < conioHistory::bottom_display;
                             idx++)
                     {
@@ -345,7 +345,7 @@ extern "C"
         wprintw(stdscr, "%s", formatted);
 
         std::string full_line = formatted;
-        size_t start = 0, end;
+        std::size_t start = 0, end;
         while ((end = full_line.find('\n', start)) != std::string::npos)
         {
             conioHistory::write_line(full_line.substr(start, end - start), true); // Extract line

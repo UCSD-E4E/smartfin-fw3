@@ -14,6 +14,7 @@
 #include "product.hpp"
 
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
+#include <stdint.h>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
@@ -21,17 +22,17 @@
 #include <unistd.h>
 
 char *mapped_memory = nullptr;
-size_t file_size = INITIAL_FILE_SIZE;
-size_t current_offset = 0;
+std::size_t file_size = INITIAL_FILE_SIZE;
+std::size_t current_offset = 0;
 int fd;
 std::vector<CONIO_hist_line> Lines;
-std::vector<size_t> display_starts;
-size_t bottom_idx = 0;
+std::vector<std::size_t> display_starts;
+std::size_t bottom_idx = 0;
 
 namespace conioHistory
 {
-    size_t cur_bottom_display = 0;
-    size_t bottom_display = 0;
+    std::size_t cur_bottom_display = 0;
+    std::size_t bottom_display = 0;
     bool display = false;
 
     void init_file_mapping()
@@ -132,7 +133,7 @@ namespace conioHistory
             {
                 int fs = 0;
                 // Check if fragmented display line exists for frag_seq num
-                int64_t possible_frag = bottom_idx - 1;
+                std::size_t possible_frag = bottom_idx - 1;
                 if (possible_frag >= 0 && Lines[possible_frag].more_frag)
                 {
                     fs = Lines[possible_frag].frag_seq + 1;
@@ -181,14 +182,14 @@ namespace conioHistory
         msync(mapped_memory, file_size, MS_SYNC);
     }
 
-    void overwrite_last_line_at(const std::string &line, const size_t offset, const bool NL_exists)
+    void overwrite_last_line_at(const std::string &line, const std::size_t offset, const bool NL_exists)
     {
         if (offset > current_offset)
         {
             return; // Invalid offset
         }
         // Clear out the file within the interval [offset, current_offset)
-        for (size_t i = offset; i < current_offset; i++)
+        for (std::size_t i = offset; i < current_offset; i++)
         {
             mapped_memory[i] = 0;
         }
@@ -197,17 +198,17 @@ namespace conioHistory
         write_line(line, NL_exists);
     }
 
-    char *retrieve_display_line(const size_t line_idx)
+    char *retrieve_display_line(const std::size_t line_idx)
     {
         // Invalid line index
         if (line_idx >= display_starts.size())
         {
             return nullptr;
         }
-        size_t true_idx = display_starts[line_idx]; // Grab the true index
+        std::size_t true_idx = display_starts[line_idx]; // Grab the true index
         if (Lines[true_idx].len == 0)
             return nullptr;
-        std::vector<size_t> relevant_offsets, relevant_lens;
+        std::vector<std::size_t> relevant_offsets, relevant_lens;
         // Collect any fragments and their relevant metadata
         while (Lines[true_idx].more_frag)
         {
@@ -218,13 +219,13 @@ namespace conioHistory
         relevant_lens.push_back(Lines[true_idx].len);
         relevant_offsets.push_back(Lines[true_idx].offset);
 
-        size_t len = 1;
-        for (size_t i = 0; i < relevant_lens.size(); i++)
+        std::size_t len = 1;
+        for (std::size_t i = 0; i < relevant_lens.size(); i++)
             len += relevant_lens[i];
 
         char *line = (char *)malloc(len);
-        size_t pos = 0;
-        for (size_t i = 0; i < relevant_lens.size(); i++)
+        std::size_t pos = 0;
+        for (std::size_t i = 0; i < relevant_lens.size(); i++)
         {
             memcpy(line + pos, mapped_memory + relevant_offsets[i], relevant_lens[i]);
         }
@@ -232,7 +233,7 @@ namespace conioHistory
         return line;
     }
 
-    size_t get_offset()
+    std::size_t get_offset()
     {
         return current_offset;
     }

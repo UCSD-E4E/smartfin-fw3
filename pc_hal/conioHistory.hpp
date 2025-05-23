@@ -1,3 +1,14 @@
+/**
+ * @file conioHistory.cpp
+ * @author Ethan Huang (e8huang@ucsd.edu)
+ * @brief Command Line History Implementation
+ * @version 0.1
+ * @date 2025-03-06
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
+
 #ifndef __CONIOHISTORY_HPP__
 #define __CONIOHISTORY_HPP__
 
@@ -36,27 +47,27 @@ typedef struct CONIO_history_line_
      * @brief Starting offset within the file
      * 
      */
-    size_t offset;
+    std::size_t offset;
     /**
      * @brief Length of the line
      * 
      */
-    size_t len;
+    std::size_t len;
     /**
      * @brief Display flag: 0 do not display, 1 display to window
      * 
      */
-    uint32_t display : 1;
+    std::uint32_t display : 1;
     /**
      * @brief More Framgents flag: 0 no successive fragments, 1 more fragments for the line
      * 
      */
-    uint32_t more_frag : 1;
+    std::uint32_t more_frag : 1;
     /**
      * @brief Fragment sequence number within the line
      * 
      */
-    uint32_t frag_seq : 30;
+    std::uint32_t frag_seq : 30;
     // Additional metadata may be necessary
 
     /**
@@ -68,13 +79,13 @@ typedef struct CONIO_history_line_
      * @param mf More Fragments flag
      * @param fs Fragment sequence number
      */
-    CONIO_history_line_(size_t o, size_t l, uint32_t d, uint32_t mf, uint32_t fs) : offset(o), len(l), display(d), more_frag(mf), frag_seq(fs) {}
+    CONIO_history_line_(std::size_t o, std::size_t l, std::uint32_t d, std::uint32_t mf, std::uint32_t fs) : offset(o), len(l), display(d), more_frag(mf), frag_seq(fs) {}
     /**
      * @brief Construct a new conio history line object with default flags
      * 
      * @param o Starting offset
      */
-    CONIO_history_line_(size_t o) : offset(o), len(0), display(0), more_frag(0), frag_seq(0) {}
+    CONIO_history_line_(std::size_t o) : offset(o), len(0), display(0), more_frag(0), frag_seq(0) {}
 } CONIO_hist_line;
 
 namespace conioHistory
@@ -113,7 +124,7 @@ namespace conioHistory
      * @param offset Starting offset point to write
      * @param NL_exists Add a new line after
      */
-    void overwrite_last_line_at(const std::string &line, const size_t offset, const bool NL_exists);
+    void overwrite_last_line_at(const std::string &line, const std::size_t offset, const bool NL_exists);
 
     /**
      * @brief Retrives the display line from the given index
@@ -122,14 +133,14 @@ namespace conioHistory
      * @param line_idx Index of the line to be retrieved
      * @return char* of the line if successful
      */
-    char *retrieve_display_line(const size_t line_idx);
+    char *retrieve_display_line(const std::size_t line_idx);
 
     /**
      * @brief Get the current offset of the file
      *
      * @return Current offset of the file
      */
-    size_t get_offset();
+    std::size_t get_offset();
 
     /**
      * @brief Flag set to display line for CLI window
@@ -141,12 +152,12 @@ namespace conioHistory
      * @brief Keeps track of the bottom index of the CLI window
      *
      */
-    extern size_t cur_bottom_display;
+    extern std::size_t cur_bottom_display;
 
     /**
      * @brief Keeps track of the bottom of the display lines
      *
      */
-    extern size_t bottom_display;
+    extern std::size_t bottom_display;
 }
 #endif
