@@ -67,5 +67,9 @@ void CLI_fileCLI(void);
  *
  */
 void CLI_initCloudCounters(void);
-
+/**
+ * @brief Dump IMU Registers
+ *
+ */
+void CLI_dumpIMURegs(void);
 #endif

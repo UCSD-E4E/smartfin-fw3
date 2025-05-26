@@ -11,26 +11,19 @@
 
 #include "cliDebug.hpp"
 
-#include "conio.hpp"
+#include "Particle.h"
 #include "cli.hpp"
-#include "menu.hpp"
-
-#include "menuItems/debugCommands.hpp"
-
-#include "product.hpp"
-#include "util.hpp"
-#include "menu.hpp"
-
-#include "system.hpp"
-
+#include "conio.hpp"
 #include "consts.hpp"
+#include "menu.hpp"
+#include "menuItems/debugCommands.hpp"
+#include "product.hpp"
+#include "system.hpp"
+#include "util.hpp"
 
 #include <cmath>
-#include <cstdlib>
 #include <cstdio>
-
-
-#include "Particle.h"
+#include <cstdlib>
 
 /**
  * @brief Command line debugging menu
@@ -49,4 +42,5 @@ const Menu_t CLI_debugMenu[] = {{1, "Display Fault Log", &CLI_displayFLOG, MENU_
                                 {12, "wipe file system", &CLI_wipeFileSystem, MENU_CMD},
                                 {13, "File CLI", &CLI_fileCLI, MENU_CMD},
                                 {14, "Init Cloud Counters", &CLI_initCloudCounters, MENU_CMD},
+                                {15, "Dump IMU Registers", &CLI_dumpIMURegs, MENU_CMD},
                                 {0, nullptr, nullptr, MENU_NULL}};

@@ -236,3 +236,9 @@ void CLI_initCloudCounters(void)
 {
     sf::cloud::initialize_counter();
 }
+
+void CLI_dumpIMURegs(void)
+{
+    setupICM();
+    IMU_dumpRegs();
+}
