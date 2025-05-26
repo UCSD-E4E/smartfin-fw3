@@ -121,4 +121,11 @@ void setupICM(void);
  * @return True if measurement was successful, otherwise False
  */
 bool getDMPData(IMU_DMPData_t &data);
+
+/**
+ * @brief Dumps registers to console
+ *
+ *
+ */
+void IMU_dumpRegs(void);
 #endif
