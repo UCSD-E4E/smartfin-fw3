@@ -132,7 +132,7 @@ extern "C"
                     if (conioHistory::cur_bottom_display == conioHistory::bottom_display)
                     {
                         // Save anything already written
-                        conioHistory::overwrite_last_line_at(file_buf, offset, false);
+                        conioHistory::overwrite_last_line_at(file_buf.c_str(), file_buf.size(), offset, false);
                         buf_written = true;
                     }
                     wscrl(stdscr, -1);
@@ -189,7 +189,10 @@ extern "C"
         }
 
         if (!conioHistory::display)
-            conioHistory::write_line(std::string(1, retval), false);
+        {
+            char retval_str[2] = {(char)retval, '\0'};
+            conioHistory::write_line(retval_str, 1, false);
+        }
         return retval;
 #endif
     }
@@ -305,7 +308,7 @@ extern "C"
                     case '\n':
                         buffer[i++] = 0;
                         SF_OSAL_putch('\n');
-                        conioHistory::overwrite_last_line_at(file_buf, offset, true);
+                        conioHistory::overwrite_last_line_at(file_buf.c_str(), file_buf.size(), offset, true);
                         conioHistory::display = false;
                         return i;
                     default:
@@ -318,7 +321,7 @@ extern "C"
         }
         // Exceeded buffer is automatically entered as command
         SF_OSAL_putch('\n');
-        conioHistory::write_line(file_buf, true);
+        conioHistory::write_line(file_buf.c_str(), file_buf.size(), true);
         conioHistory::display = false;
 #endif
         return i;
@@ -344,14 +347,16 @@ extern "C"
 
         wprintw(stdscr, "%s", formatted);
 
-        std::string full_line = formatted;
+        std::string full_line = formatted, sub;
         std::size_t start = 0, end;
         while ((end = full_line.find('\n', start)) != std::string::npos)
         {
-            conioHistory::write_line(full_line.substr(start, end - start), true); // Extract line
+            sub = full_line.substr(start, end - start);
+            conioHistory::write_line(sub.c_str(), sub.size(), true); // Extract line
             start = end + 1; // Move past '\n'
         }
-        conioHistory::write_line(full_line.substr(start), false);
+        sub = full_line.substr(start);
+        conioHistory::write_line(sub.c_str(), sub.size(), false);
         wrefresh(stdscr);
         conioHistory::display = false;
 #endif
@@ -383,7 +388,7 @@ extern "C"
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
         if (!buf_written)
         {
-            conioHistory::overwrite_last_line_at(file_buf, offset, false);
+            conioHistory::overwrite_last_line_at(file_buf.c_str(), file_buf.size(), offset, false);
         }
         conioHistory::deinit_file_mapping();
         endwin();

@@ -13,7 +13,6 @@
 #define __CONIOHISTORY_HPP__
 
 #include <cstdint>
-#include <string>
 #include <vector>
 
 /**
@@ -114,7 +113,7 @@ namespace conioHistory
      * @param line Line to be written
      * @param NL_exists Add a new line after
      */
-    void write_line(const std::string &line, const bool NL_exists);
+    void write_line(const char *line, const std::size_t size, const bool NL_exists);
 
     /**
      * @brief Clears the file from the given offset to EOF and writes the file at that offset
@@ -124,7 +123,7 @@ namespace conioHistory
      * @param offset Starting offset point to write
      * @param NL_exists Add a new line after
      */
-    void overwrite_last_line_at(const std::string &line, const std::size_t offset, const bool NL_exists);
+    void overwrite_last_line_at(const char *line, const std::size_t size, const std::size_t offset, const bool NL_exists);
 
     /**
      * @brief Retrives the display line from the given index

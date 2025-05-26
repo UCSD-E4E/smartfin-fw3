@@ -105,15 +105,15 @@ namespace conioHistory
         }
     }
 
-    void write_line(const std::string &line, const bool NL_exists)
+    void write_line(const char *line, const std::size_t size, bool NL_exists)
     {
         // TEMPORARY: Stop writing to file at max size
-        if (current_offset + line.size() + 2 >= MAX_FILE_SIZE)
+        if (current_offset + size + 2 >= MAX_FILE_SIZE)
         {
             return;
         }
         // Check if there's enough space, else resize
-        if (current_offset + line.size() + 2 >= file_size)
+        if (current_offset + size + 2 >= file_size)
         {
             resize_file();
         }
@@ -168,9 +168,9 @@ namespace conioHistory
                 Lines.push_back(CONIO_hist_line(current_offset));
             }
         }
-        strncpy(mapped_memory + current_offset, line.c_str(), line.size());
-        current_offset += line.size();
-        Lines[bottom_idx].len += line.size();
+        strncpy(mapped_memory + current_offset, line, size);
+        current_offset += size;
+        Lines[bottom_idx].len += size;
 
         if (display && NL_exists)
         {
@@ -182,7 +182,7 @@ namespace conioHistory
         msync(mapped_memory, file_size, MS_SYNC);
     }
 
-    void overwrite_last_line_at(const std::string &line, const std::size_t offset, const bool NL_exists)
+    void overwrite_last_line_at(const char *line, const std::size_t size, std::size_t offset, const bool NL_exists)
     {
         if (offset > current_offset)
         {
@@ -195,7 +195,7 @@ namespace conioHistory
         }
         Lines[bottom_idx].len -= current_offset - offset;
         current_offset = offset;
-        write_line(line, NL_exists);
+        write_line(line, size, NL_exists);
     }
 
     char *retrieve_display_line(const std::size_t line_idx)
