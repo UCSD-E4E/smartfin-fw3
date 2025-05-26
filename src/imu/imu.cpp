@@ -55,6 +55,58 @@
  *
  */
 ICM_20948_I2C myICM;
+
+/**
+ * @brief ICM FIFO Reader
+ *
+ */
+Thread _icm_read_loop;
+/**
+ * @brief FIFO Read Loop
+ *
+ * @param args Input args
+ */
+void readLoop(void *args);
+/**
+ * @brief Data access mutex
+ *
+ */
+Mutex _data_access_mutex;
+
+struct FiFoData
+{
+    int16_t RawAccel_X;
+    int16_t RawAccel_Y;
+    int16_t RawAccel_Z;
+    int16_t RawGyro_X;
+    int16_t RawGyro_Y;
+    int16_t RawGyro_Z;
+    int16_t RawGyro_BiasX;
+    int16_t RawGyro_BiasY;
+    int16_t RawGyro_BiasZ;
+    int16_t Compass_X;
+    int16_t Compass_Y;
+    int16_t Compass_Z;
+    int32_t Quat6_1;
+    int32_t Quat6_2;
+    int32_t Quat6_3;
+    int32_t Quat9_1;
+    int32_t Quat9_2;
+    int32_t Quat9_3;
+    int32_t Quat9_Acc;
+    int32_t PQuat6_1;
+    int32_t PQuat6_2;
+    int32_t PQuat6_3;
+    int32_t Geomag_1;
+    int32_t Geomag_2;
+    int32_t Geomag_3;
+    int32_t Geomag_Acc;
+    int32_t Accel_Acc;
+    int32_t Gyro_Acc;
+    int32_t Compass_Acc;
+};
+struct FiFoData fifo_data;
+
 #endif
 
 /**
@@ -104,6 +156,10 @@ void setupICM(void)
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     ICM_20948_Status_e status;
     bool success = true;
+
+    _data_access_mutex = Mutex();
+    memset(&fifo_data, 0, sizeof(struct FiFoData));
+
     WIRE_PORT.begin();
     WIRE_PORT.setClock(400000);
 
@@ -150,6 +206,8 @@ void setupICM(void)
         SF_OSAL_printf("DMP fail!" __NL__);
         FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
     }
+    _icm_read_loop = Thread(
+        "ICM_read", readLoop, NULL, OS_THREAD_PRIORITY_DEFAULT, OS_THREAD_STACK_SIZE_DEFAULT);
 #endif
 }
 
@@ -280,18 +338,11 @@ float getTmpC(int16_t raw)
 bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    icm_20948_DMP_data_t data;
-    myICM.readDMPdataFromFIFO(&data);
-    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
-    {
-        if ((data.header & DMP_header_bitmap_Accel) != 0)
-        {
-            *acc_x = (float)data.Raw_Accel.Data.X;
-            *acc_y = (float)data.Raw_Accel.Data.Y;
-            *acc_z = (float)data.Raw_Accel.Data.Z;
-            return true;
-        }
-    }
+    _data_access_mutex.lock();
+    *acc_x = fifo_data.RawAccel_X;
+    *acc_y = fifo_data.RawAccel_Y;
+    *acc_z = fifo_data.RawAccel_Z;
+    _data_access_mutex.unlock();
 #endif
     return false;
 }
@@ -300,20 +351,9 @@ bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 bool getDMPAccelerometerAcc(float *acc_acc)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    icm_20948_DMP_data_t data;
-    myICM.readDMPdataFromFIFO(&data);
-    if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
-    {
-
-        if (((data.header & DMP_header_bitmap_Header2) != 0) &&
-            ((data.header2 & DMP_header2_bitmap_Accel_Accuracy) != 0))
-        {
-            *acc_acc = data.Accel_Accuracy;
-            return true;
-        }
-    }
-
-    FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
+    _data_access_mutex.lock();
+    *acc_acc = fifo_data.Accel_Acc;
+    _data_access_mutex.unlock();
 #endif
     return false;
 }
@@ -321,17 +361,13 @@ bool getDMPAccelerometerAcc(float *acc_acc)
 bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    icm_20948_DMP_data_t data;
-    myICM.readDMPdataFromFIFO(&data);
-    if ((data.header & DMP_header_bitmap_Quat9) != 0)
-    {
-        *q1 = ((double)data.Quat9.Data.Q1) / Q_SCALE;
-        *q2 = ((double)data.Quat9.Data.Q2) / Q_SCALE;
-        *q3 = ((double)data.Quat9.Data.Q3) / Q_SCALE;
-        //*acc = (double)data.Quat9.Data.Accuracy;
-        *q0 = sqrt(1.0 - ((*q1 * *q1) + (*q2 * *q2) + (*q3 * *q3)));
-        return true;
-    }
+    _data_access_mutex.lock();
+    *q1 = fifo_data.Quat9_1 / Q_SCALE;
+    *q2 = fifo_data.Quat9_2 / Q_SCALE;
+    *q3 = fifo_data.Quat9_3 / Q_SCALE;
+    *q0 = sqrt(1 - *q1 * *q1 - *q2 * *q2 - *q3 * *q3);
+    *acc = fifo_data.Quat9_Acc / Q_SCALE;
+    _data_access_mutex.unlock();
 #endif
     return false;
 }
@@ -339,15 +375,11 @@ bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *ac
 bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    icm_20948_DMP_data_t data;
-    myICM.readDMPdataFromFIFO(&data);
-    if ((data.header & DMP_header_bitmap_Gyro) != 0)
-    {
-        *g_x = (float)data.Gyro_Calibr.Data.X;
-        *g_y = (float)data.Gyro_Calibr.Data.Y;
-        *g_z = (float)data.Gyro_Calibr.Data.Z;
-        return true;
-    }
+    _data_access_mutex.lock();
+    *g_x = fifo_data.RawGyro_X;
+    *g_y = fifo_data.RawGyro_Y;
+    *g_z = fifo_data.RawGyro_Z;
+    _data_access_mutex.unlock();
 #endif
     return false;
 }
@@ -355,48 +387,24 @@ bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
 bool getDMPData(IMU_DMPData_t &data)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    icm_20948_DMP_data_t dmpData;
-    myICM.readDMPdataFromFIFO(&dmpData);
-    if (myICM.status != ICM_20948_Stat_Ok && myICM.status != ICM_20948_Stat_FIFOMoreDataAvail)
-    {
-        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
-        return false;
-    }
-
-    if (dmpData.header & DMP_header_bitmap_Accel)
-    {
-        data.acc[0] = (float)dmpData.Raw_Accel.Data.X;
-        data.acc[1] = (float)dmpData.Raw_Accel.Data.Y;
-        data.acc[2] = (float)dmpData.Raw_Accel.Data.Z;
-    }
-
-    if (dmpData.header & DMP_header_bitmap_Header2)
-    {
-        if (dmpData.header2 & DMP_header2_bitmap_Accel_Accuracy)
-        {
-            data.acc_acc = dmpData.Accel_Accuracy;
-        }
-    }
-    if (dmpData.header & DMP_header_bitmap_Gyro)
-    {
-        data.gyr[0] = (float)dmpData.Gyro_Calibr.Data.X;
-        data.gyr[1] = (float)dmpData.Gyro_Calibr.Data.Y;
-        data.gyr[2] = (float)dmpData.Gyro_Calibr.Data.Z;
-    }
-    if (dmpData.header & DMP_header_bitmap_Quat9)
-    {
-        data.quat[0] = ((double)dmpData.Quat9.Data.Q1) / Q_SCALE;
-        data.quat[1] = ((double)dmpData.Quat9.Data.Q2) / Q_SCALE;
-        data.quat[2] = ((double)dmpData.Quat9.Data.Q3) / Q_SCALE;
-        data.quat[3] = sqrt(1.0 - ((data.quat[0] * data.quat[0]) + (data.quat[1] * data.quat[1]) +
-                                   (data.quat[2] * data.quat[2])));
-    }
-    if (dmpData.header & DMP_header_bitmap_Compass)
-    {
-        data.mag[0] = (float)dmpData.Compass.Data.X;
-        data.mag[1] = (float)dmpData.Compass.Data.Y;
-        data.mag[2] = (float)dmpData.Compass.Data.Z;
-    }
+    _data_access_mutex.lock();
+    data.acc[0] = fifo_data.RawAccel_X;
+    data.acc[1] = fifo_data.RawAccel_Y;
+    data.acc[2] = fifo_data.RawAccel_Z;
+    data.acc_acc = fifo_data.Accel_Acc;
+    data.gyr[0] = fifo_data.RawGyro_X;
+    data.gyr[1] = fifo_data.RawGyro_Y;
+    data.gyr[2] = fifo_data.RawGyro_Z;
+    data.mag[0] = fifo_data.Compass_X;
+    data.mag[1] = fifo_data.Compass_Y;
+    data.mag[2] = fifo_data.Compass_Z;
+    data.quat[1] = fifo_data.Quat9_1 / Q_SCALE;
+    data.quat[2] = fifo_data.Quat9_2 / Q_SCALE;
+    data.quat[3] = fifo_data.Quat9_3 / Q_SCALE;
+    data.quat[0] = sqrt(1 - data.quat[1] * data.quat[1] - data.quat[2] * data.quat[2] -
+                        data.quat[3] * data.quat[3]);
+    data.quat_acc = fifo_data.Quat9_Acc / Q_SCALE;
+    _data_access_mutex.unlock();
 #endif
     return true;
 }
@@ -982,4 +990,101 @@ void IMU_dumpRegs(void)
                        data);
     }
 #endif
+}
+void readLoop(void *args)
+{
+    icm_20948_DMP_data_t dmpData;
+    ICM_20948_Status_e status;
+    bool has_data;
+    while (1)
+    {
+        status = myICM.readDMPdataFromFIFO(&dmpData);
+        has_data = false;
+        switch (status)
+        {
+        case ICM_20948_Stat_Ok:
+        case ICM_20948_Stat_FIFOMoreDataAvail:
+            has_data = true;
+            break;
+        default:
+            FLOG_AddError(FLOG_ICM_FAIL, status);
+            // All other fall through
+        case ICM_20948_Stat_FIFONoDataAvail:
+        case ICM_20948_Stat_FIFOIncompleteData:
+            continue;
+        }
+        if (!has_data)
+        {
+            continue;
+        }
+
+        _data_access_mutex.lock();
+        if (dmpData.header & DMP_header_bitmap_Accel)
+        {
+            fifo_data.RawAccel_X = dmpData.Raw_Accel.Data.X;
+            fifo_data.RawAccel_Y = dmpData.Raw_Accel.Data.Y;
+            fifo_data.RawAccel_Z = dmpData.Raw_Accel.Data.Z;
+        }
+        if (dmpData.header & DMP_header_bitmap_Gyro)
+        {
+            fifo_data.RawGyro_X = dmpData.Raw_Gyro.Data.X;
+            fifo_data.RawGyro_Y = dmpData.Raw_Gyro.Data.Y;
+            fifo_data.RawGyro_Z = dmpData.Raw_Gyro.Data.Z;
+            fifo_data.RawGyro_BiasX = dmpData.Raw_Gyro.Data.BiasX;
+            fifo_data.RawGyro_BiasY = dmpData.Raw_Gyro.Data.BiasY;
+            fifo_data.RawGyro_BiasZ = dmpData.Raw_Gyro.Data.BiasZ;
+        }
+        if (dmpData.header & DMP_header_bitmap_Compass)
+        {
+            fifo_data.Compass_X = dmpData.Compass.Data.X;
+            fifo_data.Compass_Y = dmpData.Compass.Data.Y;
+            fifo_data.Compass_Z = dmpData.Compass.Data.Z;
+        }
+        if (dmpData.header & DMP_header_bitmap_ALS)
+        {
+            // do nothing
+        }
+        if (dmpData.header & DMP_header_bitmap_Quat6)
+        {
+            fifo_data.Quat6_1 = dmpData.Quat6.Data.Q1;
+            fifo_data.Quat6_2 = dmpData.Quat6.Data.Q2;
+            fifo_data.Quat6_3 = dmpData.Quat6.Data.Q3;
+        }
+        if (dmpData.header & DMP_header_bitmap_Quat9)
+        {
+            fifo_data.Quat9_1 = dmpData.Quat9.Data.Q1;
+            fifo_data.Quat9_2 = dmpData.Quat9.Data.Q2;
+            fifo_data.Quat9_3 = dmpData.Quat9.Data.Q3;
+            fifo_data.Quat9_Acc = dmpData.Quat9.Data.Accuracy;
+        }
+        if (dmpData.header & DMP_header_bitmap_PQuat6)
+        {
+            fifo_data.PQuat6_1 = dmpData.PQuat6.Data.Q1;
+            fifo_data.PQuat6_2 = dmpData.PQuat6.Data.Q2;
+            fifo_data.PQuat6_3 = dmpData.PQuat6.Data.Q3;
+        }
+        if (dmpData.header & DMP_header_bitmap_Geomag)
+        {
+            fifo_data.Geomag_1 = dmpData.Geomag.Data.Q1;
+            fifo_data.Geomag_2 = dmpData.Geomag.Data.Q2;
+            fifo_data.Geomag_3 = dmpData.Geomag.Data.Q3;
+            fifo_data.Geomag_Acc = dmpData.Geomag.Data.Accuracy;
+        }
+        if (dmpData.header & DMP_header_bitmap_Header2)
+        {
+            if (dmpData.header2 & DMP_header2_bitmap_Accel_Accuracy)
+            {
+                fifo_data.Accel_Acc = dmpData.Accel_Accuracy;
+            }
+            if (dmpData.header2 & DMP_header2_bitmap_Gyro_Accuracy)
+            {
+                fifo_data.Gyro_Acc = dmpData.Gyro_Accuracy;
+            }
+            if (dmpData.header2 & DMP_header2_bitmap_Compass_Accuracy)
+            {
+                fifo_data.Compass_Acc = dmpData.Compass_Accuracy;
+            }
+        }
+        _data_access_mutex.unlock();
+    }
 }
