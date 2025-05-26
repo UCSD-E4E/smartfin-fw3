@@ -102,39 +102,20 @@ static float getTmpC(int16_t raw);
 void setupICM(void)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    ICM_20948_Status_e status;
+    bool success = true;
     WIRE_PORT.begin();
     WIRE_PORT.setClock(400000);
 
-    myICM.begin(WIRE_PORT, AD0_VAL);
-    // myICM.enableDebugging();
+    status = myICM.begin(WIRE_PORT, AD0_VAL);
 
-    SF_OSAL_printf("Initialization of the sensor returned: %s" __NL__, myICM.statusString());
-    if (myICM.status != ICM_20948_Stat_Ok)
+    if (status != ICM_20948_Stat_Ok)
     {
         SF_OSAL_printf("ICM fail" __NL__);
-        FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
+        FLOG_AddError(FLOG_ICM_FAIL, status);
     }
 
-    // DMP sensor options are defined in ICM_20948_DMP.h
-    //    INV_ICM20948_SENSOR_ACCELEROMETER               (16-bit accel)
-    //    INV_ICM20948_SENSOR_GYROSCOPE                   (16-bit gyro + 32-bit calibrated gyro)
-    //    INV_ICM20948_SENSOR_RAW_ACCELEROMETER           (16-bit accel)
-    //    INV_ICM20948_SENSOR_RAW_GYROSCOPE               (16-bit gyro + 32-bit calibrated gyro)
-    //    INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED (16-bit compass)
-    //    INV_ICM20948_SENSOR_GYROSCOPE_UNCALIBRATED      (16-bit gyro)
-    //    INV_ICM20948_SENSOR_STEP_DETECTOR               (Pedometer Step Detector)
-    //    INV_ICM20948_SENSOR_STEP_COUNTER                (Pedometer Step Detector)
-    //    INV_ICM20948_SENSOR_GAME_ROTATION_VECTOR        (32-bit 6-axis quaternion)
-    //    INV_ICM20948_SENSOR_ROTATION_VECTOR             (32-bit 9-axis quaternion + heading
-    //    accuracy) INV_ICM20948_SENSOR_GEOMAGNETIC_ROTATION_VECTOR (32-bit Geomag RV + heading
-    //    accuracy) INV_ICM20948_SENSOR_GEOMAGNETIC_FIELD           (32-bit calibrated compass)
-    //    INV_ICM20948_SENSOR_GRAVITY                     (32-bit 6-axis quaternion)
-    //    INV_ICM20948_SENSOR_LINEAR_ACCELERATION         (16-bit accel + 32-bit 6-axis quaternion)
-    //    INV_ICM20948_SENSOR_ORIENTATION                 (32-bit 9-axis quaternion + heading
-    //    accuracy)
-
-    bool success = true;
-    ICM_20948_Status_e status = myICM.initializeDMP();
+    status = myICM.initializeDMP();
     if (status != ICM_20948_Stat_Ok)
     {
         SF_OSAL_printf("DMP Initialization failed due to %d" __NL__, status);
