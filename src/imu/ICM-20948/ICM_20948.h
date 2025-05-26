@@ -24,13 +24,13 @@ private:
   const uint8_t MAX_MAGNETOMETER_STARTS = 10; // This replaces maxTries
 
   protected:
-  float getTempC(int16_t val);
-  float getGyrDPS(int16_t axis_val);
-  float getAccMG(int16_t axis_val);
-  float getMagUT(int16_t axis_val);
+      ICM_20948_Device_t _device;
+      float getTempC(int16_t val);
+      float getGyrDPS(int16_t axis_val);
+      float getAccMG(int16_t axis_val);
+      float getMagUT(int16_t axis_val);
 
   public:
-  ICM_20948_Device_t _device;
   ICM_20948(); // Constructor
 
 // Enable debug messages using the chosen Serial port (Stream)
