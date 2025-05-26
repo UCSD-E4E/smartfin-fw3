@@ -941,7 +941,7 @@ void IMU_dumpRegs(void)
         {
             break;
         }
-        SF_OSAL_printf("%32s: 0b%d%d%d%d%d%d%d%d (0x%02x)" __NL__,
+        SF_OSAL_printf("%32s: 0b%d%d%d%d %d%d%d%d (0x%02x)" __NL__,
                        entry->name,
                        (data & 0x80) >> 7,
                        (data & 0x40) >> 6,
