@@ -563,6 +563,15 @@ ICM_20948_Status_e ICM_20948::initializeDMP(void)
     if (result > worstResult)
         worstResult = result;
 
+    ICM_20948_dlpcfg_t dlpf_cfg;
+    dlpf_cfg.a = acc_d473bw_n499bw;
+    dlpf_cfg.g = gyr_d361bw4_n376bw5;
+    result = setDLPFcfg((ICM_20948_Internal_Acc | ICM_20948_Internal_Gyr), dlpf_cfg);
+    if (result > worstResult)
+    {
+        worstResult = result;
+    }
+
     // Enable interrupt for FIFO overflow from FIFOs through INT_ENABLE_2
     // If we see this interrupt, we'll need to reset the FIFO
     // result = intEnableOverflowFIFO( 0x1F ); if (result > worstResult) worstResult = result; //
