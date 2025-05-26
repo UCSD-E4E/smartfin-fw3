@@ -937,19 +937,37 @@ void IMU_dumpRegs(void)
         {3, AGB3_REG_I2C_PERIPH4_CTRL, "I2C_SLV4_CTRL"},
         {3, AGB3_REG_I2C_PERIPH4_DO, "I2C_SLV4_DO"},
         {3, AGB3_REG_REG_BANK_SEL, "REG_BANK_SEL"},
+        {4, AK09916_REG_WIA2, "WIA2"},
+        {4, AK09916_REG_ST1, "ST1"},
+        {4, AK09916_REG_HXL, "HXL"},
+        {4, AK09916_REG_HXH, "HXH"},
+        {4, AK09916_REG_HYL, "HYL"},
+        {4, AK09916_REG_HYH, "HYH"},
+        {4, AK09916_REG_HZL, "HZL"},
+        {4, AK09916_REG_HZH, "HZH"},
+        {4, AK09916_REG_ST2, "ST2"},
+        {4, AK09916_REG_CNTL2, "CNTL2"},
+        {4, AK09916_REG_CNTL3, "CNTL3"},
         {0, 0, NULL}};
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     for (struct tab_entry *entry = reg_table; entry->name; entry++)
     {
-        status = ICM_20948_set_bank(&myICM._device, entry->bank);
-        if (ICM_20948_Stat_Ok != status)
+        if (entry->bank < 4)
         {
-            break;
+            status = myICM.setBank(entry->bank);
+            if (ICM_20948_Stat_Ok != status)
+            {
+                break;
+            }
+            status = myICM.read(entry->addr, &data, 1);
+            if (ICM_20948_Stat_Ok != status)
+            {
+                break;
+            }
         }
-        status = ICM_20948_execute_r(&myICM._device, entry->addr, &data, 1);
-        if (ICM_20948_Stat_Ok != status)
+        else if (entry->bank == 4)
         {
-            break;
+            data = myICM.readMag((AK09916_Reg_Addr_e)entry->addr);
         }
         SF_OSAL_printf("%32s: 0b%d%d%d%d %d%d%d%d (0x%02x)" __NL__,
                        entry->name,
