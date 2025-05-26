@@ -111,6 +111,7 @@ namespace conioHistory
      * @brief Write the given line into the file
      *
      * @param line Line to be written
+     * @param size Size of the line (not counting the null terminator)
      * @param NL_exists Add a new line after
      */
     void write_line(const char *line, const std::size_t size, const bool NL_exists);
@@ -120,6 +121,7 @@ namespace conioHistory
      * @details This function is not safe to use without proper implementation knowledge and assumes that the offset provided is for the last line struct of file. Improper usage can break the history logging system
      *
      * @param line Line to be written
+     * @param size Size of the line (not counting the null terminator)
      * @param offset Starting offset point to write
      * @param NL_exists Add a new line after
      */
