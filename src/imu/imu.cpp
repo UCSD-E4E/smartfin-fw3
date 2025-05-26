@@ -522,7 +522,8 @@ ICM_20948_Status_e ICM_20948::initializeDMP(void)
     // Place _only_ I2C_Master in Low Power Mode (cycled) via LP_CONFIG
     // The InvenSense Nucleo example initially puts the accel and gyro into low power mode too, but
     // then later updates LP_CONFIG so only the I2C_Master is in Low Power Mode
-    result = setSampleMode(ICM_20948_Internal_Mst, ICM_20948_Sample_Mode_Cycled);
+    result = setSampleMode(ICM_20948_Internal_Mst | ICM_20948_Internal_Acc | ICM_20948_Internal_Gyr,
+                           ICM_20948_Sample_Mode_Cycled);
     if (result > worstResult)
         worstResult = result;
 
