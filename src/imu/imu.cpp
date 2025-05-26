@@ -133,6 +133,11 @@ void setupICM(void)
     success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
     success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);
     success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);
+    // Reset DMP
+    success &= (myICM.resetDMP() == ICM_20948_Stat_Ok);
+
+    // Reset FIFO
+    success &= (myICM.resetFIFO() == ICM_20948_Stat_Ok);
 
     // Enable the FIFO
     success &= (myICM.enableFIFO() == ICM_20948_Stat_Ok);
@@ -140,11 +145,6 @@ void setupICM(void)
     // Enable the DMP
     success &= (myICM.enableDMP() == ICM_20948_Stat_Ok);
 
-    // Reset DMP
-    success &= (myICM.resetDMP() == ICM_20948_Stat_Ok);
-
-    // Reset FIFO
-    success &= (myICM.resetFIFO() == ICM_20948_Stat_Ok);
     if (success == false)
     {
         SF_OSAL_printf("DMP fail!" __NL__);
@@ -605,9 +605,9 @@ ICM_20948_Status_e ICM_20948::initializeDMP(void)
     // Set gyro sample rate divider with GYRO_SMPLRT_DIV
     // Set accel sample rate divider with ACCEL_SMPLRT_DIV_2
     ICM_20948_smplrt_t mySmplrt;
-    mySmplrt.g = 7; // ODR is computed as follows: 1.1 kHz/(1+GYRO_SMPLRT_DIV[7:0]). 19 = 55Hz.
+    mySmplrt.g = 3; // ODR is computed as follows: 1.1 kHz/(1+GYRO_SMPLRT_DIV[7:0]). 19 = 55Hz.
                     // InvenSense Nucleo example uses 19 (0x13).
-    mySmplrt.a = 7; // ODR is computed as follows: 1.125 kHz/(1+ACCEL_SMPLRT_DIV[11:0]). 19
+    mySmplrt.a = 2; // ODR is computed as follows: 1.125 kHz/(1+ACCEL_SMPLRT_DIV[11:0]). 19
                     // = 56.25Hz. InvenSense Nucleo example uses 19 (0x13).
     // mySmplrt.g = 4; // 225Hz
     // mySmplrt.a = 4; // 225Hz
