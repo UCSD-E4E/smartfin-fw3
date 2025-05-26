@@ -447,7 +447,7 @@ static void CLI_monitorSensors(void)
         sensor_headers[SensorHeader_DMPQuatAcc].active = true;
     }
     int count = 0;
-    // setupICM();
+    setupICM();
 
     while (1)
     {
@@ -484,45 +484,44 @@ static void CLI_monitorSensors(void)
         //                     &sensor_headers[SensorHeader_MagY].value,
         //                     &sensor_headers[SensorHeader_MagZ].value);
         // }
-        // if (sensors[DMP])
-        // {
-        //     delayTime = 0;
-        //     DMPData.acc[0] = NAN;
-        //     DMPData.acc[1] = NAN;
-        //     DMPData.acc[2] = NAN;
-        //     DMPData.acc_acc = NAN;
-        //     DMPData.gyr[0] = NAN;
-        //     DMPData.gyr[1] = NAN;
-        //     DMPData.gyr[2] = NAN;
-        //     DMPData.mag[0] = NAN;
-        //     DMPData.mag[1] = NAN;
-        //     DMPData.mag[2] = NAN;
-        //     DMPData.quat[0] = NAN;
-        //     DMPData.quat[1] = NAN;
-        //     DMPData.quat[2] = NAN;
-        //     DMPData.quat[3] = NAN;
-        //     DMPData.quat_acc = NAN;
-        //     if (!getDMPData(DMPData))
-        //     {
-        //         SF_OSAL_printf("DMP fail!" __NL__);
-        //     }
-        //     sensor_headers[SensorHeader_DMPAccelX].value = DMPData.acc[0];
-        //     sensor_headers[SensorHeader_DMPAccelY].value = DMPData.acc[1];
-        //     sensor_headers[SensorHeader_DMPAccelZ].value = DMPData.acc[2];
+        if (sensors[DMP])
+        {
+            DMPData.acc[0] = NAN;
+            DMPData.acc[1] = NAN;
+            DMPData.acc[2] = NAN;
+            DMPData.acc_acc = NAN;
+            DMPData.gyr[0] = NAN;
+            DMPData.gyr[1] = NAN;
+            DMPData.gyr[2] = NAN;
+            DMPData.mag[0] = NAN;
+            DMPData.mag[1] = NAN;
+            DMPData.mag[2] = NAN;
+            DMPData.quat[0] = NAN;
+            DMPData.quat[1] = NAN;
+            DMPData.quat[2] = NAN;
+            DMPData.quat[3] = NAN;
+            DMPData.quat_acc = NAN;
+            if (!getDMPData(DMPData))
+            {
+                SF_OSAL_printf("DMP fail!" __NL__);
+            }
+            sensor_headers[SensorHeader_DMPAccelX].value = DMPData.acc[0];
+            sensor_headers[SensorHeader_DMPAccelY].value = DMPData.acc[1];
+            sensor_headers[SensorHeader_DMPAccelZ].value = DMPData.acc[2];
 
-        //     sensor_headers[SensorHeader_DMPAccelAcc].value = DMPData.acc_acc;
+            sensor_headers[SensorHeader_DMPAccelAcc].value = DMPData.acc_acc;
 
-        //     sensor_headers[SensorHeader_DMPGyroX].value = DMPData.gyr[0];
-        //     sensor_headers[SensorHeader_DMPGyroY].value = DMPData.gyr[1];
-        //     sensor_headers[SensorHeader_DMPGyroZ].value = DMPData.gyr[2];
+            sensor_headers[SensorHeader_DMPGyroX].value = DMPData.gyr[0];
+            sensor_headers[SensorHeader_DMPGyroY].value = DMPData.gyr[1];
+            sensor_headers[SensorHeader_DMPGyroZ].value = DMPData.gyr[2];
 
-        //     sensor_headers[SensorHeader_DMPQuat1].value = DMPData.quat[0];
-        //     sensor_headers[SensorHeader_DMPQuat2].value = DMPData.quat[1];
-        //     sensor_headers[SensorHeader_DMPQuat3].value = DMPData.quat[2];
-        //     sensor_headers[SensorHeader_DMPQuat0].value = DMPData.quat[3];
+            sensor_headers[SensorHeader_DMPQuat1].value = DMPData.quat[0];
+            sensor_headers[SensorHeader_DMPQuat2].value = DMPData.quat[1];
+            sensor_headers[SensorHeader_DMPQuat3].value = DMPData.quat[2];
+            sensor_headers[SensorHeader_DMPQuat0].value = DMPData.quat[3];
 
-        //     sensor_headers[SensorHeader_DMPQuatAcc].value = DMPData.quat_acc;
-        // }
+            sensor_headers[SensorHeader_DMPQuatAcc].value = DMPData.quat_acc;
+        }
         if (sensors[TEMP])
         {
             sensor_headers[SensorHeader_Temp].value = pSystemDesc->pTempSensor->getTemp();
