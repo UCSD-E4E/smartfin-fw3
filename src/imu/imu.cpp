@@ -540,7 +540,7 @@ ICM_20948_Status_e ICM_20948::initializeDMP(void)
     // Set Accel FSR (Full scale range) to 4g through ACCEL_CONFIG
     ICM_20948_fss_t myFSS; // This uses a "Full Scale Settings" structure that can contain values
                            // for all configurable sensors
-    myFSS.a = gpm4;        // (ICM_20948_ACCEL_CONFIG_FS_SEL_e)
+    myFSS.a = gpm8;        // (ICM_20948_ACCEL_CONFIG_FS_SEL_e)
                            // gpm2
                            // gpm4
                            // gpm8
