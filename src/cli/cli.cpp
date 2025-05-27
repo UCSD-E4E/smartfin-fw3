@@ -463,29 +463,29 @@ static void CLI_monitorSensors(void)
             }
         }
         sensor_headers[SensorHeader_Time].value = millis();
-        // if (sensors[ACCEL])
-        // {
-        //     if (!getAccelerometer(&sensor_headers[SensorHeader_AccelX].value,
-        //                           &sensor_headers[SensorHeader_AccelY].value,
-        //                           &sensor_headers[SensorHeader_AccelZ].value))
-        //     {
-        //         sensor_headers[SensorHeader_AccelX].value = NAN;
-        //         sensor_headers[SensorHeader_AccelY].value = NAN;
-        //         sensor_headers[SensorHeader_AccelZ].value = NAN;
-        //     }
-        // }
-        // if (sensors[GYRO])
-        // {
-        //     getGyroscope(&sensor_headers[SensorHeader_GyroX].value,
-        //                  &sensor_headers[SensorHeader_GyroY].value,
-        //                  &sensor_headers[SensorHeader_GyroZ].value);
-        // }
-        // if (sensors[MAG])
-        // {
-        //     getMagnetometer(&sensor_headers[SensorHeader_MagX].value,
-        //                     &sensor_headers[SensorHeader_MagY].value,
-        //                     &sensor_headers[SensorHeader_MagZ].value);
-        // }
+        if (sensors[ACCEL])
+        {
+            if (!getAccelerometer(&sensor_headers[SensorHeader_AccelX].value,
+                                  &sensor_headers[SensorHeader_AccelY].value,
+                                  &sensor_headers[SensorHeader_AccelZ].value))
+            {
+                sensor_headers[SensorHeader_AccelX].value = NAN;
+                sensor_headers[SensorHeader_AccelY].value = NAN;
+                sensor_headers[SensorHeader_AccelZ].value = NAN;
+            }
+        }
+        if (sensors[GYRO])
+        {
+            getGyroscope(&sensor_headers[SensorHeader_GyroX].value,
+                         &sensor_headers[SensorHeader_GyroY].value,
+                         &sensor_headers[SensorHeader_GyroZ].value);
+        }
+        if (sensors[MAG])
+        {
+            getMagnetometer(&sensor_headers[SensorHeader_MagX].value,
+                            &sensor_headers[SensorHeader_MagY].value,
+                            &sensor_headers[SensorHeader_MagZ].value);
+        }
         if (sensors[DMP])
         {
             DMPData.acc[0] = NAN;
