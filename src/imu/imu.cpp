@@ -60,7 +60,7 @@ ICM_20948_I2C myICM;
  * @brief ICM FIFO Reader
  *
  */
-Thread _icm_read_loop;
+Thread *_icm_read_loop;
 /**
  * @brief FIFO Read Loop
  *
@@ -71,7 +71,7 @@ void readLoop(void *args);
  * @brief Data access mutex
  *
  */
-Mutex _data_access_mutex;
+Mutex *_data_access_mutex = NULL;
 
 struct FiFoData
 {
@@ -157,7 +157,10 @@ void setupICM(void)
     ICM_20948_Status_e status;
     bool success = true;
 
-    _data_access_mutex = Mutex();
+    if (NULL == _data_access_mutex)
+    {
+        _data_access_mutex = new Mutex();
+    }
     memset(&fifo_data, 0, sizeof(struct FiFoData));
 
     WIRE_PORT.begin();
@@ -206,8 +209,14 @@ void setupICM(void)
         SF_OSAL_printf("DMP fail!" __NL__);
         FLOG_AddError(FLOG_ICM_FAIL, myICM.status);
     }
-    _icm_read_loop = Thread(
-        "ICM_read", readLoop, NULL, OS_THREAD_PRIORITY_DEFAULT, OS_THREAD_STACK_SIZE_DEFAULT);
+    if (!_icm_read_loop)
+    {
+        _icm_read_loop = new Thread("ICM_read",
+                                    readLoop,
+                                    NULL,
+                                    OS_THREAD_PRIORITY_DEFAULT,
+                                    OS_THREAD_STACK_SIZE_DEFAULT_HIGH);
+    }
 #endif
 }
 
@@ -338,11 +347,11 @@ float getTmpC(int16_t raw)
 bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    _data_access_mutex.lock();
+    _data_access_mutex->lock();
     *acc_x = fifo_data.RawAccel_X;
     *acc_y = fifo_data.RawAccel_Y;
     *acc_z = fifo_data.RawAccel_Z;
-    _data_access_mutex.unlock();
+    _data_access_mutex->unlock();
 #endif
     return false;
 }
@@ -351,9 +360,9 @@ bool getDMPAccelerometer(float *acc_x, float *acc_y, float *acc_z)
 bool getDMPAccelerometerAcc(float *acc_acc)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    _data_access_mutex.lock();
+    _data_access_mutex->lock();
     *acc_acc = fifo_data.Accel_Acc;
-    _data_access_mutex.unlock();
+    _data_access_mutex->unlock();
 #endif
     return false;
 }
@@ -361,13 +370,13 @@ bool getDMPAccelerometerAcc(float *acc_acc)
 bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *acc)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    _data_access_mutex.lock();
+    _data_access_mutex->lock();
     *q1 = fifo_data.Quat9_1 / Q_SCALE;
     *q2 = fifo_data.Quat9_2 / Q_SCALE;
     *q3 = fifo_data.Quat9_3 / Q_SCALE;
     *q0 = sqrt(1 - *q1 * *q1 - *q2 * *q2 - *q3 * *q3);
     *acc = fifo_data.Quat9_Acc / Q_SCALE;
-    _data_access_mutex.unlock();
+    _data_access_mutex->unlock();
 #endif
     return false;
 }
@@ -375,11 +384,11 @@ bool getDMPQuaternion(double *q1, double *q2, double *q3, double *q0, double *ac
 bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    _data_access_mutex.lock();
+    _data_access_mutex->lock();
     *g_x = fifo_data.RawGyro_X;
     *g_y = fifo_data.RawGyro_Y;
     *g_z = fifo_data.RawGyro_Z;
-    _data_access_mutex.unlock();
+    _data_access_mutex->unlock();
 #endif
     return false;
 }
@@ -387,7 +396,7 @@ bool getDMPGyroscope(float *g_x, float *g_y, float *g_z)
 bool getDMPData(IMU_DMPData_t &data)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    _data_access_mutex.lock();
+    _data_access_mutex->lock();
     data.acc[0] = fifo_data.RawAccel_X;
     data.acc[1] = fifo_data.RawAccel_Y;
     data.acc[2] = fifo_data.RawAccel_Z;
@@ -404,7 +413,7 @@ bool getDMPData(IMU_DMPData_t &data)
     data.quat[0] = sqrt(1 - data.quat[1] * data.quat[1] - data.quat[2] * data.quat[2] -
                         data.quat[3] * data.quat[3]);
     data.quat_acc = fifo_data.Quat9_Acc / Q_SCALE;
-    _data_access_mutex.unlock();
+    _data_access_mutex->unlock();
 #endif
     return true;
 }
@@ -1018,7 +1027,7 @@ void readLoop(void *args)
             continue;
         }
 
-        _data_access_mutex.lock();
+        _data_access_mutex->lock();
         if (dmpData.header & DMP_header_bitmap_Accel)
         {
             fifo_data.RawAccel_X = dmpData.Raw_Accel.Data.X;
@@ -1085,6 +1094,6 @@ void readLoop(void *args)
                 fifo_data.Compass_Acc = dmpData.Compass_Accuracy;
             }
         }
-        _data_access_mutex.unlock();
+        _data_access_mutex->unlock();
     }
 }
