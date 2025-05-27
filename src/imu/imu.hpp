@@ -113,8 +113,6 @@ bool getDMPAccelerometerAcc(float *acc_acc);
  */
 void setupICM(void);
 
-void whereDMP(void);
-
 /**
  * @brief Get the DMP data from the FIFO
  *
@@ -123,4 +121,11 @@ void whereDMP(void);
  * @return True if measurement was successful, otherwise False
  */
 bool getDMPData(IMU_DMPData_t &data);
+
+/**
+ * @brief Dumps registers to console
+ *
+ *
+ */
+void IMU_dumpRegs(void);
 #endif

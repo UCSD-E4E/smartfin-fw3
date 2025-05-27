@@ -1460,7 +1460,7 @@ ICM_20948_Status_e ICM_20948::setGyroSF(unsigned char div, int gyro_level)
 // Combine all of the DMP start-up code from the earlier DMP examples
 // This function is defined as __attribute__((weak)) so you can overwrite it if you want to,
 //   e.g. to modify the sample rate
-ICM_20948_Status_e ICM_20948::initializeDMP(void)
+__attribute__((weak)) ICM_20948_Status_e ICM_20948::initializeDMP(void)
 {
   // First, let's check if the DMP is available
   if (_device._dmp_firmware_available != true)

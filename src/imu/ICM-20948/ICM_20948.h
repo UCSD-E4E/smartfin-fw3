@@ -23,15 +23,14 @@ private:
 
   const uint8_t MAX_MAGNETOMETER_STARTS = 10; // This replaces maxTries
 
-protected:
-  ICM_20948_Device_t _device;
+  protected:
+      ICM_20948_Device_t _device;
+      float getTempC(int16_t val);
+      float getGyrDPS(int16_t axis_val);
+      float getAccMG(int16_t axis_val);
+      float getMagUT(int16_t axis_val);
 
-  float getTempC(int16_t val);
-  float getGyrDPS(int16_t axis_val);
-  float getAccMG(int16_t axis_val);
-  float getMagUT(int16_t axis_val);
-
-public:
+  public:
   ICM_20948(); // Constructor
 
 // Enable debug messages using the chosen Serial port (Stream)
@@ -233,7 +232,7 @@ public:
   ICM_20948_Status_e setDMPODRrate(enum DMP_ODR_Registers odr_reg, int interval);
   ICM_20948_Status_e readDMPdataFromFIFO(icm_20948_DMP_data_t *data);
   ICM_20948_Status_e setGyroSF(unsigned char div, int gyro_level);
-  ICM_20948_Status_e initializeDMP(void) __attribute__((weak)); // Combine all of the DMP start-up code in one place. Can be overwritten if required
+  ICM_20948_Status_e initializeDMP(void); // Combine all of the DMP start-up code in one place. Can be overwritten if required
 };
 
 // I2C
