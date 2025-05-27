@@ -68,6 +68,8 @@ const Menu_t CLI_menu[] = {
     {15, "Session Test Menu", {.pMenu = Session_debug_menu}, MENU_SUBMENU},
     {16, "Display all sensors", &CLI_monitorSensors, MENU_CMD},
     {20, "Do Ensemble Function", &CLI_doEnsemble, MENU_CMD},
+    {30, "Dump FLOG", &CLI_displayFLOG, MENU_CMD},
+    {31, "Clear FLOG", &CLI_clearFLOG, MENU_CMD},
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
