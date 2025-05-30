@@ -43,11 +43,6 @@ const char* BUILD_TIME = __TIME__;
 #warning Deploy is currently allowed during charge mode!
 #endif
 
-#ifdef SYSTEM_VERSION_v310
-const uint32_t APP_ADDR = 0x000b4000; // Device OS 3.1 and later (256K binaries)
-#else
-const uint32_t APP_ADDR = 0x000d4000; // Earlier versions including 2.x LTS
-#endif
 void VERS_printBanner(void)
 {
     SF_OSAL_printf(__NL__ "Smartfin FW v%d.%d.%d%s" __NL__,
@@ -59,13 +54,9 @@ void VERS_printBanner(void)
     SF_OSAL_printf("Device OS: %s" __NL__, System.version().c_str());
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 
-    const module_info_t *prefix = (module_info_t *)APP_ADDR;
+    SF_OSAL_printf("CRC32=%lx" __NL__, module_info_crc.crc32);
 
-    const uint32_t *crcAddr = (const uint32_t *)prefix->module_end_address;
-    const uint32_t crc = N_TO_B_ENDIAN_4(*crcAddr);
-    SF_OSAL_printf("CRC32=%lx" __NL__, crc);
-
-    const uint8_t *sha = (const uint8_t *)(((uint32_t)prefix->module_end_address) - 34);
+    const uint8_t *sha = module_info_suffix.sha;
     SF_OSAL_printf("SHA256=");
     for (size_t byte_idx = 0; byte_idx < 32; byte_idx++)
     {
@@ -73,15 +64,6 @@ void VERS_printBanner(void)
     }
     SF_OSAL_printf(__NL__);
 #endif
-}
-
-uint32_t VERS_getCrC(void)
-{
-    const module_info_t *prefix = (module_info_t *)APP_ADDR;
-
-    const uint32_t *crcAddr = (const uint32_t *)prefix->module_end_address;
-    const uint32_t crc = N_TO_B_ENDIAN_4(*crcAddr);
-    return crc;
 }
 
 const char* VERS_getBuildDate(void)

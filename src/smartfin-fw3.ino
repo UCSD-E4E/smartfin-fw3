@@ -76,11 +76,11 @@ retained std::uint32_t panicCount[3];
 void setup()
 {
     System.enableFeature(FEATURE_RESET_INFO);
-    if (panicCount[0] != ~panicCount[1] && panicCount[3] != ~VERS_getCrC())
+    if (panicCount[0] != ~panicCount[1] && panicCount[2] != ~module_info_crc.crc32)
     {
         panicCount[0] = 0;
         panicCount[1] = ~panicCount[0];
-        panicCount[2] = ~VERS_getCrC();
+        panicCount[2] = ~module_info_crc.crc32;
     }
     SF_OSAL_init_conio();
 
@@ -95,14 +95,19 @@ void setup()
     if (System.resetReason() == RESET_REASON_PANIC)
     {
         panicCount[0]++;
-        panicCount[1] = ~panicCount[0];
     }
+    else
+    {
+        panicCount[0] = 0;
+    }
+    panicCount[1] = ~panicCount[0];
 
-    if (panicCount[0] > 5)
+    if (panicCount[0] > 2)
     {
         while (1)
         {
             SF_OSAL_printf("Boot loop!" __NL__);
+            VERS_printBanner();
             FLOG_DisplayLog();
             Particle.process();
             delay(1000);

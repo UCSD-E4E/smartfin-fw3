@@ -23,7 +23,6 @@
 #endif
 
 void VERS_printBanner(void);
-uint32_t VERS_getCrC(void);
 const char* VERS_getBuildDate(void);
 const char* VERS_getBuildTime(void);
 #endif
