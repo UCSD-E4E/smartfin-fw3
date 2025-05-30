@@ -239,6 +239,5 @@ void CLI_initCloudCounters(void)
 
 void CLI_dumpIMURegs(void)
 {
-    setupICM();
-    IMU_dumpRegs();
+    pSystemDesc->pIMU->dumpRegs();
 }

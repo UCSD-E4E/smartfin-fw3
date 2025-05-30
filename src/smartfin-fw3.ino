@@ -137,6 +137,7 @@ void loop()
  */
 void mainLoop(void *args)
 {
+    SYS_delayedInitSys();
     while (1)
     {
         mainFunc();

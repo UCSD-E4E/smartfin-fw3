@@ -449,7 +449,6 @@ static void CLI_monitorSensors(void)
         sensor_headers[SensorHeader_DMPQuatAcc].active = true;
     }
     int count = 0;
-    setupICM();
 
     while (1)
     {
@@ -465,26 +464,21 @@ static void CLI_monitorSensors(void)
         sensor_headers[SensorHeader_Time].value = millis();
         if (sensors[ACCEL])
         {
-            if (!getAccelerometer(&sensor_headers[SensorHeader_AccelX].value,
-                                  &sensor_headers[SensorHeader_AccelY].value,
-                                  &sensor_headers[SensorHeader_AccelZ].value))
-            {
-                sensor_headers[SensorHeader_AccelX].value = NAN;
-                sensor_headers[SensorHeader_AccelY].value = NAN;
-                sensor_headers[SensorHeader_AccelZ].value = NAN;
-            }
+            pSystemDesc->pIMU->getAccel_ms2(sensor_headers[SensorHeader_AccelX].value,
+                                            sensor_headers[SensorHeader_AccelY].value,
+                                            sensor_headers[SensorHeader_AccelZ].value);
         }
         if (sensors[GYRO])
         {
-            getGyroscope(&sensor_headers[SensorHeader_GyroX].value,
-                         &sensor_headers[SensorHeader_GyroY].value,
-                         &sensor_headers[SensorHeader_GyroZ].value);
+            pSystemDesc->pIMU->getRotVel_dps(sensor_headers[SensorHeader_GyroX].value,
+                                             sensor_headers[SensorHeader_GyroY].value,
+                                             sensor_headers[SensorHeader_GyroZ].value);
         }
         if (sensors[MAG])
         {
-            getMagnetometer(&sensor_headers[SensorHeader_MagX].value,
-                            &sensor_headers[SensorHeader_MagY].value,
-                            &sensor_headers[SensorHeader_MagZ].value);
+            pSystemDesc->pIMU->getMag_uT(sensor_headers[SensorHeader_MagX].value,
+                                         sensor_headers[SensorHeader_MagY].value,
+                                         sensor_headers[SensorHeader_MagZ].value);
         }
         if (sensors[DMP])
         {
@@ -503,26 +497,17 @@ static void CLI_monitorSensors(void)
             DMPData.quat[2] = NAN;
             DMPData.quat[3] = NAN;
             DMPData.quat_acc = NAN;
-            if (!getDMPData(DMPData))
-            {
-                SF_OSAL_printf("DMP fail!" __NL__);
-            }
-            sensor_headers[SensorHeader_DMPAccelX].value = DMPData.acc[0];
-            sensor_headers[SensorHeader_DMPAccelY].value = DMPData.acc[1];
-            sensor_headers[SensorHeader_DMPAccelZ].value = DMPData.acc[2];
-
-            sensor_headers[SensorHeader_DMPAccelAcc].value = DMPData.acc_acc;
-
-            sensor_headers[SensorHeader_DMPGyroX].value = DMPData.gyr[0];
-            sensor_headers[SensorHeader_DMPGyroY].value = DMPData.gyr[1];
-            sensor_headers[SensorHeader_DMPGyroZ].value = DMPData.gyr[2];
-
-            sensor_headers[SensorHeader_DMPQuat1].value = DMPData.quat[0];
-            sensor_headers[SensorHeader_DMPQuat2].value = DMPData.quat[1];
-            sensor_headers[SensorHeader_DMPQuat3].value = DMPData.quat[2];
-            sensor_headers[SensorHeader_DMPQuat0].value = DMPData.quat[3];
-
-            sensor_headers[SensorHeader_DMPQuatAcc].value = DMPData.quat_acc;
+            pSystemDesc->pIMU->getDmpAccel_ms2(sensor_headers[SensorHeader_DMPAccelX].value,
+                                               sensor_headers[SensorHeader_DMPAccelY].value,
+                                               sensor_headers[SensorHeader_DMPAccelZ].value);
+            pSystemDesc->pIMU->getDmpRotVel_dps(sensor_headers[SensorHeader_DMPGyroX].value,
+                                                sensor_headers[SensorHeader_DMPGyroY].value,
+                                                sensor_headers[SensorHeader_DMPGyroZ].value);
+            pSystemDesc->pIMU->getDmpQuatf(sensor_headers[SensorHeader_DMPQuat0].value,
+                                           sensor_headers[SensorHeader_DMPQuat1].value,
+                                           sensor_headers[SensorHeader_DMPQuat2].value,
+                                           sensor_headers[SensorHeader_DMPQuat3].value,
+                                           &sensor_headers[SensorHeader_DMPQuatAcc].value);
         }
         if (sensors[TEMP])
         {
