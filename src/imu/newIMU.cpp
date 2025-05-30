@@ -317,7 +317,7 @@ bool IMU::getDmpQuat(double &q0, double &q1, double &q2, double &q3, double *acc
         }
     }
     this->_data_mtx->unlock();
-    q0 = sqrt(1 - q1 * q1 - q2 * q2 - q3 * q3);
+    q0 = sqrt(1.0 - ((q1 * q1) + (q2 * q2) + (q3 * q3)));
     return fail;
 }
 
@@ -335,7 +335,7 @@ bool IMU::getDmpQuatf(float &q0, float &q1, float &q2, float &q3, float *acc)
         }
     }
     this->_data_mtx->unlock();
-    q0 = sqrtf(1 - q1 * q1 - q2 * q2 - q3 * q3);
+    q0 = sqrtf(1.0 - ((q1 * q1) + (q2 * q2) + (q3 * q3)));
     return fail;
 }
 
