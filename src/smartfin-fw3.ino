@@ -19,7 +19,7 @@
 #include "states.hpp"
 #include "system.hpp"
 #include "task.hpp"
-
+#include "vers.hpp"
 SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
@@ -70,10 +70,18 @@ static void printState(STATES_e state);
  */
 Thread __sf_main_thread;
 
+retained std::uint32_t panicCount[3];
+
 // setup() runs once, when the device is first turned on.
 void setup()
 {
     System.enableFeature(FEATURE_RESET_INFO);
+    if (panicCount[0] != ~panicCount[1] && panicCount[3] != ~VERS_getCrC())
+    {
+        panicCount[0] = 0;
+        panicCount[1] = ~panicCount[0];
+        panicCount[2] = ~VERS_getCrC();
+    }
     SF_OSAL_init_conio();
 
     FLOG_Initialize();
@@ -83,6 +91,23 @@ void setup()
 
     FLOG_AddError(FLOG_RESET_REASON, System.resetReason());
     FLOG_AddError(FLOG_RESET_REASON_DATA, System.resetReasonData());
+
+    if (System.resetReason() == RESET_REASON_PANIC)
+    {
+        panicCount[0]++;
+        panicCount[1] = ~panicCount[0];
+    }
+
+    if (panicCount[0] > 5)
+    {
+        while (1)
+        {
+            SF_OSAL_printf("Boot loop!" __NL__);
+            FLOG_DisplayLog();
+            Particle.process();
+            delay(1000);
+        }
+    }
 
     SYS_initSys();
 
