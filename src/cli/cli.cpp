@@ -15,7 +15,7 @@
 #include "consts.hpp"
 #include "debug/recorder_debug.hpp"
 #include "debug/session_debug.hpp"
-#include "imu/imu.hpp"
+#include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
 #include "menuItems/gpsCommands.hpp"
@@ -323,7 +323,6 @@ CLI_MON_SENSOR_data_t sensor_headers[SensorHeader_NUMHEADERS + 1] = {
 static void CLI_monitorSensors(void)
 {
     char ch = ' ';
-    IMU_DMPData_t DMPData = {0};
     pSystemDesc->pChargerCheck->stop();
     pSystemDesc->pWaterCheck->stop();
     SF_OSAL_printf(__NL__);
@@ -482,21 +481,6 @@ static void CLI_monitorSensors(void)
         }
         if (sensors[DMP])
         {
-            DMPData.acc[0] = NAN;
-            DMPData.acc[1] = NAN;
-            DMPData.acc[2] = NAN;
-            DMPData.acc_acc = NAN;
-            DMPData.gyr[0] = NAN;
-            DMPData.gyr[1] = NAN;
-            DMPData.gyr[2] = NAN;
-            DMPData.mag[0] = NAN;
-            DMPData.mag[1] = NAN;
-            DMPData.mag[2] = NAN;
-            DMPData.quat[0] = NAN;
-            DMPData.quat[1] = NAN;
-            DMPData.quat[2] = NAN;
-            DMPData.quat[3] = NAN;
-            DMPData.quat_acc = NAN;
             pSystemDesc->pIMU->getDmpAccel_ms2(sensor_headers[SensorHeader_DMPAccelX].value,
                                                sensor_headers[SensorHeader_DMPAccelY].value,
                                                sensor_headers[SensorHeader_DMPAccelZ].value);

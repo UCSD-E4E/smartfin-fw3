@@ -8,7 +8,7 @@
 #include "ensembles.hpp"
 
 #include "deploy/ensembleTypes.hpp"
-#include "imu/imu.hpp"
+#include "imu/newIMU.hpp"
 #include "product.hpp"
 #include "scheduler.hpp"
 #include "system.hpp"

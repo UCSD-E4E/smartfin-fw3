@@ -16,7 +16,7 @@
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "fileCLI/fileCLI.hpp"
-#include "imu/imu.hpp"
+#include "imu/newIMU.hpp"
 #include "product.hpp"
 #include "states.hpp"
 #include "system.hpp"
