@@ -74,53 +74,14 @@ void *read_loop(void *_)
     while (true)
     {
         ch = wgetch(stdscr);
-        pthread_mutex_lock(&read_mutex);
-        SF_OSAL_inputBuffer[read_head_idx % SF_OSAL_READ_BUFLEN] = ch;
-        read_head_idx++;
-        pthread_mutex_unlock(&read_mutex);
-    }
-    return nullptr;
-}
-#endif
-
-extern "C"
-{
-    // Determines if key has been pressed
-    int SF_OSAL_kbhit(void)
-    {
-        int rv;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-        return Serial.available();
-#elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        pthread_mutex_lock(&read_mutex);
-        rv = (read_head_idx != read_tail_idx);
-        pthread_mutex_unlock(&read_mutex);
-        return rv;
-#endif
-    }
-
-    int SF_OSAL_getch(void)
-    {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-        while (Serial.available() == 0)
-        {
-            delay(1);
-        }
-        return Serial.read();
-#elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        pthread_mutex_lock(&read_mutex);
-        int retval = SF_OSAL_inputBuffer[read_tail_idx % SF_OSAL_READ_BUFLEN];
-        read_tail_idx++;
-        pthread_mutex_unlock(&read_mutex);
-
         // Check for any invalid inputs
-        while (retval != '\b' && retval != KEY_BACKSPACE && retval != '\n' && retval != '\r' && (retval < ' ' || retval > '\x7F'))
+        if (ch != '\b' && ch != KEY_BACKSPACE && ch != '\n' && ch != '\r' && (ch < ' ' || ch > '\x7F'))
         {
             // Scroll inputs only matter when CLI window is active
             if (conioHistory::display)
             {
                 // Check only for UP and DOWN scroll
-                switch (retval)
+                switch (ch)
                 {
                 case KEY_UP:
                 {
@@ -179,14 +140,47 @@ extern "C"
                 }
                 }
             }
-
-            // Block and wait for next byte
-            while (!SF_OSAL_kbhit()) {}
+        }
+        else {
             pthread_mutex_lock(&read_mutex);
-            retval = SF_OSAL_inputBuffer[read_tail_idx % SF_OSAL_READ_BUFLEN];
-            read_tail_idx++;
+            SF_OSAL_inputBuffer[read_head_idx % SF_OSAL_READ_BUFLEN] = ch;
+            read_head_idx++;
             pthread_mutex_unlock(&read_mutex);
         }
+    }
+    return nullptr;
+}
+#endif
+
+extern "C"
+{
+    // Determines if key has been pressed
+    int SF_OSAL_kbhit(void)
+    {
+        int rv;
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+        return Serial.available();
+#elif SF_PLATFORM == SF_PLATFORM_GLIBC
+        pthread_mutex_lock(&read_mutex);
+        rv = (read_head_idx != read_tail_idx);
+        pthread_mutex_unlock(&read_mutex);
+        return rv;
+#endif
+    }
+
+    int SF_OSAL_getch(void)
+    {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+        while (Serial.available() == 0)
+        {
+            delay(1);
+        }
+        return Serial.read();
+#elif SF_PLATFORM == SF_PLATFORM_GLIBC
+        pthread_mutex_lock(&read_mutex);
+        int retval = SF_OSAL_inputBuffer[read_tail_idx % SF_OSAL_READ_BUFLEN];
+        read_tail_idx++;
+        pthread_mutex_unlock(&read_mutex);
 
         if (!conioHistory::display)
         {
