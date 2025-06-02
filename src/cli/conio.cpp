@@ -13,7 +13,6 @@
 #include <string>
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
 #include "conioHistory.hpp"
-#define conioHistory conioHistory::getInstance()
 #include <ncurses.h>
 #include <pthread.h>
 #elif SF_PLATFORM == SF_PLATFORM_PARTICLE
@@ -23,6 +22,10 @@
 
 char SF_OSAL_printfBuffer[SF_OSAL_PRINTF_BUFLEN];
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
+/**
+ * @brief Simplify syntax for conioHistory singleton
+ */
+#define conioHistory conioHistory::getInstance()
 /**
  * @brief Separate thread for reading in keyboard input
  * 

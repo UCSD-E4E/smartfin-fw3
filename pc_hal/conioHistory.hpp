@@ -39,6 +39,11 @@
 class conioHistory
 {
     public:
+        /**
+         * @brief Get the singleton instance of conioHistory
+         *
+         * @return conioHistory& Reference to the singleton instance
+         */
         static conioHistory &getInstance(void);
         /**
          * @brief Initialize memory mapped file for IO
@@ -97,99 +102,163 @@ class conioHistory
          */
         std::size_t get_offset() const;
 
+        /**
+         * @brief Get the display flag
+         *
+         * @return true if display is enabled, false otherwise
+         */
         bool get_display() const;
 
+        /**
+         * @brief Set the display flag
+         *
+         * @param _display true to enable display, false to disable
+         */
         void set_display(bool _display);
 
+        /**
+         * @brief Get the bottom display index
+         *
+         * @return Bottom display index
+         */
         std::size_t get_bottom_display() const;
 
+        /**
+         * @brief Set the bottom display index
+         *
+         * @param _bottom_display New bottom display index
+         */
         void set_bottom_display(std::size_t _bottom_display);
 
+        /**
+         * @brief Get the current bottom display index
+         *
+         * @return Current bottom display index
+         */
         std::size_t get_cur_bottom_display() const;
 
+        /**
+         * @brief Set the current bottom display index
+         *
+         * @param _cur_bottom_display New current bottom display index
+         */
         void set_cur_bottom_display(std::size_t _cur_bottom_display);
 
     private:
-    /**
-     * @brief Struct that contains the necessary metadata for a line in the history
-     * 
-     */
-    typedef struct CONIO_history_line_
-    {
         /**
-         * @brief Starting offset within the file
+         * @brief Struct that contains the necessary metadata for a line in the history
          * 
          */
-        std::size_t offset;
-        /**
-         * @brief Length of the line
-         * 
-         */
-        std::size_t len;
-        /**
-         * @brief Display flag: 0 do not display, 1 display to window
-         * 
-         */
-        std::uint32_t display : 1;
-        /**
-         * @brief More Framgents flag: 0 no successive fragments, 1 more fragments for the line
-         * 
-         */
-        std::uint32_t more_frag : 1;
-        /**
-         * @brief Fragment sequence number within the line
-         * 
-         */
-        std::uint32_t frag_seq : 30;
-        // Additional metadata may be necessary
+        typedef struct CONIO_history_line_
+        {
+            /**
+             * @brief Starting offset within the file
+             * 
+             */
+            std::size_t offset;
+            /**
+             * @brief Length of the line
+             * 
+             */
+            std::size_t len;
+            /**
+             * @brief Display flag: 0 do not display, 1 display to window
+             * 
+             */
+            std::uint32_t display : 1;
+            /**
+             * @brief More Framgents flag: 0 no successive fragments, 1 more fragments for the line
+             * 
+             */
+            std::uint32_t more_frag : 1;
+            /**
+             * @brief Fragment sequence number within the line
+             * 
+             */
+            std::uint32_t frag_seq : 30;
+            // Additional metadata may be necessary
+
+            /**
+             * @brief Construct a new conio history line object with manually set parameters
+             * 
+             * @param _offset Starting offset
+             * @param _len Current length of the line
+             * @param _display Display flag
+             * @param _more_frag More Fragments flag
+             * @param _frag_seq Fragment sequence number
+             */
+            CONIO_history_line_(std::size_t _offset, std::size_t _len, std::uint32_t _display, std::uint32_t _more_frag, std::uint32_t _frag_seq) : offset(_offset), len(_len), display(_display), more_frag(_more_frag), frag_seq(_frag_seq) {}
+            /**
+             * @brief Construct a new conio history line object with default flags
+             * 
+             * @param _offset Starting offset
+             */
+            CONIO_history_line_(std::size_t _offset) : offset(_offset), len(0), display(0), more_frag(0), frag_seq(0) {}
+        } CONIO_hist_line;
 
         /**
-         * @brief Construct a new conio history line object with manually set parameters
-         * 
-         * @param _offset Starting offset
-         * @param _len Current length of the line
-         * @param _display Display flag
-         * @param _more_frag More Fragments flag
-         * @param _frag_seq Fragment sequence number
+         * @brief Flag set to display line for CLI window
+         * @details This flag should be set for functions that will put characters/strings into the ncurses CLI window, such as SF_OSAL_getline and SF_OSAL_printf found in conio.cpp
          */
-        CONIO_history_line_(std::size_t _offset, std::size_t _len, std::uint32_t _display, std::uint32_t _more_frag, std::uint32_t _frag_seq) : offset(_offset), len(_len), display(_display), more_frag(_more_frag), frag_seq(_frag_seq) {}
+        bool display = false;
+
         /**
-         * @brief Construct a new conio history line object with default flags
-         * 
-         * @param _offset Starting offset
+         * @brief Keeps track of the bottom index of the CLI window
+         *
          */
-        CONIO_history_line_(std::size_t _offset) : offset(_offset), len(0), display(0), more_frag(0), frag_seq(0) {}
-    } CONIO_hist_line;
+        std::size_t cur_bottom_display = 0;
 
-    /**
-     * @brief Flag set to display line for CLI window
-     * @details This flag should be set for functions that will put characters/strings into the ncurses CLI window, such as SF_OSAL_getline and SF_OSAL_printf found in conio.cpp
-     */
-    bool display = false;
+        /**
+         * @brief Keeps track of the bottom of the display lines
+         *
+         */
+        std::size_t bottom_display = 0;
 
-    /**
-     * @brief Keeps track of the bottom index of the CLI window
-     *
-     */
-    std::size_t cur_bottom_display = 0;
+        /**
+         * @brief Pointer to the memory mapped file
+         * 
+         */
+        char *mapped_memory = nullptr;
 
-    /**
-     * @brief Keeps track of the bottom of the display lines
-     *
-     */
-    std::size_t bottom_display = 0;
+        /**
+         * @brief Current file size
+         * 
+         */
+        std::size_t file_size = INITIAL_FILE_SIZE;
 
-    char *mapped_memory = nullptr;
-    std::size_t file_size = INITIAL_FILE_SIZE;
-    std::size_t current_offset = 0;
-    int fd;
-    std::vector<CONIO_hist_line> Lines;
-    std::vector<std::size_t> display_starts;
-    std::size_t bottom_idx = 0;
+        /**
+         * @brief Current offset within the file
+         * 
+         */
+        std::size_t current_offset = 0;
 
-    conioHistory() {}
-    // Disable copy constructor and assignment operator to preserve singleton nature
-    conioHistory(const conioHistory&) = delete;
-    conioHistory& operator=(const conioHistory&) = delete;
+        /**
+         * @brief File descriptor for the memory mapped file
+         * 
+         */
+        int fd;
+
+        /**
+         * @brief List of all lines in the history
+         * 
+         */
+        std::vector<CONIO_hist_line> Lines;
+
+        /**
+         * @brief Vector of starting indices for lines set to display
+         * 
+         */
+        std::vector<std::size_t> display_starts;
+
+        /**
+         * @brief Keeps track of the bottom index of the history
+         * 
+         */
+        std::size_t bottom_idx = 0;
+
+        conioHistory() {}
+        // Disable copy constructor and assignment operator to preserve singleton nature
+        conioHistory(const conioHistory&) = delete;
+        conioHistory& operator=(const conioHistory&) = delete;
 };
 #endif
