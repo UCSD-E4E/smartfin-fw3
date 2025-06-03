@@ -87,6 +87,7 @@ public:
     bool getDmpQuat(double &q0, double &q1, double &q2, double &q3, double *acc);
     bool getDmpQuatf(float &q0, float &q1, float &q2, float &q3, float *acc);
     bool getDmpRotVel_dps(float &rot_x, float &rot_y, float &rot_z);
+    bool getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z);
     void dumpRegs(int (*printfn)(const char *s, ...) = printf);
 };
 #endif // __NEW_IMU_HPP__

@@ -73,13 +73,16 @@ bool IMU::begin(void)
     // Value = (DMP running rate / ODR ) - 1
     // E.g. For a 5Hz ODR rate when DMP is running at 55Hz, value = (55/5) - 1 = 10.
     success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
-    success &=
-        (_device.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
+    // success &=
+    //     (_device.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
     success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
     success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
+    success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED) ==
+                ICM_20948_Stat_Ok);
     success &= (_device.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);
     success &= (_device.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);
     success &= (_device.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok);
+    success &= (_device.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok);
     // Reset DMP
     success &= (_device.resetDMP() == ICM_20948_Stat_Ok);
 
@@ -349,6 +352,19 @@ bool IMU::getDmpRotVel_dps(float &rot_x, float &rot_y, float &rot_z)
         rot_x = this->fifo_data.RawGyro_X / 16.4;
         rot_y = this->fifo_data.RawGyro_Y / 16.4;
         rot_z = this->fifo_data.RawGyro_Z / 16.4;
+    }
+    this->_data_mtx->unlock();
+    return fail;
+}
+
+bool IMU::getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z)
+{
+    bool fail = false;
+    this->_data_mtx->lock();
+    {
+        mag_x = this->fifo_data.Compass_X * 0.15;
+        mag_y = this->fifo_data.Compass_Y * 0.15;
+        mag_z = this->fifo_data.Compass_Z * 0.15;
     }
     this->_data_mtx->unlock();
     return fail;

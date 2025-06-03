@@ -272,6 +272,9 @@ enum SensorHeader
     SensorHeader_DMPQuat3,
     SensorHeader_DMPQuat0,
     SensorHeader_DMPQuatAcc,
+    SensorHeader_DMPMagX,
+    SensorHeader_DMPMagY,
+    SensorHeader_DMPMagZ,
 
     SensorHeader_NUMHEADERS
 };
@@ -310,6 +313,9 @@ CLI_MON_SENSOR_data_t sensor_headers[SensorHeader_NUMHEADERS + 1] = {
     {SensorHeader_DMPQuat3, "dq3", false, NAN},        // 21
     {SensorHeader_DMPQuat0, "dq0", false, NAN},        // 22
     {SensorHeader_DMPQuatAcc, "dqacc", false, NAN},    // 23
+    {SensorHeader_DMPMagX, "dmx", false, NAN},         // 24
+    {SensorHeader_DMPMagY, "dmy", false, NAN},         // 25
+    {SensorHeader_DMPMagZ, "dmz", false, NAN},         // 26
     {SensorHeader_NUMHEADERS, NULL, false, NAN}};
 
 /**
@@ -446,6 +452,11 @@ static void CLI_monitorSensors(void)
         sensor_headers[SensorHeader_DMPQuat2].active = true;
         sensor_headers[SensorHeader_DMPQuat3].active = true;
         sensor_headers[SensorHeader_DMPQuatAcc].active = true;
+
+        // mag
+        sensor_headers[SensorHeader_DMPMagX].active = true;
+        sensor_headers[SensorHeader_DMPMagY].active = true;
+        sensor_headers[SensorHeader_DMPMagZ].active = true;
     }
     int count = 0;
 
@@ -492,6 +503,9 @@ static void CLI_monitorSensors(void)
                                            sensor_headers[SensorHeader_DMPQuat2].value,
                                            sensor_headers[SensorHeader_DMPQuat3].value,
                                            &sensor_headers[SensorHeader_DMPQuatAcc].value);
+            pSystemDesc->pIMU->getDmpMag_uT(sensor_headers[SensorHeader_DMPMagX].value,
+                                            sensor_headers[SensorHeader_DMPMagY].value,
+                                            sensor_headers[SensorHeader_DMPMagZ].value);
         }
         if (sensors[TEMP])
         {
