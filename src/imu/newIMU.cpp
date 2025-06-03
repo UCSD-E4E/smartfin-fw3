@@ -295,9 +295,9 @@ bool IMU::getDmpAccel_ms2(float &acc_x, float &acc_y, float &acc_z)
     bool fail = false;
     this->_data_mtx->lock();
     {
-        acc_x = this->fifo_data.RawAccel_X / 4.096 / 1e3 * 9.81;
-        acc_y = this->fifo_data.RawAccel_Y / 4.096 / 1e3 * 9.81;
-        acc_z = this->fifo_data.RawAccel_Z / 4.096 / 1e3 * 9.81;
+        acc_x = this->fifo_data.RawAccel_X / 8.192 / 1e3 * 9.81;
+        acc_y = this->fifo_data.RawAccel_Y / 8.192 / 1e3 * 9.81;
+        acc_z = this->fifo_data.RawAccel_Z / 8.192 / 1e3 * 9.81;
     }
     this->_data_mtx->unlock();
     return fail;
