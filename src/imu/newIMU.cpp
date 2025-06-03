@@ -76,8 +76,10 @@ bool IMU::begin(void)
     success &=
         (_device.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
     success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
+    success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
     success &= (_device.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);
     success &= (_device.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);
+    success &= (_device.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok);
     // Reset DMP
     success &= (_device.resetDMP() == ICM_20948_Stat_Ok);
 
@@ -344,9 +346,9 @@ bool IMU::getDmpRotVel_dps(float &rot_x, float &rot_y, float &rot_z)
     bool fail = false;
     this->_data_mtx->lock();
     {
-        rot_x = this->fifo_data.RawGyro_X / 65.5;
-        rot_y = this->fifo_data.RawGyro_Y / 65.5;
-        rot_z = this->fifo_data.RawGyro_Z / 65.5;
+        rot_x = this->fifo_data.RawGyro_X / 16.4;
+        rot_y = this->fifo_data.RawGyro_Y / 16.4;
+        rot_z = this->fifo_data.RawGyro_Z / 16.4;
     }
     this->_data_mtx->unlock();
     return fail;
