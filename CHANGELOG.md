@@ -1,3 +1,72 @@
+# [3.14.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.13.0...v3.14.0) (2025-06-04)
+
+
+### Bug Fixes
+
+* Adds deploy time display ([bc7f351](https://github.com/UCSD-E4E/smartfin-fw3/commit/bc7f351e1a5c2951789ba69ad92acd8298bc6ec7))
+* Allows dynamic resize ([a401eaa](https://github.com/UCSD-E4E/smartfin-fw3/commit/a401eaac8bae08191996ad1ed57bced182923697))
+* Allows on the fly resize ([7124f13](https://github.com/UCSD-E4E/smartfin-fw3/commit/7124f1307deafdee44479bf9364a1fa14a02bff5))
+* Fixes getline return value ([7299d4b](https://github.com/UCSD-E4E/smartfin-fw3/commit/7299d4b871386f01a34e04d90ed219ef3d17f52d))
+* Fixes window size variable ([5bbb008](https://github.com/UCSD-E4E/smartfin-fw3/commit/5bbb008505e658a250afd9afbf25be4b19779395))
+* Initializing window size from NVRAM ([8e98621](https://github.com/UCSD-E4E/smartfin-fw3/commit/8e98621d34328557bfc1447b4cb7b436a270d973))
+* Lower limit ([3577ac7](https://github.com/UCSD-E4E/smartfin-fw3/commit/3577ac744e5aa88ddbd7b136a135fde504774940))
+* Window array ([04d1838](https://github.com/UCSD-E4E/smartfin-fw3/commit/04d18388bb9dbfee86ddc3a74901a0d2ad2dab74))
+
+
+### Features
+
+* Adds command for setting window length ([f5ba3f1](https://github.com/UCSD-E4E/smartfin-fw3/commit/f5ba3f106d2cee825a644f983f5df96f153b5d31))
+
+# [3.13.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.12.1...v3.13.0) (2025-06-04)
+
+
+### Bug Fixes
+
+* Added read loop ([774fda3](https://github.com/UCSD-E4E/smartfin-fw3/commit/774fda3c00f8c5c948bace0f6beec1b54b6631f1))
+* Adds binary display ([cddb618](https://github.com/UCSD-E4E/smartfin-fw3/commit/cddb61808a05c954bc5d933cd195328a3f381fc0))
+* Adds CLI linkage ([2b1cbf7](https://github.com/UCSD-E4E/smartfin-fw3/commit/2b1cbf77a7b0753516a64257ef4621cf4485b35f))
+* Adds compass ([d797f77](https://github.com/UCSD-E4E/smartfin-fw3/commit/d797f77c27affb121b39c9c2b719c3dd0f4109fb))
+* Adds enum for headers ([ea40db0](https://github.com/UCSD-E4E/smartfin-fw3/commit/ea40db01fd930dc469b892530ce18767bbe905c9))
+* Adds FLOG handy to CLI ([5589661](https://github.com/UCSD-E4E/smartfin-fw3/commit/55896610e34c62d5de1fdee2b9e4fabcb52a83d6))
+* Adds mag regs ([b0e1768](https://github.com/UCSD-E4E/smartfin-fw3/commit/b0e17682acbc25ed17abe93ec15f1e5d838776d0))
+* Adds space for readability ([268e129](https://github.com/UCSD-E4E/smartfin-fw3/commit/268e129fa680b5ea9f53ce7423c7e6da0d0c54fb))
+* Changes quat computation ([d6b7469](https://github.com/UCSD-E4E/smartfin-fw3/commit/d6b7469634a64d41783ddd5f944a66d95bfe5f2f))
+* Consolidates initialization ([cf31ec2](https://github.com/UCSD-E4E/smartfin-fw3/commit/cf31ec24eb18a1be6a0c39208c867136867081c9))
+* Enables DMP/FIFO, fixes samplerate ([3b28dc4](https://github.com/UCSD-E4E/smartfin-fw3/commit/3b28dc4e3cd4d1d9958288bdf6e75c36417db142))
+* Enables gyroscope ([816ffa6](https://github.com/UCSD-E4E/smartfin-fw3/commit/816ffa60186ad777246d87c3946e5c5f334ca9c9))
+* Fixes boot loop trap ([13b2056](https://github.com/UCSD-E4E/smartfin-fw3/commit/13b20560d0b4d0fca0e8770e134fd676d1ef3f03))
+* Fixes pc_hal ([db4e876](https://github.com/UCSD-E4E/smartfin-fw3/commit/db4e87696a2dfad69c78213566c4e82771fde2bd))
+* Fixes redefinition ([8fb6ac0](https://github.com/UCSD-E4E/smartfin-fw3/commit/8fb6ac03c168029fa76486226084f670eee6a5d1))
+* Fixes scaling ([5e3a33d](https://github.com/UCSD-E4E/smartfin-fw3/commit/5e3a33d0c54a251ccf0b1c9403956cb4b32c9c5e))
+* Fixes stack size definitions ([6eab186](https://github.com/UCSD-E4E/smartfin-fw3/commit/6eab186b90598d5907a174d71df6920b97704efa))
+* Fixes Thread definition ([1ac33b0](https://github.com/UCSD-E4E/smartfin-fw3/commit/1ac33b0f1e0965ef2fcc37d1854d285a8cd22118))
+* Fixes weak linkage ([dc9b029](https://github.com/UCSD-E4E/smartfin-fw3/commit/dc9b029fdbf5145cabed88ecd2bbd938f27f5c74))
+* Override driver DMP initialization ([b22c7da](https://github.com/UCSD-E4E/smartfin-fw3/commit/b22c7da73b0368718180a816d7636e0536d5eedb))
+* Reenables DMP data monitor ([ddbde12](https://github.com/UCSD-E4E/smartfin-fw3/commit/ddbde12412d4886f0e79322aacbd268a9338cad5))
+* Reenables normal AGMT access ([c72b30d](https://github.com/UCSD-E4E/smartfin-fw3/commit/c72b30dd47923f1f55ffe7ce9fd982fa0bfde9a0))
+* Removes implementation from pc_build ([b13a090](https://github.com/UCSD-E4E/smartfin-fw3/commit/b13a090767107ed1989cb4283fe25350d852864c))
+* Removes obsolete function ([6d003e4](https://github.com/UCSD-E4E/smartfin-fw3/commit/6d003e4704db16ebd24537dd32f00d905bfe094c))
+* Set ACCEL scale to 8g ([e8935e2](https://github.com/UCSD-E4E/smartfin-fw3/commit/e8935e22d5cf73c05856fd9cac850ef618733740))
+* Set lpf bandwidth ([eaa909e](https://github.com/UCSD-E4E/smartfin-fw3/commit/eaa909e61052d8d2af090e9cf93269359ae093c2))
+* Set ODR ([a39db4c](https://github.com/UCSD-E4E/smartfin-fw3/commit/a39db4cacc41375f122d3c8d24dfb44c60db8c61))
+* Sets ACC and GYR cycled mode ([01a52c4](https://github.com/UCSD-E4E/smartfin-fw3/commit/01a52c44b2b41af71aabf49748e19d7bde258b2f))
+* Switches to dynamic memory for thread primitives ([4563f2b](https://github.com/UCSD-E4E/smartfin-fw3/commit/4563f2bb5f50078232dc4f05dbf666cd9b101936))
+* Switches to new headers ([0696265](https://github.com/UCSD-E4E/smartfin-fw3/commit/0696265c1df8f160ad71c1a793d7153be9dc97ea))
+* Switches to new implementation ([686c684](https://github.com/UCSD-E4E/smartfin-fw3/commit/686c68447c19f9941e630972715d6a729cb9d08a))
+* Undoes exposure of internal _device ([32a960b](https://github.com/UCSD-E4E/smartfin-fw3/commit/32a960b167f7212dbb0935598e1c7dfed4ffc652))
+* Unhooks old IMU ([122f5b7](https://github.com/UCSD-E4E/smartfin-fw3/commit/122f5b737c2d14535c0806a2276b4c8ff7d9bc81))
+
+
+### Features
+
+* Adds Ens12 ([d8a065c](https://github.com/UCSD-E4E/smartfin-fw3/commit/d8a065c4d981fb826d7bbb169bd7bcdea706acc7))
+* Adds panic prevention ([6295a64](https://github.com/UCSD-E4E/smartfin-fw3/commit/6295a64c0e5601368ace0b2b09fee446ef893ad7))
+* Adds reg dump command ([4613bc0](https://github.com/UCSD-E4E/smartfin-fw3/commit/4613bc081f87bf40c4b8a9695fa1f2321407b366))
+* Adds SF_INHIBIT_UPLOAD ([100c202](https://github.com/UCSD-E4E/smartfin-fw3/commit/100c20297bd8ca6eaeb6218382287514fd8b63ef))
+* Exposes _devices ([1da7674](https://github.com/UCSD-E4E/smartfin-fw3/commit/1da7674519c34e9e3bb829ee6f16a428f75dd2dc))
+* Switches to main thread ([4655a92](https://github.com/UCSD-E4E/smartfin-fw3/commit/4655a9239fd8e047eea71ee30cdfd2e5829fe434))
+* Switches to new IMU implementation ([c2deb32](https://github.com/UCSD-E4E/smartfin-fw3/commit/c2deb321bf15a622c3ca0a74562833901dc2490e))
+
 ## [3.12.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.12.0...v3.12.1) (2025-05-14)
 
 

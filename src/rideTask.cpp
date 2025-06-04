@@ -50,7 +50,7 @@ RideTask::RideTask() : scheduler(deploymentSchedule)
  */
 void RideTask::init()
 {
-    SF_OSAL_printf("Entering STATE_DEPLOYED" __NL__);
+    SF_OSAL_printf("Entering STATE_DEPLOYED at %" PRId32 __NL__, millis());
     pSystemDesc->pChargerCheck->stop();
     this->ledStatus.setColor(RIDE_RGB_LED_COLOR);
     this->ledStatus.setPattern(RIDE_RGB_LED_PATTERN_GPS);
