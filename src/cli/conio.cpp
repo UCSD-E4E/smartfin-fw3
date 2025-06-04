@@ -181,6 +181,10 @@ extern "C"
         }
         return Serial.read();
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
+        // Block until there is a new input
+        while (!SF_OSAL_kbhit())
+        {
+        }
         pthread_mutex_lock(&read_mutex);
         int retval = SF_OSAL_inputBuffer[read_tail_idx % SF_OSAL_READ_BUFLEN];
         read_tail_idx++;
