@@ -245,6 +245,10 @@ void CLI_displayResetReason(void)
     SF_OSAL_printf(__NL__);
 }
 
+/**
+ * @brief MonitorSensors header enum
+ *
+ */
 enum SensorHeader
 {
     SensorHeader_Time,
@@ -279,14 +283,39 @@ enum SensorHeader
     SensorHeader_NUMHEADERS
 };
 
+/**
+ * @brief Monitor sensor table row definition
+ *
+ */
 typedef struct
 {
+    /**
+     * @brief
+     * Header index
+     *
+     */
     enum SensorHeader header_idx;
+    /**
+     * @brief Column header name
+     *
+     */
     const char *header;
+    /**
+     * @brief Active flag
+     *
+     */
     bool active;
+    /**
+     * @brief Recorded value to display
+     *
+     */
     float value;
 } CLI_MON_SENSOR_data_t;
 
+/**
+ * @brief Monitor sensor table definition
+ *
+ */
 CLI_MON_SENSOR_data_t sensor_headers[SensorHeader_NUMHEADERS + 1] = {
     {SensorHeader_Time, "t", false, NAN},
     {SensorHeader_AccelX, "ax", false, NAN},           // 0
