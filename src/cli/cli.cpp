@@ -634,6 +634,11 @@ static void CLI_doEnsemble(void)
     pSystemDesc->pRecorder->popLastPacket(nBytes);
 }
 
+/**
+ * @brief CLI Command to set water sensor window
+ *
+ * @param
+ */
 void CLI_setWaterSensorWindow(void)
 {
     uint8_t window_length;
