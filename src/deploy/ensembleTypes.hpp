@@ -208,6 +208,10 @@ typedef struct Ensemble11_data_
     int32_t location[2];
 }Ensemble11_data_t;
 
+/**
+ * @brief High Data Rate IMU Ensemble
+ *
+ */
 typedef struct Ensemble12_data_
 {
     /**
