@@ -116,7 +116,7 @@ extern "C"
                     SF_OSAL_putch(userInput);
                     break;
                 case '\r':
-                    buffer[i++] = 0;
+                    buffer[i + 1] = 0;
                     SF_OSAL_putch('\r');
                     SF_OSAL_putch('\n');
                     return i;
