@@ -18,6 +18,7 @@
 #include <cstring>
 #include <functional>
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 /**
  * @brief Quaterinion Scale Factor
  *
@@ -28,7 +29,6 @@
 
 bool IMU::begin(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     ICM_20948_Status_e status;
     bool success = true;
 
@@ -109,7 +109,6 @@ bool IMU::begin(void)
                                OS_THREAD_PRIORITY_DEFAULT,
                                OS_THREAD_STACK_SIZE_DEFAULT_HIGH);
     }
-#endif
     return false;
 }
 
@@ -516,7 +515,6 @@ void IMU::dumpRegs(int (*printfn)(const char *s, ...))
         {4, AK09916_REG_CNTL2, "CNTL2"},
         {4, AK09916_REG_CNTL3, "CNTL3"},
         {0, 0, NULL}};
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     for (struct tab_entry *entry = reg_table; entry->name; entry++)
     {
         if (entry->bank < 4)
@@ -548,10 +546,8 @@ void IMU::dumpRegs(int (*printfn)(const char *s, ...))
                 (data & 0x01) >> 0,
                 data);
     }
-#endif
 }
 
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 // Combine all of the DMP start-up code from the earlier DMP examples
 // This function is defined as __attribute__((weak)) so you can overwrite it if you want to,
 //   e.g. to modify the sample rate
@@ -941,4 +937,9 @@ ICM_20948_Status_e ICM_20948::initializeDMP(void)
 
     return worstResult;
 }
+
+IMU::IMU(TwoWire &port, const bool ad0_val) : i2c_port(port), AD0_VAL(ad0_val)
+{
+}
+
 #endif // SF_PLATFORM

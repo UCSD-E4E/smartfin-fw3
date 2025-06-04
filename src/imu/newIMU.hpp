@@ -10,13 +10,17 @@
  */
 #ifndef __NEW_IMU_HPP__
 #define __NEW_IMU_HPP__
+#include "product.hpp"
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "Particle.h"
 #include "imu/ICM-20948/ICM_20948.h"
+#endif
 
 #include <cstdint>
 #include <cstdio>
 class IMU
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 private:
     struct FiFoData
     {
@@ -50,7 +54,6 @@ private:
         std::int32_t Gyro_Acc;
         std::int32_t Compass_Acc;
     };
-
     ICM_20948_I2C _device;
     Thread *_readLoop = NULL;
     Mutex *_data_mtx = NULL;
@@ -63,19 +66,17 @@ protected:
     static void readLoop(void *args);
 
 public:
-    IMU(TwoWire &port, const bool ad0_val = 0) : i2c_port(port), AD0_VAL(ad0_val)
-    {
-    }
-    ~IMU()
-    {
-    }
+        IMU(TwoWire &port, const bool ad0_val = 0);
+        ~IMU()
+        {
+        }
     /**
      * @brief Starts the IMU
-     * 
+     *
      * This initializes IMU registers and starts the read loop
-     * 
-     * @return true 
-     * @return false 
+     *
+     * @return true
+     * @return false
      */
     bool begin(void);
 
@@ -89,5 +90,6 @@ public:
     bool getDmpRotVel_dps(float &rot_x, float &rot_y, float &rot_z);
     bool getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z);
     void dumpRegs(int (*printfn)(const char *s, ...) = printf);
+#endif
 };
 #endif // __NEW_IMU_HPP__

@@ -70,18 +70,22 @@ static void printState(STATES_e state);
  */
 Thread __sf_main_thread;
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 retained std::uint32_t panicCount[3];
+#endif
 
 // setup() runs once, when the device is first turned on.
 void setup()
 {
     System.enableFeature(FEATURE_RESET_INFO);
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (panicCount[0] != ~panicCount[1] && panicCount[2] != ~module_info_crc.crc32)
     {
         panicCount[0] = 0;
         panicCount[1] = ~panicCount[0];
         panicCount[2] = ~module_info_crc.crc32;
     }
+#endif
     SF_OSAL_init_conio();
 
     FLOG_Initialize();
@@ -92,6 +96,7 @@ void setup()
     FLOG_AddError(FLOG_RESET_REASON, System.resetReason());
     FLOG_AddError(FLOG_RESET_REASON_DATA, System.resetReasonData());
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (System.resetReason() == RESET_REASON_PANIC)
     {
         panicCount[0]++;
@@ -113,6 +118,7 @@ void setup()
             delay(1000);
         }
     }
+#endif
 
     SYS_initSys();
 

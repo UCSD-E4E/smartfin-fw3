@@ -361,6 +361,8 @@ public:
 TimeClass &__fetch_global_time();
 
 #define millis Time.now
+// TODO Fixme
+#define micros Time.now
 #define delay Time.delay
 #define delayMicroseconds Time.delayMicroseconds
 

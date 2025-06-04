@@ -61,7 +61,9 @@ static LocationServiceConfiguration create_location_service_config();
 
 static FuelGauge battery_desc;
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 static IMU icm_20948(Wire, false);
+#endif
 
 void SYS_initSys(void)
 {
@@ -416,6 +418,7 @@ void SYS_dumpSys(int indent)
 int SYS_initIMU(void)
 {
     bool fail = false;
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     pSystemDesc->pIMU = &icm_20948;
 
     fail = icm_20948.begin();
@@ -424,5 +427,6 @@ int SYS_initIMU(void)
         SF_OSAL_printf("IMU init failed!" __NL__);
         return 0;
     }
+#endif
     return 1;
 }

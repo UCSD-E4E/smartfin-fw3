@@ -474,24 +474,31 @@ static void CLI_monitorSensors(void)
         sensor_headers[SensorHeader_Time].value = millis();
         if (sensors[ACCEL])
         {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
             pSystemDesc->pIMU->getAccel_ms2(sensor_headers[SensorHeader_AccelX].value,
                                             sensor_headers[SensorHeader_AccelY].value,
                                             sensor_headers[SensorHeader_AccelZ].value);
+#endif
         }
         if (sensors[GYRO])
         {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
             pSystemDesc->pIMU->getRotVel_dps(sensor_headers[SensorHeader_GyroX].value,
                                              sensor_headers[SensorHeader_GyroY].value,
                                              sensor_headers[SensorHeader_GyroZ].value);
+#endif
         }
         if (sensors[MAG])
         {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
             pSystemDesc->pIMU->getMag_uT(sensor_headers[SensorHeader_MagX].value,
                                          sensor_headers[SensorHeader_MagY].value,
                                          sensor_headers[SensorHeader_MagZ].value);
+#endif
         }
         if (sensors[DMP])
         {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
             pSystemDesc->pIMU->getDmpAccel_ms2(sensor_headers[SensorHeader_DMPAccelX].value,
                                                sensor_headers[SensorHeader_DMPAccelY].value,
                                                sensor_headers[SensorHeader_DMPAccelZ].value);
@@ -506,6 +513,7 @@ static void CLI_monitorSensors(void)
             pSystemDesc->pIMU->getDmpMag_uT(sensor_headers[SensorHeader_DMPMagX].value,
                                             sensor_headers[SensorHeader_DMPMagY].value,
                                             sensor_headers[SensorHeader_DMPMagZ].value);
+#endif
         }
         if (sensors[TEMP])
         {

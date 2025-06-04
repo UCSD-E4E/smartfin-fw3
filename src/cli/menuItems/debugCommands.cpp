@@ -239,5 +239,7 @@ void CLI_initCloudCounters(void)
 
 void CLI_dumpIMURegs(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     pSystemDesc->pIMU->dumpRegs();
+#endif
 }
