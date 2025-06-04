@@ -50,7 +50,7 @@ void WaterSensor::setWindowSize(uint8_t window_size_to_set)
         window_size_to_set = WATER_DETECT_ARRAY_SIZE;
     }
     // swtich the window parameter and clear the sum (for resumming)
-    moving_window_size = WATER_DETECT_ARRAY_SIZE;
+    moving_window_size = window_size_to_set;
     array_sum = 0;
 
     // sum all of the array items from the current location backward for the entire window,
@@ -75,7 +75,7 @@ void WaterSensor::setWindowSize(uint8_t window_size_to_set)
 uint8_t WaterSensor::takeReading()
 {
     // increment array location
-    array_location = (array_location + 1) % WATER_DETECT_ARRAY_SIZE;
+    array_location = (array_location + 1) % moving_window_size;
     // subtract last value in the window from the rolling sum
     array_sum -= water_detect_array[waterDetectArrayLocation(array_location, (-1 * moving_window_size))];
 
