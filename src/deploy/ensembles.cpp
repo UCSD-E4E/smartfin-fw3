@@ -427,10 +427,21 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
  * @{
  */
 
+/**
+ * @brief Initialization function for high data rate IMU
+ *
+ * @param pDeployment Deployment event
+ */
 void SS_HighRateIMU_x0C_Init(DeploymentSchedule_t *pDeployment)
 {
+    (void)pDeployment;
 }
 
+/**
+ * @brief Measurement function for high data rate IMU
+ *
+ * @param pDeployment Deployment event
+ */
 void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE && defined(SF_HIGH_DATA_RATE)
