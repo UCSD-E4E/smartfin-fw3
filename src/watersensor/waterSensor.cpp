@@ -243,11 +243,11 @@ uint8_t WaterSensor::waterDetectArrayLocation(int16_t location, int16_t offset)
 {
     if ((location + offset) < 0)
     {
-        return (WATER_DETECT_ARRAY_SIZE + (location + offset));
+        return (moving_window_size + (location + offset));
     }
-    else if ((location + offset) >= WATER_DETECT_ARRAY_SIZE)
-    { 
-        return ((location + offset) - WATER_DETECT_ARRAY_SIZE);   
+    else if ((location + offset) >= moving_window_size)
+    {
+        return ((location + offset) - moving_window_size);
     } 
     else
     {
