@@ -10,6 +10,7 @@
  */
 #include "deploy/scheduler.hpp"
 
+#include "Particle.h"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
@@ -33,20 +34,17 @@ Scheduler::Scheduler(DeploymentSchedule_t schedule[]) : scheduleTable(schedule)
  */
 void Scheduler::initializeScheduler()
 {
-    DeploymentSchedule_t *pDeployment = this->scheduleTable;
     this->tableSize = 0;
     if (this->scheduleTable == nullptr)
     {
         return;
     }
-    while (pDeployment->init)
+    for (DeploymentSchedule_t *pDeployment = this->scheduleTable; pDeployment->init; pDeployment++)
     {
-
         memset(&(pDeployment->state), 0, sizeof(StateInformation));
-
+        pDeployment->state.nextRunTime = millis();
         pDeployment->init(pDeployment);
         this->tableSize++;
-        pDeployment++;
     }
 }
 
