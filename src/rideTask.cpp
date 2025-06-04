@@ -21,15 +21,17 @@
 /** @brief deployment schedule of ensembles to run
  * @see SCH_getNextEvent
  */
+// clang-format off
 DeploymentSchedule_t deploymentSchedule[] = {
-    // measure, init, accumulate, interval, duration, delay, name, state
-    {SS_fwVerFunc, SS_fwVerInit, 1, UINT32_MAX, 10, 0, "FW VER", {0}},
-    {SS_Ensemble01_Func, SS_Ensemble01_Init, 1, 1000, 10, 0, "Temp", {0}},
+    // measure,                 init,                       accumulate, interval,   duration,   delay,  name, state
+    {SS_fwVerFunc,              SS_fwVerInit,               1,          UINT32_MAX, 1,          0,      "FW VER", {0}},
 #if defined(SF_HIGH_DATA_RATE)
-    {SS_HighRateIMU_x0C_Func, SS_HighRateIMU_x0C_Init, 1, 50, 5, 0, "HDR IMU", {0}},
+    {SS_HighRateIMU_x0C_Func,   SS_HighRateIMU_x0C_Init,    1,          50,         1,          0,      "HDR IMU", {0}},
 #endif
+    {SS_Ensemble01_Func,        SS_Ensemble01_Init,         1,          1000,       20,         0,      "Temp",   {0}},
     // {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
     {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
+// clang-format on
 
 /**
  * @brief creates file name for log
