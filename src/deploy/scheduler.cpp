@@ -16,6 +16,8 @@
 
 #include <cstring>
 
+// #define SCHEDULER_DEBUG
+
 /**
  * @brief constructor for scheduler
  *
@@ -82,17 +84,21 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         DeploymentSchedule_t &currentEvent = scheduleTable[idx];
         StateInformation &currentEventState = scheduleTable[idx].state;
         std::uint32_t runTime = currentEventState.nextRunTime;
-        // SF_OSAL_printf("Ensemble %s: {'nextRunTime': %u, 'currentTime': %u, "
-        //                "'maxDelay': %u, 'interval': %u}" __NL__,
-        //                currentEvent.taskName,
-        //                currentEvent.state.nextRunTime,
-        //                currentTime,
-        //                currentEvent.maxDelay,
-        //                currentEvent.ensembleInterval);
+#ifdef SCHEDULER_DEBUG
+        SF_OSAL_printf("Ensemble %s: {'nextRunTime': %u, 'currentTime': %u, "
+                       "'maxDelay': %u, 'interval': %u}" __NL__,
+                       currentEvent.taskName,
+                       currentEvent.state.nextRunTime,
+                       currentTime,
+                       currentEvent.maxDelay,
+                       currentEvent.ensembleInterval);
+#endif
         // if runTime is infinite, skip
         if (runTime == UINT32_MAX)
         {
-            // SF_OSAL_printf("Skipping - runTime is inf" __NL__);
+#ifdef SCHEDULER_DEBUG
+            SF_OSAL_printf("Skipping - runTime is inf" __NL__);
+#endif
             continue;
         }
 
@@ -120,9 +126,11 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         {
             if (scheduleTable[j].state.nextRunTime < expected_completion)
             {
-                // SF_OSAL_printf("This can't run because %s needs to run at %u" __NL__,
-                //                scheduleTable[j].taskName,
-                //                scheduleTable[j].state.nextRunTime);
+#ifdef SCHEDULER_DEBUG
+                SF_OSAL_printf("This can't run because %s needs to run at %u" __NL__,
+                               scheduleTable[j].taskName,
+                               scheduleTable[j].state.nextRunTime);
+#endif
                 canRun = false;
             }
         }
@@ -156,6 +164,9 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
             */
             if (delay > 0)
             {
+#ifdef SCHEDULER_DEBUG
+                SF_OSAL_printf("Delay exceeded: %" PRIu32 __NL__, delay);
+#endif
                 FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
                               currentEventState.measurementCount | (idx << 24));
             }
