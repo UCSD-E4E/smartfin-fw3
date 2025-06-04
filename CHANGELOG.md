@@ -1,3 +1,22 @@
+# [3.14.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.13.0...v3.14.0) (2025-06-04)
+
+
+### Bug Fixes
+
+* Adds deploy time display ([bc7f351](https://github.com/UCSD-E4E/smartfin-fw3/commit/bc7f351e1a5c2951789ba69ad92acd8298bc6ec7))
+* Allows dynamic resize ([a401eaa](https://github.com/UCSD-E4E/smartfin-fw3/commit/a401eaac8bae08191996ad1ed57bced182923697))
+* Allows on the fly resize ([7124f13](https://github.com/UCSD-E4E/smartfin-fw3/commit/7124f1307deafdee44479bf9364a1fa14a02bff5))
+* Fixes getline return value ([7299d4b](https://github.com/UCSD-E4E/smartfin-fw3/commit/7299d4b871386f01a34e04d90ed219ef3d17f52d))
+* Fixes window size variable ([5bbb008](https://github.com/UCSD-E4E/smartfin-fw3/commit/5bbb008505e658a250afd9afbf25be4b19779395))
+* Initializing window size from NVRAM ([8e98621](https://github.com/UCSD-E4E/smartfin-fw3/commit/8e98621d34328557bfc1447b4cb7b436a270d973))
+* Lower limit ([3577ac7](https://github.com/UCSD-E4E/smartfin-fw3/commit/3577ac744e5aa88ddbd7b136a135fde504774940))
+* Window array ([04d1838](https://github.com/UCSD-E4E/smartfin-fw3/commit/04d18388bb9dbfee86ddc3a74901a0d2ad2dab74))
+
+
+### Features
+
+* Adds command for setting window length ([f5ba3f1](https://github.com/UCSD-E4E/smartfin-fw3/commit/f5ba3f106d2cee825a644f983f5df96f153b5d31))
+
 # [3.13.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.12.1...v3.13.0) (2025-06-04)
 
 
