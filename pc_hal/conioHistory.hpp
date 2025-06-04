@@ -236,13 +236,13 @@ class conioHistory
          * @brief File descriptor for the memory mapped file
          * 
          */
-        int fd;
+        int fd = 0;
 
         /**
          * @brief List of all lines in the history
          * 
          */
-        std::vector<CONIO_hist_line> Lines;
+        std::vector<CONIO_hist_line> lines;
 
         /**
          * @brief Vector of starting indices for lines set to display

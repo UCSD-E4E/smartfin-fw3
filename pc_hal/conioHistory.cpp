@@ -49,7 +49,7 @@ void conioHistory::init_file_mapping(void)
         exit(1);
     }
 
-    Lines.push_back(CONIO_hist_line(0)); // Initialize the first line
+    lines.push_back(CONIO_hist_line(0)); // Initialize the first line
 }
 
 void conioHistory::deinit_file_mapping(void)
@@ -111,12 +111,12 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
     }
 
     // Set or create bottom line depending on display flag
-    if (display && !Lines[bottom_idx].display)
+    if (display && !lines[bottom_idx].display)
     {
-        if (Lines[bottom_idx].len == 0)
+        if (lines[bottom_idx].len == 0)
         {
             // Default line struct converted to display line
-            Lines[bottom_idx].display = 1;
+            lines[bottom_idx].display = 1;
             bottom_display = display_starts.size();
             display_starts.push_back(bottom_idx);
             cur_bottom_display = bottom_display;
@@ -126,9 +126,9 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
             int fs = 0;
             // Check if fragmented display line exists for frag_seq num
             std::size_t possible_frag = bottom_idx - 1;
-            if (possible_frag >= 0 && Lines[possible_frag].more_frag)
+            if (possible_frag >= 0 && lines[possible_frag].more_frag)
             {
-                fs = Lines[possible_frag].frag_seq + 1;
+                fs = lines[possible_frag].frag_seq + 1;
             }
             // Not a fragment, update display starts
             else
@@ -137,16 +137,16 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
                 display_starts.push_back(bottom_idx + 1);
                 cur_bottom_display = bottom_display;
             }
-            Lines.push_back(CONIO_hist_line(current_offset, 0, 1, 0, fs));
+            lines.push_back(CONIO_hist_line(current_offset, 0, 1, 0, fs));
             bottom_idx++;
         }
     }
-    else if (!display && Lines[bottom_idx].display)
+    else if (!display && lines[bottom_idx].display)
     {
-        if (Lines[bottom_idx].len == 0)
+        if (lines[bottom_idx].len == 0)
         {
             // Convert empty display line to non-display line
-            Lines[bottom_idx].display = 0;
+            lines[bottom_idx].display = 0;
             if (display_starts[bottom_display] == bottom_idx)
             {
                 display_starts.pop_back();
@@ -156,18 +156,18 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
         else
         {
             // Fragment the display line
-            Lines[bottom_idx++].more_frag = 1;
-            Lines.push_back(CONIO_hist_line(current_offset));
+            lines[bottom_idx++].more_frag = 1;
+            lines.push_back(CONIO_hist_line(current_offset));
         }
     }
     strncpy(mapped_memory + current_offset, line, size);
     current_offset += size;
-    Lines[bottom_idx].len += size;
+    lines[bottom_idx].len += size;
 
     if (display && NL_exists)
     {
         mapped_memory[current_offset++] = '\n';
-        Lines.push_back(CONIO_hist_line(current_offset));
+        lines.push_back(CONIO_hist_line(current_offset));
         bottom_idx++;
     }
 
@@ -185,7 +185,7 @@ void conioHistory::overwrite_last_line_at(const char *line, const std::size_t si
     {
         mapped_memory[i] = 0;
     }
-    Lines[bottom_idx].len -= current_offset - offset;
+    lines[bottom_idx].len -= current_offset - offset;
     current_offset = offset;
     write_line(line, size, NL_exists);
 }
@@ -198,18 +198,18 @@ char *conioHistory::retrieve_display_line(const std::size_t line_idx)
         return nullptr;
     }
     std::size_t true_idx = display_starts[line_idx]; // Grab the true index
-    if (Lines[true_idx].len == 0)
+    if (lines[true_idx].len == 0)
         return nullptr;
     std::vector<std::size_t> relevant_offsets, relevant_lens;
     // Collect any fragments and their relevant metadata
-    while (Lines[true_idx].more_frag)
+    while (lines[true_idx].more_frag)
     {
-        relevant_lens.push_back(Lines[true_idx].len);
-        relevant_offsets.push_back(Lines[true_idx].offset);
+        relevant_lens.push_back(lines[true_idx].len);
+        relevant_offsets.push_back(lines[true_idx].offset);
         true_idx += 2; // Fragments only exist because true_idx + 1 is non-display line
     }
-    relevant_lens.push_back(Lines[true_idx].len);
-    relevant_offsets.push_back(Lines[true_idx].offset);
+    relevant_lens.push_back(lines[true_idx].len);
+    relevant_offsets.push_back(lines[true_idx].offset);
 
     std::size_t len = 1;
     for (std::size_t i = 0; i < relevant_lens.size(); i++)
