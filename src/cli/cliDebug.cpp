@@ -33,7 +33,6 @@ const Menu_t CLI_debugMenu[] = {{1, "Display Fault Log", &CLI_displayFLOG, MENU_
                                 {3, "Restart System", &CLI_restart, MENU_CMD},
                                 {4, "MFG Test", &CLI_doMfgTest, MENU_CMD},
                                 {5, "Wet/Dry Monitor", &CLI_monitorWetDry, MENU_CMD},
-                                {6, "Monitor IMU", &CLI_monitorIMU, MENU_CMD},
                                 {7, "Monitor Temperature", &CLI_monitorTempSensor, MENU_CMD},
                                 {8, "reinitialize system", &SYS_initSys, MENU_CMD},
                                 {9, "create test file", &CLI_createTestFile, MENU_CMD},
