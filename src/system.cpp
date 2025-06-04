@@ -87,6 +87,12 @@ void SYS_initSys(void)
     systemDesc.pBattery = &battery_desc;    
 }
 
+/**
+ * @brief Delayed system initialization
+ *
+ * This to run after threads start
+ *
+ */
 void SYS_delayedInitSys(void)
 {
     SYS_initIMU();
@@ -415,6 +421,11 @@ void SYS_dumpSys(int indent)
     }
 }
 
+/**
+ * @brief Initializes the IMU
+ *
+ * @return int 1 on success, otherwise 0
+ */
 int SYS_initIMU(void)
 {
     bool fail = false;
