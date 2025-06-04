@@ -577,7 +577,6 @@ static void CLI_doEnsemble(void)
 
     pSystemDesc->pChargerCheck->stop();
     pSystemDesc->pWaterCheck->stop();
-    // setupICM();
     pSystemDesc->pRecorder->openSession();
     SYS_dumpSys(2);
     ensemble.init(&ensemble);
