@@ -131,12 +131,13 @@ STATES_e RideTask::run(void)
             }
             delay(1);
         }
-        // SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
         start = micros();
         pNextEvent->measure(pNextEvent);
         stop = micros();
         pNextEvent->state.durationAccumulate += stop - start;
-        // SF_OSAL_printf("Ends at %" PRId32 __NL__, (std::uint32_t)millis());
+        // SF_OSAL_printf(
+        //     "Started at %lu us, Ends at %lu us, elapsed %lu us" __NL__, start, stop, stop -
+        //     start);
 
         // pNextEvent->lastMeasurementTime = nextEventTime;
 
