@@ -27,6 +27,19 @@ conioHistory &conioHistory::getInstance(void)
     return instance;
 }
 
+conioHistory::CONIO_history_line_::CONIO_history_line_(std::size_t _offset) : offset(_offset), len(0), frag_seq(0), display(false), more_frag(false)
+{
+}
+
+conioHistory::CONIO_history_line_::CONIO_history_line_(std::size_t _offset,
+                                                       std::size_t _len,
+                                                       std::uint32_t _frag_seq,
+                                                       bool _display,
+                                                       bool _more_frag)
+    : offset(_offset), len(_len), frag_seq(_frag_seq), display(_display), more_frag(_more_frag)
+    {
+    }
+
 void conioHistory::init_file_mapping(void)
 {
     const char *env_path = std::getenv("E4E_SF_CONIO_HISTORY");
@@ -116,7 +129,7 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
         if (lines[bottom_idx].len == 0)
         {
             // Default line struct converted to display line
-            lines[bottom_idx].display = 1;
+            lines[bottom_idx].display = true;
             bottom_display = display_starts.size();
             display_starts.push_back(bottom_idx);
             cur_bottom_display = bottom_display;
@@ -137,7 +150,7 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
                 display_starts.push_back(bottom_idx + 1);
                 cur_bottom_display = bottom_display;
             }
-            lines.push_back(CONIO_hist_line(current_offset, 0, 1, 0, fs));
+            lines.push_back(CONIO_hist_line(current_offset, 0, fs, true, false));
             bottom_idx++;
         }
     }
@@ -146,7 +159,7 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
         if (lines[bottom_idx].len == 0)
         {
             // Convert empty display line to non-display line
-            lines[bottom_idx].display = 0;
+            lines[bottom_idx].display = false;
             if (display_starts[bottom_display] == bottom_idx)
             {
                 display_starts.pop_back();
@@ -156,7 +169,7 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
         else
         {
             // Fragment the display line
-            lines[bottom_idx++].more_frag = 1;
+            lines[bottom_idx++].more_frag = true;
             lines.push_back(CONIO_hist_line(current_offset));
         }
     }

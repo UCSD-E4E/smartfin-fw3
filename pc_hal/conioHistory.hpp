@@ -162,20 +162,20 @@ class conioHistory
              */
             std::size_t len;
             /**
-             * @brief Display flag: 0 do not display, 1 display to window
-             * 
-             */
-            std::uint32_t display : 1;
-            /**
-             * @brief More Framgents flag: 0 no successive fragments, 1 more fragments for the line
-             * 
-             */
-            std::uint32_t more_frag : 1;
-            /**
              * @brief Fragment sequence number within the line
              * 
              */
-            std::uint32_t frag_seq : 30;
+            std::uint32_t frag_seq;
+            /**
+             * @brief Display flag: false = do not display, true = display to window
+             *
+             */
+            bool display;
+            /**
+             * @brief More Framgents flag: false = no successive fragments, true = more fragments for the line
+             *
+             */
+            bool more_frag;
             // Additional metadata may be necessary
 
             /**
@@ -187,13 +187,17 @@ class conioHistory
              * @param _more_frag More Fragments flag
              * @param _frag_seq Fragment sequence number
              */
-            CONIO_history_line_(std::size_t _offset, std::size_t _len, std::uint32_t _display, std::uint32_t _more_frag, std::uint32_t _frag_seq) : offset(_offset), len(_len), display(_display), more_frag(_more_frag), frag_seq(_frag_seq) {}
+            CONIO_history_line_(std::size_t _offset,
+                                std::size_t _len,
+                                std::uint32_t _frag_seq,
+                                bool _display,
+                                bool _more_frag);
             /**
              * @brief Construct a new conio history line object with default flags
-             * 
+             *
              * @param _offset Starting offset
              */
-            CONIO_history_line_(std::size_t _offset) : offset(_offset), len(0), display(0), more_frag(0), frag_seq(0) {}
+            CONIO_history_line_(std::size_t _offset);
         } CONIO_hist_line;
 
         /**
