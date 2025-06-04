@@ -58,11 +58,16 @@ STATES_e DataUpload::can_upload(void)
         return STATE_DEEP_SLEEP;
     }
     // Don't change current state, continue looping
+#if SF_CAN_UPLOAD
     return STATE_UPLOAD;
+#else
+    return STATE_DEEP_SLEEP;
+#endif
 }
 
 STATES_e DataUpload::run(void)
 {
+#if SF_CAN_UPLOAD
     uint8_t binary_packet_buffer[SF_PACKET_SIZE];
     char ascii_record_buffer[SF_RECORD_SIZE + 1];
     char publishName[DU_PUBLISH_ID_NAME_LEN + 1];
@@ -163,7 +168,9 @@ STATES_e DataUpload::run(void)
     }
     FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0409);
     return next_state;
-
+#else
+    return STATE_DEEP_SLEEP;
+#endif
 }
 
 void DataUpload::exit(void)

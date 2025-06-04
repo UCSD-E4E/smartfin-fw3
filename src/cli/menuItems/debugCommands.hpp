@@ -40,10 +40,7 @@ void CLI_wipeFileSystem(void);
  * @brief Monitor temperature sensor
  */
 void CLI_monitorTempSensor(void);
-/**
- * @brief Monitor IMU (gyro and cellerular )
-*/
-void CLI_monitorIMU(void);
+
 /**
  * @brief check charge ports
 */
@@ -67,5 +64,9 @@ void CLI_fileCLI(void);
  *
  */
 void CLI_initCloudCounters(void);
-
+/**
+ * @brief Dump IMU Registers
+ *
+ */
+void CLI_dumpIMURegs(void);
 #endif

@@ -19,7 +19,7 @@
 #include "states.hpp"
 #include "system.hpp"
 #include "task.hpp"
-
+#include "vers.hpp"
 SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
@@ -60,13 +60,41 @@ static STATES_e currentState;
 
 static StateMachine_t *findState(STATES_e state);
 static void initalizeTaskObjects(void);
-void mainThread(void *args);
+void mainFunc(void);
+void mainLoop(void *args);
 static void printState(STATES_e state);
+
+/**
+ * @brief Main thread object
+ *
+ */
+Thread __sf_main_thread;
+
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+/**
+ * @brief System panic counter
+ *
+ * - First element holds the counter
+ * - Second element holds bitwise not of counter
+ * - Third element holds bitwise not of firmware CRC
+ *
+ * This will reset on new firmware and successful boot
+ */
+retained std::uint32_t panicCount[3];
+#endif
 
 // setup() runs once, when the device is first turned on.
 void setup()
 {
     System.enableFeature(FEATURE_RESET_INFO);
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    if (panicCount[0] != ~panicCount[1] && panicCount[2] != ~module_info_crc.crc32)
+    {
+        panicCount[0] = 0;
+        panicCount[1] = ~panicCount[0];
+        panicCount[2] = ~module_info_crc.crc32;
+    }
+#endif
     SF_OSAL_init_conio();
 
     FLOG_Initialize();
@@ -77,18 +105,65 @@ void setup()
     FLOG_AddError(FLOG_RESET_REASON, System.resetReason());
     FLOG_AddError(FLOG_RESET_REASON_DATA, System.resetReasonData());
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    if (System.resetReason() == RESET_REASON_PANIC)
+    {
+        panicCount[0]++;
+    }
+    else
+    {
+        panicCount[0] = 0;
+    }
+    panicCount[1] = ~panicCount[0];
+
+    if (panicCount[0] > 2)
+    {
+        while (1)
+        {
+            SF_OSAL_printf("Boot loop!" __NL__);
+            VERS_printBanner();
+            FLOG_DisplayLog();
+            Particle.process();
+            delay(1000);
+        }
+    }
+#endif
+
     SYS_initSys();
 
     initalizeTaskObjects();
+    __sf_main_thread = Thread(
+        "SF_main", mainLoop, NULL, OS_THREAD_PRIORITY_DEFAULT, OS_THREAD_STACK_SIZE_DEFAULT_HIGH);
 }
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop()
 {
-    mainThread(NULL);
+    // mainThread(NULL);
+    delay(1);
 }
 
-void mainThread(void *args)
+/**
+ * @brief Main loop
+ *
+ * Core thread loop
+ *
+ * @param args
+ */
+void mainLoop(void *args)
+{
+    SYS_delayedInitSys();
+    while (1)
+    {
+        mainFunc();
+    }
+}
+
+/**
+ * @brief Main loop function
+ *
+ */
+void mainFunc(void)
 {
 
     StateMachine_t *pState;
@@ -124,7 +199,11 @@ static void initalizeTaskObjects(void)
     {
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
         FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0001);
+#if SF_CAN_UPLOAD
         currentState = STATE_UPLOAD;
+#else
+        currentState = SF_DEFAULT_STATE;
+#endif
         break;
     default:
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NOT_SET:
@@ -140,7 +219,11 @@ static void initalizeTaskObjects(void)
         else if (pSystemDesc->pRecorder->hasData())
         {
             FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0003);
+#if SF_CAN_UPLOAD
             currentState = STATE_UPLOAD;
+#else
+            currentState = SF_DEFAULT_STATE;
+#endif
         }
         else if (pSystemDesc->flags->hasCharger)
         {
