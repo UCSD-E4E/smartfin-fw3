@@ -29,6 +29,7 @@
 #include "vers.hpp"
 
 #include <bits/stdc++.h>
+#include <cstdlib>
 #include <fstream>
 
 void CLI_displayMenu(void);
@@ -45,6 +46,7 @@ static void CLI_sleepGetSleepBehavior(void);
 static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
 static void CLI_doEnsemble(void);
+static void CLI_setWaterSensorWindow(void);
 
 static std::uint8_t packet_buffer[SF_PACKET_SIZE];
 static char input_buffer[SF_CLI_MAX_CMD_LEN];
@@ -77,6 +79,7 @@ const Menu_t CLI_menu[] = {
     {200, "Sleep - Set Sleep Behavior", &CLI_sleepSetSleepBehavior, MENU_CMD},
     {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior, MENU_CMD},
     {300, "Display Reset Reason", &CLI_displayResetReason, MENU_CMD},
+    {400, "Set Water Sensor Window", &CLI_setWaterSensorWindow, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}};
 
 STATES_e CLI_nextState;
@@ -629,4 +632,42 @@ static void CLI_doEnsemble(void)
     SF_OSAL_printf("Packet data:" __NL__);
     hexDump(packet_buffer, nBytes);
     pSystemDesc->pRecorder->popLastPacket(nBytes);
+}
+
+void CLI_setWaterSensorWindow(void)
+{
+    uint8_t window_length;
+    if (!pSystemDesc->pNvram->get(NVRAM::WATER_DETECT_WINDOW_LEN, window_length))
+    {
+        SF_OSAL_printf("Failed to retrieve window length from NVRAM, defaulting" __NL__);
+        window_length = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
+    }
+    SF_OSAL_printf("Current window length: %hu" __NL__, window_length);
+    SF_OSAL_printf("Enter new window length: ");
+    if (SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN) == 0)
+    {
+        // empty, no change
+        return;
+    }
+    // non-empty, interpret input.  Auto-detect base
+    const long input = strtol(input_buffer, NULL, 0);
+    if (errno == ERANGE)
+    {
+        SF_OSAL_printf("Unable to interpret input" __NL__);
+        return;
+    }
+    if (input > UINT8_MAX || input > WATER_DETECT_ARRAY_SIZE)
+    {
+        SF_OSAL_printf("Requested window length exceeds %u" __NL__,
+                       UINT8_MAX < WATER_DETECT_ARRAY_SIZE ? UINT8_MAX : WATER_DETECT_ARRAY_SIZE);
+    }
+    if (input < 0)
+    {
+        SF_OSAL_printf("Negative window values not supported!" __NL__);
+    }
+    window_length = (uint8_t)input;
+    if (!pSystemDesc->pNvram->put(NVRAM::WATER_DETECT_WINDOW_LEN, window_length))
+    {
+        SF_OSAL_printf("Failed to write value!" __NL__);
+    }
 }
