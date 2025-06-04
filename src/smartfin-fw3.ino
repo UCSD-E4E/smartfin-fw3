@@ -71,6 +71,15 @@ static void printState(STATES_e state);
 Thread __sf_main_thread;
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
+/**
+ * @brief System panic counter
+ *
+ * - First element holds the counter
+ * - Second element holds bitwise not of counter
+ * - Third element holds bitwise not of firmware CRC
+ *
+ * This will reset on new firmware and successful boot
+ */
 retained std::uint32_t panicCount[3];
 #endif
 
