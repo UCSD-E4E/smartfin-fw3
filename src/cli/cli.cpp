@@ -671,4 +671,5 @@ void CLI_setWaterSensorWindow(void)
         SF_OSAL_printf("Failed to write value!" __NL__);
     }
     pSystemDesc->pWaterSensor->setWindowSize(window_length);
+    pSystemDesc->pWaterSensor->resetArray();
 }
