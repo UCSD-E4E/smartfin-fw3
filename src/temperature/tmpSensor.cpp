@@ -43,5 +43,10 @@ bool tmpSensor::stop()
 
 float tmpSensor::getTemp()
 {
-    return m_sensor.read_reg_as_temperature(MAX31725_REG_TEMPERATURE);
+    float value;
+    WITH_LOCK(Wire)
+    {
+        value = m_sensor.read_reg_as_temperature(MAX31725_REG_TEMPERATURE);
+    }
+    return value;
 }

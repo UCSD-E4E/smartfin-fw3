@@ -122,7 +122,10 @@ void IMU::readLoop(void *args)
     while (1)
     {
         self->_device_mtx->lock();
-        status = self->_device.readDMPdataFromFIFO(&dmpData);
+        WITH_LOCK(Wire)
+        {
+            status = self->_device.readDMPdataFromFIFO(&dmpData);
+        }
         self->_device_mtx->unlock();
         has_data = false;
         switch (status)
