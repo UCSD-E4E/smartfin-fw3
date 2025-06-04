@@ -3,18 +3,18 @@
 #include "cli/conio.hpp"
 #include "consts.hpp"
 #include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
-#include "cli/conio.hpp"
-
-
+#include "system.hpp"
 
 uint8_t water_detect_array[WATER_DETECT_ARRAY_SIZE];
 
-WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set,
-                         uint8_t water_detect_pin_to_set) : 
-                         water_detect_en_pin(water_detect_en_pin_to_set), 
-                         water_detect_pin(water_detect_pin_to_set), 
-                         moving_window_size(WATER_DETECT_ARRAY_SIZE)
+WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set, uint8_t water_detect_pin_to_set)
+    : water_detect_en_pin(water_detect_en_pin_to_set), water_detect_pin(water_detect_pin_to_set)
+
 {
+    if (!pSystemDesc->pNvram->get(NVRAM::WATER_DETECT_WINDOW_LEN, moving_window_size))
+    {
+        moving_window_size = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
+    }
     memset(water_detect_array, 0, WATER_DETECT_ARRAY_SIZE);
 }
 
