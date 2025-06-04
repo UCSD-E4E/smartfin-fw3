@@ -65,7 +65,6 @@ void RideTask::init()
     {
         SF_OSAL_printf("Failed to open session!" __NL__);
     }
-    // setupICM();
 }
 
 /**
