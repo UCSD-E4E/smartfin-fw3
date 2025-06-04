@@ -60,7 +60,6 @@ void RideTask::init()
 
     this->startTime = millis();
 
-    this->scheduler.initializeScheduler();
     if (!pSystemDesc->pRecorder->openSession())
     {
         SF_OSAL_printf("Failed to open session!" __NL__);
@@ -93,6 +92,7 @@ STATES_e RideTask::run(void)
         delay(1000);
     }
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
+    this->scheduler.initializeScheduler();
 
     while (1)
     {
