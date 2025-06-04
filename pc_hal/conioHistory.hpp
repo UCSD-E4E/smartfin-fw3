@@ -260,7 +260,7 @@ class conioHistory
          */
         std::size_t bottom_idx = 0;
 
-        conioHistory() {}
+        conioHistory();
         // Disable copy constructor and assignment operator to preserve singleton nature
         conioHistory(const conioHistory&) = delete;
         conioHistory& operator=(const conioHistory&) = delete;

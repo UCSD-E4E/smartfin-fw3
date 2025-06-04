@@ -21,6 +21,10 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+conioHistory::conioHistory() 
+{
+}
+
 conioHistory &conioHistory::getInstance(void)
 {
     static conioHistory instance;
