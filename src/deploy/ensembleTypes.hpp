@@ -21,6 +21,10 @@ typedef enum EnsembleID_
     ENS_IMU,
     ENS_TEMP_IMU,
     ENS_TEMP_IMU_GPS,
+    /**
+     * @brief High Data Rate IMU (0x0C)
+     *
+     */
     ENS_TEMP_HIGH_DATA_RATE_IMU,
     ENS_TEXT = 0x0F,
     ENS_NUM_ENSEMBLES
