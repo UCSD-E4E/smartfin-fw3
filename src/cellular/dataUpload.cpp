@@ -58,12 +58,16 @@ STATES_e DataUpload::can_upload(void)
         return STATE_DEEP_SLEEP;
     }
     // Don't change current state, continue looping
+#if SF_CAN_UPLOAD
     return STATE_UPLOAD;
+#else
+    return STATE_DEEP_SLEEP;
+#endif
 }
 
 STATES_e DataUpload::run(void)
 {
-#ifndef SF_INHIBIT_UPLOAD
+#if SF_CAN_UPLOAD
     uint8_t binary_packet_buffer[SF_PACKET_SIZE];
     char ascii_record_buffer[SF_RECORD_SIZE + 1];
     char publishName[DU_PUBLISH_ID_NAME_LEN + 1];

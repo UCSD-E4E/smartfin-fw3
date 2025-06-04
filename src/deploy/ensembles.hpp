@@ -22,4 +22,7 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment);
 void SS_Ensemble01_Init(DeploymentSchedule_t *pDeployment);
 void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment);
 
+void SS_HighRateIMU_x0C_Init(DeploymentSchedule_t *pDeployment);
+void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment);
+
 #endif //__ENSEMBLES_HPP__

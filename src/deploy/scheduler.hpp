@@ -92,6 +92,12 @@ struct StateInformation
      * Scheduler::getNextTask once a task is selected to run.
      */
     std::uint32_t nextRunTime;
+    /**
+     * @brief Accumulated
+     * 
+     * 
+     */
+    std::uint64_t durationAccumulate;
     void *pData;
 };
 

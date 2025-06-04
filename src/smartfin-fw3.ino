@@ -184,7 +184,11 @@ static void initalizeTaskObjects(void)
     {
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
         FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0001);
+#if SF_CAN_UPLOAD
         currentState = STATE_UPLOAD;
+#else
+        currentState = SF_DEFAULT_STATE;
+#endif
         break;
     default:
     case SleepTask::BOOT_BEHAVIOR_e::BOOT_BEHAVIOR_NOT_SET:
@@ -200,7 +204,11 @@ static void initalizeTaskObjects(void)
         else if (pSystemDesc->pRecorder->hasData())
         {
             FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0003);
+#if SF_CAN_UPLOAD
             currentState = STATE_UPLOAD;
+#else
+            currentState = SF_DEFAULT_STATE;
+#endif
         }
         else if (pSystemDesc->flags->hasCharger)
         {

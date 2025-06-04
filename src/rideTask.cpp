@@ -24,7 +24,10 @@
 DeploymentSchedule_t deploymentSchedule[] = {
     // measure, init, accumulate, interval, duration, delay, name, state
     {SS_fwVerFunc, SS_fwVerInit, 1, UINT32_MAX, 10, 0, "FW VER", {0}},
-    {SS_Ensemble01_Func, SS_Ensemble01_Init, 1, 1000, 50, 0, "Temp", {0}},
+    {SS_Ensemble01_Func, SS_Ensemble01_Init, 1, 1000, 10, 0, "Temp", {0}},
+#if defined(SF_HIGH_DATA_RATE)
+    {SS_HighRateIMU_x0C_Func, SS_HighRateIMU_x0C_Init, 1, 50, 5, 0, "HDR IMU", {0}},
+#endif
     // {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
     {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
 
@@ -74,6 +77,8 @@ STATES_e RideTask::run(void)
     DeploymentSchedule_t *pNextEvent = NULL;
     system_tick_t nextEventTime;
 
+    unsigned long start, stop;
+
     while (1)
     {
         // Wait for positive in-water signal.  This is run by waterCheck
@@ -114,7 +119,11 @@ STATES_e RideTask::run(void)
             if (!pSystemDesc->pWaterSensor->getLastStatus())
             {
                 SF_OSAL_printf("Out of water!" __NL__);
+#if SF_CAN_UPLOAD
                 return STATE_UPLOAD;
+#else
+                return STATE_DEEP_SLEEP;
+#endif
             }
             if (pSystemDesc->flags->batteryLow)
             {
@@ -124,7 +133,10 @@ STATES_e RideTask::run(void)
             delay(1);
         }
         // SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
+        start = micros();
         pNextEvent->measure(pNextEvent);
+        stop = micros();
+        pNextEvent->state.durationAccumulate += stop - start;
         // SF_OSAL_printf("Ends at %" PRId32 __NL__, (std::uint32_t)millis());
 
         // pNextEvent->lastMeasurementTime = nextEventTime;
@@ -132,7 +144,11 @@ STATES_e RideTask::run(void)
         if (pSystemDesc->pWaterSensor->getLastStatus() == WATER_SENSOR_LOW_STATE)
         {
             SF_OSAL_printf("Out of water!" __NL__);
+#if SF_CAN_UPLOAD
             return STATE_UPLOAD;
+#else
+            return STATE_DEEP_SLEEP;
+#endif
         }
 
         if (pSystemDesc->flags->batteryLow)
@@ -141,7 +157,11 @@ STATES_e RideTask::run(void)
             return STATE_DEEP_SLEEP;
         }
     }
+#if SF_CAN_UPLOAD
     return STATE_UPLOAD;
+#else
+    return STATE_DEEP_SLEEP;
+#endif
 }
 
 /**
@@ -152,6 +172,12 @@ void RideTask::exit(void)
     SF_OSAL_printf("Closing session" __NL__);
     pSystemDesc->pRecorder->closeSession();
     pSystemDesc->pChargerCheck->start();
+    for (DeploymentSchedule_t *pEvent = deploymentSchedule; pEvent->measure; pEvent++)
+    {
+        SF_OSAL_printf("%s Average duration: %d us" __NL__,
+                       pEvent->taskName,
+                       pEvent->state.durationAccumulate / pEvent->state.measurementCount);
+    }
     // Deinitialize sensors
     // pSystemDesc->pTempSensor->stop();
     // pSystemDesc->pCompass->close();

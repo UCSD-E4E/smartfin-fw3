@@ -21,9 +21,10 @@ typedef enum EnsembleID_
     ENS_IMU,
     ENS_TEMP_IMU,
     ENS_TEMP_IMU_GPS,
+    ENS_TEMP_HIGH_DATA_RATE_IMU,
     ENS_TEXT = 0x0F,
     ENS_NUM_ENSEMBLES
-}EnsembleID_e;
+} EnsembleID_e;
 
 #pragma pack(push, 1)
 /**
@@ -206,6 +207,34 @@ typedef struct Ensemble11_data_
      */
     int32_t location[2];
 }Ensemble11_data_t;
+
+typedef struct Ensemble12_data_
+{
+    /**
+     * @brief Acceleration as a 3 vector (x, y, z) in m/s^2 represented in Q14
+     *
+     * acceleration = acceleration_ms2_q15 / 16384
+     *
+     */
+    int16_t acceleration_ms2_q14[3];
+
+    /**
+     * @brief Rotational velocity as a 3 vector (x, y, z) in deg/s represented
+     * in Q7
+     *
+     * angularVelocity = angularVel_dps_q7 / 128
+     *
+     */
+    int16_t angularVel_dps_q7[3];
+
+    /**
+     * @brief Magnetic field intensity as a 3 vector (x, y, z) in uT
+     * represented in Q3
+     *
+     * magneticFieldIntensity = magIntensity_uT_q3 / 8
+     */
+    int16_t magIntensity_uT_q3[3];
+} Ensemble12_data_t;
 #pragma pack(pop)
 
 unsigned int Ens_getStartTime(system_tick_t sessionStart);
