@@ -661,9 +661,9 @@ void CLI_setWaterSensorWindow(void)
         SF_OSAL_printf("Requested window length exceeds %u" __NL__,
                        UINT8_MAX < WATER_DETECT_ARRAY_SIZE ? UINT8_MAX : WATER_DETECT_ARRAY_SIZE);
     }
-    if (input < 0)
+    if (input < 1)
     {
-        SF_OSAL_printf("Negative window values not supported!" __NL__);
+        SF_OSAL_printf("Negative or zero window values not supported!" __NL__);
     }
     window_length = (uint8_t)input;
     if (!pSystemDesc->pNvram->put(NVRAM::WATER_DETECT_WINDOW_LEN, window_length))
