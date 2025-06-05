@@ -113,7 +113,7 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         {
             //! TODO: send warning
         }
-        std::uint32_t delay = difference > 0 ? difference : 0;
+        std::uint32_t event_delay = difference > 0 ? difference : 0;
 
         // Finish time of task
         uint32_t expected_completion = runTime + currentEvent.maxDuration;
@@ -160,7 +160,7 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
             If delay greater than 0, shift all future occurences of the task by
             delay amount to re-establish a constant frequency
             */
-            if (delay > 0)
+            if (event_delay > 0)
             {
 #ifdef SCHEDULER_DEBUG
                 SF_OSAL_printf("Delay exceeded: %" PRIu32 __NL__, delay);
