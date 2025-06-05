@@ -469,7 +469,7 @@ int Recorder::closeSession(void)
 
     // flush buffer
     int x = this->pSession->write(this->dataBuffer, this->dataIdx);
-    SF_OSAL_printf("Bytes written %d", x);
+    SF_OSAL_printf("Bytes written %d" __NL__, x);
 
     // Close session
     this->pSession->close();
