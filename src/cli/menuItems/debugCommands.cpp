@@ -193,8 +193,9 @@ void CLI_monitorWetDry(void)
 
 void CLI_fileCLI(void)
 {
-    FileCLI cli;
-    cli.execute();
+    FileCLI *cli = new FileCLI();
+    cli->execute();
+    delete cli;
 }
 
 void CLI_initCloudCounters(void)

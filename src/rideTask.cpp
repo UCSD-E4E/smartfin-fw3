@@ -13,6 +13,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "deploy/ensembleTypes.hpp"
 #include "deploy/ensembles.hpp"
 #include "imu/newIMU.hpp"
 #include "product.hpp"
@@ -21,15 +22,17 @@
 /** @brief deployment schedule of ensembles to run
  * @see SCH_getNextEvent
  */
+// clang-format off
 DeploymentSchedule_t deploymentSchedule[] = {
-    // measure, init, accumulate, interval, duration, delay, name, state
-    {SS_fwVerFunc, SS_fwVerInit, 1, UINT32_MAX, 10, 0, "FW VER", {0}},
-    {SS_Ensemble01_Func, SS_Ensemble01_Init, 1, 1000, 10, 0, "Temp", {0}},
+    // measure,                 init,                       accumulate, interval,   duration,   delay,  name, state
+    {SS_fwVerFunc,              SS_fwVerInit,               1,          UINT32_MAX, 1,          0,      "FW VER", {0}},
 #if defined(SF_HIGH_DATA_RATE)
-    {SS_HighRateIMU_x0C_Func, SS_HighRateIMU_x0C_Init, 1, 50, 5, 0, "HDR IMU", {0}},
+    {SS_HighRateIMU_x0C_Func,   SS_HighRateIMU_x0C_Init,    1,          50,         1,          0,      "HDR IMU", {0}},
 #endif
+    {SS_Ensemble01_Func,        SS_Ensemble01_Init,         1,          1000,       20,         0,      "Temp",   {0}},
     // {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
     {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
+// clang-format on
 
 /**
  * @brief creates file name for log
@@ -60,7 +63,6 @@ void RideTask::init()
 
     this->startTime = millis();
 
-    this->scheduler.initializeScheduler();
     if (!pSystemDesc->pRecorder->openSession())
     {
         SF_OSAL_printf("Failed to open session!" __NL__);
@@ -93,6 +95,8 @@ STATES_e RideTask::run(void)
         delay(1000);
     }
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
+    this->scheduler.initializeScheduler();
+    Ens_setStartTime();
 
     while (1)
     {
@@ -131,12 +135,13 @@ STATES_e RideTask::run(void)
             }
             delay(1);
         }
-        // SF_OSAL_printf("Starts at %" PRId32 __NL__, (std::uint32_t)millis());
         start = micros();
         pNextEvent->measure(pNextEvent);
         stop = micros();
         pNextEvent->state.durationAccumulate += stop - start;
-        // SF_OSAL_printf("Ends at %" PRId32 __NL__, (std::uint32_t)millis());
+        // SF_OSAL_printf(
+        //     "Started at %lu us, Ends at %lu us, elapsed %lu us" __NL__, start, stop, stop -
+        //     start);
 
         // pNextEvent->lastMeasurementTime = nextEventTime;
 

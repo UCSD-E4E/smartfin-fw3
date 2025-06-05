@@ -328,7 +328,7 @@
  *
  * This mode should inhibit cellular upload and enable high data rate streams
  */
-// #define SF_HIGH_DATA_RATE
+#define SF_HIGH_DATA_RATE
 
 #define SF_CAN_UPLOAD !defined(SF_INHIBIT_UPLOAD) && !defined(SF_HIGH_DATA_RATE)
 #endif // __PRODUCT_HPP__

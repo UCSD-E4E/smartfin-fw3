@@ -245,5 +245,6 @@ typedef struct Ensemble12_data_
 } Ensemble12_data_t;
 #pragma pack(pop)
 
-unsigned int Ens_getStartTime(system_tick_t sessionStart);
+unsigned int Ens_getStartTime(void);
+void Ens_setStartTime(void);
 #endif
