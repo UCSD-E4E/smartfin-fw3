@@ -13,6 +13,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "deploy/ensembleTypes.hpp"
 #include "deploy/ensembles.hpp"
 #include "imu/newIMU.hpp"
 #include "product.hpp"
@@ -95,6 +96,7 @@ STATES_e RideTask::run(void)
     }
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
     this->scheduler.initializeScheduler();
+    Ens_setStartTime();
 
     while (1)
     {
