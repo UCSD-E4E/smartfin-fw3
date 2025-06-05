@@ -1,3 +1,20 @@
+## [3.14.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.14.0...v3.14.1) (2025-06-05)
+
+
+### Bug Fixes
+
+* Adds locks to I2C accesses ([7243187](https://github.com/UCSD-E4E/smartfin-fw3/commit/7243187a4a750d2540b7e4bc6c317adae71cc47d))
+* Adds platform dependent block ([d8c493a](https://github.com/UCSD-E4E/smartfin-fw3/commit/d8c493aca0a0ab05b374ed988a84877f37de5079))
+* Delays scheduler init ([49d62a8](https://github.com/UCSD-E4E/smartfin-fw3/commit/49d62a87c90c686fa0ec8dc18722536d282a4044))
+* Enables HDR ensembles ([b9fa6c4](https://github.com/UCSD-E4E/smartfin-fw3/commit/b9fa6c496859111f6e4cd4829b0f72a1adcb16e4))
+* FIxes buffer overflow and direntry stack ([67dd75a](https://github.com/UCSD-E4E/smartfin-fw3/commit/67dd75af03b8f6937ec24439c3c049cd217368fc))
+* Fixes delay computation ([ca4755f](https://github.com/UCSD-E4E/smartfin-fw3/commit/ca4755f129cb2520179d7cba9f3281a6915ee244))
+* Fixes initialization ([23153ef](https://github.com/UCSD-E4E/smartfin-fw3/commit/23153ef990435daa13a35c3964c0640bcb7f14ce))
+* Rename shadowed variable ([1235b2e](https://github.com/UCSD-E4E/smartfin-fw3/commit/1235b2ec3742fe88261f344e87c086b2f45b2d82))
+* Reorders schedule ([e32f15a](https://github.com/UCSD-E4E/smartfin-fw3/commit/e32f15acf30c72458df18d27c869a124d1cfe5ad))
+* Sets session start time ([29fcc7a](https://github.com/UCSD-E4E/smartfin-fw3/commit/29fcc7a319bf4fc6b3b265ea947c4b2ada969e24))
+* Switches to dynamic FileCLI object ([3e95335](https://github.com/UCSD-E4E/smartfin-fw3/commit/3e95335977228c6a3e84c6c0ad52704fd977dae5))
+
 # [3.14.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.13.0...v3.14.0) (2025-06-04)
 
 
