@@ -150,6 +150,6 @@ private:
      * @return  The constructed file or directory path. Returned buffer only
      * valid until the next invocation of buildPath.
      */
-    const char *buildPath(bool is_dir);
+    const char *buildPath(bool is_dir) const;
 };
 #endif
