@@ -11,12 +11,12 @@
 
 #include "tmpSensor.h"
 
-#include "max31725.h"
-#include "max31725_cpp.h"
-
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "max31725.h"
+#include "max31725_cpp.h"
+#include "product.hpp"
 
 #include <stdint.h>
 
@@ -44,9 +44,11 @@ bool tmpSensor::stop()
 float tmpSensor::getTemp()
 {
     float value;
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     WITH_LOCK(Wire)
     {
         value = m_sensor.read_reg_as_temperature(MAX31725_REG_TEMPERATURE);
     }
+#endif
     return value;
 }
