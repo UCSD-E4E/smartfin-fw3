@@ -93,6 +93,13 @@ public:
      */
     ~WaterSensor();
 
+    /**
+     * @brief Initializes the Water Sensor
+     *
+     * @return Error flag - true if error, otherwise false
+     */
+    bool begin(void);
+
     // resets the array to zero
     bool resetArray();
     // switch the window size parameter and clear the sum (for resumming)
