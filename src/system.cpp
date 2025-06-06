@@ -155,6 +155,7 @@ static int SYS_initWaterSensor(void)
     pinMode(WATER_MFG_TEST_EN, OUTPUT);
     digitalWrite(WATER_MFG_TEST_EN, LOW);
     systemDesc.pWaterSensor = &waterSensor;
+    waterSensor.begin();
     ledTimer.start();
 
     // TODO: remove this once NVRAM defaults exist
