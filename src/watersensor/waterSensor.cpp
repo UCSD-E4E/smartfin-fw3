@@ -3,18 +3,18 @@
 #include "cli/conio.hpp"
 #include "consts.hpp"
 #include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
-#include "cli/conio.hpp"
-
-
+#include "system.hpp"
 
 uint8_t water_detect_array[WATER_DETECT_ARRAY_SIZE];
 
-WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set,
-                         uint8_t water_detect_pin_to_set) : 
-                         water_detect_en_pin(water_detect_en_pin_to_set), 
-                         water_detect_pin(water_detect_pin_to_set), 
-                         moving_window_size(WATER_DETECT_ARRAY_SIZE)
+WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set, uint8_t water_detect_pin_to_set)
+    : water_detect_en_pin(water_detect_en_pin_to_set), water_detect_pin(water_detect_pin_to_set)
+
 {
+    if (!pSystemDesc->pNvram->get(NVRAM::WATER_DETECT_WINDOW_LEN, moving_window_size))
+    {
+        moving_window_size = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
+    }
     memset(water_detect_array, 0, WATER_DETECT_ARRAY_SIZE);
 }
 
@@ -50,7 +50,7 @@ void WaterSensor::setWindowSize(uint8_t window_size_to_set)
         window_size_to_set = WATER_DETECT_ARRAY_SIZE;
     }
     // swtich the window parameter and clear the sum (for resumming)
-    moving_window_size = WATER_DETECT_ARRAY_SIZE;
+    moving_window_size = window_size_to_set;
     array_sum = 0;
 
     // sum all of the array items from the current location backward for the entire window,
@@ -75,7 +75,7 @@ void WaterSensor::setWindowSize(uint8_t window_size_to_set)
 uint8_t WaterSensor::takeReading()
 {
     // increment array location
-    array_location = (array_location + 1) % WATER_DETECT_ARRAY_SIZE;
+    array_location = (array_location + 1) % moving_window_size;
     // subtract last value in the window from the rolling sum
     array_sum -= water_detect_array[waterDetectArrayLocation(array_location, (-1 * moving_window_size))];
 
@@ -243,11 +243,11 @@ uint8_t WaterSensor::waterDetectArrayLocation(int16_t location, int16_t offset)
 {
     if ((location + offset) < 0)
     {
-        return (WATER_DETECT_ARRAY_SIZE + (location + offset));
+        return (moving_window_size + (location + offset));
     }
-    else if ((location + offset) >= WATER_DETECT_ARRAY_SIZE)
-    { 
-        return ((location + offset) - WATER_DETECT_ARRAY_SIZE);   
+    else if ((location + offset) >= moving_window_size)
+    {
+        return ((location + offset) - moving_window_size);
     } 
     else
     {

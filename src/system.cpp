@@ -42,6 +42,7 @@ static int SYS_initWaterSensor(void);
 static int SYS_initLEDs(void);
 static int SYS_initFS();
 static int SYS_initTempSensor(void);
+static int SYS_initIMU(void);
 
 I2C i2cBus;
 MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
@@ -59,6 +60,10 @@ static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN);
 static LocationServiceConfiguration create_location_service_config();
 
 static FuelGauge battery_desc;
+
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+static IMU icm_20948(Wire, false);
+#endif
 
 void SYS_initSys(void)
 {
@@ -80,6 +85,17 @@ void SYS_initSys(void)
     pinMode(WKP, INPUT);
 
     systemDesc.pBattery = &battery_desc;    
+}
+
+/**
+ * @brief Delayed system initialization
+ *
+ * This to run after threads start
+ *
+ */
+void SYS_delayedInitSys(void)
+{
+    SYS_initIMU();
 }
 
 /**
@@ -403,4 +419,25 @@ void SYS_dumpSys(int indent)
     {
         SF_OSAL_printf("%sSystem Flags: 0x%08x" __NL__, indent_str, pSystemDesc->flags);
     }
+}
+
+/**
+ * @brief Initializes the IMU
+ *
+ * @return int 1 on success, otherwise 0
+ */
+int SYS_initIMU(void)
+{
+    bool fail = false;
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    pSystemDesc->pIMU = &icm_20948;
+
+    fail = icm_20948.begin();
+    if (fail)
+    {
+        SF_OSAL_printf("IMU init failed!" __NL__);
+        return 0;
+    }
+#endif
+    return 1;
 }

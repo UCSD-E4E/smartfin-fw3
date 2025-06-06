@@ -7,8 +7,9 @@
  */
 #include "ensembles.hpp"
 
+#include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
-#include "imu/imu.hpp"
+#include "imu/newIMU.hpp"
 #include "product.hpp"
 #include "scheduler.hpp"
 #include "system.hpp"
@@ -104,7 +105,7 @@ void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment)
 
         // populate ensemble
         ensData.header.ensembleType = ENS_TEMP;
-        ensData.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.nextRunTime);
+        ensData.header.elapsedTime_ds = Ens_getStartTime();
         ensData.data.raw_temp = 128 * (temp - 100 * water);
 
         // Commit ensemble
@@ -251,8 +252,7 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
             temp -= 100;
         }
 
-        ensData.header.elapsedTime_ds = Ens_getStartTime(
-            pDeployment->state.nextRunTime); // does nextruntime work for start time
+        ensData.header.elapsedTime_ds = Ens_getStartTime();
         SF_OSAL_printf("Ensemble timestamp: %d\n", ensData.header.elapsedTime_ds);
         ensData.data.ens10.rawTemp = N_TO_B_ENDIAN_2(temp / 0.0078125);
         ensData.data.ens10.rawAcceleration[0] =
@@ -319,7 +319,7 @@ void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
     // Report accumulated measurements
     if (pData->accumulateCount == pDeployment->measurementsToAccumulate)
     {
-        ensData.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.nextRunTime);
+        ensData.header.elapsedTime_ds = Ens_getStartTime();
         ensData.header.ensembleType = ENS_BATT;
         ensData.data.batteryVoltage =
             N_TO_B_ENDIAN_2((pData->battVoltage / pData->accumulateCount) * 1000);
@@ -364,7 +364,7 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
             temp -= 100;
         }
 
-        ens.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.nextRunTime);
+        ens.header.elapsedTime_ds = Ens_getStartTime();
         ens.header.ensembleType = ENS_TEMP_TIME;
         ens.ensData.rawTemp = N_TO_B_ENDIAN_2(temp / 0.0078125);
 
@@ -406,7 +406,7 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
     } ens;
 #pragma pack(pop)
 
-    ens.header.elapsedTime_ds = Ens_getStartTime(pDeployment->state.nextRunTime);
+    ens.header.elapsedTime_ds = Ens_getStartTime();
     ens.header.ensembleType = ENS_TEXT;
 
     ens.nChars = snprintf(ens.verBuf,
@@ -419,4 +419,62 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
     pSystemDesc->pRecorder->putBytes(&ens, sizeof(EnsembleHeader_t) + sizeof(uint8_t) + ens.nChars);
 }
 /** @} */
+
+/**
+ * @brief High Data Rate IMU Ensemble (0x0C)
+ * \addtogroup hdr_imu_ens
+ * @{
+ */
+
+/**
+ * @brief Initialization function for high data rate IMU
+ *
+ * @param pDeployment Deployment event
+ */
+void SS_HighRateIMU_x0C_Init(DeploymentSchedule_t *pDeployment)
+{
+    (void)pDeployment;
+}
+
+/**
+ * @brief Measurement function for high data rate IMU
+ *
+ * @param pDeployment Deployment event
+ */
+void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE && defined(SF_HIGH_DATA_RATE)
+#pragma pack(push, 1)
+    struct
+    {
+        EnsembleHeader_t header;
+        Ensemble12_data_t data;
+    } ensData;
+#pragma pack(pop)
+    float values[9];
+
+    pSystemDesc->pIMU->getDmpAccel_ms2(values[0], values[1], values[2]);
+    pSystemDesc->pIMU->getDmpRotVel_dps(values[3], values[4], values[5]);
+    pSystemDesc->pIMU->getDmpMag_uT(values[6], values[7], values[8]);
+
+    ensData.data.acceleration_ms2_q14[0] = N_TO_B_ENDIAN_2((int16_t)(values[0] * Q14_SCALAR));
+    ensData.data.acceleration_ms2_q14[1] = N_TO_B_ENDIAN_2((int16_t)(values[1] * Q14_SCALAR));
+    ensData.data.acceleration_ms2_q14[2] = N_TO_B_ENDIAN_2((int16_t)(values[2] * Q14_SCALAR));
+    ensData.data.angularVel_dps_q7[0] = N_TO_B_ENDIAN_2((int16_t)(values[3] * Q7_SCALAR));
+    ensData.data.angularVel_dps_q7[1] = N_TO_B_ENDIAN_2((int16_t)(values[4] * Q7_SCALAR));
+    ensData.data.angularVel_dps_q7[2] = N_TO_B_ENDIAN_2((int16_t)(values[5] * Q7_SCALAR));
+    ensData.data.magIntensity_uT_q3[0] = N_TO_B_ENDIAN_2((int16_t)(values[6] * Q3_SCALAR));
+    ensData.data.magIntensity_uT_q3[1] = N_TO_B_ENDIAN_2((int16_t)(values[7] * Q3_SCALAR));
+    ensData.data.magIntensity_uT_q3[2] = N_TO_B_ENDIAN_2((int16_t)(values[8] * Q3_SCALAR));
+
+    ensData.header.ensembleType = ENS_TEMP_HIGH_DATA_RATE_IMU;
+    ensData.header.elapsedTime_ds = Ens_getStartTime();
+
+    pSystemDesc->pRecorder->putBytes(&ensData,
+                                     sizeof(EnsembleHeader_t) + sizeof(Ensemble12_data_t));
+
+#endif
+}
+/** @} */
+
 /** @} */

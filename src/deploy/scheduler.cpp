@@ -10,11 +10,14 @@
  */
 #include "deploy/scheduler.hpp"
 
+#include "Particle.h"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
 
 #include <cstring>
+
+// #define SCHEDULER_DEBUG
 
 /**
  * @brief constructor for scheduler
@@ -31,20 +34,17 @@ Scheduler::Scheduler(DeploymentSchedule_t schedule[]) : scheduleTable(schedule)
  */
 void Scheduler::initializeScheduler()
 {
-    DeploymentSchedule_t *pDeployment = this->scheduleTable;
     this->tableSize = 0;
     if (this->scheduleTable == nullptr)
     {
         return;
     }
-    while (pDeployment->init)
+    for (DeploymentSchedule_t *pDeployment = this->scheduleTable; pDeployment->init; pDeployment++)
     {
-
         memset(&(pDeployment->state), 0, sizeof(StateInformation));
-
+        pDeployment->state.nextRunTime = millis();
         pDeployment->init(pDeployment);
         this->tableSize++;
-        pDeployment++;
     }
 }
 
@@ -82,22 +82,26 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         DeploymentSchedule_t &currentEvent = scheduleTable[idx];
         StateInformation &currentEventState = scheduleTable[idx].state;
         std::uint32_t runTime = currentEventState.nextRunTime;
-        // SF_OSAL_printf("Ensemble %s: {'nextRunTime': %u, 'currentTime': %u, "
-        //                "'maxDelay': %u, 'interval': %u}" __NL__,
-        //                currentEvent.taskName,
-        //                currentEvent.state.nextRunTime,
-        //                currentTime,
-        //                currentEvent.maxDelay,
-        //                currentEvent.ensembleInterval);
+#ifdef SCHEDULER_DEBUG
+        SF_OSAL_printf("Ensemble %s: {'nextRunTime': %u, 'currentTime': %u, "
+                       "'maxDelay': %u, 'interval': %u}" __NL__,
+                       currentEvent.taskName,
+                       currentEvent.state.nextRunTime,
+                       currentTime,
+                       currentEvent.maxDelay,
+                       currentEvent.ensembleInterval);
+#endif
         // if runTime is infinite, skip
         if (runTime == UINT32_MAX)
         {
-            // SF_OSAL_printf("Skipping - runTime is inf" __NL__);
+#ifdef SCHEDULER_DEBUG
+            SF_OSAL_printf("Skipping - runTime is inf" __NL__);
+#endif
             continue;
         }
 
         // check if a delay exists
-        std::int64_t difference = currentTime - runTime;
+        std::int64_t difference = (std::int64_t)currentTime - (std::int64_t)runTime;
 
         if (difference > 0)
         {
@@ -109,7 +113,7 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         {
             //! TODO: send warning
         }
-        std::uint32_t delay = difference > 0 ? difference : 0;
+        std::uint32_t event_delay = difference > 0 ? difference : 0;
 
         // Finish time of task
         uint32_t expected_completion = runTime + currentEvent.maxDuration;
@@ -120,9 +124,11 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
         {
             if (scheduleTable[j].state.nextRunTime < expected_completion)
             {
-                // SF_OSAL_printf("This can't run because %s needs to run at %u" __NL__,
-                //                scheduleTable[j].taskName,
-                //                scheduleTable[j].state.nextRunTime);
+#ifdef SCHEDULER_DEBUG
+                SF_OSAL_printf("This can't run because %s needs to run at %u" __NL__,
+                               scheduleTable[j].taskName,
+                               scheduleTable[j].state.nextRunTime);
+#endif
                 canRun = false;
             }
         }
@@ -154,9 +160,13 @@ SCH_error_e Scheduler::getNextTask(DeploymentSchedule_t **p_nextEvent,
             If delay greater than 0, shift all future occurences of the task by
             delay amount to re-establish a constant frequency
             */
-            if (delay > 0)
+            if (event_delay > 0)
             {
-                FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED, currentEventState.measurementCount);
+#ifdef SCHEDULER_DEBUG
+                SF_OSAL_printf("Delay exceeded: %" PRIu32 __NL__, delay);
+#endif
+                FLOG_AddError(FLOG_SCHEDULER_DELAY_EXCEEDED,
+                              currentEventState.measurementCount | (idx << 24));
             }
             return SCHEDULER_SUCCESS;
         }

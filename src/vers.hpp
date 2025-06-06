@@ -10,8 +10,9 @@
 
 #include "product.hpp"
 
+#include <cstdint>
 #define FW_MAJOR_VERSION    3
-#define FW_MINOR_VERSION    12
+#define FW_MINOR_VERSION    14
 #define FW_BUILD_NUM        1
 #define FW_BRANCH           ""
 

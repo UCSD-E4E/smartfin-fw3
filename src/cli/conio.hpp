@@ -38,7 +38,10 @@ extern "C"
 
     /**
      * @brief Gets user input line
-     * @param buffer buffer to write too
+     *
+     * Does not include terminating newline characters
+     *
+     * @param buffer buffer to write to
      * @param buflen length of buffer
      * @return length of the user input line.  If -1, we have aborted due
      * to USB terminal disconnect

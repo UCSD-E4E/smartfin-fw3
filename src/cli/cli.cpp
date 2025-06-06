@@ -15,7 +15,7 @@
 #include "consts.hpp"
 #include "debug/recorder_debug.hpp"
 #include "debug/session_debug.hpp"
-#include "imu/imu.hpp"
+#include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
 #include "menuItems/gpsCommands.hpp"
@@ -29,9 +29,8 @@
 #include "vers.hpp"
 
 #include <bits/stdc++.h>
+#include <cstdlib>
 #include <fstream>
-
-#define NUM_SENSORS 6
 
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
@@ -47,6 +46,7 @@ static void CLI_sleepGetSleepBehavior(void);
 static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
 static void CLI_doEnsemble(void);
+static void CLI_setWaterSensorWindow(void);
 
 static std::uint8_t packet_buffer[SF_PACKET_SIZE];
 static char input_buffer[SF_CLI_MAX_CMD_LEN];
@@ -70,6 +70,8 @@ const Menu_t CLI_menu[] = {
     {15, "Session Test Menu", {.pMenu = Session_debug_menu}, MENU_SUBMENU},
     {16, "Display all sensors", &CLI_monitorSensors, MENU_CMD},
     {20, "Do Ensemble Function", &CLI_doEnsemble, MENU_CMD},
+    {30, "Dump FLOG", &CLI_displayFLOG, MENU_CMD},
+    {31, "Clear FLOG", &CLI_clearFLOG, MENU_CMD},
     {100, "Set State", &CLI_setState, MENU_CMD},
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
@@ -77,6 +79,7 @@ const Menu_t CLI_menu[] = {
     {200, "Sleep - Set Sleep Behavior", &CLI_sleepSetSleepBehavior, MENU_CMD},
     {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior, MENU_CMD},
     {300, "Display Reset Reason", &CLI_displayResetReason, MENU_CMD},
+    {400, "Set Water Sensor Window", &CLI_setWaterSensorWindow, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}};
 
 STATES_e CLI_nextState;
@@ -245,38 +248,107 @@ void CLI_displayResetReason(void)
     SF_OSAL_printf(__NL__);
 }
 
+/**
+ * @brief MonitorSensors header enum
+ *
+ */
+enum SensorHeader
+{
+    SensorHeader_Time,
+    SensorHeader_AccelX,
+    SensorHeader_AccelY,
+    SensorHeader_AccelZ,
+    SensorHeader_GyroX,
+    SensorHeader_GyroY,
+    SensorHeader_GyroZ,
+    SensorHeader_MagX,
+    SensorHeader_MagY,
+    SensorHeader_MagZ,
+    SensorHeader_Temp,
+    SensorHeader_WetDryReading,
+    SensorHeader_WetDryStatus,
+    SensorHeader_DMPAccelX,
+    SensorHeader_DMPAccelY,
+    SensorHeader_DMPAccelZ,
+    SensorHeader_DMPAccelAcc,
+    SensorHeader_DMPGyroX,
+    SensorHeader_DMPGyroY,
+    SensorHeader_DMPGyroZ,
+    SensorHeader_DMPQuat1,
+    SensorHeader_DMPQuat2,
+    SensorHeader_DMPQuat3,
+    SensorHeader_DMPQuat0,
+    SensorHeader_DMPQuatAcc,
+    SensorHeader_DMPMagX,
+    SensorHeader_DMPMagY,
+    SensorHeader_DMPMagZ,
+
+    SensorHeader_NUMHEADERS
+};
+
+/**
+ * @brief Monitor sensor table row definition
+ *
+ */
 typedef struct
 {
+    /**
+     * @brief
+     * Header index
+     *
+     */
+    enum SensorHeader header_idx;
+    /**
+     * @brief Column header name
+     *
+     */
     const char *header;
+    /**
+     * @brief Active flag
+     *
+     */
     bool active;
+    /**
+     * @brief Recorded value to display
+     *
+     */
     float value;
 } CLI_MON_SENSOR_data_t;
 
-CLI_MON_SENSOR_data_t sensor_headers[] = {{"ax", false, NAN},    // 0
-                                          {"ay", false, NAN},    // 1
-                                          {"az", false, NAN},    // 2
-                                          {"gx", false, NAN},    // 3
-                                          {"gy", false, NAN},    // 4
-                                          {"gz", false, NAN},    // 5
-                                          {"mx", false, NAN},    // 6
-                                          {"my", false, NAN},    // 7
-                                          {"mz", false, NAN},    // 8
-                                          {"temp", false, NAN},  // 9
-                                          {"wd cr", false, NAN}, // 10
-                                          {"wd ls", false, NAN}, // 11
-                                          {"dax", false, NAN},   // 12
-                                          {"day", false, NAN},   // 13
-                                          {"daz", false, NAN},   // 14
-                                          {"a acc", false, NAN}, // 15
-                                          {"dgx", false, NAN},   // 16
-                                          {"dgy", false, NAN},   // 17
-                                          {"dgz", false, NAN},   // 18
-                                          {"dq1", false, NAN},   // 19
-                                          {"dq2", false, NAN},   // 20
-                                          {"dq3", false, NAN},   // 21
-                                          {"dq0", false, NAN},   // 22
-                                          {"dqacc", false, NAN}, // 23
-                                          {NULL, false, NAN}};
+/**
+ * @brief Monitor sensor table definition
+ *
+ */
+CLI_MON_SENSOR_data_t sensor_headers[SensorHeader_NUMHEADERS + 1] = {
+    {SensorHeader_Time, "t", false, NAN},
+    {SensorHeader_AccelX, "ax", false, NAN},           // 0
+    {SensorHeader_AccelY, "ay", false, NAN},           // 1
+    {SensorHeader_AccelZ, "az", false, NAN},           // 2
+    {SensorHeader_GyroX, "gx", false, NAN},            // 3
+    {SensorHeader_GyroY, "gy", false, NAN},            // 4
+    {SensorHeader_GyroZ, "gz", false, NAN},            // 5
+    {SensorHeader_MagX, "mx", false, NAN},             // 6
+    {SensorHeader_MagX, "my", false, NAN},             // 7
+    {SensorHeader_MagX, "mz", false, NAN},             // 8
+    {SensorHeader_Temp, "temp", false, NAN},           // 9
+    {SensorHeader_WetDryReading, "wd cr", false, NAN}, // 10
+    {SensorHeader_WetDryStatus, "wd ls", false, NAN},  // 11
+    {SensorHeader_DMPAccelX, "dax", false, NAN},       // 12
+    {SensorHeader_DMPAccelY, "day", false, NAN},       // 13
+    {SensorHeader_DMPAccelZ, "daz", false, NAN},       // 14
+    {SensorHeader_DMPAccelAcc, "a acc", false, NAN},   // 15
+    {SensorHeader_DMPGyroX, "dgx", false, NAN},        // 16
+    {SensorHeader_DMPGyroY, "dgy", false, NAN},        // 17
+    {SensorHeader_DMPGyroZ, "dgz", false, NAN},        // 18
+    {SensorHeader_DMPQuat1, "dq1", false, NAN},        // 19
+    {SensorHeader_DMPQuat2, "dq2", false, NAN},        // 20
+    {SensorHeader_DMPQuat3, "dq3", false, NAN},        // 21
+    {SensorHeader_DMPQuat0, "dq0", false, NAN},        // 22
+    {SensorHeader_DMPQuatAcc, "dqacc", false, NAN},    // 23
+    {SensorHeader_DMPMagX, "dmx", false, NAN},         // 24
+    {SensorHeader_DMPMagY, "dmy", false, NAN},         // 25
+    {SensorHeader_DMPMagZ, "dmz", false, NAN},         // 26
+    {SensorHeader_NUMHEADERS, NULL, false, NAN}};
 
 /**
  * @brief CLI Monitor Sensors
@@ -289,20 +361,20 @@ CLI_MON_SENSOR_data_t sensor_headers[] = {{"ax", false, NAN},    // 0
 static void CLI_monitorSensors(void)
 {
     char ch = ' ';
-    IMU_DMPData_t DMPData = {0};
     pSystemDesc->pChargerCheck->stop();
     pSystemDesc->pWaterCheck->stop();
-    setupICM();
     SF_OSAL_printf(__NL__);
 
     typedef enum
     {
+        TIME,
         ACCEL,
         GYRO,
         MAG,
         TEMP,
         WET_DRY,
-        DMP
+        DMP,
+        NUM_SENSORS
     } Sensor;
     bool sensors[NUM_SENSORS] = {false};
 
@@ -312,6 +384,7 @@ static void CLI_monitorSensors(void)
     SF_OSAL_printf("Delay set to %d ms" __NL__, delayTime);
     SF_OSAL_printf("a - acceleraction, g - gyroscope, m - magnetometer, t - temp, w - wet/dry, d - "
                    "dmp" __NL__);
+    sensors[TIME] = true;
     bool valid = false;
     while (ch != 'x')
     {
@@ -364,52 +437,58 @@ static void CLI_monitorSensors(void)
     {
         pEntry->active = false;
     }
+    sensor_headers[SensorHeader_Time].active = true;
     if (sensors[ACCEL])
     {
-        sensor_headers[0].active = true;
-        sensor_headers[1].active = true;
-        sensor_headers[2].active = true;
+        sensor_headers[SensorHeader_AccelX].active = true;
+        sensor_headers[SensorHeader_AccelY].active = true;
+        sensor_headers[SensorHeader_AccelZ].active = true;
     }
     if (sensors[GYRO])
     {
-        sensor_headers[3].active = true;
-        sensor_headers[4].active = true;
-        sensor_headers[5].active = true;
+        sensor_headers[SensorHeader_GyroX].active = true;
+        sensor_headers[SensorHeader_GyroY].active = true;
+        sensor_headers[SensorHeader_GyroZ].active = true;
     }
     if (sensors[MAG])
     {
-        sensor_headers[6].active = true;
-        sensor_headers[7].active = true;
-        sensor_headers[8].active = true;
+        sensor_headers[SensorHeader_MagX].active = true;
+        sensor_headers[SensorHeader_MagY].active = true;
+        sensor_headers[SensorHeader_MagZ].active = true;
     }
     if (sensors[TEMP])
     {
-        sensor_headers[9].active = true;
+        sensor_headers[SensorHeader_Temp].active = true;
     }
     if (sensors[WET_DRY])
     {
-        sensor_headers[10].active = true;
-        sensor_headers[11].active = true;
+        sensor_headers[SensorHeader_WetDryStatus].active = true;
+        sensor_headers[SensorHeader_WetDryReading].active = true;
     }
     if (sensors[DMP])
     {
         // acc
-        sensor_headers[12].active = true;
-        sensor_headers[13].active = true;
-        sensor_headers[14].active = true;
-        sensor_headers[15].active = true;
+        sensor_headers[SensorHeader_DMPAccelX].active = true;
+        sensor_headers[SensorHeader_DMPAccelY].active = true;
+        sensor_headers[SensorHeader_DMPAccelZ].active = true;
+        sensor_headers[SensorHeader_DMPAccelAcc].active = true;
 
         // gyr
-        sensor_headers[16].active = true;
-        sensor_headers[17].active = true;
-        sensor_headers[18].active = true;
+        sensor_headers[SensorHeader_DMPGyroX].active = true;
+        sensor_headers[SensorHeader_DMPGyroY].active = true;
+        sensor_headers[SensorHeader_DMPGyroZ].active = true;
 
         // quat
-        sensor_headers[19].active = true;
-        sensor_headers[20].active = true;
-        sensor_headers[21].active = true;
-        sensor_headers[22].active = true;
-        sensor_headers[23].active = true;
+        sensor_headers[SensorHeader_DMPQuat0].active = true;
+        sensor_headers[SensorHeader_DMPQuat1].active = true;
+        sensor_headers[SensorHeader_DMPQuat2].active = true;
+        sensor_headers[SensorHeader_DMPQuat3].active = true;
+        sensor_headers[SensorHeader_DMPQuatAcc].active = true;
+
+        // mag
+        sensor_headers[SensorHeader_DMPMagX].active = true;
+        sensor_headers[SensorHeader_DMPMagY].active = true;
+        sensor_headers[SensorHeader_DMPMagZ].active = true;
     }
     int count = 0;
 
@@ -424,77 +503,63 @@ static void CLI_monitorSensors(void)
                 break;
             }
         }
+        sensor_headers[SensorHeader_Time].value = millis();
         if (sensors[ACCEL])
         {
-            if (!getAccelerometer(
-                    &sensor_headers[0].value, &sensor_headers[1].value, &sensor_headers[2].value))
-            {
-                sensor_headers[0].value = NAN;
-                sensor_headers[1].value = NAN;
-                sensor_headers[2].value = NAN;
-            }
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+            pSystemDesc->pIMU->getAccel_ms2(sensor_headers[SensorHeader_AccelX].value,
+                                            sensor_headers[SensorHeader_AccelY].value,
+                                            sensor_headers[SensorHeader_AccelZ].value);
+#endif
         }
         if (sensors[GYRO])
         {
-            getGyroscope(
-                &sensor_headers[3].value, &sensor_headers[4].value, &sensor_headers[5].value);
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+            pSystemDesc->pIMU->getRotVel_dps(sensor_headers[SensorHeader_GyroX].value,
+                                             sensor_headers[SensorHeader_GyroY].value,
+                                             sensor_headers[SensorHeader_GyroZ].value);
+#endif
         }
         if (sensors[MAG])
         {
-            getMagnetometer(
-                &sensor_headers[6].value, &sensor_headers[7].value, &sensor_headers[8].value);
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+            pSystemDesc->pIMU->getMag_uT(sensor_headers[SensorHeader_MagX].value,
+                                         sensor_headers[SensorHeader_MagY].value,
+                                         sensor_headers[SensorHeader_MagZ].value);
+#endif
         }
         if (sensors[DMP])
         {
-            delayTime = 0;
-            DMPData.acc[0] = NAN;
-            DMPData.acc[1] = NAN;
-            DMPData.acc[2] = NAN;
-            DMPData.acc_acc = NAN;
-            DMPData.gyr[0] = NAN;
-            DMPData.gyr[1] = NAN;
-            DMPData.gyr[2] = NAN;
-            DMPData.mag[0] = NAN;
-            DMPData.mag[1] = NAN;
-            DMPData.mag[2] = NAN;
-            DMPData.quat[0] = NAN;
-            DMPData.quat[1] = NAN;
-            DMPData.quat[2] = NAN;
-            DMPData.quat[3] = NAN;
-            DMPData.quat_acc = NAN;
-            if (!getDMPData(DMPData))
-            {
-                SF_OSAL_printf("DMP fail!" __NL__);
-                FLOG_AddError(FLOG_ICM_FAIL, 1);
-            }
-            sensor_headers[12].value = DMPData.acc[0];
-            sensor_headers[13].value = DMPData.acc[1];
-            sensor_headers[14].value = DMPData.acc[2];
-
-            sensor_headers[15].value = DMPData.acc_acc;
-
-            sensor_headers[16].value = DMPData.gyr[0];
-            sensor_headers[17].value = DMPData.gyr[1];
-            sensor_headers[18].value = DMPData.gyr[2];
-
-            sensor_headers[19].value = DMPData.quat[0];
-            sensor_headers[20].value = DMPData.quat[1];
-            sensor_headers[21].value = DMPData.quat[2];
-            sensor_headers[22].value = DMPData.quat[3];
-
-            sensor_headers[23].value = DMPData.quat_acc;
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+            pSystemDesc->pIMU->getDmpAccel_ms2(sensor_headers[SensorHeader_DMPAccelX].value,
+                                               sensor_headers[SensorHeader_DMPAccelY].value,
+                                               sensor_headers[SensorHeader_DMPAccelZ].value);
+            pSystemDesc->pIMU->getDmpRotVel_dps(sensor_headers[SensorHeader_DMPGyroX].value,
+                                                sensor_headers[SensorHeader_DMPGyroY].value,
+                                                sensor_headers[SensorHeader_DMPGyroZ].value);
+            pSystemDesc->pIMU->getDmpQuatf(sensor_headers[SensorHeader_DMPQuat0].value,
+                                           sensor_headers[SensorHeader_DMPQuat1].value,
+                                           sensor_headers[SensorHeader_DMPQuat2].value,
+                                           sensor_headers[SensorHeader_DMPQuat3].value,
+                                           &sensor_headers[SensorHeader_DMPQuatAcc].value);
+            pSystemDesc->pIMU->getDmpMag_uT(sensor_headers[SensorHeader_DMPMagX].value,
+                                            sensor_headers[SensorHeader_DMPMagY].value,
+                                            sensor_headers[SensorHeader_DMPMagZ].value);
+#endif
         }
         if (sensors[TEMP])
         {
-            sensor_headers[9].value = pSystemDesc->pTempSensor->getTemp();
+            sensor_headers[SensorHeader_Temp].value = pSystemDesc->pTempSensor->getTemp();
         }
-        sensor_headers[10].value = NAN;
-        sensor_headers[11].value = NAN;
+        sensor_headers[SensorHeader_WetDryReading].value = NAN;
+        sensor_headers[SensorHeader_WetDryStatus].value = NAN;
         if (sensors[WET_DRY])
         {
             pSystemDesc->pWaterSensor->update();
-            sensor_headers[10].value = pSystemDesc->pWaterSensor->getLastReading();
-            sensor_headers[11].value = pSystemDesc->pWaterSensor->getLastStatus();
+            sensor_headers[SensorHeader_WetDryReading].value =
+                pSystemDesc->pWaterSensor->getLastReading();
+            sensor_headers[SensorHeader_WetDryStatus].value =
+                pSystemDesc->pWaterSensor->getLastStatus();
         }
 
         if (count % 10 == 0)
@@ -544,7 +609,6 @@ static void CLI_doEnsemble(void)
 
     pSystemDesc->pChargerCheck->stop();
     pSystemDesc->pWaterCheck->stop();
-    setupICM();
     pSystemDesc->pRecorder->openSession();
     SYS_dumpSys(2);
     ensemble.init(&ensemble);
@@ -568,4 +632,49 @@ static void CLI_doEnsemble(void)
     SF_OSAL_printf("Packet data:" __NL__);
     hexDump(packet_buffer, nBytes);
     pSystemDesc->pRecorder->popLastPacket(nBytes);
+}
+
+/**
+ * @brief CLI Command to set water sensor window
+ *
+ * @param
+ */
+void CLI_setWaterSensorWindow(void)
+{
+    uint8_t window_length;
+    if (!pSystemDesc->pNvram->get(NVRAM::WATER_DETECT_WINDOW_LEN, window_length))
+    {
+        SF_OSAL_printf("Failed to retrieve window length from NVRAM, defaulting" __NL__);
+        window_length = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
+    }
+    SF_OSAL_printf("Current window length: %hu" __NL__, window_length);
+    SF_OSAL_printf("Enter new window length: ");
+    if (SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN) == 0)
+    {
+        // empty, no change
+        return;
+    }
+    // non-empty, interpret input.  Auto-detect base
+    const long input = strtol(input_buffer, NULL, 0);
+    if (errno == ERANGE)
+    {
+        SF_OSAL_printf("Unable to interpret input" __NL__);
+        return;
+    }
+    if (input > UINT8_MAX || input > WATER_DETECT_ARRAY_SIZE)
+    {
+        SF_OSAL_printf("Requested window length exceeds %u" __NL__,
+                       UINT8_MAX < WATER_DETECT_ARRAY_SIZE ? UINT8_MAX : WATER_DETECT_ARRAY_SIZE);
+    }
+    if (input < 1)
+    {
+        SF_OSAL_printf("Negative or zero window values not supported!" __NL__);
+    }
+    window_length = (uint8_t)input;
+    if (!pSystemDesc->pNvram->put(NVRAM::WATER_DETECT_WINDOW_LEN, window_length))
+    {
+        SF_OSAL_printf("Failed to write value!" __NL__);
+    }
+    pSystemDesc->pWaterSensor->setWindowSize(window_length);
+    pSystemDesc->pWaterSensor->resetArray();
 }

@@ -122,7 +122,7 @@ void FileCLI::list_dir(void)
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 }
 
-FileCLI::menu_t* FileCLI::findCommand(const char* const cmd)
+FileCLI::menu_t *FileCLI::findCommand(const char *const cmd)
 {
     menu_t* pMenu;
 
@@ -140,7 +140,7 @@ void FileCLI::exit(void)
     this->run = 0;
 }
 
-const char* FileCLI::buildPath(bool is_dir)
+const char *FileCLI::buildPath(bool is_dir) const
 {
     size_t path_buffer_idx = 0;
     int dir_idx = 0;
@@ -397,8 +397,8 @@ void base85dump(int fp, size_t file_len)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     size_t file_idx = 0, bytes_read;
-    uint8_t byte_buffer[SF_PACKET_SIZE];
-    char encoded_buffer[SF_RECORD_SIZE];
+    uint8_t *byte_buffer = new uint8_t[SF_PACKET_SIZE];
+    char *encoded_buffer = new char[SF_RECORD_SIZE + 1];
     size_t totalEncodedLen = 0;
     size_t n_packets = 0;
     size_t encodedLen = 0;
@@ -421,6 +421,8 @@ void base85dump(int fp, size_t file_len)
 
     SF_OSAL_printf(__NL__ "%d chars of encoded data" __NL__, totalEncodedLen);
     SF_OSAL_printf("%d packets" __NL__, n_packets);
+    delete[] encoded_buffer;
+    delete[] byte_buffer;
 #endif
 }
 
@@ -466,6 +468,7 @@ void FileCLI::dumpBase85(void)
     if (-1 == fp)
     {
         SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
+        this->current_dir--;
         return;
     }
 
@@ -473,6 +476,7 @@ void FileCLI::dumpBase85(void)
     {
         SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
         close(fp);
+        this->current_dir--;
         return;
     }
 
@@ -480,6 +484,7 @@ void FileCLI::dumpBase85(void)
     base85dump(fp, fstats.st_size);
 
     close(fp);
+    this->current_dir--;
 #endif
 }
 
