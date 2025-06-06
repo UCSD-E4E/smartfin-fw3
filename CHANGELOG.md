@@ -1,3 +1,11 @@
+## [3.14.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.14.1...v3.14.2) (2025-06-06)
+
+
+### Bug Fixes
+
+* Delays water sensor initialization to setup ([15a0aa8](https://github.com/UCSD-E4E/smartfin-fw3/commit/15a0aa8bfd9a89e67bcdf70c12aeffc59bda50c4))
+* Delays water sensor initialization to setup ([#244](https://github.com/UCSD-E4E/smartfin-fw3/issues/244)) ([edd1fb2](https://github.com/UCSD-E4E/smartfin-fw3/commit/edd1fb2e3b54efe60d99d1f98e6b445be1bc3464))
+
 ## [3.14.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.14.0...v3.14.1) (2025-06-05)
 
 
