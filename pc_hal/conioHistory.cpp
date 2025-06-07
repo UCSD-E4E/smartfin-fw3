@@ -237,6 +237,7 @@ char *conioHistory::retrieve_display_line(const std::size_t line_idx)
     for (std::size_t i = 0; i < relevant_lens.size(); i++)
     {
         memcpy(line + pos, mapped_memory + relevant_offsets[i], relevant_lens[i]);
+        pos += relevant_lens[i];
     }
     line[len - 1] = 0;
     return line;
