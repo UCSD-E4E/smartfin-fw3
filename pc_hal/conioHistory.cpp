@@ -142,7 +142,7 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
         {
             int fs = 0;
             // Check if fragmented display line exists for frag_seq num
-            std::size_t possible_frag = bottom_idx - 1;
+            std::int64_t possible_frag = bottom_idx - 1;
             if (possible_frag >= 0 && lines[possible_frag].more_frag)
             {
                 fs = lines[possible_frag].frag_seq + 1;
