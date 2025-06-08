@@ -49,16 +49,16 @@ class conioHistory
          * @brief Initialize memory mapped file for IO
          *
          */
-        void init_file_mapping(void);
+        int init_file_mapping(void);
 
         /**
          * @brief Resize the file
          *
          */
-        void resize_file(void);
+        int resize_file(void);
 
         /**
-         * @brief Deinitializes the memory mapped file
+         * @brief Deinitializes the memory mapped file and deactivates history logging
          *
          */
         void deinit_file_mapping(void);
@@ -144,6 +144,13 @@ class conioHistory
          */
         void set_cur_bottom_display(std::size_t _cur_bottom_display);
 
+        /**
+         * @brief Get the current status of the history logging
+         * 
+         * @return true if active, false if not
+         */
+        bool is_active() const;
+
     private:
         /**
          * @brief Struct that contains the necessary metadata for a line in the history
@@ -201,8 +208,14 @@ class conioHistory
         } CONIO_hist_line;
 
         /**
+         * @brief Flag to indicate if the history logging is active
+         * @details This is flag is only set to false if there is an error with mapping the file and should have deinit_file_mapping be called to do so.
+         */
+        bool active = true;
+        /**
          * @brief Flag set to display line for CLI window
-         * @details This flag should be set for functions that will put characters/strings into the ncurses CLI window, such as SF_OSAL_getline and SF_OSAL_printf found in conio.cpp
+         * @details This flag should be set for functions that will put characters/strings into the
+         * ncurses CLI window, such as SF_OSAL_getline and SF_OSAL_printf found in conio.cpp
          */
         bool display = false;
 

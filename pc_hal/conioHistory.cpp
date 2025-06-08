@@ -44,7 +44,7 @@ conioHistory::CONIO_history_line_::CONIO_history_line_(std::size_t _offset,
     {
     }
 
-void conioHistory::init_file_mapping(void)
+int conioHistory::init_file_mapping(void)
 {
     const char *env_path = std::getenv("E4E_SF_CONIO_HISTORY");
     env_path = env_path ? env_path : "/code/build/history.log";
@@ -52,7 +52,7 @@ void conioHistory::init_file_mapping(void)
     this->fd = open(env_path, O_RDWR | O_CREAT | O_TRUNC, 0666);
     if (this->fd < 0)
     {
-        exit(1);
+        return -1;
     }
 
     // Set initial file size
@@ -63,10 +63,11 @@ void conioHistory::init_file_mapping(void)
     if (this->mapped_memory == MAP_FAILED)
     {
         close(this->fd);
-        exit(1);
+        return -1;
     }
 
     this->lines.push_back(CONIO_hist_line(0)); // Initialize the first line
+    return 0;
 }
 
 void conioHistory::deinit_file_mapping(void)
@@ -79,9 +80,10 @@ void conioHistory::deinit_file_mapping(void)
     {
         close(this->fd);
     }
+    this->active = false;
 }
 
-void conioHistory::resize_file(void)
+int conioHistory::resize_file(void)
 {
     if (this->file_size >= LINEAR_STEP_RESIZE)
     {
@@ -96,26 +98,31 @@ void conioHistory::resize_file(void)
     if (ftruncate(this->fd, this->file_size) < 0)
     {
         close(this->fd);
-        exit(1);
+        return -1;
     }
 
     // Unmap old memory and remap the file to the new size
     if (munmap(this->mapped_memory, this->file_size / FILE_RESIZE_FACTOR) == -1)
     {
         close(this->fd);
-        exit(1);
+        return -1;
     }
 
     this->mapped_memory = map_memory;
     if (this->mapped_memory == MAP_FAILED)
     {
         close(this->fd);
-        exit(1);
+        return -1;
     }
+    return 0;
 }
 
 void conioHistory::write_line(const char *line, const std::size_t size, bool NL_exists)
 {
+    if (!this->active)
+    {
+        return; // History logging is not active
+    }
     // TEMPORARY: Stop writing to file at max size
     if (this->current_offset + size + 2 >= MAX_FILE_SIZE)
     {
@@ -124,7 +131,11 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
     // Check if there's enough space, else resize
     if (this->current_offset + size + 2 >= this->file_size)
     {
-        this->resize_file();
+        if (this->resize_file() < 0)
+        {
+            deinit_file_mapping();
+            return; // Failed to resize file, deactivate history logging
+        }
     }
 
     // Set or create bottom line depending on display flag
@@ -193,9 +204,9 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
 
 void conioHistory::overwrite_last_line_at(const char *line, const std::size_t size, std::size_t offset, const bool NL_exists)
 {
-    if (offset > this->current_offset)
+    if (offset > this->current_offset || !this->active)
     {
-        return; // Invalid offset
+        return; // Invalid offset or inactive history logging
     }
     // Clear out the file within the interval [offset, this->current_offset)
     for (std::size_t i = offset; i < this->current_offset; i++)
@@ -285,5 +296,10 @@ std::size_t conioHistory::get_cur_bottom_display() const
 void conioHistory::set_cur_bottom_display(std::size_t _cur_bottom_display)
 {
     this->cur_bottom_display = _cur_bottom_display;
+}
+
+bool conioHistory::is_active() const
+{
+    return this->active;
 }
 #endif

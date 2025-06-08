@@ -82,7 +82,7 @@ void *read_loop(void *_)
         if (ch != '\b' && ch != KEY_BACKSPACE && ch != '\n' && ch != '\r' && (ch < ' ' || ch > '\x7F'))
         {
             // Scroll inputs only matter when CLI window is active
-            if (conioHistory.get_display())
+            if (conioHistory.get_display() && conioHistory.is_active())
             {
                 // Check only for UP and DOWN scroll
                 switch (ch)
@@ -265,7 +265,7 @@ extern "C"
 
                 buf_written = false;
                 // Move window back to the bottom first if necessary
-                if (conioHistory.get_cur_bottom_display() != conioHistory.get_bottom_display())
+                if (conioHistory.get_cur_bottom_display() != conioHistory.get_bottom_display() && conioHistory.is_active())
                 {
                     wclear(stdscr);
                     char *line;
@@ -375,7 +375,11 @@ extern "C"
         immedok(stdscr, TRUE);
         keypad(stdscr, TRUE);
 
-        conioHistory.init_file_mapping();
+        if (conioHistory.init_file_mapping() < 0)
+        {
+            printf("Failed to initialize conio history file mapping. Stopping history logging.\n");
+            conioHistory.deinit_file_mapping();
+        }
         getmaxyx(stdscr, wind_h, wind_w);
 
         pthread_create(&read_thread, NULL, read_loop, NULL);
