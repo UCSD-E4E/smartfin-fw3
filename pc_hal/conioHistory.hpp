@@ -87,8 +87,7 @@ class conioHistory
 
         /**
          * @brief Retrives the display line from the given index
-         * @details This function dynamically allocates memory for the line. The user must free it
-         * after usage. A nullptr is returned if the line is empty at the index
+         * @details This function dynamically allocates memory for the line. The user must free it after usage. A nullptr is returned if the line is empty at the index. Due to this return mechanism, the user must explicitly check if history logging is active before calling this function.
          *
          * @param line_idx Index of the line to be retrieved
          * @return char* of the line if successful
