@@ -14,12 +14,12 @@
 #include "product.hpp"
 
 #if SF_PLATFORM == SF_PLATFORM_GLIBC
-#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#define map_memory (char *)mmap(nullptr, this->file_size, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0);
 
 conioHistory::conioHistory() 
 {
@@ -59,7 +59,7 @@ void conioHistory::init_file_mapping(void)
     ftruncate(this->fd, INITIAL_FILE_SIZE);
 
     // Map the file to memory
-    this->mapped_memory = (char *)mmap(nullptr, this->file_size, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0);
+    this->mapped_memory = map_memory;
     if (this->mapped_memory == MAP_FAILED)
     {
         close(this->fd);
@@ -106,7 +106,7 @@ void conioHistory::resize_file(void)
         exit(1);
     }
 
-    this->mapped_memory = (char *)mmap(nullptr, this->file_size, PROT_READ | PROT_WRITE, MAP_SHARED, this->fd, 0);
+    this->mapped_memory = map_memory;
     if (this->mapped_memory == MAP_FAILED)
     {
         close(this->fd);
@@ -124,7 +124,7 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
     // Check if there's enough space, else resize
     if (this->current_offset + size + 2 >= this->file_size)
     {
-        resize_file();
+        this->resize_file();
     }
 
     // Set or create bottom line depending on display flag
@@ -204,7 +204,7 @@ void conioHistory::overwrite_last_line_at(const char *line, const std::size_t si
     }
     this->lines[this->bottom_idx].len -= this->current_offset - offset;
     this->current_offset = offset;
-    write_line(line, size, NL_exists);
+    this->write_line(line, size, NL_exists);
 }
 
 char *conioHistory::retrieve_display_line(const std::size_t line_idx)
@@ -216,7 +216,10 @@ char *conioHistory::retrieve_display_line(const std::size_t line_idx)
     }
     std::size_t true_idx = this->display_starts[line_idx]; // Grab the true index
     if (this->lines[true_idx].len == 0)
+    {
         return nullptr;
+    }
+
     std::vector<std::size_t> relevant_offsets, relevant_lens;
     // Collect any fragments and their relevant metadata
     while (this->lines[true_idx].more_frag)
@@ -230,9 +233,15 @@ char *conioHistory::retrieve_display_line(const std::size_t line_idx)
 
     std::size_t len = 1;
     for (std::size_t i = 0; i < relevant_lens.size(); i++)
+    {
         len += relevant_lens[i];
+    }
 
     char *line = (char *)malloc(len);
+    if (!line)
+    {
+        return nullptr;
+    }
     std::size_t pos = 0;
     for (std::size_t i = 0; i < relevant_lens.size(); i++)
     {
