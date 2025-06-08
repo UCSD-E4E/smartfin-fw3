@@ -15,6 +15,7 @@
 #include "conioHistory.hpp"
 #include <ncurses.h>
 #include <pthread.h>
+#include <cstring>
 #elif SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "Particle.h"
 #include "system.hpp"
@@ -347,16 +348,20 @@ extern "C"
 
         wprintw(stdscr, "%s", formatted);
 
-        std::string full_line = formatted, sub;
-        std::size_t start = 0, end;
-        while ((end = full_line.find('\n', start)) != std::string::npos)
+        const char* start = formatted;
+        const char* newline;
+        while ((newline = strchr(start, '\n')) != NULL) 
         {
-            sub = full_line.substr(start, end - start);
-            conioHistory.write_line(sub.c_str(), sub.size(), true); // Extract line
-            start = end + 1; // Move past '\n'
+            size_t len = newline - start;
+            conioHistory.write_line(start, len, true);
+            start = newline + 1;
         }
-        sub = full_line.substr(start);
-        conioHistory.write_line(sub.c_str(), sub.size(), false);
+
+        // Write remaining portion after last newline (if any)
+        if (*start != '\0') 
+        {
+            conioHistory.write_line(start, strlen(start), false);
+        }
         wrefresh(stdscr);
         conioHistory.set_display(false);
 #endif
