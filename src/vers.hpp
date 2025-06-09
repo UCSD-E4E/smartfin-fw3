@@ -12,8 +12,8 @@
 
 #include <cstdint>
 #define FW_MAJOR_VERSION    3
-#define FW_MINOR_VERSION    14
-#define FW_BUILD_NUM        2
+#define FW_MINOR_VERSION    15
+#define FW_BUILD_NUM        0
 #define FW_BRANCH           ""
 
 #if PRODUCT_VERSION_USE_HEX == 1

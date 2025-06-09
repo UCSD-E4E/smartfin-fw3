@@ -1,3 +1,41 @@
+# [3.15.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.14.2...v3.15.0) (2025-06-09)
+
+
+### Bug Fixes
+
+* Added error handling through error codes for init_file_mapping and resize_file. Added flag for active status of conioHistory module to ensure that program can still run smoothly after an error with file mapping ([b34437f](https://github.com/UCSD-E4E/smartfin-fw3/commit/b34437fe0e554deeb6b9a54cd2a1e7f67fdbca0d))
+* Added file write history implementation to conio.cpp ([238a2f2](https://github.com/UCSD-E4E/smartfin-fw3/commit/238a2f291e212910e35dd77e64052c61319c9497))
+* Added minimal functionality to detect scroll up and down ([6afe85b](https://github.com/UCSD-E4E/smartfin-fw3/commit/6afe85bbacd46a0991031ab0f5fda331997fa151))
+* Change file size increase to linear step of 32MB upon reaching 32MB size ([5d849b4](https://github.com/UCSD-E4E/smartfin-fw3/commit/5d849b4c0b1d761d827b619022ae5f7a91246e13))
+* Changed decimal values to char representation when checking user input ([6ecc2c3](https://github.com/UCSD-E4E/smartfin-fw3/commit/6ecc2c3c74896e2ba71da70c8744f2547bfdb274))
+* Changed format string from C++ string to C string for overwriting with vsnprintf to avoid undefined behavior ([b014908](https://github.com/UCSD-E4E/smartfin-fw3/commit/b014908cf40a728523d7b4c4bbae3e398f832297))
+* Changed SF_OSAL_printf logic to match behavior of Particle implementation ([8c90603](https://github.com/UCSD-E4E/smartfin-fw3/commit/8c90603c722f128dc72179719bf42a602c9b5aa0))
+* Changed size_t to int64_t because possible_frag can be negative ([addc6e0](https://github.com/UCSD-E4E/smartfin-fw3/commit/addc6e01128e2644467410d13f247bf67731b076))
+* Created helper module, conioHistory.cpp, for conio.cpp to save history. ([5dd355f](https://github.com/UCSD-E4E/smartfin-fw3/commit/5dd355fcb9911099cbb3e7ae7e58b7a3af2f88c8))
+* Fixed offset alignment of new Lines and ensured retrieved lines are properly null-terminated and checked if empty ([58af57b](https://github.com/UCSD-E4E/smartfin-fw3/commit/58af57b813a97969294c67ae404f2172f1af42f6))
+* Have conioHistory start off as inactive and become active upon successful init_file_mapping. All error handling deactivates conioHistory ([1778e57](https://github.com/UCSD-E4E/smartfin-fw3/commit/1778e571867d9ae3517d38c6c61503c04756f7c9))
+* Implemented new line logging for conio ([c71e170](https://github.com/UCSD-E4E/smartfin-fw3/commit/c71e170396292f4ad55db0ddf4de9dd1830d7de1))
+* Included guard to only have CLI history apply to pc_build. ([5e6c0bc](https://github.com/UCSD-E4E/smartfin-fw3/commit/5e6c0bc2d9d5cd264a83baf64abe837ef27b72c7))
+* Modified SF_OSAL_getch to consume invalid characters and block until next character. Scroll logic is moved to getch since scroll inputs are considered invalid characters to be returned by getch ([1759b47](https://github.com/UCSD-E4E/smartfin-fw3/commit/1759b4709ebea9e6981cc20e5bc41c933934b2fd))
+* Modified write_line to support both display and non-display lines ([124d145](https://github.com/UCSD-E4E/smartfin-fw3/commit/124d1459dbb1f7a30d2e6c7fbf7e50d3bb26e59b))
+* Moved scroll logic to read loop ([28cf234](https://github.com/UCSD-E4E/smartfin-fw3/commit/28cf2348a5ba73a9cb8359c8d86c7bfc44e20a81))
+* Refactored conioHistory to better reflect history metadata and function like architecture specification ([7a94de5](https://github.com/UCSD-E4E/smartfin-fw3/commit/7a94de5b299f73efb1a9ed39b35db74ee7693a34))
+* Reimplemented retrieve_display_line (formerly retrieve_line) to only retrieve display lines and their fragments. Relevant documentation updated ([eb9e49e](https://github.com/UCSD-E4E/smartfin-fw3/commit/eb9e49ec5af68a6cc32b3bc17fcd4a366280f664))
+* Restructured CONIO_hist_line to begin supporting non-display lines. CPP file reflects new constructor ([d3a9bcc](https://github.com/UCSD-E4E/smartfin-fw3/commit/d3a9bcc7c6e13099365ce1ac8fd70569842ddd05))
+* Restructured getline to separately handle scroll input (important for UX concerning user input during scrolling) and ensured that exceeded size inputs are considered entered as a command ([650ede7](https://github.com/UCSD-E4E/smartfin-fw3/commit/650ede7d2848bf029a837183e6cc7f4f443f139b))
+* Scrolling for CLI pc_build ([#184](https://github.com/UCSD-E4E/smartfin-fw3/issues/184)) ([76e7910](https://github.com/UCSD-E4E/smartfin-fw3/commit/76e7910a3ef08c8b77bbb55a1a31098531a76eb6)), closes [#166](https://github.com/UCSD-E4E/smartfin-fw3/issues/166)
+* SF_OSAL_getch now blocks until there is a new input ([f216d4f](https://github.com/UCSD-E4E/smartfin-fw3/commit/f216d4f356f6939efc25190df5964942218602be))
+* TEMPORARY - log will stop writing after reaching max file size. ([c8920a8](https://github.com/UCSD-E4E/smartfin-fw3/commit/c8920a853bcccc11d437d3485237b9b6c044bbe7))
+* Update the position of the line for fragmented display lines ([0a297f2](https://github.com/UCSD-E4E/smartfin-fw3/commit/0a297f26e159bac43a342d4d3c1c44f0d92b9da8))
+* Updated module to retrieve lines from history and fixed how variables update for tracking history ([8ed00fc](https://github.com/UCSD-E4E/smartfin-fw3/commit/8ed00fc5b568722e12591dee6ea986ca0576108b))
+* User input is updated into history log when scrolling ([6a3e5a3](https://github.com/UCSD-E4E/smartfin-fw3/commit/6a3e5a32219194a247d4d7f7fbea7672d5f46bb5))
+* User input will bring the cli window back to the bottom if in the middle of scrolling ([a40150c](https://github.com/UCSD-E4E/smartfin-fw3/commit/a40150c3fbc4f8f1d3cda0cdfe5cdff01c73dae5))
+
+
+### Features
+
+* Added valgrind into Dockerfile ([c4041be](https://github.com/UCSD-E4E/smartfin-fw3/commit/c4041be2021bd572b4af07ab5330f1968d1aad8a))
+
 ## [3.14.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.14.1...v3.14.2) (2025-06-06)
 
 
