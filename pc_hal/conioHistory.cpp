@@ -52,6 +52,7 @@ int conioHistory::init_file_mapping(void)
     this->fd = open(env_path, O_RDWR | O_CREAT | O_TRUNC, 0666);
     if (this->fd < 0)
     {
+        this->active = false;
         return -1;
     }
 
@@ -63,10 +64,12 @@ int conioHistory::init_file_mapping(void)
     if (this->mapped_memory == MAP_FAILED)
     {
         close(this->fd);
+        this->active = false;
         return -1;
     }
 
     this->lines.push_back(CONIO_hist_line(0)); // Initialize the first line
+    this->active = true;
     return 0;
 }
 
@@ -98,6 +101,7 @@ int conioHistory::resize_file(void)
     if (ftruncate(this->fd, this->file_size) < 0)
     {
         close(this->fd);
+        this->active = false;
         return -1;
     }
 
@@ -105,6 +109,7 @@ int conioHistory::resize_file(void)
     if (munmap(this->mapped_memory, this->file_size / FILE_RESIZE_FACTOR) == -1)
     {
         close(this->fd);
+        this->active = false;
         return -1;
     }
 
@@ -112,6 +117,7 @@ int conioHistory::resize_file(void)
     if (this->mapped_memory == MAP_FAILED)
     {
         close(this->fd);
+        this->active = false;
         return -1;
     }
     return 0;

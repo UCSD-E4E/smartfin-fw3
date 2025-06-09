@@ -208,9 +208,9 @@ class conioHistory
 
         /**
          * @brief Flag to indicate if the history logging is active
-         * @details This is flag is only set to false if there is an error with mapping the file and should have deinit_file_mapping be called to do so.
+         * @details This is flag is only set to false if there is an error with mapping the file.
          */
-        bool active = true;
+        bool active = false;
         /**
          * @brief Flag set to display line for CLI window
          * @details This flag should be set for functions that will put characters/strings into the
