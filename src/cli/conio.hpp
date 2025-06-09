@@ -50,7 +50,7 @@ extern "C"
 
     /**
      * @brief Reads the next character from stdin
-     *
+     * 
      * @return The obtained character on success or EOF on failure.
      */
     int SF_OSAL_getch(void);
