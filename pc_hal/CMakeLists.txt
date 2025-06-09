@@ -19,6 +19,7 @@ include_directories(
 set(SMARTFIN_SOURCE_FILES
     main.cpp
     Particle_dummy.cpp
+    conioHistory.cpp
     ../src/cli/flog.cpp
     ../src/cli/conio.cpp
     ../src/system.cpp
