@@ -338,17 +338,10 @@ extern "C"
         Serial.write(SF_OSAL_printfBuffer);
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
         conioHistory.set_display(true);
-        int size = vsnprintf(nullptr, 0, fmt, vargs);
-        va_end(vargs);
+        nBytes = vsnprintf(SF_OSAL_printfBuffer, SF_OSAL_PRINTF_BUFLEN, fmt, vargs);
+        wprintw(stdscr, "%s", SF_OSAL_printfBuffer);
 
-        va_start(vargs, fmt);
-        char formatted[size + 1];
-        vsnprintf(formatted, size + 1, fmt, vargs);
-        va_end(vargs);
-
-        wprintw(stdscr, "%s", formatted);
-
-        const char* start = formatted;
+        const char* start = SF_OSAL_printfBuffer;
         const char* newline;
         while ((newline = strchr(start, '\n')) != NULL) 
         {
