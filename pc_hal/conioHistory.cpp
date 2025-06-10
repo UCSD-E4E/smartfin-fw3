@@ -132,6 +132,7 @@ void conioHistory::write_line(const char *line, const std::size_t size, bool NL_
     // TEMPORARY: Stop writing to file at max size
     if (this->current_offset + size + 2 >= MAX_FILE_SIZE)
     {
+        this->active = false;
         return;
     }
     // Check if there's enough space, else resize
