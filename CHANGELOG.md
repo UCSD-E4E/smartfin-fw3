@@ -1,3 +1,17 @@
+# [3.17.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.16.0...v3.17.0) (2025-06-11)
+
+
+### Bug Fixes
+
+* Adds platform enum ([c1b4df0](https://github.com/UCSD-E4E/smartfin-fw3/commit/c1b4df0a96600de4ec7ba6468bb8bb59d958952d))
+
+
+### Features
+
+* Adds new flog codes ([b842e03](https://github.com/UCSD-E4E/smartfin-fw3/commit/b842e0385dc4597acc83c297b6941b3b178cec22))
+* Adds state logging ([4a91130](https://github.com/UCSD-E4E/smartfin-fw3/commit/4a91130dc068f689bbb14d4c0395b3392fb7fa5a))
+* Moves initialization to thread ([60ce804](https://github.com/UCSD-E4E/smartfin-fw3/commit/60ce8043a9af054669a1ee1bfa179a4e289d774e))
+
 # [3.16.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.15.0...v3.16.0) (2025-06-11)
 
 
