@@ -1,3 +1,16 @@
+# [3.16.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.15.0...v3.16.0) (2025-06-11)
+
+
+### Bug Fixes
+
+* Adds platform guards ([6121cae](https://github.com/UCSD-E4E/smartfin-fw3/commit/6121cae9af506012dd3a84a08fde7d785a8000ba))
+
+
+### Features
+
+* Quits IMU thread prior to sleep ([72dc5d2](https://github.com/UCSD-E4E/smartfin-fw3/commit/72dc5d2fdfb49c7d712d92f3fc1e355e4ed3e61b))
+* Quits IMU thread prior to sleep ([#248](https://github.com/UCSD-E4E/smartfin-fw3/issues/248)) ([d0d64fb](https://github.com/UCSD-E4E/smartfin-fw3/commit/d0d64fbe552f0b45a969e5a229874317fb4452cd))
+
 # [3.15.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.14.2...v3.15.0) (2025-06-09)
 
 
