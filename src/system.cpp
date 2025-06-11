@@ -98,6 +98,11 @@ void SYS_delayedInitSys(void)
     SYS_initIMU();
 }
 
+void SYS_deinitSys(void)
+{
+    systemDesc.pIMU->end();
+}
+
 /**
  * @brief Initialize file system
  * 
