@@ -99,6 +99,12 @@ private:
      */
     const bool AD0_VAL = 0;
 
+    /**
+     * @brief Stop flag
+     *
+     */
+    volatile bool stop_flag = false;
+
 protected:
     /**
      * @brief Read loop function
@@ -131,6 +137,14 @@ public:
      * @return false
      */
     bool begin(void);
+
+    /**
+     * @brief Stops the IMU threads
+     *
+     * @return true Error occurred
+     * @return false Successfully stopped the IMU
+     */
+    bool end(void);
 
     /**
      * @brief Retrieves the current IMU temperature in deg C

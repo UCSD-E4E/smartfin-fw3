@@ -112,6 +112,13 @@ bool IMU::begin(void)
     return false;
 }
 
+bool IMU::end(void)
+{
+    this->stop_flag = true;
+    _readLoop->join();
+    return false;
+}
+
 void IMU::readLoop(void *args)
 {
     IMU *self = (IMU *)args;
@@ -119,7 +126,7 @@ void IMU::readLoop(void *args)
     ICM_20948_Status_e status;
     bool has_data;
 
-    while (1)
+    while (!self->stop_flag)
     {
         self->_device_mtx->lock();
         WITH_LOCK(Wire)
