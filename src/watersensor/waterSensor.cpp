@@ -1,6 +1,7 @@
 #include "waterSensor.hpp"
 
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
 #include "consts.hpp"
 #include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
 #include "system.hpp"
@@ -109,6 +110,10 @@ uint8_t WaterSensor::takeReading()
 
     else if ((((uint16_t)array_sum * 100) / moving_window_size) < low_detect_percentage)
     {
+        if (last_water_detect == 1)
+        {
+            FLOG_AddError(FLOG_WS_OUT_OF_WATER, 0);
+        }
         // out of the water!
         last_water_detect = 0;
         return last_water_detect;
@@ -116,6 +121,10 @@ uint8_t WaterSensor::takeReading()
 
     else if ((((uint16_t)array_sum * 100) / moving_window_size) > high_detect_percentage)
     {
+        if (last_water_detect == 0)
+        {
+            FLOG_AddError(FLOG_WS_IN_WATER, 0);
+        }
         // in the water!
         last_water_detect = 1;
         return last_water_detect;

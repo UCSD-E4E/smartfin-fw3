@@ -162,10 +162,10 @@ extern "C"
     // Determines if key has been pressed
     int SF_OSAL_kbhit(void)
     {
-        int rv;
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         return Serial.available();
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
+        int rv;
         pthread_mutex_lock(&read_mutex);
         rv = (read_head_idx != read_tail_idx);
         pthread_mutex_unlock(&read_mutex);
