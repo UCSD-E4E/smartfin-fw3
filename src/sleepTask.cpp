@@ -38,7 +38,7 @@ void SleepTask::init(void)
     digitalWrite(WATER_DETECT_EN_PIN, LOW);
 
     // bring down the system safely
-    SYS_deinitSys(); // TODO
+    SYS_deinitSys();
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     switch(behavior)
     {
