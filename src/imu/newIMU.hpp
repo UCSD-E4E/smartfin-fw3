@@ -105,6 +105,22 @@ private:
      */
     volatile bool stop_flag = false;
 
+    /**
+     * @brief Flag for ready
+     *
+     * If set, IMU is running.  Otherwise, if error_flag is set, init failed. If
+     * error_flag not set, IMU still initializing
+     *
+     */
+    volatile bool ready_flag = false;
+    /**
+     * @brief Flag for initialization error
+     *
+     * If set, async initialization failed
+     *
+     */
+    volatile bool error_flag = false;
+
 protected:
     /**
      * @brief Read loop function
