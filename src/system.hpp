@@ -123,6 +123,12 @@ void SYS_initSys(void);
 void SYS_delayedInitSys(void);
 
 /**
+ * @brief Deinitializes system components for sleep
+ *
+ */
+void SYS_deinitSys(void);
+
+/**
  * @brief Displays all system components
  * 
  */
