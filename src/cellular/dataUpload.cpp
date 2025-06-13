@@ -15,6 +15,11 @@
 
 void DataUpload::init(void)
 {
+    status.setColor(SF_DUP_RGB_LED_COLOR);
+    status.setPattern(SF_DUP_CONNECT_RGB_LED_PATTERN);
+    status.setPeriod(SF_DUP_RGB_LED_PERIOD);
+    status.setPriority(SF_DUP_RGB_LED_PRIORITY);
+    status.setActive();
     SF_OSAL_printf("Entering SYSTEM_STATE_DATA_UPLOAD" __NL__);
 
     this->initSuccess = 1;
@@ -82,6 +87,10 @@ STATES_e DataUpload::run(void)
         FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0401);
         return STATE_DEEP_SLEEP;
     }
+
+    status.setPattern(SF_DUP_RGB_LED_PATTERN);
+    status.setPeriod(SF_DUP_RGB_LED_PERIOD / 2);
+    status.setActive();
 
     while ((next_state = can_upload()) == STATE_UPLOAD)
     {
@@ -179,6 +188,7 @@ void DataUpload::exit(void)
     {
         FLOG_AddError(FLOG_CELL_DISCONN_FAIL, 0);
     }
+    status.setActive(false);
 }
 
 // In smartfin-fw2/src/dataUpload::DataUpload::exitState(void), we return based on the water sensor state.  If the system is in the water, we redeploy, otherwise we go to sleep.
