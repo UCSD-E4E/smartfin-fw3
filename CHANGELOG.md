@@ -1,3 +1,10 @@
+## [3.17.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.0...v3.17.1) (2025-06-13)
+
+
+### Bug Fixes
+
+* Uses correct printf fn ([6cd3fc5](https://github.com/UCSD-E4E/smartfin-fw3/commit/6cd3fc5d09979add759a16ed9df3c824b3766667))
+
 # [3.17.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.16.0...v3.17.0) (2025-06-11)
 
 
