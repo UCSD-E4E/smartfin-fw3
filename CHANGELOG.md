@@ -1,3 +1,12 @@
+## [3.17.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.1...v3.17.2) (2025-06-13)
+
+
+### Bug Fixes
+
+* Fixes LED behaviors ([1a69495](https://github.com/UCSD-E4E/smartfin-fw3/commit/1a6949549a0a1fff3dc0009cae25d909e0a2825e))
+* Fixes LED behaviors ([#251](https://github.com/UCSD-E4E/smartfin-fw3/issues/251)) ([abd8693](https://github.com/UCSD-E4E/smartfin-fw3/commit/abd86936e9b1ca4c574999bbd13bf85e46234910))
+* Inhibits upload and enables high data rate ([cdaa1e1](https://github.com/UCSD-E4E/smartfin-fw3/commit/cdaa1e19b1ffd24c00e1cbca1e4534d72720f082))
+
 ## [3.17.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.0...v3.17.1) (2025-06-13)
 
 
