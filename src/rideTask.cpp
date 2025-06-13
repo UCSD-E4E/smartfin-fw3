@@ -97,6 +97,8 @@ STATES_e RideTask::run(void)
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
     this->scheduler.initializeScheduler();
     Ens_setStartTime();
+    FLOG_AddError(FLOG_RIDE_DEPLOY, millis());
+    this->ledStatus.setPattern(LED_PATTERN_FADE);
 
     while (1)
     {

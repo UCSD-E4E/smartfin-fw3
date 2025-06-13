@@ -58,42 +58,6 @@ bool IMU::begin(void)
         return true;
     }
 
-    status = _device.initializeDMP();
-    if (status != ICM_20948_Stat_Ok)
-    {
-        FLOG_AddError(FLOG_ICM_DMP_INIT_FAIL, (status << 8) | 0x0002);
-        _device_mtx->unlock();
-        return true;
-    }
-    success &= (status == ICM_20948_Stat_Ok);
-    // Enable the DMP sensors you want
-    // Configuring DMP to output data at multiple ODRs:
-    // DMP is capable of outputting multiple sensor data at different rates to FIFO.
-    // Setting value can be calculated as follows:
-    // Value = (DMP running rate / ODR ) - 1
-    // E.g. For a 5Hz ODR rate when DMP is running at 55Hz, value = (55/5) - 1 = 10.
-    success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
-    // success &=
-    //     (_device.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
-    success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
-    success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
-    success &= (_device.enableDMPSensor(INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED) ==
-                ICM_20948_Stat_Ok);
-    success &= (_device.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);
-    success &= (_device.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);
-    success &= (_device.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok);
-    success &= (_device.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok);
-    // Reset DMP
-    success &= (_device.resetDMP() == ICM_20948_Stat_Ok);
-
-    // Reset FIFO
-    success &= (_device.resetFIFO() == ICM_20948_Stat_Ok);
-
-    // Enable the FIFO
-    success &= (_device.enableFIFO() == ICM_20948_Stat_Ok);
-
-    // Enable the DMP
-    success &= (_device.enableDMP() == ICM_20948_Stat_Ok);
     _device_mtx->unlock();
 
     if (success == false)
@@ -112,14 +76,77 @@ bool IMU::begin(void)
     return false;
 }
 
+bool IMU::end(void)
+{
+    this->stop_flag = true;
+    _readLoop->join();
+    return false;
+}
+
 void IMU::readLoop(void *args)
 {
     IMU *self = (IMU *)args;
     icm_20948_DMP_data_t dmpData;
     ICM_20948_Status_e status;
     bool has_data;
+    bool success = true;
 
-    while (1)
+    self->_device_mtx->lock();
+    {
+        status = self->_device.initializeDMP();
+        if (status != ICM_20948_Stat_Ok)
+        {
+            FLOG_AddError(FLOG_ICM_DMP_INIT_FAIL, (status << 8) | 0x0002);
+            self->_device_mtx->unlock();
+            self->error_flag = true;
+            return;
+        }
+        success &= (status == ICM_20948_Stat_Ok);
+
+        // Enable the DMP sensors you want
+        // Configuring DMP to output data at multiple ODRs:
+        // DMP is capable of outputting multiple sensor data at different rates to FIFO.
+        // Setting value can be calculated as follows:
+        // Value = (DMP running rate / ODR ) - 1
+        // E.g. For a 5Hz ODR rate when DMP is running at 55Hz, value = (55/5) - 1 = 10.
+        success &=
+            (self->_device.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
+        // success &=
+        //     (_device.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) ==
+        //     ICM_20948_Stat_Ok);
+        success &=
+            (self->_device.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
+        success &=
+            (self->_device.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
+        success &= (self->_device.enableDMPSensor(
+                        INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED) == ICM_20948_Stat_Ok);
+        success &= (self->_device.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);
+        success &= (self->_device.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);
+        success &= (self->_device.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok);
+        success &= (self->_device.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok);
+        // Reset DMP
+        success &= (self->_device.resetDMP() == ICM_20948_Stat_Ok);
+
+        // Reset FIFO
+        success &= (self->_device.resetFIFO() == ICM_20948_Stat_Ok);
+
+        // Enable the FIFO
+        success &= (self->_device.enableFIFO() == ICM_20948_Stat_Ok);
+
+        // Enable the DMP
+        success &= (self->_device.enableDMP() == ICM_20948_Stat_Ok);
+    }
+    self->_device_mtx->unlock();
+
+    if (success == false)
+    {
+        FLOG_AddError(FLOG_ICM_FAIL, (self->_device.status << 8) | 0x0004);
+        self->error_flag = true;
+        return;
+    }
+
+    self->ready_flag = true;
+    while (!self->stop_flag)
     {
         self->_device_mtx->lock();
         WITH_LOCK(Wire)
@@ -220,6 +247,10 @@ void IMU::readLoop(void *args)
 bool IMU::getTemp_C(float &temp)
 {
     bool retval = false;
+    if (this->error_flag)
+    {
+        return true;
+    }
     this->_device_mtx->lock();
     this->_device.getAGMT();
     if (ICM_20948_Stat_Ok != this->_device.status)
@@ -237,6 +268,11 @@ bool IMU::getTemp_C(float &temp)
 bool IMU::getRotVel_dps(float &rot_x, float &rot_y, float &rot_z)
 {
     bool retval = false;
+    if (this->error_flag)
+    {
+        return true;
+    }
+
     this->_device_mtx->lock();
     {
         this->_device.getAGMT();
@@ -258,6 +294,10 @@ bool IMU::getRotVel_dps(float &rot_x, float &rot_y, float &rot_z)
 bool IMU::getAccel_ms2(float &acc_x, float &acc_y, float &acc_z)
 {
     bool fail = false;
+    if (this->error_flag)
+    {
+        return true;
+    }
     this->_device_mtx->lock();
     {
         this->_device.getAGMT();
@@ -279,6 +319,10 @@ bool IMU::getAccel_ms2(float &acc_x, float &acc_y, float &acc_z)
 bool IMU::getMag_uT(float &mag_x, float &mag_y, float &mag_z)
 {
     bool fail = false;
+    if (this->error_flag)
+    {
+        return true;
+    }
     this->_device_mtx->lock();
     {
         this->_device.getAGMT();
@@ -300,6 +344,10 @@ bool IMU::getMag_uT(float &mag_x, float &mag_y, float &mag_z)
 bool IMU::getDmpAccel_ms2(float &acc_x, float &acc_y, float &acc_z)
 {
     bool fail = false;
+    if (this->error_flag)
+    {
+        return true;
+    }
     this->_data_mtx->lock();
     {
         acc_x = this->fifo_data.RawAccel_X / 8.192 / 1e3 * 9.81;
@@ -313,6 +361,10 @@ bool IMU::getDmpAccel_ms2(float &acc_x, float &acc_y, float &acc_z)
 bool IMU::getDmpQuat(double &q0, double &q1, double &q2, double &q3, double *acc)
 {
     bool fail = false;
+    if (this->error_flag)
+    {
+        return true;
+    }
     this->_data_mtx->lock();
     {
         q1 = this->fifo_data.Quat9_1 / Q_SCALE;
@@ -331,6 +383,10 @@ bool IMU::getDmpQuat(double &q0, double &q1, double &q2, double &q3, double *acc
 bool IMU::getDmpQuatf(float &q0, float &q1, float &q2, float &q3, float *acc)
 {
     bool fail = false;
+    if (this->error_flag)
+    {
+        return true;
+    }
     this->_data_mtx->lock();
     {
         q1 = this->fifo_data.Quat9_1 / Q_SCALE;
@@ -349,6 +405,10 @@ bool IMU::getDmpQuatf(float &q0, float &q1, float &q2, float &q3, float *acc)
 bool IMU::getDmpRotVel_dps(float &rot_x, float &rot_y, float &rot_z)
 {
     bool fail = false;
+    if (this->error_flag)
+    {
+        return true;
+    }
     this->_data_mtx->lock();
     {
         rot_x = this->fifo_data.RawGyro_X / 16.4;
@@ -362,6 +422,10 @@ bool IMU::getDmpRotVel_dps(float &rot_x, float &rot_y, float &rot_z)
 bool IMU::getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z)
 {
     bool fail = false;
+    if (this->error_flag)
+    {
+        return true;
+    }
     this->_data_mtx->lock();
     {
         mag_x = this->fifo_data.Compass_X * 0.15;

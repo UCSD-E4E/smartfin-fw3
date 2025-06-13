@@ -179,10 +179,13 @@ typedef enum
     LED_SIGNAL_CLOUD_CONNECTED,
     LED_SIGNAL_CLOUD_HANDSHAKE
 } LEDSignal;
-typedef enum
+typedef enum LEDPattern
 {
-    LED_PATTERN_SOLID,
-    LED_PATTERN_BLINK
+    LED_PATTERN_INVALID = 0,
+    LED_PATTERN_SOLID = 1,
+    LED_PATTERN_BLINK = 2,
+    LED_PATTERN_FADE = 3,
+    LED_PATTERN_CUSTOM = 15 // Should be last element in this enum
 } LEDPattern;
 typedef enum
 {

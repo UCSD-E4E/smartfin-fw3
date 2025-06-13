@@ -1,12 +1,11 @@
 #include "sleepTask.hpp"
 
 #include "Particle.h"
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
+#include "consts.hpp"
 #include "product.hpp"
 #include "system.hpp"
-#include "cli/conio.hpp"
-
-
-#include "consts.hpp"
 
 void SleepTask::init(void)
 {
@@ -38,7 +37,8 @@ void SleepTask::init(void)
     digitalWrite(WATER_DETECT_EN_PIN, LOW);
 
     // bring down the system safely
-    // SYS_deinitSys(); TODO
+    SYS_deinitSys();
+    FLOG_AddError(FLOG_SYS_SLEEP, millis());
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     switch(behavior)
     {

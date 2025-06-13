@@ -1,3 +1,30 @@
+# [3.17.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.16.0...v3.17.0) (2025-06-11)
+
+
+### Bug Fixes
+
+* Adds platform enum ([c1b4df0](https://github.com/UCSD-E4E/smartfin-fw3/commit/c1b4df0a96600de4ec7ba6468bb8bb59d958952d))
+
+
+### Features
+
+* Adds new flog codes ([b842e03](https://github.com/UCSD-E4E/smartfin-fw3/commit/b842e0385dc4597acc83c297b6941b3b178cec22))
+* Adds state logging ([4a91130](https://github.com/UCSD-E4E/smartfin-fw3/commit/4a91130dc068f689bbb14d4c0395b3392fb7fa5a))
+* Moves initialization to thread ([60ce804](https://github.com/UCSD-E4E/smartfin-fw3/commit/60ce8043a9af054669a1ee1bfa179a4e289d774e))
+
+# [3.16.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.15.0...v3.16.0) (2025-06-11)
+
+
+### Bug Fixes
+
+* Adds platform guards ([6121cae](https://github.com/UCSD-E4E/smartfin-fw3/commit/6121cae9af506012dd3a84a08fde7d785a8000ba))
+
+
+### Features
+
+* Quits IMU thread prior to sleep ([72dc5d2](https://github.com/UCSD-E4E/smartfin-fw3/commit/72dc5d2fdfb49c7d712d92f3fc1e355e4ed3e61b))
+* Quits IMU thread prior to sleep ([#248](https://github.com/UCSD-E4E/smartfin-fw3/issues/248)) ([d0d64fb](https://github.com/UCSD-E4E/smartfin-fw3/commit/d0d64fbe552f0b45a969e5a229874317fb4452cd))
+
 # [3.15.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.14.2...v3.15.0) (2025-06-09)
 
 

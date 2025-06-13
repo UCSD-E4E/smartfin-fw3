@@ -55,6 +55,7 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_CHARGER_REMOVED, "Charger removed"},
     {FLOG_RESET_REASON_DATA, "Reset Reason Data"},
     {FLOG_SYS_STARTSTATE_JUSTIFICATION, "Starting state justification"},
+    {FLOG_SYS_SLEEP, "System going to sleep"},
 
     {FLOG_CAL_BURST, "Calibrate Burst"},
     {FLOG_CAL_INIT, "Calibrate Initialization"},
@@ -78,6 +79,7 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_RIDE_INIT_TIMEOUT, "Ride init Timeout"},
     {FLOG_SCHEDULER_FAILED, "Scheduler failed"},
     {FLOG_SCHEDULER_DELAY_EXCEEDED, "Ensemble skipped"},
+    {FLOG_RIDE_DEPLOY, "Deploying"},
 
     {FLOG_UPLOAD_NO_UPLOAD, "Upload - No Upload Flag set"},
     {FLOG_UPL_BATT_LOW, "Upload Battery low"},
@@ -119,6 +121,9 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_CELL_DISCONN_FAIL, "Cellular failed to disconnect"},
     {FLOG_CELL_CONNECT_FAIL_ATTEMPT_EXCEEDED, "Cellular connect attempts exceeded"},
     {FLOG_CELL_CONNECT_FAIL_TIMEOUT, "Cellular connect timeout"},
+
+    {FLOG_WS_OUT_OF_WATER, "Out of water"},
+    {FLOG_WS_IN_WATER, "In Water"},
 
     {FLOG_SW_NULLPTR, "Software Null Pointer"},
     {FLOG_DEBUG, "debug point"},

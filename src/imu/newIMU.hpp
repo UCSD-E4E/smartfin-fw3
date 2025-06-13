@@ -99,6 +99,28 @@ private:
      */
     const bool AD0_VAL = 0;
 
+    /**
+     * @brief Stop flag
+     *
+     */
+    volatile bool stop_flag = false;
+
+    /**
+     * @brief Flag for ready
+     *
+     * If set, IMU is running.  Otherwise, if error_flag is set, init failed. If
+     * error_flag not set, IMU still initializing
+     *
+     */
+    volatile bool ready_flag = false;
+    /**
+     * @brief Flag for initialization error
+     *
+     * If set, async initialization failed
+     *
+     */
+    volatile bool error_flag = false;
+
 protected:
     /**
      * @brief Read loop function
@@ -131,6 +153,14 @@ public:
      * @return false
      */
     bool begin(void);
+
+    /**
+     * @brief Stops the IMU threads
+     *
+     * @return true Error occurred
+     * @return false Successfully stopped the IMU
+     */
+    bool end(void);
 
     /**
      * @brief Retrieves the current IMU temperature in deg C
