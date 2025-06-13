@@ -31,14 +31,10 @@ base85          | 9c52d27 | MIT     | https://github.com/rafagafe/base85 | src/c
 | Charge             | Yellow | Solid    |
 | Sleep              | Black  | Solid    |
 | CLI                | Red    | Solid    |
-| Network Off        | Black  | Solid    |
-| Network On         | Blue   | Solid    |
-| Network Connecting | Blue   | Solid    |
-| Network DHCP       | Blue   | Solid    |
-| Cloud Connecting   | Blue   | Solid    |
-| Cloud Connected    | Blue   | Blink    |
-| Cloud Handshake    | Blue   | Blink    |
-
+| Deploying          | White  | Blink    |
+| Deployed           | White  | Fade     |
+| Connecting         | Blue   | Fade     |
+| Uploading          | Blue   | Blink    |
 
 ## Battery LED
 | Condition                                    | Battery LED State |
