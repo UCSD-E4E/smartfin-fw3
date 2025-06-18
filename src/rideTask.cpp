@@ -178,11 +178,15 @@ void RideTask::exit(void)
     SF_OSAL_printf("Closing session" __NL__);
     pSystemDesc->pRecorder->closeSession();
     pSystemDesc->pChargerCheck->start();
+    SF_OSAL_printf("| Task             | Avg. Duration (us) | Count        |" __NL__);
     for (DeploymentSchedule_t *pEvent = deploymentSchedule; pEvent->measure; pEvent++)
     {
-        SF_OSAL_printf("%s Average duration: %d us" __NL__,
+        std::uint32_t avg_duration =
+            pEvent->state.durationAccumulate / pEvent->state.measurementCount;
+        SF_OSAL_printf("| %16s | %18" PRIu32 " | %12" PRIu32 " |" __NL__,
                        pEvent->taskName,
-                       pEvent->state.durationAccumulate / pEvent->state.measurementCount);
+                       avg_duration,
+                       pEvent->state.measurementCount);
     }
     // Deinitialize sensors
     // pSystemDesc->pTempSensor->stop();
