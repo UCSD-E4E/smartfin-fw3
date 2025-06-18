@@ -110,6 +110,11 @@ void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment)
 
         // Commit ensemble
         pSystemDesc->pRecorder->putBytes(&ensData, sizeof(ensData));
+
+        // Reset data
+        pData->temperature = 0;
+        pData->water = 0;
+        pData->accumulateCount = 0;
     }
 }
 
