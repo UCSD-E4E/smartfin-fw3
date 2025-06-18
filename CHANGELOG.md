@@ -1,3 +1,11 @@
+## [3.17.3](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.2...v3.17.3) (2025-06-18)
+
+
+### Bug Fixes
+
+* Adds summary display ([55d77cc](https://github.com/UCSD-E4E/smartfin-fw3/commit/55d77cc3e5117e104d80ba3eb412af811cbb886a))
+* Fixes accumulate reset ([86ea71d](https://github.com/UCSD-E4E/smartfin-fw3/commit/86ea71d3885c81588e8ac36aad8d0e56f4a43f05))
+
 ## [3.17.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.1...v3.17.2) (2025-06-13)
 
 
