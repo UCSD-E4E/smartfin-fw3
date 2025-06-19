@@ -34,15 +34,6 @@ DeploymentSchedule_t deploymentSchedule[] = {
     {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
 // clang-format on
 
-/**
- * @brief creates file name for log
- * @todo implement RIDE_setFileName
- * @param startTime
- */
-static void RIDE_setFileName(system_tick_t startTime)
-{
-    return;
-}
 RideTask::RideTask() : scheduler(deploymentSchedule)
 {
 }
@@ -62,6 +53,7 @@ void RideTask::init()
     this->ledStatus.setActive();
 
     this->startTime = millis();
+    this->sessionTimeSet = false;
 
     if (!pSystemDesc->pRecorder->openSession())
     {
@@ -74,7 +66,6 @@ void RideTask::init()
  */
 STATES_e RideTask::run(void)
 {
-
     DeploymentSchedule_t *pNextEvent = NULL;
     system_tick_t nextEventTime;
 
@@ -94,17 +85,28 @@ STATES_e RideTask::run(void)
         Particle.process();
         delay(1000);
     }
-    SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, millis());
+    this->deployTime = millis();
+    SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, this->deployTime);
     this->scheduler.initializeScheduler();
     Ens_setStartTime();
-    FLOG_AddError(FLOG_RIDE_DEPLOY, millis());
+    if (Time.isValid())
+    {
+        pSystemDesc->pRecorder->setSessionTime(Time.now());
+        this->sessionTimeSet = true;
+    }
+    FLOG_AddError(FLOG_RIDE_DEPLOY, this->deployTime);
     this->ledStatus.setPattern(LED_PATTERN_FADE);
 
     while (1)
     {
-
-        RIDE_setFileName(this->startTime);
-
+        if (!this->sessionTimeSet)
+        {
+            if (Time.isValid())
+            {
+                pSystemDesc->pRecorder->setSessionTime(Time.now() -
+                                                       (millis() - this->deployTime) / 1000);
+            }
+        }
         SCH_error_e retval =
             this->scheduler.getNextTask(&pNextEvent, (std::uint32_t *)&nextEventTime, millis());
         // Check if scheduler failed to find nextEvent
