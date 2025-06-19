@@ -1,3 +1,13 @@
+## [3.17.4](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.3...v3.17.4) (2025-06-19)
+
+
+### Bug Fixes
+
+* Adds isValid ([bceca15](https://github.com/UCSD-E4E/smartfin-fw3/commit/bceca15451dfe06a25098fb985c41a1fbf2d4c7d))
+* Adds upload count to flog ([6d203f3](https://github.com/UCSD-E4E/smartfin-fw3/commit/6d203f3c55fff60fd1e70abc575d6feb961d7f7e))
+* Disables timers on deinit ([957a47d](https://github.com/UCSD-E4E/smartfin-fw3/commit/957a47ddfce834d28dd34b2f158ea8af6508495f))
+* Sets session time based on RTC ([e30b757](https://github.com/UCSD-E4E/smartfin-fw3/commit/e30b75744dcec6499d8180b50f8ad1adfc151cd5))
+
 ## [3.17.3](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.2...v3.17.3) (2025-06-18)
 
 
