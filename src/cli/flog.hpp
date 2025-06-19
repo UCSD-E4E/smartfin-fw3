@@ -60,6 +60,7 @@ extern "C"
         FLOG_UPL_CONNECT_FAIL = 0x0504,
         FLOG_UPL_OPEN_FAIL = 0x0505,
         FLOG_UPL_PUB_FAIL = 0x0506,
+        FLOG_UPL_COUNT = 0x0507,
 
         FLOG_GPS_INIT_FAIL = 0x0601,
         FLOG_GPS_START_FAIL = 0x0602,

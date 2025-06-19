@@ -87,6 +87,7 @@ const FLOG_Message_t FLOG_Message[] = {
     {FLOG_UPL_CONNECT_FAIL, "Upload connect fail"},
     {FLOG_UPL_OPEN_FAIL, "Upload open last session fail"},
     {FLOG_UPL_PUB_FAIL, "Upload Publish fail"},
+    {FLOG_UPL_COUNT, "Uploaded record count"},
 
     {FLOG_GPS_INIT_FAIL, "GPS Init Fail"},
     {FLOG_GPS_START_FAIL, "GPS Start Fail"},
