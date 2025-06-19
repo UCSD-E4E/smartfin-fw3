@@ -359,6 +359,10 @@ public:
     {
         return String("");
     }
+    bool isValid()
+    {
+        return true;
+    }
 };
 #define Time __fetch_global_time()
 TimeClass &__fetch_global_time();
