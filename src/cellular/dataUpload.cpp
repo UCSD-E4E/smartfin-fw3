@@ -80,6 +80,7 @@ STATES_e DataUpload::run(void)
     size_t nBytesToSend;
     STATES_e next_state;
     int retval;
+    size_t recordsUploaded = 0;
 
     if (!this->initSuccess)
     {
@@ -138,22 +139,26 @@ STATES_e DataUpload::run(void)
         SF_OSAL_printf("Got %u bytes to upload" __NL__, nBytesToSend);
 
         SF_OSAL_printf("Data: %s" __NL__, ascii_record_buffer);
-
-        switch ((retval = sf::cloud::publish_blob(publishName, ascii_record_buffer)))
+        retval = sf::cloud::publish_blob(publishName, ascii_record_buffer);
+        recordsUploaded++;
+        switch (retval)
         {
         default:
         case sf::cloud::OVERSIZE_DATA:
         case sf::cloud::OVERSIZE_NAME:
             SF_OSAL_printf("Failed to publish: %d" __NL__, retval);
             FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0405);
+            FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
             return STATE_CLI;
         case sf::cloud::NOT_CONNECTED:
             FLOG_AddError(FLOG_UPL_CONNECT_FAIL, 1);
             FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0406);
+            FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
             return STATE_DEEP_SLEEP;
         case sf::cloud::PUBLISH_FAIL:
             FLOG_AddError(FLOG_UPL_PUB_FAIL, 0);
             FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0407);
+            FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
             return STATE_DEEP_SLEEP;
         case sf::cloud::SUCCESS:
             break;
@@ -170,12 +175,14 @@ STATES_e DataUpload::run(void)
             // This is a bug
             SF_OSAL_printf("Session failure" __NL__);
             FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0408);
+            FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
             return STATE_CLI;
         case 0:
             break;
         }
     }
     FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0409);
+    FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
     return next_state;
 #else
     return STATE_DEEP_SLEEP;

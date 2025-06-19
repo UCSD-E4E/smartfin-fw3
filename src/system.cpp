@@ -102,6 +102,8 @@ void SYS_deinitSys(void)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     systemDesc.pIMU->end();
+    systemDesc.pChargerCheck->stop(1000);
+    systemDesc.pWaterCheck->stop(1000);
 #endif
 }
 

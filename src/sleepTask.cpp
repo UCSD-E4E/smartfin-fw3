@@ -33,12 +33,14 @@ void SleepTask::init(void)
     pSystemDesc->pNvram->put(NVRAM::BOOT_BEHAVIOR, behavior);
     pSystemDesc->pNvram->put(NVRAM::NVRAM_VALID, true);
 
+    // bring down the system safely
+    SYS_deinitSys();
+
     // Set WATER_EN LOW so that we can wake from it
     digitalWrite(WATER_DETECT_EN_PIN, LOW);
 
-    // bring down the system safely
-    SYS_deinitSys();
     FLOG_AddError(FLOG_SYS_SLEEP, millis());
+    FLOG_AddError(FLOG_SYS_SLEEP, behavior);
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     switch(behavior)
     {
