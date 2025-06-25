@@ -17,12 +17,15 @@
 #include "consts.hpp"
 #include "fileCLI/fileCLI.hpp"
 #include "imu/newIMU.hpp"
+#include "mfgTest/mfgTest.hpp"
 #include "product.hpp"
 #include "states.hpp"
 #include "system.hpp"
 
 #include <dirent.h>
 #include <fcntl.h>
+
+static MfgTest mfgTask;
 
 void CLI_restart(void)
 {
@@ -158,7 +161,7 @@ void CLI_monitorTempSensor(void)
 
 void CLI_doMfgTest(void)
 {
-    CLI_nextState = STATE_MFG_TEST;
+    mfgTask.run();
 }
   
 

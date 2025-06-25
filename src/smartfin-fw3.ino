@@ -12,7 +12,6 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
-#include "mfgTest/mfgTest.hpp"
 #include "product.hpp"
 #include "rideTask.hpp"
 #include "sleepTask.hpp"
@@ -44,7 +43,6 @@ static CLI cliTask;
 static ChargeTask chargeTask;
 static SleepTask sleepTask;
 static DataUpload uploadTask;
-static MfgTest mfgTask;
 static RideTask rideTask;
 
 // Holds the list of states and coresponding tasks
@@ -52,7 +50,6 @@ static StateMachine_t stateMachine[] = {{STATE_CLI, &cliTask},
                                         {STATE_DEEP_SLEEP, &sleepTask},
                                         {STATE_CHARGE, &chargeTask},
                                         {STATE_UPLOAD, &uploadTask},
-                                        {STATE_MFG_TEST, &mfgTask},
                                         {STATE_DEPLOYED, &rideTask},
                                         {STATE_NULL, NULL}};
 

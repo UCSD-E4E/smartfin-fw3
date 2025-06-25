@@ -209,6 +209,11 @@
  */
 #define MANUFACTURING_CELL_TIMEOUT_MS 180000
 
+#define MFG_TEST_ACCEL_MIN 0.8
+#define MFG_TEST_ACCEL_MAX 1.2
+
+#define MFG_TEST_GYRO_MIN 
+
 /**
  * @brief A voltage that's slightly higher than the max battery voltage
  * 
