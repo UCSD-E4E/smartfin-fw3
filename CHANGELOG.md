@@ -1,3 +1,11 @@
+# [3.18.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.4...v3.18.0) (2025-06-25)
+
+
+### Features
+
+* Implements the manufacturing test ([f616103](https://github.com/UCSD-E4E/smartfin-fw3/commit/f616103664d3a6514222f2ee69a98fe6bfb5ff22))
+* Implements the manufacturing test ([#254](https://github.com/UCSD-E4E/smartfin-fw3/issues/254)) ([5e80666](https://github.com/UCSD-E4E/smartfin-fw3/commit/5e806669fa5dbd3abf94ac6fbb42a5d13a7a6dad))
+
 ## [3.17.4](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.3...v3.17.4) (2025-06-19)
 
 
