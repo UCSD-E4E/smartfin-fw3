@@ -1,3 +1,15 @@
+# [3.19.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.18.0...v3.19.0) (2025-06-26)
+
+
+### Bug Fixes
+
+* Inlines build date/time ([19bfc35](https://github.com/UCSD-E4E/smartfin-fw3/commit/19bfc354da0f2b95cb634cb4a860bca4065cc7dd))
+
+
+### Features
+
+* Adds GPS to monitor sensors ([5af686b](https://github.com/UCSD-E4E/smartfin-fw3/commit/5af686bf7aa0993136968b32b5957bdd1a8a950d))
+
 # [3.18.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.17.4...v3.18.0) (2025-06-25)
 
 
