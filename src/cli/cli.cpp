@@ -282,6 +282,11 @@ enum SensorHeader
     SensorHeader_DMPMagX,
     SensorHeader_DMPMagY,
     SensorHeader_DMPMagZ,
+    SensorHeader_GpsLock,
+    SensorHeader_GpsNSats,
+    SensorHeader_GpsLat,
+    SensorHeader_GpsLon,
+    SensorHeader_GpsAlt,
 
     SensorHeader_NUMHEADERS
 };
@@ -348,6 +353,11 @@ CLI_MON_SENSOR_data_t sensor_headers[SensorHeader_NUMHEADERS + 1] = {
     {SensorHeader_DMPMagX, "dmx", false, NAN},         // 24
     {SensorHeader_DMPMagY, "dmy", false, NAN},         // 25
     {SensorHeader_DMPMagZ, "dmz", false, NAN},         // 26
+    {SensorHeader_GpsLock, "lock", false, NAN},        // 27
+    {SensorHeader_GpsNSats, "nSats", false, NAN},      // 28
+    {SensorHeader_GpsLat, "lat", false, NAN},          // 29
+    {SensorHeader_GpsLon, "lon", false, NAN},          // 30
+    {SensorHeader_GpsAlt, "alt", false, NAN},          // 31
     {SensorHeader_NUMHEADERS, NULL, false, NAN}};
 
 /**
@@ -374,21 +384,25 @@ static void CLI_monitorSensors(void)
         TEMP,
         WET_DRY,
         DMP,
+        GPS,
         NUM_SENSORS
     } Sensor;
     bool sensors[NUM_SENSORS] = {false};
+
+    LocationPoint point;
 
     SF_OSAL_printf("Enter delay time (ms): ");
     SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN);
     int delayTime = atoi(input_buffer);
     SF_OSAL_printf("Delay set to %d ms" __NL__, delayTime);
     SF_OSAL_printf("a - acceleraction, g - gyroscope, m - magnetometer, t - temp, w - wet/dry, d - "
-                   "dmp" __NL__);
+                   "dmp, G - GPS" __NL__);
     sensors[TIME] = true;
     bool valid = false;
     while (ch != 'x')
     {
-        SF_OSAL_printf("Enter which sensors you want to look at (a, g, m, t, w, d), x to quit: ");
+        SF_OSAL_printf(
+            "Enter which sensors you want to look at (a, g, m, t, w, d, G), x to quit: ");
         ch = SF_OSAL_getch();
         SF_OSAL_printf("%c", ch);
         SF_OSAL_printf(__NL__);
@@ -416,6 +430,10 @@ static void CLI_monitorSensors(void)
             break;
         case 'd':
             sensors[DMP] = true;
+            valid = true;
+            break;
+        case 'G':
+            sensors[GPS] = true;
             valid = true;
             break;
         case 'x':
@@ -490,6 +508,15 @@ static void CLI_monitorSensors(void)
         sensor_headers[SensorHeader_DMPMagY].active = true;
         sensor_headers[SensorHeader_DMPMagZ].active = true;
     }
+    if (sensors[GPS])
+    {
+        // gps
+        sensor_headers[SensorHeader_GpsLock].active = true;
+        sensor_headers[SensorHeader_GpsNSats].active = true;
+        sensor_headers[SensorHeader_GpsLat].active = true;
+        sensor_headers[SensorHeader_GpsLon].active = true;
+        sensor_headers[SensorHeader_GpsAlt].active = true;
+    }
     int count = 0;
 
     while (1)
@@ -560,6 +587,15 @@ static void CLI_monitorSensors(void)
                 pSystemDesc->pWaterSensor->getLastReading();
             sensor_headers[SensorHeader_WetDryStatus].value =
                 pSystemDesc->pWaterSensor->getLastStatus();
+        }
+        if (sensors[GPS])
+        {
+            pSystemDesc->pLocService->getLocation(point);
+            sensor_headers[SensorHeader_GpsLock].value = point.locked;
+            sensor_headers[SensorHeader_GpsNSats].value = point.satsInUse;
+            sensor_headers[SensorHeader_GpsLat].value = point.latitude;
+            sensor_headers[SensorHeader_GpsLon].value = point.longitude;
+            sensor_headers[SensorHeader_GpsAlt].value = point.altitude;
         }
 
         if (count % 10 == 0)
