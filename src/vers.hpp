@@ -23,6 +23,6 @@
 #endif
 
 void VERS_printBanner(void);
-const char* VERS_getBuildDate(void);
-const char* VERS_getBuildTime(void);
+inline const char *VERS_getBuildDate(void);
+inline const char *VERS_getBuildTime(void);
 #endif
