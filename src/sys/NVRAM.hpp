@@ -20,6 +20,10 @@ class NVRAM
             NO_UPLOAD_FLAG,
             CLOUD_CONNECT_COUNTER,
             WATER_DETECT_WINDOW_LEN,
+            TMP_CAL_BURST_COUNT,
+            TMP_CAL_MEAS_COUNT,
+            TMP_CAL_BURST_PERIOD,
+            TMP_CAL_MEAS_PERIOD,
             NUM_DATA_IDs
         } DATA_ID_e;
 
@@ -43,7 +47,10 @@ class NVRAM
             {NO_UPLOAD_FLAG, 0x0015, sizeof(uint8_t)},
             {CLOUD_CONNECT_COUNTER, 0x0016, sizeof(uint16_t)},
             {WATER_DETECT_WINDOW_LEN, 0x0018, sizeof(uint8_t)},
-        };
+            {TMP_CAL_BURST_COUNT, 0x0019, sizeof(uint32_t)},
+            {TMP_CAL_MEAS_COUNT, 0x001D, sizeof(uint32_t)},
+            {TMP_CAL_BURST_PERIOD, 0x0021, sizeof(uint32_t)},
+            {TMP_CAL_MEAS_PERIOD, 0x0025, sizeof(uint32_t)}};
         static NVRAM &getInstance(void);
 
         /**
@@ -108,8 +115,9 @@ class NVRAM
 
 
     void displayNVRAM(void);
+    void resetDefault(void);
 
-    private:
+private:
     const nvramTableEntry_t* getTableEntry(DATA_ID_e);
     NVRAM(){}
     NVRAM(NVRAM const&);
