@@ -53,6 +53,7 @@ set(SMARTFIN_SOURCE_FILES
     ../src/deploy/scheduler.cpp
     ../src/deploy/ensembles.cpp
     ../src/deploy/ensembleTypes.cpp
+    ../src/temperature/tempCal.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
 target_link_libraries(smartfin_pc

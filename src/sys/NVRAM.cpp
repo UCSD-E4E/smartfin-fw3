@@ -10,13 +10,12 @@
  */
 #include "NVRAM.hpp"
 
-
+#include "Particle.h"
 #include "cli/conio.hpp"
 #include "consts.hpp"
 
+#include <cinttypes>
 #include <cstddef>
-
-#include "Particle.h"
 
 NVRAM& NVRAM::getInstance(void)
 {

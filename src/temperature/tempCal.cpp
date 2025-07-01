@@ -94,10 +94,14 @@ void TempCalTask::sleep_until(system_tick_t timestamp)
     }
     else
     {
-        SystemSleepConfiguration config;
         this->ledStatus.setActive(false);
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+        SystemSleepConfiguration config;
         config.mode(SystemSleepMode::STOP).duration(ms_to_sleep);
         System.sleep(config);
+#else
+        delay(ms_to_sleep);
+#endif
         this->ledStatus.setActive(true);
     }
 }
