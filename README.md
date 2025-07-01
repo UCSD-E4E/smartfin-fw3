@@ -35,6 +35,7 @@ base85          | 9c52d27 | MIT     | https://github.com/rafagafe/base85 | src/c
 | Deployed           | White  | Fade     |
 | Connecting         | Blue   | Fade     |
 | Uploading          | Blue   | Blink    |
+| Temperature Cal    | Orange | Fade     |
 
 ## Battery LED
 | Condition                                    | Battery LED State |
