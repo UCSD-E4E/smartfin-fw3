@@ -4,9 +4,9 @@
 #include "task.hpp"
 #include "Particle.h"
 
-#define SLEEP_RGB_LED_COLOR    0x000000
-#define SLEEP_RGB_LED_PATTERN  LED_PATTERN_SOLID
-#define SLEEP_RGB_LED_PERIOD   0
+#define SLEEP_RGB_LED_COLOR 0x4A192C
+#define SLEEP_RGB_LED_PATTERN LED_PATTERN_BLINK
+#define SLEEP_RGB_LED_PERIOD 20
 #define SLEEP_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
 
 class SleepTask : public Task {

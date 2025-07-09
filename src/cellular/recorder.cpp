@@ -81,7 +81,7 @@ int Recorder::create_metadata_file(void)
             this->metadata_header_valid = true;
             return 1;
         }
-    #ifdef REC_DEBUG
+#ifdef REC_DEBUG
         SF_OSAL_printf("REC::create_metadata_file: dir in the way!" __NL__);
     #endif
         unlink(METADATA_FILE);
@@ -90,7 +90,7 @@ int Recorder::create_metadata_file(void)
     {
         if (ENOENT != errno)
         {
-        #ifdef REC_DEBUG
+#ifdef REC_DEBUG
             SF_OSAL_printf("REC::create_metadata_file: Failed to stat: %d" __NL__,
                            errno);
         #endif
@@ -200,6 +200,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
      */
     if (!this->metadata_header_valid)
     {
+        FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 1);
         return 1;
     }
     /*
@@ -208,6 +209,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
     */
     if (!hasData())
     {
+        FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 2);
         return 2;
     }
 
@@ -231,7 +233,14 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
         if (!session.open(this->filename_buffer, Deployment::RDWR))
         {
             SF_OSAL_printf("REC::OPEN Fail to open %s" __NL__, this->filename_buffer);
-            return 3;
+            FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 3);
+            // Instead of returning an error code, skip this file
+            // return 3;
+            if (pop_metadata_entry())
+            {
+                return 3;
+            }
+            continue;
         }
 
         /*
@@ -243,6 +252,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
             if (1 != session.remove())
             {
                 SF_OSAL_printf("REC::OPEN Failed to remove empty session!" __NL__);
+                FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 4);
                 return 4;
             }
             /*
@@ -268,6 +278,7 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
         SF_OSAL_printf("Set name to %s" __NL__, p_name_buf);
         return 0;
     }
+    FLOG_AddError(FLOG_REC_OPEN_LAST_SESSION_FAIL, 5);
     return 5;
 }
 
@@ -297,8 +308,8 @@ int Recorder::getLastPacket(void* pBuffer,
     {
         // memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
         #ifdef REC_DEBUG
-        SF_OSAL_printf("Failed to open last session" __NL__);
-        #endif
+        SF_OSAL_printf("Failed to open last session for get" __NL__);
+#endif
         return -2;
     }
 
@@ -363,8 +374,8 @@ int Recorder::popLastPacket(size_t len)
     {
         // memset(this->currentSessionName, 0, REC_SESSION_NAME_MAX_LEN + 1);
         #ifdef REC_DEBUG
-        SF_OSAL_printf("Failed to open last session" __NL__);
-        #endif
+        SF_OSAL_printf("Failed to open last session for pop" __NL__);
+#endif
         return -2;
     }
 
@@ -417,11 +428,13 @@ int Recorder::openSession()
 {
     if (!this->metadata_header_valid)
     {
+        FLOG_AddError(FLOG_REC_INVALID_METADATA, 0);
         return 0;
     }
     if (nullptr != this->pSession)
     {
         SF_OSAL_printf("Double open!" __NL__);
+        FLOG_AddError(FLOG_REC_DOUBLE_OPEN, 0);
         return 0;
     }
 
@@ -456,7 +469,7 @@ int Recorder::closeSession(void)
 
     // flush buffer
     int x = this->pSession->write(this->dataBuffer, this->dataIdx);
-    SF_OSAL_printf("Bytes written %d", x);
+    SF_OSAL_printf("Bytes written %d" __NL__, x);
 
     // Close session
     this->pSession->close();
@@ -498,6 +511,11 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
     return 0;
 }
 
+/**
+ * @brief Pops a metadata entry
+ *
+ * @return int 1 on failure, otherwise 0
+ */
 int Recorder::pop_metadata_entry(void)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
@@ -664,4 +682,139 @@ int Recorder::peek_last_metadata_entry(timestamp_entry_t& entry)
     }
 #endif
     return 0;
+}
+
+char path_buf[PATH_MAX + 1];
+/**
+ * @brief Recursively removes the entries inside this directory
+ *
+ * @param dir_to_remove Directory to remove the contents of
+ * @param prefix Unix path (including path separator) representing the directory.
+ * This buffer must have enough space to store all possible path names.
+ * @return int 0 on success, otherwise 1
+ */
+int rmtree(DIR *const dir_to_remove, char *const prefix)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    const struct dirent *dir_entry;
+    int retval;
+    char *const next_path_element = prefix + strlen(prefix);
+    errno = 0;
+    for (dir_entry = readdir(dir_to_remove); dir_entry; dir_entry = readdir(dir_to_remove))
+    {
+        if (dir_entry->d_type & DT_REG)
+        {
+            // This is a regular file.  Make full path, then unlink
+            strncpy(next_path_element, dir_entry->d_name, NAME_MAX);
+            errno = 0;
+            retval = unlink(prefix);
+            *next_path_element = 0;
+            if (-1 == retval)
+            {
+                FLOG_AddError(FLOG_REC_RMTREE_RM_FILE, errno);
+                return 1;
+            }
+        }
+        else if (dir_entry->d_type & DT_DIR)
+        {
+            if (strcmp(dir_entry->d_name, ".") == 0 || strcmp(dir_entry->d_name, "..") == 0)
+            {
+                // this is the current/upper directory, continue
+                errno = 0;
+                continue;
+            }
+            // This is a regular directory.  Make full path, then rmtree it
+            strncpy(next_path_element, dir_entry->d_name, NAME_MAX);
+            strcat(next_path_element, PATH_SEP);
+            errno = 0;
+            DIR *next_dir = opendir(prefix);
+            if (!next_dir)
+            {
+                FLOG_AddError(FLOG_REC_RMTREE_OPENDIR, errno);
+                return 1;
+            }
+            SF_OSAL_printf("rmtree %s", prefix);
+            retval = rmtree(next_dir, prefix);
+            closedir(next_dir);
+            if (retval)
+            {
+                *next_path_element = 0;
+                return 1;
+            }
+            errno = 0;
+            retval = rmdir(prefix);
+            *next_path_element = 0;
+            if (retval)
+            {
+                FLOG_AddError(FLOG_REC_RMTREE_RMDIR, errno);
+                return 1;
+            }
+        }
+        errno = 0;
+    }
+    if (errno)
+    {
+        FLOG_AddError(FLOG_REC_RMTREE_READDIR, errno);
+        return 1;
+    }
+    return 0;
+#else
+    return 1;
+#endif
+}
+
+int Recorder::reformat(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    int retval;
+    // Check that nothing is open
+    if (this->pSession)
+    {
+        return 1;
+    }
+
+    // stat DATA_ROOT
+    struct stat data_root_stat;
+    if (0 == stat(DATA_ROOT, &data_root_stat))
+    {
+        // This path exists!  is it a file or a dir?
+        if (data_root_stat.st_mode & S_IFREG)
+        {
+            // This is a file!
+            // Remove it
+            if (-1 == unlink(DATA_ROOT))
+            {
+                // failed to remove
+                FLOG_AddError(FLOG_REC_FORMAT_RM_FILE, errno);
+                return 1;
+            }
+            // File doesn't exist anymore, we can move on
+        }
+        else if (data_root_stat.st_mode & S_IFDIR)
+        {
+            // This is a folder.  We need to recursively search and remove it.
+            memset(path_buf, 0, NAME_MAX + 1);
+            strncpy(path_buf, DATA_ROOT, PATH_MAX);
+            strcat(path_buf, PATH_SEP);
+            DIR *data_dir = opendir(DATA_ROOT);
+            retval = rmtree(data_dir, path_buf);
+            closedir(data_dir);
+            if (retval)
+            {
+                FLOG_AddError(FLOG_REC_FORMAT_RMTREE, 0);
+                return 1;
+            }
+        }
+    }
+
+    // At this point, `/data` should not exist.
+    if (!this->init())
+    {
+        // this logs its own FLOG, no need to do so again
+        return 1;
+    }
+    return 0;
+#else
+    return 1;
+#endif
 }

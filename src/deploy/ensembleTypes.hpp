@@ -21,9 +21,14 @@ typedef enum EnsembleID_
     ENS_IMU,
     ENS_TEMP_IMU,
     ENS_TEMP_IMU_GPS,
+    /**
+     * @brief High Data Rate IMU (0x0C)
+     *
+     */
+    ENS_TEMP_HIGH_DATA_RATE_IMU,
     ENS_TEXT = 0x0F,
     ENS_NUM_ENSEMBLES
-}EnsembleID_e;
+} EnsembleID_e;
 
 #pragma pack(push, 1)
 /**
@@ -34,6 +39,29 @@ typedef struct EnsembleHeader_
     unsigned int ensembleType : 4;
     unsigned int elapsedTime_ds : 20;
 }EnsembleHeader_t;
+
+/**
+ * @brief Ensemble 01 - Temperature
+ *
+ * This contains temperature + water
+ *
+ */
+typedef struct Ensemble01_data_
+{
+    /**
+     * @brief Scaled temperature + water
+     *
+     * If the temperature source is from the IMU, then the scaled temperature
+     * can be retrieved with RAW_TEMP / 333.87 + 21.0. Otherwise, the scaled
+     * temperature can be retrieved with RAW_TEMP / 128.0. If the temperature is
+     * < 0, then the water detect pin did not detect water, and the real
+     * temperature in degrees C is SCALED_TEMP + 100. Otherwise, the water
+     * detect pin did detect water, and the real temperature in degrees C is
+     * SCALED_TEMP.
+     *
+     */
+    int16_t raw_temp;
+} Ensemble01_data_t;
 
 /**
  * @brief Ensemble 07 - Battery
@@ -183,7 +211,40 @@ typedef struct Ensemble11_data_
      */
     int32_t location[2];
 }Ensemble11_data_t;
+
+/**
+ * @brief High Data Rate IMU Ensemble
+ *
+ */
+typedef struct Ensemble12_data_
+{
+    /**
+     * @brief Acceleration as a 3 vector (x, y, z) in m/s^2 represented in Q14
+     *
+     * acceleration = acceleration_ms2_q15 / 16384
+     *
+     */
+    int16_t acceleration_ms2_q14[3];
+
+    /**
+     * @brief Rotational velocity as a 3 vector (x, y, z) in deg/s represented
+     * in Q7
+     *
+     * angularVelocity = angularVel_dps_q7 / 128
+     *
+     */
+    int16_t angularVel_dps_q7[3];
+
+    /**
+     * @brief Magnetic field intensity as a 3 vector (x, y, z) in uT
+     * represented in Q3
+     *
+     * magneticFieldIntensity = magIntensity_uT_q3 / 8
+     */
+    int16_t magIntensity_uT_q3[3];
+} Ensemble12_data_t;
 #pragma pack(pop)
 
-unsigned int Ens_getStartTime(system_tick_t sessionStart);
+unsigned int Ens_getStartTime(void);
+void Ens_setStartTime(void);
 #endif

@@ -8,29 +8,24 @@
 */
 #include "debugCommands.hpp"
 
-
-#include "system.hpp"
-
+#include "Particle.h"
+#include "cellular/recorder.hpp"
+#include "cellular/sf_cloud.hpp"
+#include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "cli/cli.hpp"
-#include "states.hpp"
-#include "fileCLI/fileCLI.hpp"
-
-#include <fcntl.h>
-#include <dirent.h>
-
-#include "product.hpp"
-
-#include "imu/imu.hpp"
 #include "consts.hpp"
-#include "cellular/recorder.hpp"
+#include "fileCLI/fileCLI.hpp"
+#include "imu/newIMU.hpp"
+#include "mfgTest/mfgTest.hpp"
+#include "product.hpp"
+#include "states.hpp"
 #include "system.hpp"
 
+#include <dirent.h>
+#include <fcntl.h>
 
-#include "Particle.h"
-
-
+static MfgTest mfgTask;
 
 void CLI_restart(void)
 {
@@ -164,44 +159,9 @@ void CLI_monitorTempSensor(void)
     pSystemDesc->pTempSensor->stop();
 }
 
-void CLI_monitorIMU(void)
-{
-    char ch;
-
-    float accelData[3] = {0,0,0};
-    float gyroData[3] = {0,0,0};
-    float magData[3] = {0,0,0};
-    float tmpData = 0;
-
-    setupICM();
-    while(1)
-    {
-        if (SF_OSAL_kbhit())
-        {
-            ch = SF_OSAL_getch();
-
-            if('q' == ch) 
-            {
-                break;
-            }
-        }
-
-        getAccelerometer(accelData, accelData + 1, accelData + 2);
-        getGyroscope(gyroData, gyroData + 1, gyroData + 2);
-        getMagnetometer(magData, magData + 1, magData + 2);
-        getTemperature(&tmpData);
-
-        SF_OSAL_printf("Acceleromter: %8.4f\t%8.4f\t%8.4f" __NL__, accelData[0], accelData[1], accelData[2]);
-        SF_OSAL_printf("Gyroscope: %8.4f\t%8.4f\t%8.4f" __NL__, gyroData[0], gyroData[1], gyroData[2]);
-        SF_OSAL_printf("Magnetometor:  %8.4f\t%8.4f\t%8.4f" __NL__, magData[0], magData[1], magData[2]);
-        SF_OSAL_printf("Temperature: %8.4f" __NL__, tmpData);
-        delay(500);
-    }
-}
-
 void CLI_doMfgTest(void)
 {
-    CLI_nextState = STATE_MFG_TEST;
+    mfgTask.run();
 }
   
 
@@ -236,6 +196,19 @@ void CLI_monitorWetDry(void)
 
 void CLI_fileCLI(void)
 {
-    FileCLI cli;
-    cli.execute();
+    FileCLI *cli = new FileCLI();
+    cli->execute();
+    delete cli;
+}
+
+void CLI_initCloudCounters(void)
+{
+    sf::cloud::initialize_counter();
+}
+
+void CLI_dumpIMURegs(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    pSystemDesc->pIMU->dumpRegs(SF_OSAL_printf);
+#endif
 }

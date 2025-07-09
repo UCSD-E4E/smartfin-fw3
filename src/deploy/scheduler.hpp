@@ -76,9 +76,28 @@ typedef void (*EnsembleProccess)(DeploymentSchedule_t *pDeployment);
  */
 struct StateInformation
 {
+    /**
+     * @brief Measurement count
+     *
+     * This counter starts at 0 at the beginning of the deployment, and is
+     * incremented once every time the measurement is run.  It is not reset
+     * during the deployment
+     */
     std::uint32_t measurementCount;
     //! store the next time the task should run
+    /**
+     * @brief Next time the task should run in ms since boot
+     *
+     * This is updated by the scheduler and should only be updated by
+     * Scheduler::getNextTask once a task is selected to run.
+     */
     std::uint32_t nextRunTime;
+    /**
+     * @brief Accumulated duration in us
+     *
+     *
+     */
+    std::uint64_t durationAccumulate;
     void *pData;
 };
 

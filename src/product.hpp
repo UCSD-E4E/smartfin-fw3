@@ -146,6 +146,9 @@
  */
 #define SF_DUP_RGB_LED_COLOR        RGB_COLOR_BLUE
 #define SF_DUP_RGB_LED_PERIOD       500
+#define SF_DUP_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
+#define SF_DUP_RGB_LED_PATTERN LED_PATTERN_BLINK
+#define SF_DUP_CONNECT_RGB_LED_PATTERN LED_PATTERN_FADE
 
 #define SF_TCAL_RGB_LED_COLOR       RGB_COLOR_ORANGE
 #define SF_TCAL_RGB_LED_PATTERN     LED_PATTERN_FADE
@@ -205,6 +208,11 @@
  * 
  */
 #define MANUFACTURING_CELL_TIMEOUT_MS 180000
+
+#define MFG_TEST_ACCEL_MIN 0.8
+#define MFG_TEST_ACCEL_MAX 1.2
+
+#define MFG_TEST_GYRO_MIN 
 
 /**
  * @brief A voltage that's slightly higher than the max battery voltage
@@ -316,4 +324,19 @@
 #else
 #define SF_PLATFORM SF_PLATFORM_GLIBC
 #endif
+
+/**
+ * @brief Inhibit Upload Flag
+ *
+ */
+#define SF_INHIBIT_UPLOAD
+/**
+ * @brief High Data Rate mode
+ *
+ *
+ * This mode should inhibit cellular upload and enable high data rate streams
+ */
+#define SF_HIGH_DATA_RATE
+
+#define SF_CAN_UPLOAD !defined(SF_INHIBIT_UPLOAD) && !defined(SF_HIGH_DATA_RATE)
 #endif // __PRODUCT_HPP__

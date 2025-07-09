@@ -108,6 +108,18 @@ public:
         return this->putBytes(&data, sizeof(T));
     };
 
+    /**
+     * @brief Reformats the recorder
+     *
+     * This function deletes and recreates the `/data` directory, then creates
+     * and updates the `/data/.metadata` file.  This function will also
+     * reinitialize the recorder.  This function MUST NOT be called with open
+     * sessions, as this may cause undefined behavior.
+     *
+     * @return 0 on success, otherwise error code
+     */
+    int reformat(void);
+
 private:
     typedef struct timestamp_entry_
     {

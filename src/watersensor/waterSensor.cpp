@@ -1,26 +1,31 @@
 #include "waterSensor.hpp"
 
 #include "cli/conio.hpp"
+#include "cli/flog.hpp"
 #include "consts.hpp"
 #include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
-#include "cli/conio.hpp"
-
-
+#include "system.hpp"
 
 uint8_t water_detect_array[WATER_DETECT_ARRAY_SIZE];
 
-WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set,
-                         uint8_t water_detect_pin_to_set, 
-                         uint8_t window_size) : 
-                         water_detect_en_pin(water_detect_en_pin_to_set), 
-                         water_detect_pin(water_detect_pin_to_set), 
-                         moving_window_size(window_size)
+WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set, uint8_t water_detect_pin_to_set)
+    : water_detect_en_pin(water_detect_en_pin_to_set), water_detect_pin(water_detect_pin_to_set),
+      moving_window_size(0)
 {
-    memset(water_detect_array, 0, WATER_DETECT_ARRAY_SIZE);
 }
 
 WaterSensor::~WaterSensor()
 {
+}
+
+bool WaterSensor::begin(void)
+{
+    if (!pSystemDesc->pNvram->get(NVRAM::WATER_DETECT_WINDOW_LEN, moving_window_size))
+    {
+        moving_window_size = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
+    }
+    memset(water_detect_array, 0, WATER_DETECT_ARRAY_SIZE);
+    return false;
 }
 
 /**
@@ -41,11 +46,15 @@ bool WaterSensor::resetArray()
 
 /**
  * @brief Set window size to value
- * 
- * @param window_size_to_set 
+ *
+ * @param window_size_to_set
  */
 void WaterSensor::setWindowSize(uint8_t window_size_to_set)
 {
+    if (window_size_to_set > WATER_DETECT_ARRAY_SIZE)
+    {
+        window_size_to_set = WATER_DETECT_ARRAY_SIZE;
+    }
     // swtich the window parameter and clear the sum (for resumming)
     moving_window_size = window_size_to_set;
     array_sum = 0;
@@ -72,7 +81,7 @@ void WaterSensor::setWindowSize(uint8_t window_size_to_set)
 uint8_t WaterSensor::takeReading()
 {
     // increment array location
-    array_location = (array_location + 1) % WATER_DETECT_ARRAY_SIZE;
+    array_location = (array_location + 1) % moving_window_size;
     // subtract last value in the window from the rolling sum
     array_sum -= water_detect_array[waterDetectArrayLocation(array_location, (-1 * moving_window_size))];
 
@@ -101,6 +110,10 @@ uint8_t WaterSensor::takeReading()
 
     else if ((((uint16_t)array_sum * 100) / moving_window_size) < low_detect_percentage)
     {
+        if (last_water_detect == 1)
+        {
+            FLOG_AddError(FLOG_WS_OUT_OF_WATER, 0);
+        }
         // out of the water!
         last_water_detect = 0;
         return last_water_detect;
@@ -108,6 +121,10 @@ uint8_t WaterSensor::takeReading()
 
     else if ((((uint16_t)array_sum * 100) / moving_window_size) > high_detect_percentage)
     {
+        if (last_water_detect == 0)
+        {
+            FLOG_AddError(FLOG_WS_IN_WATER, 0);
+        }
         // in the water!
         last_water_detect = 1;
         return last_water_detect;
@@ -240,14 +257,19 @@ uint8_t WaterSensor::waterDetectArrayLocation(int16_t location, int16_t offset)
 {
     if ((location + offset) < 0)
     {
-        return (WATER_DETECT_ARRAY_SIZE + (location + offset));
+        return (moving_window_size + (location + offset));
     }
-    else if ((location + offset) >= WATER_DETECT_ARRAY_SIZE)
-    { 
-        return ((location + offset) - WATER_DETECT_ARRAY_SIZE);   
+    else if ((location + offset) >= moving_window_size)
+    {
+        return ((location + offset) - moving_window_size);
     } 
     else
     {
         return (location + offset);
     }
+}
+
+uint8_t WaterSensor::getWindowSize(void)
+{
+    return this->moving_window_size;
 }

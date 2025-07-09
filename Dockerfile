@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-RUN apt-get update && apt-get install -y cmake build-essential gdb libncurses-dev
+RUN apt-get update && apt-get install -y cmake build-essential gdb libncurses-dev valgrind
 
 RUN mkdir -p /code/build
 

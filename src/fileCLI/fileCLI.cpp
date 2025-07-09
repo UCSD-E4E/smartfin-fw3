@@ -18,19 +18,17 @@
 
 static char path_buffer[PATH_MAX];
 
-FileCLI::menu_t FileCLI::fsExplorerMenu[] =
-{
-    {'c', &FileCLI::change_dir},
-    {'d', &FileCLI::dumpBase85},
-    {'h', &FileCLI::dumpHex},
-    {'l', &FileCLI::list_dir},
-    {'m', &FileCLI::mkdir},
-    {'p', &FileCLI::print_dir},
-    {'q', &FileCLI::exit},
-    {'r', &FileCLI::deleteFile},
-    {'?', &FileCLI::print_help},
-    {'\0', NULL}
-};
+FileCLI::menu_t FileCLI::fsExplorerMenu[] = {{'c', &FileCLI::change_dir},
+                                             {'d', &FileCLI::dumpBase85},
+                                             {'t', &FileCLI::transfer},
+                                             {'h', &FileCLI::dumpHex},
+                                             {'l', &FileCLI::list_dir},
+                                             {'m', &FileCLI::mkdir},
+                                             {'p', &FileCLI::print_dir},
+                                             {'q', &FileCLI::exit},
+                                             {'r', &FileCLI::deleteFile},
+                                             {'?', &FileCLI::print_help},
+                                             {'\0', NULL}};
 
 void FileCLI::print_help(void)
 {
@@ -122,7 +120,7 @@ void FileCLI::list_dir(void)
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 }
 
-FileCLI::menu_t* FileCLI::findCommand(const char* const cmd)
+FileCLI::menu_t *FileCLI::findCommand(const char *const cmd)
 {
     menu_t* pMenu;
 
@@ -140,7 +138,7 @@ void FileCLI::exit(void)
     this->run = 0;
 }
 
-const char* FileCLI::buildPath(bool is_dir)
+const char *FileCLI::buildPath(bool is_dir) const
 {
     size_t path_buffer_idx = 0;
     int dir_idx = 0;
@@ -397,8 +395,8 @@ void base85dump(int fp, size_t file_len)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     size_t file_idx = 0, bytes_read;
-    uint8_t byte_buffer[SF_PACKET_SIZE];
-    char encoded_buffer[SF_RECORD_SIZE];
+    uint8_t *byte_buffer = new uint8_t[SF_PACKET_SIZE];
+    char *encoded_buffer = new char[SF_RECORD_SIZE + 1];
     size_t totalEncodedLen = 0;
     size_t n_packets = 0;
     size_t encodedLen = 0;
@@ -421,6 +419,8 @@ void base85dump(int fp, size_t file_len)
 
     SF_OSAL_printf(__NL__ "%d chars of encoded data" __NL__, totalEncodedLen);
     SF_OSAL_printf("%d packets" __NL__, n_packets);
+    delete[] encoded_buffer;
+    delete[] byte_buffer;
 #endif
 }
 
@@ -466,6 +466,7 @@ void FileCLI::dumpBase85(void)
     if (-1 == fp)
     {
         SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
+        this->current_dir--;
         return;
     }
 
@@ -473,6 +474,7 @@ void FileCLI::dumpBase85(void)
     {
         SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
         close(fp);
+        this->current_dir--;
         return;
     }
 
@@ -480,6 +482,114 @@ void FileCLI::dumpBase85(void)
     base85dump(fp, fstats.st_size);
 
     close(fp);
+    this->current_dir--;
+#endif
+}
+
+void encodedTransfer(int fp, size_t file_len)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    std::size_t file_idx = 0, bytes_read;
+    std::uint8_t *byte_buffer = new std::uint8_t[SF_PACKET_SIZE];
+    char *encoded_buffer = new char[SF_RECORD_SIZE + 1];
+    std::size_t total_encoded_len = 0, n_packets = 0, encoded_len = 0;
+    int cmd_val;
+
+    for (file_idx = 0; file_idx < file_len; file_idx += bytes_read)
+    {
+        bytes_read = read(fp, byte_buffer, SF_PACKET_SIZE);
+#if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
+        encoded_len = bintob85(encoded_buffer, byte_buffer, bytes_read) - encodedBuffer;
+#elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64
+        encoded_len = SF_RECORD_SIZE;
+        b64_encode(byte_buffer, bytes_read, encoded_buffer, &encoded_len);
+#elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64URL
+        encoded_len = SF_RECORD_SIZE;
+        urlsafe_b64_encode(byte_buffer, bytes_read, encoded_buffer, &encoded_len);
+#endif
+        total_encoded_len += encoded_len;
+        SF_OSAL_printf("%s" __NL__, encoded_buffer);
+        n_packets++;
+        if (file_idx + bytes_read < file_len)
+        {
+            // on last, just break out
+            cmd_val = SF_OSAL_getch();
+            if ('q' == cmd_val)
+            {
+                break;
+            }
+        }
+    }
+    SF_OSAL_printf(__NL__ "%d chars of encoded data" __NL__, total_encoded_len);
+    SF_OSAL_printf("%d packets" __NL__, n_packets);
+    delete[] encoded_buffer;
+    delete[] byte_buffer;
+#endif
+}
+
+void FileCLI::transfer(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
+    DIR *cwd = this->dir_stack[this->current_dir];
+    struct dirent *dirent;
+    long idx;
+    int cmd_val;
+    const char *path;
+    int fp;
+    struct stat fstats;
+
+    idx = telldir(cwd);
+    while ((dirent = readdir(cwd)))
+    {
+        if (dirent->d_type != DT_REG)
+        {
+            idx = telldir(cwd);
+            continue;
+        }
+        strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+        SF_OSAL_printf("%d: %-16s" __NL__, idx, dirent->d_name);
+        idx = telldir(cwd);
+    }
+    rewinddir(cwd);
+    memset(this->path_stack[this->current_dir], 0, NAME_MAX);
+
+    SF_OSAL_printf("Enter the number of the file to dump: ");
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    cmd_val = atoi(input_buffer);
+
+    if (0 == cmd_val)
+    {
+        SF_OSAL_printf("Unknown entry" __NL__);
+        return;
+    }
+    seekdir(cwd, cmd_val);
+    dirent = readdir(cwd);
+    rewinddir(cwd);
+    strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+    this->current_dir++;
+    path = this->buildPath(false);
+
+    fp = open(path, O_RDONLY);
+    if (-1 == fp)
+    {
+        SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
+        this->current_dir--;
+        return;
+    }
+
+    if (fstat(fp, &fstats))
+    {
+        SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
+        close(fp);
+        this->current_dir--;
+        return;
+    }
+
+    SF_OSAL_printf("Publish Header: %s-%s" __NL__, pSystemDesc->deviceID, dirent->d_name);
+    encodedTransfer(fp, fstats.st_size);
+    close(fp);
+    this->current_dir--;
 #endif
 }
 

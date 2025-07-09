@@ -18,11 +18,12 @@ namespace sf
         /**
          * @brief Connects and waits for the system to complete the connection to cloud
          * services.
-         * 
+         *
          * @param timeout_ms Timeout in milliseconds.
+         * @param bypass_attempts Whether or not to bypass attempt counts
          * @return 0 on success, otherwise error code.
          */
-        int wait_connect(int timeout_ms);
+        int wait_connect(int timeout_ms, bool bypass_attempts = false);
         /**
          * @brief Disconnects and waits for the system to complete the disconnect from
          * cloud services.

@@ -53,6 +53,17 @@ private:
      *
      */
     system_tick_t startTime;
+    /**
+     * @brief Deploy Time in ms since boot
+     *
+     */
+    system_tick_t deployTime;
+
+    /**
+     * @brief Flag if session time has been set to UTC time
+     *
+     */
+    bool sessionTimeSet;
 
     Scheduler scheduler;
 };

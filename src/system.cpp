@@ -42,6 +42,7 @@ static int SYS_initWaterSensor(void);
 static int SYS_initLEDs(void);
 static int SYS_initFS();
 static int SYS_initTempSensor(void);
+static int SYS_initIMU(void);
 
 I2C i2cBus;
 MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
@@ -54,11 +55,15 @@ static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 static Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
 static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 
-static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN, WATER_DETECT_SURF_SESSION_INIT_WINDOW);
+static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN);
 
 static LocationServiceConfiguration create_location_service_config();
 
 static FuelGauge battery_desc;
+
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+static IMU icm_20948(Wire, false);
+#endif
 
 void SYS_initSys(void)
 {
@@ -80,6 +85,26 @@ void SYS_initSys(void)
     pinMode(WKP, INPUT);
 
     systemDesc.pBattery = &battery_desc;    
+}
+
+/**
+ * @brief Delayed system initialization
+ *
+ * This to run after threads start
+ *
+ */
+void SYS_delayedInitSys(void)
+{
+    SYS_initIMU();
+}
+
+void SYS_deinitSys(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    systemDesc.pIMU->end();
+    systemDesc.pChargerCheck->stop(1000);
+    systemDesc.pWaterCheck->stop(1000);
+#endif
 }
 
 /**
@@ -115,7 +140,7 @@ static int SYS_initTasks(void)
 
     systemDesc.pChargerCheck = &chargerTimer;
     systemDesc.pWaterCheck = &waterTimer;
-    waterTimer.start();
+    systemDesc.pWaterCheck->start();
 
     return 1;
 }
@@ -132,14 +157,28 @@ static int SYS_initTempSensor(void)
 
 static int SYS_initWaterSensor(void)
 {
+    uint8_t water_sensor_window = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
     pinMode(WATER_DETECT_EN_PIN, OUTPUT);
     digitalWrite(WATER_DETECT_EN_PIN, HIGH);
     pinMode(WATER_DETECT_PIN, INPUT);
     pinMode(WATER_MFG_TEST_EN, OUTPUT);
     digitalWrite(WATER_MFG_TEST_EN, LOW);
     systemDesc.pWaterSensor = &waterSensor;
+    waterSensor.begin();
     ledTimer.start();
 
+    // TODO: remove this once NVRAM defaults exist
+    systemDesc.pNvram->put(NVRAM::DATA_ID_e::WATER_DETECT_WINDOW_LEN,
+                           WATER_DETECT_SURF_SESSION_INIT_WINDOW);
+    if (!systemDesc.pNvram->get(NVRAM::DATA_ID_e::WATER_DETECT_WINDOW_LEN, water_sensor_window))
+    {
+        water_sensor_window = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
+        // We don't really care about the return value
+        systemDesc.pNvram->put(NVRAM::DATA_ID_e::WATER_DETECT_WINDOW_LEN,
+                               WATER_DETECT_SURF_SESSION_INIT_WINDOW);
+    }
+
+    waterSensor.setWindowSize(water_sensor_window);
     // Take an initial reading to ensure that subsequent initialization operations
     // work properly
     waterSensor.update();
@@ -367,6 +406,8 @@ void SYS_dumpSys(int indent)
     }
     {
         SF_OSAL_printf("%sWater Sensor: 0x%08x" __NL__, indent_str, pSystemDesc->pWaterSensor);
+        SF_OSAL_printf(
+            "%s  Window Size: %hu" __NL__, indent_str, pSystemDesc->pWaterSensor->getWindowSize());
     }
     {
         SF_OSAL_printf("%sBattery LED: 0x%08x" __NL__, indent_str, pSystemDesc->pBatteryLED);
@@ -388,4 +429,25 @@ void SYS_dumpSys(int indent)
     {
         SF_OSAL_printf("%sSystem Flags: 0x%08x" __NL__, indent_str, pSystemDesc->flags);
     }
+}
+
+/**
+ * @brief Initializes the IMU
+ *
+ * @return int 1 on success, otherwise 0
+ */
+int SYS_initIMU(void)
+{
+    bool fail = false;
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    pSystemDesc->pIMU = &icm_20948;
+
+    fail = icm_20948.begin();
+    if (fail)
+    {
+        SF_OSAL_printf("IMU init failed!" __NL__);
+        return 0;
+    }
+#endif
+    return 1;
 }

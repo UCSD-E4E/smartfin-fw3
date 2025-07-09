@@ -90,6 +90,13 @@ private:
     void mkdir(void);
 
     /**
+     * @brief Transfers files block by block
+     *
+     * @param
+     */
+    void transfer(void);
+
+    /**
      * @brief Indicates whether the CLI is running.
      *
      * Set to 1, the CLI continues running; set to 0 the CLI exits.
@@ -150,6 +157,6 @@ private:
      * @return  The constructed file or directory path. Returned buffer only
      * valid until the next invocation of buildPath.
      */
-    const char *buildPath(bool is_dir);
+    const char *buildPath(bool is_dir) const;
 };
 #endif

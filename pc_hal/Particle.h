@@ -11,11 +11,13 @@
 #ifndef __PC_HAL_PARTICLE_H__
 #define __PC_HAL_PARTICLE_H__
 
+#include <chrono>
 #include <cstdarg>
 #include <cstdint>
 #include <cstring>
 #include <functional>
 #include <string>
+#include <thread>
 #define retained
 class EEPROMClass
 {
@@ -140,10 +142,7 @@ class os_queue_t
 {
 };
 
-class Thread
-{
-};
-#define os_thread_yield() ;
+#define os_thread_yield() delay(1)
 
 enum
 {
@@ -180,10 +179,13 @@ typedef enum
     LED_SIGNAL_CLOUD_CONNECTED,
     LED_SIGNAL_CLOUD_HANDSHAKE
 } LEDSignal;
-typedef enum
+typedef enum LEDPattern
 {
-    LED_PATTERN_SOLID,
-    LED_PATTERN_BLINK
+    LED_PATTERN_INVALID = 0,
+    LED_PATTERN_SOLID = 1,
+    LED_PATTERN_BLINK = 2,
+    LED_PATTERN_FADE = 3,
+    LED_PATTERN_CUSTOM = 15 // Should be last element in this enum
 } LEDPattern;
 typedef enum
 {
@@ -347,19 +349,27 @@ public:
 
     void delay(std::uint32_t ms)
     {
+        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
     }
     void delayMicroseconds(std::size_t us)
     {
+        std::this_thread::sleep_for(std::chrono::microseconds(us));
     }
     String format(uint32_t timestamp, const char *fmt)
     {
         return String("");
+    }
+    bool isValid()
+    {
+        return true;
     }
 };
 #define Time __fetch_global_time()
 TimeClass &__fetch_global_time();
 
 #define millis Time.now
+// TODO Fixme
+#define micros Time.now
 #define delay Time.delay
 #define delayMicroseconds Time.delayMicroseconds
 
@@ -387,6 +397,15 @@ public:
     bool publish(const char *name, const char *data)
     {
         return false;
+    }
+    inline bool syncTime(void)
+    {
+        return true;
+    }
+
+    inline bool syncTimeDone(void)
+    {
+        return true;
     }
 };
 #define Particle __fetch_global_particle()
@@ -451,4 +470,31 @@ namespace particle
         const std::size_t MAX_EVENT_NAME_LENGTH = 64;
     } // namespace protocol
 } // namespace particle
+
+typedef enum
+{
+    OS_THREAD_PRIORITY_DEFAULT = 2
+} os_thread_prio_t;
+
+#define OS_THREAD_STACK_SIZE_DEFAULT 1024
+#define OS_THREAD_STACK_SIZE_DEFAULT_HIGH 4 * 1024
+
+class Thread
+{
+private:
+    std::thread _thread;
+
+public:
+    Thread(const char *name,
+           void (*function)(void *),
+           void *function_param = NULL,
+           os_thread_prio_t priority = OS_THREAD_PRIORITY_DEFAULT,
+           std::size_t stack_size = OS_THREAD_STACK_SIZE_DEFAULT)
+        : _thread(function, function_param)
+    {
+    }
+    Thread()
+    {
+    }
+};
 #endif // __PC_HAL_PARTICLE_H__

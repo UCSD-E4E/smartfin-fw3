@@ -25,6 +25,7 @@
 //  we might say when over 75% are 1s we are in the water and 25% are when
 //  we are out of the water (there is hystersis, starting with us out of the water)
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //Water Detect Defines//
 #define DEFAULT_WATER_SENSOR_LOW_PERCENTAGE 25
@@ -85,18 +86,31 @@ public:
      *
      * @param water_detect_en_pin Pin that enables the water sensor
      * @param water_detect_pin_to_set Pin that reads the sensor value
-     * @param window_size Size of the moving sample window used for water detection
      */
-    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set, uint8_t window_size);
+    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set);
     /**
      * @brief Destroys the WaterSensor instance
      */
     ~WaterSensor();
 
+    /**
+     * @brief Initializes the Water Sensor
+     *
+     * @return Error flag - true if error, otherwise false
+     */
+    bool begin(void);
+
     // resets the array to zero
     bool resetArray();
     // switch the window size parameter and clear the sum (for resumming)
     void setWindowSize(uint8_t window_size_to_set);
+
+    /**
+     * @brief Retrieves the current window size
+     *
+     * @return Window size
+     */
+    uint8_t getWindowSize(void);
     // take a reading. Also returns the current in/out water status.
     uint8_t takeReading();
     // gets the current in/out of water status (return true = in water, false = out)

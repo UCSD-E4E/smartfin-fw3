@@ -10,9 +10,10 @@
 
 #include "product.hpp"
 
+#include <cstdint>
 #define FW_MAJOR_VERSION    3
-#define FW_MINOR_VERSION    9
-#define FW_BUILD_NUM        2
+#define FW_MINOR_VERSION    20
+#define FW_BUILD_NUM        0
 #define FW_BRANCH           ""
 
 #if PRODUCT_VERSION_USE_HEX == 1
@@ -22,6 +23,6 @@
 #endif
 
 void VERS_printBanner(void);
-const char* VERS_getBuildDate(void);
-const char* VERS_getBuildTime(void);
+inline const char *VERS_getBuildDate(void);
+inline const char *VERS_getBuildTime(void);
 #endif

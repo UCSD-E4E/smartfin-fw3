@@ -15,6 +15,11 @@
 
 void DataUpload::init(void)
 {
+    status.setColor(SF_DUP_RGB_LED_COLOR);
+    status.setPattern(SF_DUP_CONNECT_RGB_LED_PATTERN);
+    status.setPeriod(SF_DUP_RGB_LED_PERIOD);
+    status.setPriority(SF_DUP_RGB_LED_PRIORITY);
+    status.setActive();
     SF_OSAL_printf("Entering SYSTEM_STATE_DATA_UPLOAD" __NL__);
 
     this->initSuccess = 1;
@@ -22,6 +27,7 @@ void DataUpload::init(void)
     {
         this->initSuccess = 0;
     }
+    Particle.syncTime();
 }
 
 STATES_e DataUpload::can_upload(void)
@@ -58,11 +64,16 @@ STATES_e DataUpload::can_upload(void)
         return STATE_DEEP_SLEEP;
     }
     // Don't change current state, continue looping
+#if SF_CAN_UPLOAD
     return STATE_UPLOAD;
+#else
+    return STATE_DEEP_SLEEP;
+#endif
 }
 
 STATES_e DataUpload::run(void)
 {
+#if SF_CAN_UPLOAD
     uint8_t binary_packet_buffer[SF_PACKET_SIZE];
     char ascii_record_buffer[SF_RECORD_SIZE + 1];
     char publishName[DU_PUBLISH_ID_NAME_LEN + 1];
@@ -70,12 +81,18 @@ STATES_e DataUpload::run(void)
     size_t nBytesToSend;
     STATES_e next_state;
     int retval;
+    size_t recordsUploaded = 0;
 
     if (!this->initSuccess)
     {
         SF_OSAL_printf("Failed to init\n");
+        FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0401);
         return STATE_DEEP_SLEEP;
     }
+
+    status.setPattern(SF_DUP_RGB_LED_PATTERN);
+    status.setPeriod(SF_DUP_RGB_LED_PERIOD / 2);
+    status.setActive();
 
     while ((next_state = can_upload()) == STATE_UPLOAD)
     {
@@ -87,11 +104,13 @@ STATES_e DataUpload::run(void)
             // We already know that there is data, but we aren't able to retrieve
             // it.  This can indicate recorder failure.
             FLOG_AddError(FLOG_UPL_OPEN_FAIL, 0);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0402);
             return STATE_DEEP_SLEEP;
         case -1:
         case -3:
             // Either active session (bug) or buffer overflow (bug)
             SF_OSAL_printf("Failed to retrieve data: %d" __NL__, nBytesToEncode);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0403);
             return STATE_CLI;
         default:
             break;
@@ -114,25 +133,33 @@ STATES_e DataUpload::run(void)
         {
             // size limit violation is bug
             SF_OSAL_printf("Failed to encode: %d" __NL__, retval);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0404);
             return STATE_CLI;
         }
 
         SF_OSAL_printf("Got %u bytes to upload" __NL__, nBytesToSend);
 
         SF_OSAL_printf("Data: %s" __NL__, ascii_record_buffer);
-
-        switch ((retval = sf::cloud::publish_blob(publishName, ascii_record_buffer)))
+        retval = sf::cloud::publish_blob(publishName, ascii_record_buffer);
+        recordsUploaded++;
+        switch (retval)
         {
         default:
         case sf::cloud::OVERSIZE_DATA:
         case sf::cloud::OVERSIZE_NAME:
             SF_OSAL_printf("Failed to publish: %d" __NL__, retval);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0405);
+            FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
             return STATE_CLI;
         case sf::cloud::NOT_CONNECTED:
             FLOG_AddError(FLOG_UPL_CONNECT_FAIL, 1);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0406);
+            FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
             return STATE_DEEP_SLEEP;
         case sf::cloud::PUBLISH_FAIL:
             FLOG_AddError(FLOG_UPL_PUB_FAIL, 0);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0407);
+            FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
             return STATE_DEEP_SLEEP;
         case sf::cloud::SUCCESS:
             break;
@@ -148,13 +175,19 @@ STATES_e DataUpload::run(void)
         case -2:
             // This is a bug
             SF_OSAL_printf("Session failure" __NL__);
+            FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0408);
+            FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
             return STATE_CLI;
         case 0:
             break;
         }
     }
+    FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x0409);
+    FLOG_AddError(FLOG_UPL_COUNT, recordsUploaded);
     return next_state;
-
+#else
+    return STATE_DEEP_SLEEP;
+#endif
 }
 
 void DataUpload::exit(void)
@@ -163,6 +196,7 @@ void DataUpload::exit(void)
     {
         FLOG_AddError(FLOG_CELL_DISCONN_FAIL, 0);
     }
+    status.setActive(false);
 }
 
 // In smartfin-fw2/src/dataUpload::DataUpload::exitState(void), we return based on the water sensor state.  If the system is in the water, we redeploy, otherwise we go to sleep.

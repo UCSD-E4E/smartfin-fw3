@@ -1,13 +1,13 @@
 #ifndef __SYSTEM_HPP__
 #define __SYSTEM_HPP__
 
+#include "cellular/recorder.hpp"
+#include "imu/newIMU.hpp"
+#include "location_service.h"
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
-#include "cellular/recorder.hpp"
-#include "watersensor/waterSensor.hpp"
-
 #include "temperature/tmpSensor.h"
-#include "location_service.h"
+#include "watersensor/waterSensor.hpp"
 
 #define SYS_CHARGER_MIN_CHARGING_MS 5000
 #define SYS_CHARGER_MIN_CHARGED_MS 30000
@@ -95,8 +95,13 @@ typedef struct SystemDesc_
      */
     FuelGauge* pBattery;
     /**
+     * @brief Pointer to IMU object
+     *
+     */
+    IMU *pIMU;
+    /**
      * @brief Pointer to SystemFlags_t object that contains current system status flag
-     * 
+     *
      */
     const SystemFlags_t* flags;
 }SystemDesc_t;
@@ -111,6 +116,17 @@ extern SystemDesc_t* pSystemDesc;
  */
 void SYS_initSys(void);
 
+/**
+ * @brief Delayed initialization
+ *
+ */
+void SYS_delayedInitSys(void);
+
+/**
+ * @brief Deinitializes system components for sleep
+ *
+ */
+void SYS_deinitSys(void);
 
 /**
  * @brief Displays all system components
