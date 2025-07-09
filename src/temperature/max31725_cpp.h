@@ -121,10 +121,10 @@ class MAX31725
      */
     int read_reg16(int16_t *value, char reg);
 
-    /** 
+    /**
      * @brief Reads the temperature registers
      * @param reg - the address of the temperature register
-     * @return temperature in degrees Celsius
+     * @return temperature in degrees Celsius, or NAN if error
      */
     float read_reg_as_temperature(uint8_t reg);
 
