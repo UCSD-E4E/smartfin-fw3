@@ -12,7 +12,7 @@
 
 #include <cstdint>
 #define FW_MAJOR_VERSION    3
-#define FW_MINOR_VERSION    19
+#define FW_MINOR_VERSION    20
 #define FW_BUILD_NUM        0
 #define FW_BRANCH           ""
 

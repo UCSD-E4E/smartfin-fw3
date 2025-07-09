@@ -1,3 +1,16 @@
+# [3.20.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.19.0...v3.20.0) (2025-07-09)
+
+
+### Bug Fixes
+
+* Adds sync functions to PC build ([2afba18](https://github.com/UCSD-E4E/smartfin-fw3/commit/2afba18bb93fcd8cad558b7f12f5526da9c3cb2f))
+
+
+### Features
+
+* Adds time sync ([16ae894](https://github.com/UCSD-E4E/smartfin-fw3/commit/16ae894cd89a5eb7647fbe85a5083610643f8bf2))
+* Adds transfer mode ([22954b9](https://github.com/UCSD-E4E/smartfin-fw3/commit/22954b918e4ddd73684fa8a02dc10eaaf83f1fa1))
+
 # [3.19.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.18.0...v3.19.0) (2025-06-26)
 
 
