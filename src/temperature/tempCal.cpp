@@ -11,19 +11,42 @@
 #include "tempCal.hpp"
 
 #include "Particle.h"
+#include "cellular/sf_cloud.hpp"
 #include "cli/conio.hpp"
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "product.hpp"
 #include "system.hpp"
 #include "util.hpp"
+
 void TempCalTask::init(void)
 {
     SF_OSAL_printf("Entering SYSTEM_STATE_TMP_CAL" __NL__);
     this->ledStatus.setColor(SF_TCAL_RGB_LED_COLOR);
+    this->ledStatus.setPattern(LED_PATTERN_SOLID);
+    this->ledStatus.setPriority(SF_TCAL_RGB_LED_PRIORITY);
+    this->ledStatus.setActive();
+
+    // Wait to sync time
+    if (!sf::cloud::is_connected())
+    {
+        if (sf::cloud::wait_connect(120000))
+        {
+            SF_OSAL_printf("Failed to connect!" __NL__);
+        }
+    }
+    Particle.syncTime();
+    system_tick_t start = millis();
+    while (millis() < start + 120000 || !Particle.syncTimeDone())
+    {
+        delay(1);
+    }
+    if (!Particle.syncTimeDone())
+    {
+        SF_OSAL_printf("Failed to sync time!" __NL__);
+    }
     this->ledStatus.setPattern(SF_TCAL_RGB_LED_PATTERN);
     this->ledStatus.setPeriod(SF_TCAL_RGB_LED_PERIOD / 10);
-    this->ledStatus.setPriority(SF_TCAL_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
 
     // 5 minute delay to get it into the water
