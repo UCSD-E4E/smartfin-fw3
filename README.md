@@ -1,6 +1,20 @@
 # smartfin-fw3
 Smartfin FW v3
 
+## Flashing via USB
+### Required materials:
+- firmware-tracker-5.3.0.bin from https://github.com/UCSD-E4E/smartfin-fw3/release/latest, stored at `${fw_path}`
+- Particle Workbench from https://docs.particle.io/quickstart/workbench/
+- Smartfin v3
+- USB Cable
+
+1. Connect the Smartfin v3 to the computer using the USB Cable.  The LED should become solid yellow.
+2. Open Particle Workbench
+3. Open the Command Palette
+4. Execute `Particle: Launch CLI` in the Command Palette
+5. Log in to Particle using `particle login`
+6. Put the device into DFU mode using `particle usb dfu`.  The LED should be blinking yellow.
+7. Flash the firmware using `particle flash --usb ${fw_path}`.
 
 # Contributing
 
