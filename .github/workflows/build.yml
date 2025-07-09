@@ -1,8 +1,8 @@
 name: Compile Firmware and Tests
 
 on: 
-  - push
-  - workflow_dispatch
+  push:
+  workflow_dispatch:
 
 jobs:
   test:
