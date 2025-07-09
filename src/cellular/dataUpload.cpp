@@ -27,6 +27,7 @@ void DataUpload::init(void)
     {
         this->initSuccess = 0;
     }
+    Particle.syncTime();
 }
 
 STATES_e DataUpload::can_upload(void)
