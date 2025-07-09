@@ -1,3 +1,12 @@
+## [3.20.1](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.20.0...v3.20.1) (2025-07-09)
+
+
+### Bug Fixes
+
+*  read_reg_as_temperature now returns NAN ([18d7799](https://github.com/UCSD-E4E/smartfin-fw3/commit/18d7799c997362eb0005f8d266129682dd904cf9))
+* Fixes includes ([a769e7f](https://github.com/UCSD-E4E/smartfin-fw3/commit/a769e7ffe59112e089448bd5f2fccbfd8fe3ff1f))
+* read_reg_as_temperature returns NaN on invalid register ([cb3fe67](https://github.com/UCSD-E4E/smartfin-fw3/commit/cb3fe670ff542b41f71195958c24888c49d286d2))
+
 # [3.20.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.19.0...v3.20.0) (2025-07-09)
 
 
