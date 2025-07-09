@@ -2,6 +2,8 @@ name: Compile Firmware and Tests
 
 on: 
   push:
+    branches:
+      - '**'
   workflow_dispatch:
 
 jobs:
