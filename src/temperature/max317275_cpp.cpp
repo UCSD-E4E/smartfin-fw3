@@ -30,11 +30,13 @@
 * ownership rights.
 *******************************************************************************
 */
-#include "max31725.h"
-#include "max31725_cpp.h"
-#include "i2c/mbed.h"
 #include "cli/conio.hpp"
 #include "consts.hpp"
+#include "i2c/mbed.h"
+#include "max31725.h"
+#include "max31725_cpp.h"
+
+#include <cmath>
 
 #if PARTICLE_IO
 #define printf Serial.printf
