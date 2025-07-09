@@ -64,12 +64,7 @@ jobs:
                 ${{ steps.compile.outputs.target-path }}
                 doxygen/html
                 doxygen.log
-      - name: Upload release artifact
-        if: github.ref_type == 'tag'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            ${{ steps.compile.outputs.firmware-path }}
+
 
   release:
     needs: [compile, test]
