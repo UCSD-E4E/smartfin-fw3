@@ -398,6 +398,15 @@ public:
     {
         return false;
     }
+    inline bool syncTime(void)
+    {
+        return true;
+    }
+
+    inline bool syncTimeDone(void)
+    {
+        return true;
+    }
 };
 #define Particle __fetch_global_particle()
 ParticleClass &__fetch_global_particle();
