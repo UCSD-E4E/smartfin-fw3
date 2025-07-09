@@ -32,7 +32,7 @@ public:
     bool stop();
     /**
      * @brief Gets the current temperature reading from the MAX31725 sensor
-     * @return temperature in degrees Celsius
+     * @return temperature in degrees Celsius, or NAN if error
      */
     float getTemp();
 private:
