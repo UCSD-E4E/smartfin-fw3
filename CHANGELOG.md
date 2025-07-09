@@ -1,3 +1,10 @@
+## [3.20.3](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.20.2...v3.20.3) (2025-07-09)
+
+
+### Bug Fixes
+
+* Fixes ci ([6e4efac](https://github.com/UCSD-E4E/smartfin-fw3/commit/6e4efacb734a09644c8dbe017b4e33eb41c9f25b))
+
 ## [3.20.2](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.20.1...v3.20.2) (2025-07-09)
 
 
