@@ -45,6 +45,7 @@ void TempCalTask::init(void)
     {
         SF_OSAL_printf("Failed to sync time!" __NL__);
     }
+    sf::cloud::wait_disconnect(60000);
     this->ledStatus.setPattern(SF_TCAL_RGB_LED_PATTERN);
     this->ledStatus.setPeriod(SF_TCAL_RGB_LED_PERIOD / 10);
     this->ledStatus.setActive();
