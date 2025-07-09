@@ -22,6 +22,7 @@
 void CLI_connect(void)
 {
     int retval = sf::cloud::wait_connect(30000, true);
+    Particle.syncTime();
     if (0 == retval)
     {
         SF_OSAL_printf("Connected" __NL__);

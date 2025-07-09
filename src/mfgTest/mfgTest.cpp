@@ -133,7 +133,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::temperature_sensor_test(void)
     }
     else
     {
-        SF_OSAL_printf("Temp failed" __NL__);
+        SF_OSAL_printf("Temp failed: Temp %f" __NL__);
         retval = MFG_TEST_RESULT_t::FAIL;
     }
 
@@ -264,6 +264,12 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::cellular_test(void)
             SF_OSAL_printf("Fail" __NL__);
             return MfgTest::FAIL;
         }
+    }
+    Particle.syncTime();
+    system_tick_t start = millis();
+    while (millis() < start + MANUFACTURING_CELL_TIMEOUT_MS || !Particle.syncTimeDone())
+    {
+        delay(1);
     }
     SF_OSAL_printf("Pass" __NL__);
     sf::cloud::wait_disconnect(MANUFACTURING_CELL_TIMEOUT_MS);
