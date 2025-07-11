@@ -9,6 +9,7 @@
 #include <Particle.h>
 #include <cmath>
 #include <errno.h>
+#include <float.h>
 #include <stdint.h>
 
 MfgTest::mfg_test_entry MfgTest::MFG_TEST_TABLE[] = {
@@ -115,36 +116,55 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
     return retval;
 }
 
+float _std_dev(float x, float x2, std::size_t n)
+{
+    return sqrtf((n * x2 - x * x) / (n * (n - 1)));
+}
 
 MfgTest::MFG_TEST_RESULT_t MfgTest::temperature_sensor_test(void)
 {
     float temp;
+    float temp_acc = 0;
+    float temp_acc2 = 0;
+    const std::size_t nIterations = 100;
+
     MFG_TEST_RESULT_t retval = MFG_TEST_RESULT_t::PASS;
 
     SF_OSAL_printf("Running the Temp Test" __NL__);
 
     pSystemDesc->pTempSensor->init();
 
-    temp = pSystemDesc->pTempSensor->getTemp();
+    for (std::size_t idx = 0; idx < nIterations; idx++)
+    {
+        temp = pSystemDesc->pTempSensor->getTemp();
+        if (std::isnan(temp))
+        {
+            retval = MFG_TEST_RESULT_t::FAIL;
+        }
 
-    if ((temp >= MFG_MIN_VALID_TEMPERATURE) && (temp <= MFG_MAX_VALID_TEMPERATURE))
-    {
-        SF_OSAL_printf("Temp passed: Temp %f" __NL__, temp);
+        temp_acc += temp;
+        temp_acc2 += temp * temp;
+        delay(5);
     }
-    else
+
+    float temp_mean = temp_acc / nIterations;
+    float temp_std = _std_dev(temp_acc, temp_acc2, nIterations);
+
+    if ((temp_mean < MFG_MIN_VALID_TEMPERATURE) || (temp_mean > MFG_MAX_VALID_TEMPERATURE))
     {
-        SF_OSAL_printf("Temp failed: Temp %f" __NL__);
+        SF_OSAL_printf("Temp failed: Temp %f" __NL__, temp_mean);
+        retval = MFG_TEST_RESULT_t::FAIL;
+    }
+
+    if (temp_std < 0.001)
+    {
+        SF_OSAL_printf("Temp std failed: std %f" __NL__, temp_std);
         retval = MFG_TEST_RESULT_t::FAIL;
     }
 
     pSystemDesc->pTempSensor->stop();
 
     return retval;
-}
-
-float _std_dev(float x, float x2, std::size_t n)
-{
-    return sqrtf((n * x2 - x * x) / (n * (n - 1)));
 }
 
 void _print_axis(const char *name, float mean, float std_dev)
