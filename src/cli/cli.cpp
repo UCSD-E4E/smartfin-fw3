@@ -373,6 +373,7 @@ static void CLI_monitorSensors(void)
     char ch = ' ';
     pSystemDesc->pChargerCheck->stop();
     pSystemDesc->pWaterCheck->stop();
+    pSystemDesc->pTempSensor->init();
     SF_OSAL_printf(__NL__);
 
     typedef enum
@@ -449,6 +450,7 @@ static void CLI_monitorSensors(void)
     {
         pSystemDesc->pChargerCheck->start();
         pSystemDesc->pWaterCheck->start();
+        pSystemDesc->pTempSensor->stop();
         return;
     }
 
@@ -621,6 +623,7 @@ static void CLI_monitorSensors(void)
         count++;
         delay(delayTime);
     }
+    pSystemDesc->pTempSensor->stop();
     pSystemDesc->pChargerCheck->start();
     pSystemDesc->pWaterCheck->start();
 }
