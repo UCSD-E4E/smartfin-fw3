@@ -391,8 +391,9 @@ static void CLI_monitorSensors(void)
 
     LocationPoint point;
 
+    memset(input_buffer, 0, SF_CLI_MAX_CMD_LEN);
     SF_OSAL_printf("Enter delay time (ms): ");
-    SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN);
+    SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN - 1);
     int delayTime = atoi(input_buffer);
     SF_OSAL_printf("Delay set to %d ms" __NL__, delayTime);
     SF_OSAL_printf("a - acceleraction, g - gyroscope, m - magnetometer, t - temp, w - wet/dry, d - "
