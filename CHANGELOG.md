@@ -1,3 +1,10 @@
+## [3.20.6](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.20.5...v3.20.6) (2025-07-11)
+
+
+### Bug Fixes
+
+* Fixes use after free/shared buffer bug ([7ef5545](https://github.com/UCSD-E4E/smartfin-fw3/commit/7ef5545bbd93257b0c85e80e39982dc53e1d0d35))
+
 ## [3.20.5](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.20.4...v3.20.5) (2025-07-09)
 
 
