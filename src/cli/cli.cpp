@@ -373,6 +373,7 @@ static void CLI_monitorSensors(void)
     char ch = ' ';
     pSystemDesc->pChargerCheck->stop();
     pSystemDesc->pWaterCheck->stop();
+    pSystemDesc->pTempSensor->init();
     SF_OSAL_printf(__NL__);
 
     typedef enum
@@ -449,6 +450,7 @@ static void CLI_monitorSensors(void)
     {
         pSystemDesc->pChargerCheck->start();
         pSystemDesc->pWaterCheck->start();
+        pSystemDesc->pTempSensor->stop();
         return;
     }
 
@@ -599,28 +601,45 @@ static void CLI_monitorSensors(void)
             sensor_headers[SensorHeader_GpsAlt].value = point.altitude;
         }
 
-        if (count % 10 == 0)
+        if (count % 20 == 0)
         {
             for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
             {
                 if (it->active)
                 {
-                    SF_OSAL_printf("|   %s    |\t", it->header);
+                    SF_OSAL_printf("|--------------");
                 }
             }
-            SF_OSAL_printf(__NL__);
+            SF_OSAL_printf("|" __NL__);
+            for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
+            {
+                if (it->active)
+                {
+                    SF_OSAL_printf("| %12s ", it->header);
+                }
+            }
+            SF_OSAL_printf("|" __NL__);
+            for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
+            {
+                if (it->active)
+                {
+                    SF_OSAL_printf("|--------------");
+                }
+            }
+            SF_OSAL_printf("|" __NL__);
         }
         for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
         {
             if (it->active)
             {
-                SF_OSAL_printf(" %8.4f\t", it->value);
+                SF_OSAL_printf("| %12.4f ", it->value);
             }
         }
-        SF_OSAL_printf(__NL__);
+        SF_OSAL_printf("|" __NL__);
         count++;
         delay(delayTime);
     }
+    pSystemDesc->pTempSensor->stop();
     pSystemDesc->pChargerCheck->start();
     pSystemDesc->pWaterCheck->start();
 }

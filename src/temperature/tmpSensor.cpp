@@ -18,6 +18,7 @@
 #include "max31725_cpp.h"
 #include "product.hpp"
 
+#include <math.h>
 #include <stdint.h>
 
 tmpSensor::tmpSensor(MAX31725 &sensor):
@@ -43,7 +44,7 @@ bool tmpSensor::stop()
 
 float tmpSensor::getTemp()
 {
-    float value;
+    float value = NAN;
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     WITH_LOCK(Wire)
     {
