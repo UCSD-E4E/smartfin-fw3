@@ -1,3 +1,17 @@
+# [3.21.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.20.6...v3.21.0) (2025-07-14)
+
+
+### Bug Fixes
+
+* Adds default value to getTemp ([8d9c16d](https://github.com/UCSD-E4E/smartfin-fw3/commit/8d9c16de7bf2343d8c3f3a9e36b78e1484bcaa55))
+* Adds tempSensor init/stop ([6eb0c99](https://github.com/UCSD-E4E/smartfin-fw3/commit/6eb0c99beee7ca7d99decfe20bf01f0bfa584ebc))
+* Fixes table output ([c7e4206](https://github.com/UCSD-E4E/smartfin-fw3/commit/c7e42065cecc8dc30d28d6bafa2faca7c8716b05))
+
+
+### Features
+
+* Adds std dev check to mfg test ([02087c2](https://github.com/UCSD-E4E/smartfin-fw3/commit/02087c222408be7a2387b3e302114fcd0b738e4c))
+
 ## [3.20.6](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.20.5...v3.20.6) (2025-07-11)
 
 
