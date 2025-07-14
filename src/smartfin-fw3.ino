@@ -18,6 +18,7 @@
 #include "states.hpp"
 #include "system.hpp"
 #include "task.hpp"
+#include "temperature/tempCal.hpp"
 #include "vers.hpp"
 SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
@@ -44,13 +45,14 @@ static ChargeTask chargeTask;
 static SleepTask sleepTask;
 static DataUpload uploadTask;
 static RideTask rideTask;
-
+static TempCalTask tempCalTask;
 // Holds the list of states and coresponding tasks
 static StateMachine_t stateMachine[] = {{STATE_CLI, &cliTask},
                                         {STATE_DEEP_SLEEP, &sleepTask},
                                         {STATE_CHARGE, &chargeTask},
                                         {STATE_UPLOAD, &uploadTask},
                                         {STATE_DEPLOYED, &rideTask},
+                                        {STATE_TMP_CAL, &tempCalTask},
                                         {STATE_NULL, NULL}};
 
 static STATES_e currentState;

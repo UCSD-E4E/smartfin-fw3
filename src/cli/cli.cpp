@@ -47,6 +47,7 @@ static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
 static void CLI_doEnsemble(void);
 static void CLI_setWaterSensorWindow(void);
+static void CLI_resetNVRAM(void);
 
 static std::uint8_t packet_buffer[SF_PACKET_SIZE];
 static char input_buffer[SF_CLI_MAX_CMD_LEN];
@@ -76,6 +77,7 @@ const Menu_t CLI_menu[] = {
     {101, "Display System State", &CLI_displaySystemState, MENU_CMD},
     {102, "Display NVRAM", &CLI_displayNVRAM, MENU_CMD},
     {103, "Dump System State", &CLI_dumpSystemState, MENU_CMD},
+    {104, "Reset NVRAM to default", &CLI_resetNVRAM, MENU_CMD},
     {200, "Sleep - Set Sleep Behavior", &CLI_sleepSetSleepBehavior, MENU_CMD},
     {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior, MENU_CMD},
     {300, "Display Reset Reason", &CLI_displayResetReason, MENU_CMD},
@@ -733,4 +735,10 @@ void CLI_setWaterSensorWindow(void)
     }
     pSystemDesc->pWaterSensor->setWindowSize(window_length);
     pSystemDesc->pWaterSensor->resetArray();
+}
+
+void CLI_resetNVRAM(void)
+{
+    pSystemDesc->pNvram->resetDefault();
+    pSystemDesc->pNvram->displayNVRAM();
 }
