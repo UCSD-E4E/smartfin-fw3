@@ -1,3 +1,15 @@
+# [3.22.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.21.0...v3.22.0) (2025-08-06)
+
+
+### Bug Fixes
+
+* Re-enables HDR IMU ([0269c61](https://github.com/UCSD-E4E/smartfin-fw3/commit/0269c61359a615cd7b95419a6fa627016510fd71))
+
+
+### Features
+
+* Switches to new data format ([8986c95](https://github.com/UCSD-E4E/smartfin-fw3/commit/8986c95327060e9bf1da09961a97e9d1a53dcec1))
+
 # [3.21.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.20.6...v3.21.0) (2025-07-14)
 
 
