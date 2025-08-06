@@ -38,7 +38,7 @@ typedef struct EnsembleHeader_
 {
     unsigned int ensembleType : 4;
     unsigned int elapsedTime_ds : 20;
-}EnsembleHeader_t;
+} EnsembleHeader_t;
 
 /**
  * @brief Ensemble 01 - Temperature
@@ -49,18 +49,19 @@ typedef struct EnsembleHeader_
 typedef struct Ensemble01_data_
 {
     /**
-     * @brief Scaled temperature + water
+     * @brief Scaled temperature
      *
-     * If the temperature source is from the IMU, then the scaled temperature
-     * can be retrieved with RAW_TEMP / 333.87 + 21.0. Otherwise, the scaled
-     * temperature can be retrieved with RAW_TEMP / 128.0. If the temperature is
-     * < 0, then the water detect pin did not detect water, and the real
-     * temperature in degrees C is SCALED_TEMP + 100. Otherwise, the water
-     * detect pin did detect water, and the real temperature in degrees C is
-     * SCALED_TEMP.
+     * Scaled temperature is actual temperature * 128
      *
      */
-    int16_t raw_temp;
+    int16_t scaled_temp;
+    /**
+     * @brief Water flag
+     *
+     * 1 if in water, otherwise 0
+     *
+     */
+    uint8_t water;
 } Ensemble01_data_t;
 
 /**
@@ -83,20 +84,19 @@ typedef struct Ensemble07_data_
 typedef struct Ensemble08_data_
 {
     /**
-     * @brief Temperature value of water given by the IMU sensor or MAX31725
-     * temperature sensor at a given time.
+     * @brief Scaled temperature
      *
-     * IMU sensor:
-     * rawTemp = (temperature-21.0)/333.87
+     * Scaled temperature is actual temperature in C * 128
      *
-     * MAX31725:
-     * rawTemp = temperature * 128.0
-     * 
-     * where `temperature` is the scaled_temperature in Celcius and rawTemp is 
-     * the stored representation in `int16_t`.
-     * 
      */
-    int16_t rawTemp;
+    int16_t scaled_temp;
+    /**
+     * @brief Water detection flag
+     *
+     * 1 if in water, otherwise 0
+     *
+     */
+    uint8_t water;
     /**
      * @brief Time since Unix epoch
      *
@@ -115,20 +115,19 @@ typedef struct Ensemble08_data_
 typedef struct Ensemble10_data_
 {
     /**
-     * @brief Temperature value of water given by the IMU sensor or MAX31725
-     * temperature sensor at a given time.
+     * @brief Scaled temperature
      *
-     * IMU sensor:
-     * rawTemp = (temperature-21.0)/333.87
-     *
-     * MAX31725:
-     * rawTemp = temperature * 128.0
-     *
-     * where `temperature` is the scaled_temperature in Celcius and rawTemp is
-     * the stored representation in `int16_t`.
+     * Scaled temperature is actual temperature in C * 128
      *
      */
-    int16_t rawTemp;
+    int16_t scaled_temp;
+    /**
+     * @brief Water detection flag
+     *
+     * 1 if in water, otherwise 0
+     *
+     */
+    uint8_t water;
     /**
      * @brief Array saving the accelerometer data on the x, y, and z axis at a given time
      * such that rawAcceleration[i] = acceleration[i] * 64, where `acceleration` is the
@@ -167,20 +166,19 @@ typedef struct Ensemble10_data_
 typedef struct Ensemble11_data_
 {
     /**
-     * @brief Temperature value of water given by the IMU sensor or MAX31725
-     * temperature sensor at a given time.
+     * @brief Scaled temperature
      *
-     * IMU sensor:
-     * rawTemp = (temperature-21.0)/333.87
-     *
-     * MAX31725:
-     * rawTemp = temperature * 128.0
-     *
-     * where `temperature` is the scaled_temperature in Celcius and rawTemp is
-     * the stored representation in `int16_t`.
+     * Scaled temperature is actual temperature in C * 128
      *
      */
-    int16_t rawTemp;
+    int16_t scaled_temp;
+    /**
+     * @brief Water detection flag
+     *
+     * 1 if in water, otherwise 0
+     *
+     */
+    uint8_t water;
     /**
      * @brief Array saving the accelerometer data on the x, y, and z axis at a given time
      * such that rawAcceleration[i] = acceleration[i] * 64, where `acceleration` is the

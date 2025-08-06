@@ -19,8 +19,13 @@
 #define Q14_SCALAR 16384
 
 /**
+ * @brief Q10 Scalar
+ *
+ */
+#define Q10_SCALAR 1024
+/**
  * @brief Q7 Scalar
- * 
+ *
  */
 #define Q7_SCALAR 128
 

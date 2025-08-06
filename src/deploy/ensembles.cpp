@@ -106,7 +106,8 @@ void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment)
         // populate ensemble
         ensData.header.ensembleType = ENS_TEMP;
         ensData.header.elapsedTime_ds = Ens_getStartTime();
-        ensData.data.raw_temp = 128 * (temp - 100 * water);
+        ensData.data.scaled_temp = Q7_SCALAR * temp;
+        ensData.data.water = water;
 
         // Commit ensemble
         pSystemDesc->pRecorder->putBytes(&ensData, sizeof(ensData));
@@ -233,15 +234,15 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
     // Accumulate measurements
     pData->temperature += temp;
     pData->water += water;
-    pData->acc[0] += B_TO_N_ENDIAN_2(accelData[0]);
-    pData->acc[1] += B_TO_N_ENDIAN_2(accelData[1]);
-    pData->acc[2] += B_TO_N_ENDIAN_2(accelData[2]);
-    pData->ang[0] += B_TO_N_ENDIAN_2(gyroData[0]);
-    pData->ang[1] += B_TO_N_ENDIAN_2(gyroData[1]);
-    pData->ang[2] += B_TO_N_ENDIAN_2(gyroData[2]);
-    pData->mag[0] += B_TO_N_ENDIAN_2(magData[0]);
-    pData->mag[1] += B_TO_N_ENDIAN_2(magData[1]);
-    pData->mag[2] += B_TO_N_ENDIAN_2(magData[2]);
+    pData->acc[0] += accelData[0];
+    pData->acc[1] += accelData[1];
+    pData->acc[2] += accelData[2];
+    pData->ang[0] += gyroData[0];
+    pData->ang[1] += gyroData[1];
+    pData->ang[2] += gyroData[2];
+    pData->mag[0] += magData[0];
+    pData->mag[1] += magData[1];
+    pData->mag[2] += magData[2];
     pData->location[0] += lat;
     pData->location[1] += lng;
     pData->hasGPS += hasGPS ? 1 : 0;
@@ -252,36 +253,30 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
     {
         water = pData->water / pDeployment->measurementsToAccumulate;
         temp = pData->temperature / pDeployment->measurementsToAccumulate;
-        if (water == false)
-        {
-            temp -= 100;
-        }
 
         ensData.header.elapsedTime_ds = Ens_getStartTime();
         SF_OSAL_printf("Ensemble timestamp: %d\n", ensData.header.elapsedTime_ds);
-        ensData.data.ens10.rawTemp = N_TO_B_ENDIAN_2(temp / 0.0078125);
+        ensData.data.ens10.scaled_temp = (temp * Q7_SCALAR);
+        ensData.data.ens10.water = water;
         ensData.data.ens10.rawAcceleration[0] =
-            N_TO_B_ENDIAN_2(pData->acc[0] / pDeployment->measurementsToAccumulate);
+            (pData->acc[0] / pDeployment->measurementsToAccumulate);
         ensData.data.ens10.rawAcceleration[1] =
-            N_TO_B_ENDIAN_2(pData->acc[1] / pDeployment->measurementsToAccumulate);
+            (pData->acc[1] / pDeployment->measurementsToAccumulate);
         ensData.data.ens10.rawAcceleration[2] =
-            N_TO_B_ENDIAN_2(pData->acc[2] / pDeployment->measurementsToAccumulate);
+            (pData->acc[2] / pDeployment->measurementsToAccumulate);
         ensData.data.ens10.rawAngularVel[0] =
-            N_TO_B_ENDIAN_2(pData->ang[0] / pDeployment->measurementsToAccumulate);
+            (pData->ang[0] / pDeployment->measurementsToAccumulate);
         ensData.data.ens10.rawAngularVel[1] =
-            N_TO_B_ENDIAN_2(pData->ang[1] / pDeployment->measurementsToAccumulate);
+            (pData->ang[1] / pDeployment->measurementsToAccumulate);
         ensData.data.ens10.rawAngularVel[2] =
-            N_TO_B_ENDIAN_2(pData->ang[2] / pDeployment->measurementsToAccumulate);
-        ensData.data.ens10.rawMagField[0] =
-            N_TO_B_ENDIAN_2(pData->mag[0] / pDeployment->measurementsToAccumulate);
-        ensData.data.ens10.rawMagField[1] =
-            N_TO_B_ENDIAN_2(pData->mag[1] / pDeployment->measurementsToAccumulate);
-        ensData.data.ens10.rawMagField[2] =
-            N_TO_B_ENDIAN_2(pData->mag[2] / pDeployment->measurementsToAccumulate);
+            (pData->ang[2] / pDeployment->measurementsToAccumulate);
+        ensData.data.ens10.rawMagField[0] = (pData->mag[0] / pDeployment->measurementsToAccumulate);
+        ensData.data.ens10.rawMagField[1] = (pData->mag[1] / pDeployment->measurementsToAccumulate);
+        ensData.data.ens10.rawMagField[2] = (pData->mag[2] / pDeployment->measurementsToAccumulate);
         ensData.data.ens11.location[0] =
-            N_TO_B_ENDIAN_4(pData->location[0] / pDeployment->measurementsToAccumulate);
+            (pData->location[0] / pDeployment->measurementsToAccumulate);
         ensData.data.ens11.location[1] =
-            N_TO_B_ENDIAN_4(pData->location[1] / pDeployment->measurementsToAccumulate);
+            (pData->location[1] / pDeployment->measurementsToAccumulate);
 
         if (pData->hasGPS / pDeployment->measurementsToAccumulate)
         {
@@ -326,8 +321,7 @@ void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
     {
         ensData.header.elapsedTime_ds = Ens_getStartTime();
         ensData.header.ensembleType = ENS_BATT;
-        ensData.data.batteryVoltage =
-            N_TO_B_ENDIAN_2((pData->battVoltage / pData->accumulateCount) * 1000);
+        ensData.data.batteryVoltage = ((pData->battVoltage / pData->accumulateCount) * Q10_SCALAR);
 
         pSystemDesc->pRecorder->putData(ensData);
         memset(pData, 0, sizeof(Ensemble07_eventData_t));
@@ -364,14 +358,11 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
     {
         water = pData->water / pDeployment->measurementsToAccumulate;
         temp = pData->temperature / pDeployment->measurementsToAccumulate;
-        if (water == false)
-        {
-            temp -= 100;
-        }
 
         ens.header.elapsedTime_ds = Ens_getStartTime();
         ens.header.ensembleType = ENS_TEMP_TIME;
-        ens.ensData.rawTemp = N_TO_B_ENDIAN_2(temp / 0.0078125);
+        ens.ensData.scaled_temp = (temp * Q7_SCALAR);
+        ens.ensData.water = water;
 
         pSystemDesc->pRecorder->putData(ens);
         memset(pData, 0, sizeof(Ensemble08_eventData_t));
@@ -462,15 +453,15 @@ void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
     pSystemDesc->pIMU->getDmpRotVel_dps(values[3], values[4], values[5]);
     pSystemDesc->pIMU->getDmpMag_uT(values[6], values[7], values[8]);
 
-    ensData.data.acceleration_ms2_q14[0] = N_TO_B_ENDIAN_2((int16_t)(values[0] * Q14_SCALAR));
-    ensData.data.acceleration_ms2_q14[1] = N_TO_B_ENDIAN_2((int16_t)(values[1] * Q14_SCALAR));
-    ensData.data.acceleration_ms2_q14[2] = N_TO_B_ENDIAN_2((int16_t)(values[2] * Q14_SCALAR));
-    ensData.data.angularVel_dps_q7[0] = N_TO_B_ENDIAN_2((int16_t)(values[3] * Q7_SCALAR));
-    ensData.data.angularVel_dps_q7[1] = N_TO_B_ENDIAN_2((int16_t)(values[4] * Q7_SCALAR));
-    ensData.data.angularVel_dps_q7[2] = N_TO_B_ENDIAN_2((int16_t)(values[5] * Q7_SCALAR));
-    ensData.data.magIntensity_uT_q3[0] = N_TO_B_ENDIAN_2((int16_t)(values[6] * Q3_SCALAR));
-    ensData.data.magIntensity_uT_q3[1] = N_TO_B_ENDIAN_2((int16_t)(values[7] * Q3_SCALAR));
-    ensData.data.magIntensity_uT_q3[2] = N_TO_B_ENDIAN_2((int16_t)(values[8] * Q3_SCALAR));
+    ensData.data.acceleration_ms2_q14[0] = ((int16_t)(values[0] * Q14_SCALAR));
+    ensData.data.acceleration_ms2_q14[1] = ((int16_t)(values[1] * Q14_SCALAR));
+    ensData.data.acceleration_ms2_q14[2] = ((int16_t)(values[2] * Q14_SCALAR));
+    ensData.data.angularVel_dps_q7[0] = ((int16_t)(values[3] * Q7_SCALAR));
+    ensData.data.angularVel_dps_q7[1] = ((int16_t)(values[4] * Q7_SCALAR));
+    ensData.data.angularVel_dps_q7[2] = ((int16_t)(values[5] * Q7_SCALAR));
+    ensData.data.magIntensity_uT_q3[0] = ((int16_t)(values[6] * Q3_SCALAR));
+    ensData.data.magIntensity_uT_q3[1] = ((int16_t)(values[7] * Q3_SCALAR));
+    ensData.data.magIntensity_uT_q3[2] = ((int16_t)(values[8] * Q3_SCALAR));
 
     ensData.header.ensembleType = ENS_TEMP_HIGH_DATA_RATE_IMU;
     ensData.header.elapsedTime_ds = Ens_getStartTime();
