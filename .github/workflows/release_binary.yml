@@ -21,8 +21,10 @@ jobs:
     - name: Rename binary
       run: |
         mv ${{ steps.compile.outputs.firmware-path }} smartfin_fw_${{ github.ref_name }}.bin
+        tail -c 38 smartfin_fw_${{ github.ref_name }}.bin | hexdump -n 32 -e '1 1 "%02x"' > smartfin_fw_${{ github.ref_name }}.bin.fw_sha256
     - name: Upload release artifact
       uses: softprops/action-gh-release@v2
       with:
         files: |
           smartfin_fw_${{ github.ref_name }}.bin
+          smartfin_fw_${{ github.ref_name }}.bin.fw_sha256
