@@ -209,12 +209,15 @@ int FileCLI::openFile(void)
 
 void FileCLI::closeFile(int fp)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     close(fp);
     this->current_dir--;
+#endif
 }
 
 void FileCLI::checksum(void)
 {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     struct stat fstats;
     size_t file_idx = 0;
@@ -251,6 +254,7 @@ void FileCLI::checksum(void)
     crc = ~crc;
     SF_OSAL_printf("CRC32: %8X" __NL__, crc);
     this->closeFile(fp);
+#endif
 }
 
 void FileCLI::change_dir(void)
