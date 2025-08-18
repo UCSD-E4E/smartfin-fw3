@@ -1,3 +1,16 @@
+# [3.23.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.22.0...v3.23.0) (2025-08-18)
+
+
+### Bug Fixes
+
+* Disabling for pc build ([10e146b](https://github.com/UCSD-E4E/smartfin-fw3/commit/10e146b15cdd072cb7f1cc4c15a04458b54e4869))
+
+
+### Features
+
+* Adds CRC32 checksum ([f8e7eff](https://github.com/UCSD-E4E/smartfin-fw3/commit/f8e7eff06bc1a1f34b52a2a45cc4efa80149e10f))
+* Changes HDR ACC to Q10 ([bb12c97](https://github.com/UCSD-E4E/smartfin-fw3/commit/bb12c97651ef3393a772da4638c41f808b9922be))
+
 # [3.22.0](https://github.com/UCSD-E4E/smartfin-fw3/compare/v3.21.0...v3.22.0) (2025-08-06)
 
 
