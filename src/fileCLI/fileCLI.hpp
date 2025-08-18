@@ -97,6 +97,14 @@ private:
     void transfer(void);
 
     /**
+     * @brief Computes the checksums for the specified file
+     *
+     */
+    void checksum(void);
+
+    void openFile(bool &retFlag);
+
+    /**
      * @brief Indicates whether the CLI is running.
      *
      * Set to 1, the CLI continues running; set to 0 the CLI exits.
@@ -158,5 +166,8 @@ private:
      * valid until the next invocation of buildPath.
      */
     const char *buildPath(bool is_dir) const;
+
+    int openFile(void);
+    void closeFile(int fp);
 };
 #endif

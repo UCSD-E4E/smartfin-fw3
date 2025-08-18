@@ -8,6 +8,7 @@
 #include "consts.hpp"
 #include "product.hpp"
 #include "system.hpp"
+#include "util.hpp"
 
 #include <ctype.h>
 #include <dirent.h>
@@ -23,6 +24,7 @@ FileCLI::menu_t FileCLI::fsExplorerMenu[] = {{'c', &FileCLI::change_dir},
                                              {'t', &FileCLI::transfer},
                                              {'h', &FileCLI::dumpHex},
                                              {'l', &FileCLI::list_dir},
+                                             {'k', &FileCLI::checksum},
                                              {'m', &FileCLI::mkdir},
                                              {'p', &FileCLI::print_dir},
                                              {'q', &FileCLI::exit},
@@ -158,6 +160,97 @@ const char *FileCLI::buildPath(bool is_dir) const
         path_buffer_idx = strlen(path_buffer);
     }
     return path_buffer;
+}
+
+int FileCLI::openFile(void)
+{
+    char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
+    DIR *cwd = this->dir_stack[this->current_dir];
+    struct dirent *dirent;
+    long idx;
+    int cmd_val;
+    const char *path;
+    int fp;
+
+    idx = telldir(cwd);
+    while ((dirent = readdir(cwd)))
+    {
+        if (dirent->d_type != DT_REG)
+        {
+            idx = telldir(cwd);
+            continue;
+        }
+        strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+        SF_OSAL_printf("%d: %-16s" __NL__, idx, dirent->d_name);
+        idx = telldir(cwd);
+    }
+    rewinddir(cwd);
+    memset(this->path_stack[this->current_dir], 0, NAME_MAX);
+
+    SF_OSAL_printf("Enter the number of the file to hexdump: ");
+    SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
+    cmd_val = atoi(input_buffer);
+
+    seekdir(cwd, cmd_val);
+    dirent = readdir(cwd);
+    rewinddir(cwd);
+    strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
+    this->current_dir++;
+    path = buildPath(false);
+
+    fp = open(path, O_RDONLY);
+    if (-1 == fp)
+    {
+        SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
+        return -1;
+    }
+    return fp;
+}
+
+void FileCLI::closeFile(int fp)
+{
+    close(fp);
+    this->current_dir--;
+}
+
+void FileCLI::checksum(void)
+{
+    int fp;
+    struct stat fstats;
+    size_t file_idx = 0;
+    uint32_t byte;
+    uint32_t crc, mask;
+    int j;
+
+    crc = 0xFFFFFFFF;
+
+    fp = this->openFile();
+
+    if (fstat(fp, &fstats))
+    {
+        SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
+        this->closeFile(fp);
+        return;
+    }
+
+    for (file_idx = 0; file_idx < fstats.st_size; file_idx++)
+    {
+        if (1 != read(fp, &byte, 1))
+        {
+            SF_OSAL_printf("Failed to read" __NL__);
+            this->closeFile(fp);
+            return;
+        }
+        crc = crc ^ byte;
+        for (j = 0; j < 8; j++)
+        {
+            mask = -(crc & 1);
+            crc = (crc >> 1) ^ (0xEDB88320 & mask);
+        }
+    }
+    crc = ~crc;
+    SF_OSAL_printf("CRC32: %8X" __NL__, crc);
+    this->closeFile(fp);
 }
 
 void FileCLI::change_dir(void)
