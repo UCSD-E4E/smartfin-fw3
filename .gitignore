@@ -297,3 +297,4 @@ target/
 *.bin
 nul
 out/docs/*
+*.fw_sha256
