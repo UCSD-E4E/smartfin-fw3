@@ -150,7 +150,7 @@ static int SYS_initTempSensor(void)
 {
     Wire.begin();
     systemDesc.pTempSensor = &tempSensor;
-
+    systemDesc.pTempSensor->init();
     return 1;
 }
 

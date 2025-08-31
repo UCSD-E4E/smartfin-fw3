@@ -132,7 +132,11 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::temperature_sensor_test(void)
 
     SF_OSAL_printf("Running the Temp Test" __NL__);
 
-    pSystemDesc->pTempSensor->init();
+    // if (!pSystemDesc->pTempSensor->init())
+    // {
+    //     SF_OSAL_printf("Failed to init temp sensor" __NL__);
+    //     retval = MFG_TEST_RESULT_t::FAIL;
+    // }
 
     for (std::size_t idx = 0; idx < nIterations; idx++)
     {
@@ -162,7 +166,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::temperature_sensor_test(void)
         retval = MFG_TEST_RESULT_t::FAIL;
     }
 
-    pSystemDesc->pTempSensor->stop();
+    // pSystemDesc->pTempSensor->stop();
 
     return retval;
 }
