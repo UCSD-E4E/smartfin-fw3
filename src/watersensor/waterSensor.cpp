@@ -198,10 +198,10 @@ uint8_t WaterSensor::getCurrentReading()
 {
     uint8_t temp_8;
 
-    digitalWrite(water_detect_en_pin, LOW);
+    digitalWrite(water_detect_en_pin, HIGH);
     delayMicroseconds(WATER_DETECT_EN_TIME_US);
     temp_8 = digitalRead(water_detect_pin); // comment out if using above logic block
-    digitalWrite(water_detect_en_pin, HIGH);
+    digitalWrite(water_detect_en_pin, LOW);
 
     return temp_8; // comment out if using above logic block
 }
