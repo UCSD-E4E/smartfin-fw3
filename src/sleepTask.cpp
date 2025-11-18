@@ -36,6 +36,10 @@ void SleepTask::init(void)
     // bring down the system safely
     SYS_deinitSys();
 
+    // Turn off wet/dry LED before sleeping
+    pinMode(WATER_STATUS_LED, OUTPUT);
+    digitalWrite(WATER_STATUS_LED, LOW);
+
     // Set WATER_EN LOW so that we can wake from it
     digitalWrite(WATER_DETECT_EN_PIN, LOW);
 
@@ -75,6 +79,12 @@ STATES_e SleepTask::run(void)
 {
 
     SF_OSAL_printf("We're supposed to be asleep! Resetting state machine..." __NL__);
+    // Check if water level's have been updateds
+    if (pSystemDesc->pWaterSensor->getLastStatus() && !pSystemDesc->flags->batteryLow)
+    {
+        SF_OSAL_printf("In water!" __NL__);
+        return STATE_DEPLOYED;
+    }
     return SF_DEFAULT_STATE;
 }
 
