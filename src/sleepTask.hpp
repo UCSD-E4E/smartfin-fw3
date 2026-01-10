@@ -8,7 +8,10 @@
 #define SLEEP_RGB_LED_PATTERN LED_PATTERN_BLINK
 #define SLEEP_RGB_LED_PERIOD 20
 #define SLEEP_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
-
+/**
+ * @brief Handles process of transitioning to deep sleep
+ * @details Provides methods to setup deep sleep task, defining potential boot behavior (and methods to access them) and checking for them before entering deep sleep.
+ */
 class SleepTask : public Task {
     public:
     void init(void);
