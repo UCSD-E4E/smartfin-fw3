@@ -4,6 +4,8 @@
 
 #include "temperature/tmpSensor.h"
 #include "temperature/max31725.h"
+#include "temperature/tmp117Sensor.h"
+#include "temperature/tmp117.h"
 #include "location_service.h"
 
 #include "cli/conio.hpp"
