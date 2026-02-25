@@ -16,26 +16,26 @@
  */
 
 /******************************************************************************/
-MAX31725::MAX31725(I2C &i2c_bus, uint8_t slave_address):
+TMP117::TMP117(I2C &i2c_bus, uint8_t slave_address):
 m_i2c(i2c_bus), 
 m_write_address(slave_address <<1),
 m_read_address ((slave_address << 1) | 1)
 {
-        max31725_extended_format = 0;
+        tmp117_extended_format = 0;
 }
  
 /******************************************************************************/
-MAX31725::~MAX31725(void) 
+TMP117::~TMP117(void) 
 {
   /** empty block */
 }
 
 /******************************************************************************/
-int MAX31725::read_cfg_reg(uint8_t *value) 
+int TMP117::read_cfg_reg(uint8_t *value) 
 {
     int32_t ret;
     char data[1] = {0};
-    char reg = MAX31725_REG_CONFIGURATION;
+    char reg = TMP117_CONFIGURATION;
 
     /* write to the Register Select, true is for repeated start */
     ret = m_i2c.write(m_write_address, &reg, 1, true);
@@ -43,7 +43,7 @@ int MAX31725::read_cfg_reg(uint8_t *value)
         ret = m_i2c.read(m_read_address, data, 1, false);
         if (ret == 0) {
             *value = data[0];
-            return MAX31725_NO_ERROR;
+            return TMP117_NO_ERROR;
         } else {
             SF_OSAL_printf(
                 "%s: failed to read data: ret: %ld\r" __NL__, __func__, ret);
@@ -56,14 +56,14 @@ int MAX31725::read_cfg_reg(uint8_t *value)
 }
 
 /******************************************************************************/
-int MAX31725::read_reg16(int16_t *value, char reg) 
+int TMP117::read_reg16(int16_t *value, char reg) 
 {
     int32_t ret;
     char data[2] = {0, 0};
     max31725_raw_data tmp;
      
-    if (reg == MAX31725_REG_TEMPERATURE || 
-        reg == MAX31725_REG_THYST_LOW_TRIP || reg == MAX31725_REG_TOS_HIGH_TRIP) {
+    if (reg == TMP117_TEMP_DATA || 
+        reg == TMP117_T_LOW_LIMIT || reg == TMP117_T_HIGH_LIMIT) {
         /* write to the Register Select, true is for repeated start */
         ret = m_i2c.write(m_write_address, &reg, 1, true);
         /* read the two bytes of data */
@@ -73,7 +73,7 @@ int MAX31725::read_reg16(int16_t *value, char reg)
                 tmp.msb = data[0];
                 tmp.lsb = data[1];
                 *value = tmp.swrd;
-                return MAX31725_NO_ERROR;
+                return TMP117_NO_ERROR;
             } else {
                 SF_OSAL_printf("%s: failed to read data: ret: %ld\r" __NL__, __func__, ret);
             }
@@ -85,22 +85,20 @@ int MAX31725::read_reg16(int16_t *value, char reg)
         SF_OSAL_printf("%s: register address is not correct: register: %d\r" __NL__,
                 __func__, reg);
     }                
-    return MAX31725_ERROR;
+    return TMP117_ERROR;
 }
 
 /******************************************************************************/
-float MAX31725::read_reg_as_temperature(uint8_t reg)
+float TMP117::read_reg_as_temperature(uint8_t reg)
 {
     max31725_raw_data tmp;
     float temperature;
-    if (reg == MAX31725_REG_TEMPERATURE ||
-        reg == MAX31725_REG_THYST_LOW_TRIP || reg == MAX31725_REG_TOS_HIGH_TRIP) {
+    if (reg == TMP117_TEMP_DATA || 
+        reg == TMP117_T_LOW_LIMIT || reg == TMP117_T_HIGH_LIMIT) {
         read_reg16(&tmp.swrd, reg);
         temperature = (float)tmp.swrd;  /* values are 2's complement */
-        temperature *= MAX31725_CF_LSB;
-        if (reg == MAX31725_REG_TEMPERATURE && max31725_extended_format)
-            temperature += MAX31725_EXTENDED_FORMAT_OFFSET;
-
+        temperature *= TMP117_RESOLUTION;
+        //removed extended formatting
         return temperature;
     } else {
         SF_OSAL_printf("%s: register is invalid, %d r" __NL__, __func__, reg);
@@ -109,56 +107,52 @@ float MAX31725::read_reg_as_temperature(uint8_t reg)
 }
 
 /******************************************************************************/
-int MAX31725::write_reg16(int16_t value, char reg) 
+int TMP117::write_reg16(int16_t value, char reg) 
 {
     int32_t ret;
     char cmd[3];
     max31725_raw_data tmp;
 
-    if (reg >= MAX31725_REG_THYST_LOW_TRIP && reg <= MAX31725_REG_MAX) {
+    if (reg >= TMP117_T_LOW_LIMIT && reg <= TMP117_T_HIGH_LIMIT) {
         cmd[0] = reg;
         tmp.swrd = value;
         cmd[1] = tmp.msb;
         cmd[2] = tmp.lsb;
         ret = m_i2c.write(m_write_address, cmd, 3, false);
         if (ret == 0) {
-            return MAX31725_NO_ERROR;
+            return TMP117_NO_ERROR;
         } else {
             SF_OSAL_printf("Write error" __NL__);
             SF_OSAL_printf("%s: I2C write error %ld\r" __NL__,__func__, ret);
-            return MAX31725_ERROR;
+            return TMP117_ERROR;
         }
     } else {
         SF_OSAL_printf("%s: register value invalid %x\r" __NL__,__func__, reg);
-        return MAX31725_ERROR;
+        return TMP117_ERROR;
     }
 }
 
 
 /******************************************************************************/
-int MAX31725::write_cfg_reg(uint8_t cfg)
+int TMP117::write_cfg_reg(uint8_t cfg)
 {
     int32_t ret;
     char cmd[2];
 
-    cmd[0] = MAX31725_REG_CONFIGURATION;
+    cmd[0] = TMP117_CONFIGURATION;
     cmd[1] = cfg;
     ret = m_i2c.write(m_write_address, cmd, 2, false);
 
     if (ret == 0) {
-        max31725_extended_format = 0;
-        if (cfg & MAX31725_CFG_EXTENDED_FORMAT)
-            max31725_extended_format = 1;
-
-        return MAX31725_NO_ERROR;
+        return TMP117_NO_ERROR;
     } else {
         SF_OSAL_printf("%s: I2C write error %ld\r" __NL__,__func__, ret);
-        return MAX31725_ERROR;
+        return TMP117_ERROR;
     }
 }
 
 /******************************************************************************/
-int MAX31725::write_trip_low_thyst(float temperature)
+int TMP117::write_trip_low_thyst(float temperature)
 {
     max31725_raw_data raw;
     temperature /= MAX31725_CF_LSB;
@@ -167,16 +161,16 @@ int MAX31725::write_trip_low_thyst(float temperature)
 }
 
 /******************************************************************************/
-int MAX31725::write_trip_high_tos(float temperature)
+int TMP117::write_trip_high_tos(float temperature)
 {
-    max31725_raw_data raw;
-    temperature /= MAX31725_CF_LSB;
+    tmp117_raw_data raw;
+    temperature /= TMP117_RESOLUTION;
     raw.swrd = int16_t(temperature);
-    return write_reg16(raw.uwrd, MAX31725_REG_TOS_HIGH_TRIP);
+    return write_reg16(raw.uwrd, TMP117_T_HIGH_LIMIT);
 }
 
 /******************************************************************************/
-float MAX31725::celsius_to_fahrenheit(float temp_c)
+float TMP117::celsius_to_fahrenheit(float temp_c)
 {
     float temp_f;
     temp_f = ((temp_c * 9)/5) + 32;

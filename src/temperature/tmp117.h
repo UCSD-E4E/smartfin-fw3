@@ -3,6 +3,9 @@
 
 #include "i2c/mbed.h"
 
+#define TMP117_NO_ERROR   0
+#define TMP117_ERROR      -1
+
 #define TMP117_I2CADDR_DEFAULT 0x48 ///< TMP117 default i2c address
 #define TMP117_CHIP_ID 0x0117       ///< TMP117 default device id from WHOAMI
 
@@ -101,5 +104,21 @@ typedef enum {
   TMP117_MODE_SHUTDOWN,
   TMP117_MODE_ONE_SHOT = 3, // skipping 0x2 which is a duplicate CONTINUOUS
 } tmp117_mode_t;
+
+/** @union tmp117_raw_data
+ * @brief union data structure for byte word manipulations
+ */
+union tmp117_raw_data {
+  struct {
+      uint8_t lsb;
+      uint8_t msb;
+  };
+  struct {
+      uint16_t magnitude_bits:15;
+      uint16_t sign_bit:1;
+  };
+  uint16_t uwrd;
+  int16_t swrd;
+};
 
 #endif
