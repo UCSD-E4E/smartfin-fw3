@@ -25,12 +25,12 @@
  * I2C i2cBus(SDA, SCL);
  * int main()
  * {
- *     float temperature;
- *     TMP117 temp_sensor(i2cBus, TMP117_I2C_SLAVE_ADR_00);
- *     i2cBus.frequency(400000);
- *     temperature = temp_sensor.read_reg_as_temperature(TMP117_REG_TEMPERATURE);
- *     printf("Temperature = %3.4f Celsius, %3.4f Fahrenheit\r\n", 
- *         temperature, temp_sensor.celsius_to_fahrenheit(temperature));
+ * float temperature;
+ * TMP117 temp_sensor(i2cBus, TMP117_I2CADDR_DEFAULT);
+ * i2cBus.frequency(400000);
+ * temperature = temp_sensor.read_reg_as_temperature(TMP117_TEMP_DATA);
+ * printf("Temperature = %3.4f Celsius, %3.4f Fahrenheit\r\n", 
+ * temperature, temp_sensor.celsius_to_fahrenheit(temperature));
  * }
  * @endcode
  */
@@ -41,12 +41,11 @@ class TMP117
 
     /**********************************************************//**
      * @brief Constructor for TMP117 Class.  
-     * 
-     * @details Allows user to use existing I2C object
+     * * @details Allows user to use existing I2C object
      *
      * On Entry:
-     *     @param[in] i2c_bus - reference to existing I2C object
-     *     @param[in] slave_address - 7-bit slave address of TMP117
+     * @param[in] i2c_bus - reference to existing I2C object
+     * @param[in] slave_address - 7-bit slave address of TMP117
      *
      * On Exit:
      *
@@ -89,37 +88,32 @@ class TMP117
      */
     float read_reg_as_temperature(uint8_t reg);
 
-    /** 
-     * @brief Writes to the configuration register
+    /** * @brief Writes to the configuration register
      * @param cfg - configuration word
      * @return 0 on success, negative number on failure
      */
     int write_cfg_reg(uint8_t cfg);
 
-    /** 
-     * @brief Writes to the low threshold register
+    /** * @brief Writes to the low threshold register
      * @param temperature - the temperature in Celsius degrees
      * @return 0 on success, negative number on failure
      */
     int write_low_threshold(float temperature);
 
-    /** 
-     * @brief Writes to the high threshold register
+    /** * @brief Writes to the high threshold register
      * @param temperature - the temperature in Celsius degrees
      * @return 0 on success, negative number on failure
      */
     int write_high_threshold(float temperature);
 
-    /** 
-     * @brief Converts Celsius degrees to Fahrenheit
+    /** * @brief Converts Celsius degrees to Fahrenheit
      * @param temp_c - the temperature in Celsius degrees
      * @return temperature in Fahrenheit degrees
      */
     float celsius_to_fahrenheit(float temp_c);
 
 protected: 
-    /** 
-     * @brief Write a value to a register
+    /** * @brief Write a value to a register
      * @param value - value to write to the register
      * @param reg - register address
      * @return 0 on success, negative number on failure

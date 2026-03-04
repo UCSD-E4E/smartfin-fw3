@@ -11,7 +11,7 @@
 #endif
 
 /******************************************************************************
- *  C++ version for MAX31725 driver                                           *
+ * C++ version for TMP117 driver                                             *
  ******************************************************************************
  */
 
@@ -21,7 +21,7 @@ m_i2c(i2c_bus),
 m_write_address(slave_address <<1),
 m_read_address ((slave_address << 1) | 1)
 {
-        tmp117_extended_format = 0;
+    // removed undeclared tmp117_extended_format variable
 }
  
 /******************************************************************************/
@@ -52,7 +52,7 @@ int TMP117::read_cfg_reg(uint8_t *value)
         SF_OSAL_printf("%s: failed to write to Register Select: ret: %ld\r" __NL__,
             __func__, ret);
     }
-    return MAX31725_ERROR;
+    return TMP117_ERROR;
 }
 
 /******************************************************************************/
@@ -60,7 +60,7 @@ int TMP117::read_reg16(int16_t *value, char reg)
 {
     int32_t ret;
     char data[2] = {0, 0};
-    max31725_raw_data tmp;
+    tmp117_raw_data tmp;
      
     if (reg == TMP117_TEMP_DATA || 
         reg == TMP117_T_LOW_LIMIT || reg == TMP117_T_HIGH_LIMIT) {
@@ -91,14 +91,13 @@ int TMP117::read_reg16(int16_t *value, char reg)
 /******************************************************************************/
 float TMP117::read_reg_as_temperature(uint8_t reg)
 {
-    max31725_raw_data tmp;
+    tmp117_raw_data tmp;
     float temperature;
     if (reg == TMP117_TEMP_DATA || 
         reg == TMP117_T_LOW_LIMIT || reg == TMP117_T_HIGH_LIMIT) {
         read_reg16(&tmp.swrd, reg);
         temperature = (float)tmp.swrd;  /* values are 2's complement */
         temperature *= TMP117_RESOLUTION;
-        //removed extended formatting
         return temperature;
     } else {
         SF_OSAL_printf("%s: register is invalid, %d r" __NL__, __func__, reg);
@@ -111,7 +110,7 @@ int TMP117::write_reg16(int16_t value, char reg)
 {
     int32_t ret;
     char cmd[3];
-    max31725_raw_data tmp;
+    tmp117_raw_data tmp;
 
     if (reg >= TMP117_T_LOW_LIMIT && reg <= TMP117_T_HIGH_LIMIT) {
         cmd[0] = reg;
@@ -152,21 +151,21 @@ int TMP117::write_cfg_reg(uint8_t cfg)
 }
 
 /******************************************************************************/
-int TMP117::write_trip_low_thyst(float temperature)
-{
-    max31725_raw_data raw;
-    temperature /= MAX31725_CF_LSB;
-    raw.swrd = int16_t(temperature);
-    return write_reg16(raw.swrd, MAX31725_REG_THYST_LOW_TRIP);
-}
-
-/******************************************************************************/
-int TMP117::write_trip_high_tos(float temperature)
+int TMP117::write_low_threshold(float temperature)
 {
     tmp117_raw_data raw;
     temperature /= TMP117_RESOLUTION;
     raw.swrd = int16_t(temperature);
-    return write_reg16(raw.uwrd, TMP117_T_HIGH_LIMIT);
+    return write_reg16(raw.swrd, TMP117_T_LOW_LIMIT);
+}
+
+/******************************************************************************/
+int TMP117::write_high_threshold(float temperature)
+{
+    tmp117_raw_data raw;
+    temperature /= TMP117_RESOLUTION;
+    raw.swrd = int16_t(temperature);
+    return write_reg16(raw.swrd, TMP117_T_HIGH_LIMIT);
 }
 
 /******************************************************************************/

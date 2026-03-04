@@ -1,33 +1,33 @@
-#include "tmpSensor.h"
+#include "tmp117Sensor.h"
 
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
-#include "max31725.h"
-#include "max31725_cpp.h"
+#include "tmp117.h"
+#include "tmp117_cpp.h"
 #include "product.hpp"
 
 #include <math.h>
 #include <stdint.h>
 
-tmpSensor::tmpSensor(MAX31725 &sensor):
+tmpSensor::tmpSensor(TMP117 &sensor):
 m_sensor(sensor)
 {
 }
 
 bool tmpSensor::init()
 {
-    int sucsess = m_sensor.write_cfg_reg(MAX31725_CFG_CONTINUOUS);
-    if(!sucsess) 
+    int success = m_sensor.write_cfg_reg(TMP117_MODE_CONTINUOUS);
+    if(!success) 
     {
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
     }
-    return sucsess;
+    return success;
 }
 
 bool tmpSensor::stop()
 {
-    m_sensor.write_cfg_reg(MAX31725_CFG_SHUTDOWN);
+    m_sensor.write_cfg_reg(TMP117_MODE_SHUTDOWN);
     return true;
 }
 
@@ -37,7 +37,7 @@ float tmpSensor::getTemp()
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     WITH_LOCK(Wire)
     {
-        value = m_sensor.read_reg_as_temperature(MAX31725_REG_TEMPERATURE);
+        value = m_sensor.read_reg_as_temperature(TMP117_TEMP_DATA);
     }
 #endif
     return value;
