@@ -10,12 +10,12 @@
 #include <math.h>
 #include <stdint.h>
 
-tmpSensor::tmpSensor(TMP117 &sensor):
+tmp117Sensor::tmp117Sensor(TMP117 &sensor):
 m_sensor(sensor)
 {
 }
 
-bool tmpSensor::init()
+bool tmp117Sensor::init()
 {
     int success = m_sensor.write_cfg_reg(TMP117_MODE_CONTINUOUS);
     if(!success) 
@@ -25,13 +25,13 @@ bool tmpSensor::init()
     return success;
 }
 
-bool tmpSensor::stop()
+bool tmp117Sensor::stop()
 {
     m_sensor.write_cfg_reg(TMP117_MODE_SHUTDOWN);
     return true;
 }
 
-float tmpSensor::getTemp()
+float tmp117Sensor::getTemp()
 {
     float value = NAN;
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE

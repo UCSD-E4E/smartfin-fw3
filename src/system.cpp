@@ -2,27 +2,30 @@
 
 #include "product.hpp"
 
-#include "temperature/tmpSensor.h"
-#include "temperature/max31725.h"
-#include "temperature/tmp117Sensor.h"
-#include "temperature/tmp117.h"
-#include "location_service.h"
-
-#include "cli/conio.hpp"
-#include "cli/flog.hpp"
-#include "SPI.h"
-#include <fcntl.h>
-
-#include "consts.hpp"
-#include "states.hpp"
-#include "product.hpp"
-
-#include "sys/led.hpp"
-
+// ===== Temperature Sensor Configuration =====
+// Define which temperature sensor to use:
+// 1 = MAX31725 (default)
+// 2 = TMP117
+#define TEMP_SENSOR_TYPE 2
+// ============================================
 
 #include "Particle.h"
+#include "SPI.h"
+#include "cli/conio.hpp"
+#include "cli/flog.hpp"
+#include "consts.hpp"
+#include "location_service.h"
+#include "product.hpp"
+#include "states.hpp"
+#include "sys/led.hpp"
+#include "temperature/max31725.h"
+#include "temperature/max31725_cpp.h"
+#include "temperature/tmp117.h"
+#include "temperature/tmp117Sensor.h"
+#include "temperature/tmp117_cpp.h"
+#include "temperature/tmpSensor.h"
 
-
+#include <fcntl.h>
 
 char SYS_deviceID[32];
 
@@ -47,8 +50,17 @@ static int SYS_initTempSensor(void);
 static int SYS_initIMU(void);
 
 I2C i2cBus;
+
+// MAX31725 temperature sensor
 MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
-tmpSensor tempSensor(max31725);
+tmpSensor tempSensorMAX31725(max31725);
+
+// TMP117 temperature sensor
+TMP117 tmp117Sensor_hw(i2cBus, TMP117_I2CADDR_DEFAULT);
+tmp117Sensor tempSensorTMP117(tmp117Sensor_hw);
+
+// Temperature sensor interface pointer - will be assigned based on TEMP_SENSOR_TYPE
+ITemperatureSensor *pActiveTempSensor = nullptr;
 
 static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
 static SFLed waterLED(WATER_STATUS_LED, SFLed::SFLED_STATE_OFF);
@@ -151,7 +163,25 @@ static int SYS_initTasks(void)
 static int SYS_initTempSensor(void)
 {
     Wire.begin();
-    systemDesc.pTempSensor = &tempSensor;
+
+    // Select temperature sensor based on TEMP_SENSOR_TYPE define
+#if TEMP_SENSOR_TYPE == 1
+    pActiveTempSensor = &tempSensorMAX31725;
+    SF_OSAL_printf("Using MAX31725 temperature sensor" __NL__);
+#elif TEMP_SENSOR_TYPE == 2
+    pActiveTempSensor = &tempSensorTMP117;
+    SF_OSAL_printf("Using TMP117 temperature sensor" __NL__);
+#else
+#error "Invalid TEMP_SENSOR_TYPE. Must be 1 (MAX31725) or 2 (TMP117)"
+#endif
+
+    systemDesc.pTempSensor = pActiveTempSensor;
+
+    if (pActiveTempSensor && !pActiveTempSensor->init())
+    {
+        FLOG_AddError(FLOG_TEMP_FAIL, 0);
+        return 0;
+    }
 
     return 1;
 }

@@ -1,13 +1,16 @@
 #ifndef TMPSENSOR_H
 #define TMPSENSOR_H
 #include "max31725_cpp.h"
+#include "temperatureSensorInterface.h"
+
 #include <stdint.h>
 
 /**
  * @brief The tmpSensor adapter class wraps a MAX31725 temperature sensor. 
  * It provides methods to confirm successful configuration register writing and getting sensor temperature data.
  */
-class tmpSensor {
+class tmpSensor : public ITemperatureSensor
+{
 public:
     /**
      * @brief Constructs a tmpSensor adapter class object
@@ -21,7 +24,7 @@ public:
      * 
      * true on success, false on failure
      */
-    bool init();
+    bool init() override;
     /**
      * @brief Determines whether the MAX31725 sensor is functional
      * @return Boolean value of whether a MAX31725 sensor successfully stopped writing
@@ -29,12 +32,13 @@ public:
      *
      * true on sensor being functional and false otherwise
      */
-    bool stop();
+    bool stop() override;
     /**
      * @brief Gets the current temperature reading from the MAX31725 sensor
      * @return temperature in degrees Celsius, or NAN if error
      */
-    float getTemp();
+    float getTemp() override;
+
 private:
     /**
      * @brief MAX31725 sensor reference
