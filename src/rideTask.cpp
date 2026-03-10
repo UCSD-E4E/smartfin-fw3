@@ -55,7 +55,9 @@ void RideTask::init()
 
     this->startTime = millis();
     this->sessionTimeSet = false;
+#if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().init();
+#endif
     if (!pSystemDesc->pRecorder->openSession())
     {
         SF_OSAL_printf("Failed to open session!" __NL__);
@@ -139,7 +141,9 @@ STATES_e RideTask::run(void)
                 return STATE_DEEP_SLEEP;
             }
             delay(1);
+#if ENABLE_STREAM_SINK
             BleLiveStream::getInstance().processTx();
+#endif
         }
         start = micros();
         pNextEvent->measure(pNextEvent);
@@ -180,8 +184,10 @@ STATES_e RideTask::run(void)
 void RideTask::exit(void)
 {
     SF_OSAL_printf("Closing session" __NL__);
+#if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().flush();
     BleLiveStream::getInstance().processTx();
+#endif
     pSystemDesc->pRecorder->closeSession();
     pSystemDesc->pChargerCheck->start();
     SF_OSAL_printf("| Task             | Avg. Duration (us) | Count        |" __NL__);
