@@ -64,8 +64,22 @@ private:
     sf::util::SpscQueue<sf::ble::transport::TxPacket,
                         SF_BLE_QUEUE_CAPACITY> txQueue_;
 
+    struct TimeSyncState
+    {
+        bool valid;
+        uint32_t boardMillisAtSync;
+        uint64_t watchUnixMsAtSync;
+        uint32_t syncSeq;
+    };
+
+    TimeSyncState timeSync_;
+
     bool initialized_;        //!< True when `init()` completed.
     uint32_t droppedPackets_; //!< Count of dropped/overflow packets.
+
+    void handleControlRx(const uint8_t* data, size_t len);
+    void handleTimeSync(uint64_t watchUnixMs, uint32_t seq);
+    static void controlRxThunk(const uint8_t* data, size_t len, void* context);
 };
 
 #endif // __BLE_LIVE_STREAM_HPP__

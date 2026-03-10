@@ -4,6 +4,25 @@
 #include "ble_transport.hpp"
 #include "sf_ble.hpp"
 
+#include <cstring>
+
+/**
+ * @brief Control message types coming from the watch.
+ */
+namespace
+{
+    constexpr uint8_t TIME_SYNC_MSG = 1;
+
+#pragma pack(push, 1)
+    struct TimeSyncMsg
+    {
+        uint8_t type;
+        uint32_t seq;
+        uint64_t watchUnixMs;
+    };
+#pragma pack(pop)
+}
+
 /**
  * @file ble_live_stream.cpp
  * @brief Implements the BLE live-stream helper and queueing logic.
@@ -12,7 +31,11 @@
  */
 
 BleLiveStream::BleLiveStream()
-    : packetBuilder_(), txQueue_(), initialized_(false), droppedPackets_(0)
+    : packetBuilder_(),
+      txQueue_(),
+      timeSync_{false, 0, 0, 0},
+      initialized_(false),
+      droppedPackets_(0)
 {
 }
 
@@ -37,6 +60,7 @@ bool BleLiveStream::init()
     initialized_ = true;
     droppedPackets_ = 0;
     SFBLE::getInstance().startAdvertising();
+    SFBLE::getInstance().setControlCallback(BleLiveStream::controlRxThunk, this);
     return true;
 }
 
@@ -121,4 +145,38 @@ void BleLiveStream::processTx()
 bool BleLiveStream::isConnected() const
 {
     return SFBLE::getInstance().isConnected();
+}
+
+void BleLiveStream::controlRxThunk(const uint8_t* data, size_t len, void* context)
+{
+    BleLiveStream* self = static_cast<BleLiveStream*>(context);
+    if (self != nullptr)
+    {
+        self->handleControlRx(data, len);
+    }
+}
+
+void BleLiveStream::handleControlRx(const uint8_t* data, size_t len)
+{
+    if (data == nullptr || len < sizeof(TimeSyncMsg))
+    {
+        return;
+    }
+
+    TimeSyncMsg msg;
+    std::memcpy(&msg, data, sizeof(msg));
+    if (msg.type == TIME_SYNC_MSG)
+    {
+        handleTimeSync(msg.watchUnixMs, msg.seq);
+    }
+}
+
+void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
+{
+    timeSync_.valid = true;
+    timeSync_.boardMillisAtSync = millis();
+    timeSync_.watchUnixMsAtSync = watchUnixMs;
+    timeSync_.syncSeq = seq;
+
+    Time.setTime(static_cast<time_t>(watchUnixMs / 1000));
 }
