@@ -50,6 +50,11 @@ public:
     void processTx();
 
     /**
+     * @brief Estimate Unix time in seconds using last sync plus board millis.
+     */
+    uint32_t estimateUnixTime(uint32_t boardMillis) const;
+
+    /**
      * @brief Check if a BLE central is currently connected.
      * @return true when connected.
      */
@@ -87,8 +92,6 @@ private:
     /** @brief Static thunk registered with SFBLE for control RX. */
     static void controlRxThunk(const uint8_t *data, size_t len, void *context);
 
-    /** @brief Estimate Unix time in seconds using last sync plus board millis. */
-    uint32_t estimateUnixTime(uint32_t boardMillis) const;
 };
 
 #endif // __BLE_LIVE_STREAM_HPP__
