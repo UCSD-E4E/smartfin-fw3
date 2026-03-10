@@ -20,9 +20,9 @@ namespace ble
 namespace transport
 {
 /** @brief Maximum on-air packet size (matches BLE notify MTU planning). */
-constexpr std::size_t MAX_PACKET_SIZE = SF_BLE_MAX_PACKET_SIZE;
+inline constexpr std::size_t MAX_PACKET_SIZE = SF_BLE_MAX_PACKET_SIZE;
 /** @brief Protocol version byte placed in each header. */
-constexpr std::uint8_t PROTOCOL_VERSION = SF_BLE_PROTOCOL_VERSION;
+inline constexpr std::uint8_t PROTOCOL_VERSION = SF_BLE_PROTOCOL_VERSION;
 
 /**
  * @brief Packet type identifiers carried in the BLE header.
