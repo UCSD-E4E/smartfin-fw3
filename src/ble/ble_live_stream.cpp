@@ -36,7 +36,7 @@ bool BleLiveStream::init()
 
     initialized_ = true;
     droppedPackets_ = 0;
-
+    SFBLE::getInstance().startAdvertising();
     return true;
 }
 
