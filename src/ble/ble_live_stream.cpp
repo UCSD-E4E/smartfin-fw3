@@ -9,6 +9,7 @@
 
 #include "ble_config.hpp"
 #include "ble_transport.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "sf_ble.hpp"
 
 #include "Particle.h"
@@ -140,7 +141,7 @@ void BleLiveStream::processTx()
     sf::ble::transport::TxPacket packet;
     while (txQueue_.pop(packet))
     {
-        if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+        if (!HighRateStream::getInstance().enqueueTxPacket(packet))
         {
             ++droppedPackets_;
         }
