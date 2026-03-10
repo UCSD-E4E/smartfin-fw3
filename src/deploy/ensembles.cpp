@@ -9,6 +9,7 @@
 
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
+#include "deploy/ensemble_commit.hpp"
 #include "imu/newIMU.hpp"
 #include "product.hpp"
 #include "scheduler.hpp"
@@ -110,7 +111,7 @@ void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment)
         ensData.data.water = water;
 
         // Commit ensemble
-        pSystemDesc->pRecorder->putBytes(&ensData, sizeof(ensData));
+        sf::deploy::commitEnsemble(&ensData, sizeof(ensData));
 
         // Reset data
         pData->temperature = 0;
@@ -281,14 +282,14 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
         if (pData->hasGPS / pDeployment->measurementsToAccumulate)
         {
             ensData.header.ensembleType = ENS_TEMP_IMU_GPS;
-            pSystemDesc->pRecorder->putBytes(&ensData,
-                                             sizeof(EnsembleHeader_t) + sizeof(Ensemble11_data_t));
+            sf::deploy::commitEnsemble(&ensData,
+                                       sizeof(EnsembleHeader_t) + sizeof(Ensemble11_data_t));
         }
         else
         {
             ensData.header.ensembleType = ENS_TEMP_IMU;
-            pSystemDesc->pRecorder->putBytes(&ensData,
-                                             sizeof(EnsembleHeader_t) + sizeof(Ensemble10_data_t));
+            sf::deploy::commitEnsemble(&ensData,
+                                       sizeof(EnsembleHeader_t) + sizeof(Ensemble10_data_t));
         }
 
         memset(pData, 0, sizeof(Ensemble10_eventData_t));
@@ -323,7 +324,7 @@ void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
         ensData.header.ensembleType = ENS_BATT;
         ensData.data.batteryVoltage = ((pData->battVoltage / pData->accumulateCount) * Q10_SCALAR);
 
-        pSystemDesc->pRecorder->putData(ensData);
+        sf::deploy::commitEnsemble(&ensData, sizeof(ensData));
         memset(pData, 0, sizeof(Ensemble07_eventData_t));
     }
 #endif
@@ -364,7 +365,7 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         ens.ensData.scaled_temp = (temp * Q7_SCALAR);
         ens.ensData.water = water;
 
-        pSystemDesc->pRecorder->putData(ens);
+        sf::deploy::commitEnsemble(&ens, sizeof(EnsembleHeader_t) + sizeof(uint8_t) + ens.nChars);
         memset(pData, 0, sizeof(Ensemble08_eventData_t));
     }
 #endif
@@ -412,7 +413,7 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
                           FW_MINOR_VERSION,
                           FW_BUILD_NUM,
                           FW_BRANCH);
-    pSystemDesc->pRecorder->putBytes(&ens, sizeof(EnsembleHeader_t) + sizeof(uint8_t) + ens.nChars);
+    sf::deploy::commitEnsemble(&ens, sizeof(EnsembleHeader_t) + sizeof(uint8_t) + ens.nChars);
 }
 /** @} */
 
@@ -465,8 +466,7 @@ void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
     ensData.header.ensembleType = ENS_TEMP_HIGH_DATA_RATE_IMU;
     ensData.header.elapsedTime_ds = Ens_getStartTime();
 
-    pSystemDesc->pRecorder->putBytes(&ensData,
-                                     sizeof(EnsembleHeader_t) + sizeof(Ensemble12_data_t));
+    sf::deploy::commitEnsemble(&ensData, sizeof(EnsembleHeader_t) + sizeof(Ensemble12_data_t));
 
 #endif
 }
