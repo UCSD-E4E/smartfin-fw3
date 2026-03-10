@@ -36,8 +36,13 @@ int sf::deploy::commitEnsemble(const void *pData, std::size_t len)
 #if ENABLE_RECORD_SINK
     if (recordEnabled)
     {
+<<<<<<< HEAD
         TransportService& transport = TransportService::getInstance();
         if (transport.enqueueRecorderPayload(pData, len))
+=======
+        HighRateStream& hrs = HighRateStream::getInstance();
+        if (hrs.enqueueRecorderPayload(pData, len))
+>>>>>>> 841129c (feat: integrate HighRateStream for recorder payload handling and update timestamp estimation in ensembles)
         {
             recordOk = true;
         }
