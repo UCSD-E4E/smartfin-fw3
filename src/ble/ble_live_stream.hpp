@@ -70,6 +70,9 @@ private:
     /** @brief Construct the singleton (hide public ctor). */
     BleLiveStream();
 
+    sf::ble::transport::PacketBuilder packetBuilder_;
+    sf::util::SpscQueue<sf::ble::transport::TxPacket, SF_BLE_QUEUE_CAPACITY> txQueue_;
+
     struct TimeSyncState
     {
         std::atomic<bool> valid; //!< True after at least one sync message.
@@ -81,6 +84,10 @@ private:
         int64_t offsetEmaMs;   //!< Smoothed offset estimate.
         uint32_t lastUpdateMs; //!< Board millis when last sync applied.
         uint8_t quality;       //!< Simple quality score (0-255).
+        bool valid;                 //!< True after at least one sync message.
+        uint32_t boardMillisAtSync; //!< Board millis snapshot at sync receipt.
+        uint64_t watchUnixMsAtSync; //!< Peer-provided Unix time in ms at sync.
+        uint32_t syncSeq;           //!< Sequence counter echoed by peer.
     };
 
     TimeSyncState timeSync_;
@@ -96,6 +103,8 @@ private:
     /** @brief Static thunk registered with SFBLE for control RX. */
     static void controlRxThunk(const uint8_t *data, size_t len, void *context);
 
+    /** @brief Estimate Unix time in seconds using last sync plus board millis. */
+    uint32_t estimateUnixTime(uint32_t boardMillis) const;
 };
 
 #endif // __BLE_LIVE_STREAM_HPP__
