@@ -58,7 +58,7 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
     if (!packetBuilder_.canAppend(len))
     {
         sf::ble::transport::TxPacket packet;
-        if (packetBuilder_.finalize(packet, PacketType::PACKET_TYPE_TELEMETRY))
+        if (packetBuilder_.finalize(packet, sf::ble::transport::PACKET_TYPE_TELEMETRY))
         {
             if (!txQueue_.push(packet))
             {
@@ -72,7 +72,6 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
     if (!packetBuilder_.appendEnsemble(pData, len))
     {
         ++droppedPackets_;
-        packetBuilder_.reset();
         return false;
     }
 
@@ -105,9 +104,9 @@ void BleLiveStream::flush()
 void BleLiveStream::processTx()
 {
     if (!initialized_ || !isConnected())
-{
-    return;
-}
+    {
+        return;
+    }
 
     sf::ble::transport::TxPacket packet;
     while (txQueue_.pop(packet))
