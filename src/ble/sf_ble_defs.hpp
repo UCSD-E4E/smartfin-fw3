@@ -8,6 +8,7 @@
 #define __SF_BLEDEFS_HPP__
 
 
+#include "ble_config.hpp"
 #include "product.hpp"
 #include <cstddef>
 
@@ -36,18 +37,11 @@ inline constexpr const char *CONTROL_CHAR_UUID = "c39513e6-631e-439a-9b3b-affa06
 /** @brief Short local BLE device name shown during advertising. */
 inline constexpr const char* DEVICE_NAME = "Smartfin";
 
-/**
- * @brief Max notification payload bytes.
- *
- * 236 bytes is the efficient upper bound in common Particle BLE cases; above
- * that, fragmentation can reduce throughput.
- */
-inline constexpr std::size_t MAX_NOTIFY_LEN = 236;
+/** @brief Max notification payload bytes. */
+inline constexpr std::size_t MAX_NOTIFY_LEN = SF_BLE_MAX_NOTIFY_LEN;
 
-/** 
- * @brief Max command/control payload bytes accepted from the peer. 
- */
-inline constexpr std::size_t MAX_CONTROL_LEN = 64;
+/** @brief Max command/control payload bytes accepted from the peer. */
+inline constexpr std::size_t MAX_CONTROL_LEN = SF_BLE_MAX_CONTROL_LEN;
 
 }} // namespace sf::bledefs
 

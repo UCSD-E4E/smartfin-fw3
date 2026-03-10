@@ -8,15 +8,17 @@
  * @date 2026-03-10
  */
 
+#include "ble_config.hpp"
+
 #include <cstddef>
 #include <cstdint>
 
 namespace sf::ble::transport
 {
 /** @brief Maximum on-air packet size (matches BLE notify MTU planning). */
-inline constexpr std::size_t MAX_PACKET_SIZE = 236;
+inline constexpr std::size_t MAX_PACKET_SIZE = SF_BLE_MAX_PACKET_SIZE;
 /** @brief Protocol version byte placed in each header. */
-inline constexpr std::uint8_t PROTOCOL_VERSION = 1;
+inline constexpr std::uint8_t PROTOCOL_VERSION = SF_BLE_PROTOCOL_VERSION;
 
 /**
  * @brief Packet type identifiers carried in the BLE header.
@@ -37,7 +39,7 @@ struct PacketHeader
     std::uint8_t version;    //!< Protocol version (PROTOCOL_VERSION).
     std::uint8_t type;       //!< One of PacketType.
     std::uint16_t seq;       //!< Monotonic sequence number.
-    std::uint16_t payloadLen; //!< Number of payload bytes following the header.
+    std::uint16_t payloadLen; //!< Number of payload bytes after the header.
 };
 #pragma pack(pop)
 
