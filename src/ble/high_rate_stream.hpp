@@ -15,9 +15,6 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "Particle.h"
-#endif
 
 /**
  * @brief Singleton transport service handling all BLE TX and recorder writes.
@@ -106,10 +103,6 @@ private:
     std::atomic<bool> running_;
     /** @brief True when a stop has been requested (drain remaining work). */
     std::atomic<bool> stopRequested_;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    /** @brief Background thread handle for transportLoop(). */
-    Thread* transportThread_;
-#endif
     /** @brief True while the transport thread is running. */
     std::atomic<bool> transportActive_;
     /** @brief True while producers are allowed to enqueue. */

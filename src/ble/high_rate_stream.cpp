@@ -14,6 +14,12 @@
 #include <cstring>
 #include <thread>
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+#include "Particle.h"
+/** @brief Persistent Particle thread handle; created once in init(). */
+static Thread *s_transportThread = nullptr;
+#endif
+
 /**
  * @brief Construct the TransportService singleton (clears counters/queues).
  */
@@ -21,9 +27,6 @@ TransportService::TransportService() :
     initialized_(false),
     running_(false),
     stopRequested_(false),
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    transportThread_(nullptr),
-#endif
     transportActive_(false),
     lowRateFlusher_(nullptr),
     idle_(true),
@@ -58,9 +61,9 @@ bool TransportService::init()
 
     // Lazily create persistent transport thread once.
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    if (transportThread_ == nullptr)
+    if (s_transportThread == nullptr)
     {
-        transportThread_ = new Thread("transport_worker",
+        s_transportThread = new Thread("transport_worker",
                                       TransportService::transportLoopThunk,
                                       this,
                                       OS_THREAD_PRIORITY_DEFAULT);
