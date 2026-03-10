@@ -4,6 +4,8 @@
 /**
  * @file ble_transport.hpp
  * @brief Packet definitions and sizing for Smartfin BLE transport layer.
+ * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @date 2026-03-10
  */
 
 #include <cstddef>

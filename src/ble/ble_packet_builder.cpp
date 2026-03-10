@@ -5,6 +5,8 @@
 /**
  * @file ble_packet_builder.cpp
  * @brief Implementation of BLE packet assembly helper.
+ * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @date 2026-03-10
  */
 
 namespace sf::ble::transport

@@ -4,6 +4,8 @@
 /**
  * @file ble_packet_builder.hpp
  * @brief Helper to accumulate ensembles into BLE-sized packets.
+ * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @date 2026-03-10
  */
 
 #include "ble_transport.hpp"
