@@ -364,7 +364,7 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         ens.header.ensembleType = ENS_TEMP_TIME;
         ens.ensData.scaled_temp = (temp * Q7_SCALAR);
         ens.ensData.water = water;
-
+        ens.ensData.timestamp = Time.now();
         sf::deploy::commitEnsemble(&ens, sizeof(ens));
         memset(pData, 0, sizeof(Ensemble08_eventData_t));
     }
@@ -413,7 +413,8 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
                           FW_MINOR_VERSION,
                           FW_BUILD_NUM,
                           FW_BRANCH);
-    sf::deploy::commitEnsemble(&ens, sizeof(ens));
+    sf::deploy::commitEnsemble(&ens, 
+            sizeof(EnsembleHeader_t) + sizeof(uint8_t) + ens.nChars);
 }
 /** @} */
 
