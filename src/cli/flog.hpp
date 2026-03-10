@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-#define FLOG_NUM_ENTRIES    128
+#define FLOG_NUM_ENTRIES    64
 #define FLOG_VALUE_TYPE     uint32_t
 #define FLOG_PARAM_FMT      PRIX32
 
