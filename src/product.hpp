@@ -325,6 +325,11 @@
 #define SF_PLATFORM SF_PLATFORM_GLIBC
 #endif
 
+// Transition period policy switches.
+// Later, when recorder is removed, set ENABLE_RECORD_SINK to 0.
+#define ENABLE_RECORD_SINK 1
+#define ENABLE_STREAM_SINK 1
+
 /**
  * @brief Inhibit Upload Flag
  *
