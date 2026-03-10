@@ -10,15 +10,8 @@
 
 #include "ble/ble_live_stream.hpp"
 #include "cli/flog.hpp"
+#include "product.hpp"
 #include "system.hpp"
-
-
-
-// Transition period policy switches.
-// Later, when recorder is removed, set ENABLE_RECORD_SINK to 0.
-#define ENABLE_RECORD_SINK 1
-#define ENABLE_STREAM_SINK 1
-
 int sf::deploy::commitEnsemble(const void *pData, std::size_t len)
 {
     if (pData == nullptr || len == 0)
