@@ -16,6 +16,7 @@
 #include "system.hpp"
 #include "util.hpp"
 #include "vers.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "ble/ble_live_stream.hpp"
 
 #include <cmath>
@@ -366,12 +367,6 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         ens.ensData.scaled_temp = (temp * Q7_SCALAR);
         ens.ensData.water = water;
 
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-        ens.ensData.timestamp =
-            BleLiveStream::getInstance().estimateUnixTime(millis());
-#else
-        ens.ensData.timestamp = 0;
-#endif
         ens.ensData.timestamp = Time.now();
         sf::deploy::commitEnsemble(&ens, sizeof(ens));
         memset(pData, 0, sizeof(Ensemble08_eventData_t));
@@ -475,7 +470,10 @@ void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
     ensData.header.ensembleType = ENS_TEMP_HIGH_DATA_RATE_IMU;
     ensData.header.elapsedTime_ds = Ens_getStartTime();
 
-    sf::deploy::commitEnsemble(&ensData, sizeof(EnsembleHeader_t) + sizeof(Ensemble12_data_t));
+    HighRateImuRecord record;
+    record.header = ensData.header;
+    record.data = ensData.data;
+    HighRateStream::getInstance().enqueueImuRecord(record);
 
 #endif
 }

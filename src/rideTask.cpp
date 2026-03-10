@@ -16,6 +16,7 @@
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "deploy/ensembles.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "imu/newIMU.hpp"
 #include "product.hpp"
 #include "system.hpp"
@@ -57,6 +58,8 @@ void RideTask::init()
     this->sessionTimeSet = false;
 #if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().init();
+    HighRateStream::getInstance().init();
+    HighRateStream::getInstance().start();
 #endif
     if (!pSystemDesc->pRecorder->openSession())
     {
@@ -206,4 +209,9 @@ void RideTask::exit(void)
     // pSystemDesc->pCompass->close();
     // pSystemDesc->pIMU->close();
     // pSystemDesc->pGPS->gpsModuleStop();
+
+#if ENABLE_STREAM_SINK
+    HighRateStream::getInstance().flush();
+    HighRateStream::getInstance().stop();
+#endif
 }
