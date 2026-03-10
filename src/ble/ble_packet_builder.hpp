@@ -11,7 +11,11 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace sf::ble::transport
+namespace sf
+{
+namespace ble
+{
+namespace transport
 {
 
 /**
@@ -64,6 +68,8 @@ private:
     std::uint8_t payload[MAX_PAYLOAD_SIZE]; //!< Payload scratch buffer.
 };
 
-} // namespace sf::ble::transport
+} // namespace transport
+} // namespace ble
+} // namespace sf
 
 #endif // __BLE_PACKET_BUILDER_HPP__
