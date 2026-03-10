@@ -12,7 +12,9 @@
 #include <cstddef>
 #include <utility>
 
-namespace sf::util
+namespace sf
+{
+namespace util
 {
 
     /**
@@ -136,6 +138,7 @@ namespace sf::util
         std::atomic<std::size_t> tail_; //!< Consumer index (atomic).
     };
 
-} // namespace sf::util
+} // namespace util
+} // namespace sf
 
 #endif // __SPSC_QUEUE_HPP__
