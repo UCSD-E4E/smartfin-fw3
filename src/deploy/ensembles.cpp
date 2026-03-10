@@ -375,8 +375,7 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         ens.ensData.scaled_temp = (temp * Q7_SCALAR);
         ens.ensData.water = water;
 
-        uint32_t unixEstimate = BleLiveStream::getInstance().estimateUnixTime(millis());
-        ens.ensData.timestamp = unixEstimate; // 0 indicates unsynced
+        ens.ensData.timestamp = Time.now();
         sf::deploy::commitEnsemble(&ens, sizeof(ens));
         memset(pData, 0, sizeof(Ensemble08_eventData_t));
     }
@@ -491,7 +490,7 @@ void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
     HighRateImuRecord record;
     record.header = ensData.header;
     record.data = ensData.data;
-    TransportService::getInstance().enqueueImuRecord(record);
+    HighRateStream::getInstance().enqueueImuRecord(record);
 
 #endif
 }
