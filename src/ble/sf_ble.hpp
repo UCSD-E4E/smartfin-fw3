@@ -2,7 +2,7 @@
  * @file sf_ble.hpp
  * @brief Platform Smartfin BLE wrapper interface.
  * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
- * @date 3-9-2026
+ * @date 2026-03-10
  */
 
 #ifndef __SF_BLE_HPP__
