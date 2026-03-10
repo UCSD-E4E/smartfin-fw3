@@ -1,19 +1,18 @@
-#ifndef __BLE_LIVE_STREAM_HPP__
-#define __BLE_LIVE_STREAM_HPP__
-
 /**
  * @file ble_live_stream.hpp
  * @brief BLE live-stream helper that batches ensembles into packets.
  * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  * @date 2026-03-10
  */
-
-#include <cstddef>
-#include <cstdint>
+#ifndef __BLE_LIVE_STREAM_HPP__
+#define __BLE_LIVE_STREAM_HPP__
 
 #include "ble_config.hpp"
 #include "ble_packet_builder.hpp"
 #include "spsc_queue.hpp"
+
+#include <cstddef>
+#include <cstdint>
 
 /**
  * @brief Singleton that manages the BLE transmit builder/queue.
@@ -24,7 +23,7 @@
 class BleLiveStream
 {
 public:
-    static BleLiveStream& getInstance();
+    static BleLiveStream &getInstance();
 
     /**
      * @brief Reset internal buffers and clear the queue.
@@ -38,7 +37,7 @@ public:
      * @param len Number of bytes.
      * @return true if enqueued successfully.
      */
-    bool enqueueEnsemble(const void* pData, size_t len);
+    bool enqueueEnsemble(const void *pData, size_t len);
 
     /**
      * @brief Flush the builder into the transmit queue immediately.
@@ -66,15 +65,14 @@ private:
     BleLiveStream();
 
     sf::ble::transport::PacketBuilder packetBuilder_;
-    sf::util::SpscQueue<sf::ble::transport::TxPacket,
-                        SF_BLE_QUEUE_CAPACITY> txQueue_;
+    sf::util::SpscQueue<sf::ble::transport::TxPacket, SF_BLE_QUEUE_CAPACITY> txQueue_;
 
     struct TimeSyncState
     {
-        bool valid;
-        uint32_t boardMillisAtSync;
-        uint64_t watchUnixMsAtSync;
-        uint32_t syncSeq;
+        bool valid;                 //!< True after at least one sync message.
+        uint32_t boardMillisAtSync; //!< Board millis snapshot at sync receipt.
+        uint64_t watchUnixMsAtSync; //!< Peer-provided Unix time in ms at sync.
+        uint32_t syncSeq;           //!< Sequence counter echoed by peer.
     };
 
     TimeSyncState timeSync_;
@@ -82,9 +80,15 @@ private:
     bool initialized_;        //!< True when `init()` completed.
     uint32_t droppedPackets_; //!< Count of dropped/overflow packets.
 
-    void handleControlRx(const uint8_t* data, size_t len);
+    /** @brief Handle control-channel RX and dispatch message types. */
+    void handleControlRx(const uint8_t *data, size_t len);
+    /** @brief Update local time sync state from a remote watch timestamp. */
     void handleTimeSync(uint64_t watchUnixMs, uint32_t seq);
-    static void controlRxThunk(const uint8_t* data, size_t len, void* context);
+    /** @brief Static thunk registered with SFBLE for control RX. */
+    static void controlRxThunk(const uint8_t *data, size_t len, void *context);
+
+    /** @brief Estimate Unix time in seconds using last sync plus board millis. */
+    uint32_t estimateUnixTime(uint32_t boardMillis) const;
 };
 
 #endif // __BLE_LIVE_STREAM_HPP__
