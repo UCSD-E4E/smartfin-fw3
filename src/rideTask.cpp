@@ -108,6 +108,7 @@ STATES_e RideTask::run(void)
             {
                 pSystemDesc->pRecorder->setSessionTime(Time.now() -
                                                        (millis() - this->deployTime) / 1000);
+                this->sessionTimeSet = true;
             }
         }
         SCH_error_e retval =
