@@ -45,13 +45,28 @@ public:
 
     /**
      * @brief Transport-side service loop; call from consumer thread/context.
+     * @param force When true, drains even if running_ is false (shutdown).
      */
-    void serviceOnce();
+    void serviceOnce(bool force = false);
 
     /**
      * @brief Flush any pending packet to BLE immediately.
      */
     void flush();
+
+    /**
+     * @brief Enqueue a low-rate ensemble payload for recorder + BLE handling.
+     * @param data Pointer to bytes to copy.
+     * @param len Number of bytes to copy (must fit internal buffer).
+     * @return true if accepted into the queue.
+     */
+    bool enqueueRecorderPayload(const void* data, std::size_t len);
+
+    /**
+     * @brief Enqueue an already-built BLE TxPacket for transmission.
+     * @return true if queued successfully.
+     */
+    bool enqueueTxPacket(const sf::ble::transport::TxPacket& packet);
 
 private:
     /** @brief Private ctor to enforce singleton. */
@@ -82,6 +97,22 @@ private:
     sf::util::SpscQueue<HighRateImuRecord, 512> recordQueue_;
     /** @brief Builder used to batch IMU records into BLE packets. */
     sf::ble::transport::PacketBuilder packetBuilder_;
+
+    /** @brief Maximum bytes per recorder payload chunk. */
+    static constexpr std::size_t RECORDER_CHUNK_MAX = sf::ble::transport::MAX_PACKET_SIZE;
+
+    /** @brief Recorder payload chunk. */
+    struct RecorderChunk
+    {
+        std::size_t len;
+        uint8_t bytes[RECORDER_CHUNK_MAX];
+    };
+
+    /** @brief Queue of recorder writes serialized to the transport thread (single producer). */
+    sf::util::SpscQueue<RecorderChunk, 64> recorderQueue_;
+
+    /** @brief Queue of TxPackets produced by other threads; drained here (single producer). */
+    sf::util::SpscQueue<sf::ble::transport::TxPacket, 64> txQueue_;
 };
 
 #endif // __HIGH_RATE_STREAM_HPP__
