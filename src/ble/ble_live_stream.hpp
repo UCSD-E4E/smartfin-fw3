@@ -80,6 +80,8 @@ private:
     void handleControlRx(const uint8_t* data, size_t len);
     void handleTimeSync(uint64_t watchUnixMs, uint32_t seq);
     static void controlRxThunk(const uint8_t* data, size_t len, void* context);
+
+    uint32_t estimateUnixTime(uint32_t boardMillis) const;
 };
 
 #endif // __BLE_LIVE_STREAM_HPP__

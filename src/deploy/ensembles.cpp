@@ -16,6 +16,7 @@
 #include "system.hpp"
 #include "util.hpp"
 #include "vers.hpp"
+#include "ble/ble_live_stream.hpp"
 
 #include <cmath>
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
@@ -364,6 +365,13 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         ens.header.ensembleType = ENS_TEMP_TIME;
         ens.ensData.scaled_temp = (temp * Q7_SCALAR);
         ens.ensData.water = water;
+
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+        ens.ensData.timestamp =
+            BleLiveStream::getInstance().estimateUnixTime(millis());
+#else
+        ens.ensData.timestamp = 0;
+#endif
         ens.ensData.timestamp = Time.now();
         sf::deploy::commitEnsemble(&ens, sizeof(ens));
         memset(pData, 0, sizeof(Ensemble08_eventData_t));

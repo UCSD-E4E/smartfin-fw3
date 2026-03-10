@@ -12,7 +12,6 @@
 #include "sf_ble.hpp"
 
 #include "Particle.h"
-#include <ctime>
 
 #include <cstring>
 
@@ -180,6 +179,18 @@ void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
     timeSync_.boardMillisAtSync = millis();
     timeSync_.watchUnixMsAtSync = watchUnixMs;
     timeSync_.syncSeq = seq;
+}
 
-    Time.setTime(static_cast<time_t>(watchUnixMs / 1000));
+    // Do not adjust the system clock; we only keep the sync anchor.
+}
+
+uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
+{
+    if (!timeSync_.valid)
+    {
+        return 0;
+    }
+    uint64_t delta = boardMillis - timeSync_.boardMillisAtSync;
+    uint64_t estimate = timeSync_.watchUnixMsAtSync + delta;
+    return static_cast<uint32_t>(estimate / 1000);
 }
