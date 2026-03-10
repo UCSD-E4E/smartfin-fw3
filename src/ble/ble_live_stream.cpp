@@ -15,14 +15,17 @@
 
 #include <cstring>
 
-/**
- * @brief Control message types coming from the watch.
- */
 namespace
 {
+    /**
+     * @brief Control message type identifiers sent by the watch.
+     */
     constexpr uint8_t TIME_SYNC_MSG = 1;
 
 #pragma pack(push, 1)
+    /**
+     * @brief Payload layout for a time-sync control message.
+     */
     struct TimeSyncMsg
     {
         uint8_t type;
@@ -158,6 +161,11 @@ void BleLiveStream::controlRxThunk(const uint8_t* data, size_t len, void* contex
     }
 }
 
+/**
+ * @brief Process an incoming control message from the central.
+ *
+ * Currently only handles time-sync messages; silently ignores malformed input.
+ */
 void BleLiveStream::handleControlRx(const uint8_t* data, size_t len)
 {
     if (data == nullptr || len < sizeof(TimeSyncMsg))
@@ -173,6 +181,9 @@ void BleLiveStream::handleControlRx(const uint8_t* data, size_t len)
     }
 }
 
+/**
+ * @brief Update local time estimate using a watch-provided Unix time snapshot.
+ */
 void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
 {
     timeSync_.valid = true;
@@ -181,6 +192,9 @@ void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
     timeSync_.syncSeq = seq;
 }
 
+/**
+ * @brief Estimate Unix time (s) based on the last sync and current board millis.
+ */
 uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
 {
     if (!timeSync_.valid)
