@@ -13,12 +13,16 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace sf::ble::transport
+namespace sf
+{
+namespace ble
+{
+namespace transport
 {
 /** @brief Maximum on-air packet size (matches BLE notify MTU planning). */
-inline constexpr std::size_t MAX_PACKET_SIZE = SF_BLE_MAX_PACKET_SIZE;
+constexpr std::size_t MAX_PACKET_SIZE = SF_BLE_MAX_PACKET_SIZE;
 /** @brief Protocol version byte placed in each header. */
-inline constexpr std::uint8_t PROTOCOL_VERSION = SF_BLE_PROTOCOL_VERSION;
+constexpr std::uint8_t PROTOCOL_VERSION = SF_BLE_PROTOCOL_VERSION;
 
 /**
  * @brief Packet type identifiers carried in the BLE header.
@@ -44,9 +48,9 @@ struct PacketHeader
 #pragma pack(pop)
 
 /** @brief Size of PacketHeader in bytes. */
-inline constexpr std::size_t HEADER_SIZE = sizeof(PacketHeader);
+constexpr std::size_t HEADER_SIZE = sizeof(PacketHeader);
 /** @brief Maximum payload bytes that fit under MAX_PACKET_SIZE. */
-inline constexpr std::size_t MAX_PAYLOAD_SIZE = MAX_PACKET_SIZE - HEADER_SIZE;
+constexpr std::size_t MAX_PAYLOAD_SIZE = MAX_PACKET_SIZE - HEADER_SIZE;
 
 /**
  * @brief Transmit-ready packet buffer.
@@ -57,6 +61,8 @@ struct TxPacket
     std::uint8_t bytes[MAX_PACKET_SIZE]; //!< Header + payload storage.
 };
 
-} // namespace sf::ble::transport
+} // namespace transport
+} // namespace ble
+} // namespace sf
 
 #endif // __BLE_TRANSPORT_HPP__
