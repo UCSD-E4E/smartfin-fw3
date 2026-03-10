@@ -10,6 +10,7 @@
  */
 #include "rideTask.hpp"
 
+#include "ble/ble_live_stream.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
@@ -54,7 +55,7 @@ void RideTask::init()
 
     this->startTime = millis();
     this->sessionTimeSet = false;
-
+    BleLiveStream::getInstance().init();
     if (!pSystemDesc->pRecorder->openSession())
     {
         SF_OSAL_printf("Failed to open session!" __NL__);
@@ -138,6 +139,7 @@ STATES_e RideTask::run(void)
                 return STATE_DEEP_SLEEP;
             }
             delay(1);
+            BleLiveStream::getInstance().processTx();
         }
         start = micros();
         pNextEvent->measure(pNextEvent);
@@ -178,6 +180,8 @@ STATES_e RideTask::run(void)
 void RideTask::exit(void)
 {
     SF_OSAL_printf("Closing session" __NL__);
+    BleLiveStream::getInstance().flush();
+    BleLiveStream::getInstance().processTx();
     pSystemDesc->pRecorder->closeSession();
     pSystemDesc->pChargerCheck->start();
     SF_OSAL_printf("| Task             | Avg. Duration (us) | Count        |" __NL__);
