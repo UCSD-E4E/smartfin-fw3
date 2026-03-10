@@ -9,6 +9,7 @@
 #include "ensemble_commit.hpp"
 
 #include "ble/ble_live_stream.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "cli/flog.hpp"
 #include "product.hpp"
 #include "system.hpp"
@@ -35,17 +36,10 @@ int sf::deploy::commitEnsemble(const void *pData, std::size_t len)
 #if ENABLE_RECORD_SINK
     if (recordEnabled)
     {
-        if (pSystemDesc != nullptr && pSystemDesc->pRecorder != nullptr)
+        HighRateStream& hrs = HighRateStream::getInstance();
+        if (hrs.enqueueRecorderPayload(pData, len))
         {
-            const int writeResult = pSystemDesc->pRecorder->putBytes(pData, len);
-            if (writeResult == 0)
-            {
-                recordOk = true;
-            }
-            else
-            {
-                FLOG_AddError(FLOG_REC_COMMIT_FAIL, writeResult);
-            }
+            recordOk = true;
         }
         else
         {
