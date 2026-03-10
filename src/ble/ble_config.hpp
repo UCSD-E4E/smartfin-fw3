@@ -11,7 +11,7 @@
 /**
  * @brief Depth of the BLE transmit queue (in packets).
  */
-#define SF_BLE_QUEUE_CAPACITY 16
+#define SF_BLE_QUEUE_CAPACITY 256
 
 /**
  * @brief Maximum on-air packet size (bytes) aligned with BLE MTU planning.
