@@ -45,16 +45,17 @@ namespace util
          */
         bool push(const T &item)
         {
-            const std::size_t next = increment(head_);
-            if (next == tail_.load(std::memory_order_acquire))
-            {
-                return false; // full
-            }
-
-            buffer_[head_] = item;
-            head_.store(next, std::memory_order_release);
-            return true;
+        const std::size_t head = head_.load(std::memory_order_relaxed);
+        const std::size_t next = increment(head);
+        if (next == tail_.load(std::memory_order_acquire))
+        {
+            return false; // full
         }
+
+        buffer_[head] = item;
+        head_.store(next, std::memory_order_release);
+        return true;
+    }
 
         /**
          * @brief Enqueue by move.
@@ -63,16 +64,17 @@ namespace util
          */
         bool push(T &&item)
         {
-            const std::size_t next = increment(head_);
-            if (next == tail_.load(std::memory_order_acquire))
-            {
-                return false; // full
-            }
-
-            buffer_[head_] = std::move(item);
-            head_.store(next, std::memory_order_release);
-            return true;
+        const std::size_t head = head_.load(std::memory_order_relaxed);
+        const std::size_t next = increment(head);
+        if (next == tail_.load(std::memory_order_acquire))
+        {
+            return false; // full
         }
+
+        buffer_[head] = std::move(item);
+        head_.store(next, std::memory_order_release);
+        return true;
+    }
 
         /**
          * @brief Dequeue into `out`.
@@ -81,13 +83,13 @@ namespace util
          */
         bool pop(T &out)
         {
-            if (empty())
-            {
-                return false;
-            }
-
-            out = std::move(buffer_[tail_]);
-            tail_.store(increment(tail_), std::memory_order_release);
+        const std::size_t tail = tail_.load(std::memory_order_relaxed);
+        if (head_.load(std::memory_order_acquire) == tail)
+        {
+            return false;
+        }
+        out = std::move(buffer_[tail]);
+        tail_.store(increment(tail), std::memory_order_release);
             return true;
         }
 
@@ -101,7 +103,8 @@ namespace util
         /** @brief Check if queue is full. */
         bool full() const
         {
-            return increment(head_) == tail_.load(std::memory_order_acquire);
+        const std::size_t head = head_.load(std::memory_order_relaxed);
+        return increment(head) == tail_.load(std::memory_order_acquire);
         }
 
         /** @brief Maximum number of storable elements (Capacity - 1). */
