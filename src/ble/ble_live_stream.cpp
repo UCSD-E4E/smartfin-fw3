@@ -1,3 +1,10 @@
+/**
+ * @file ble_live_stream.cpp
+ * @brief Implements the BLE live-stream helper and queueing logic.
+ * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
+ * @date 2026-03-10
+ */
+
 #include "ble_live_stream.hpp"
 
 #include "ble_config.hpp"
@@ -22,13 +29,6 @@ namespace
     };
 #pragma pack(pop)
 }
-
-/**
- * @file ble_live_stream.cpp
- * @brief Implements the BLE live-stream helper and queueing logic.
- * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
- * @date 2026-03-10
- */
 
 BleLiveStream::BleLiveStream()
     : packetBuilder_(),

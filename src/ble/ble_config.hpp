@@ -1,12 +1,12 @@
-#ifndef __BLE_CONFIG_HPP__
-#define __BLE_CONFIG_HPP__
-
 /**
  * @file ble_config.hpp
  * @brief Local configuration knobs for BLE transport helpers.
  * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  * @date 2026-03-10
  */
+
+#ifndef __BLE_CONFIG_HPP__
+#define __BLE_CONFIG_HPP__
 
 /**
  * @brief Depth of the BLE transmit queue (in packets).
