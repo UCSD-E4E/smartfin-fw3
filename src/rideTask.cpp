@@ -191,6 +191,9 @@ void RideTask::exit(void)
 #if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().flush();
     BleLiveStream::getInstance().processTx();
+    HighRateStream::getInstance().flush();
+    HighRateStream::getInstance().serviceOnce();
+    HighRateStream::getInstance().stop();
 #endif
     pSystemDesc->pRecorder->closeSession();
     pSystemDesc->pChargerCheck->start();
