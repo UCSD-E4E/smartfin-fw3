@@ -11,6 +11,9 @@
 #include "ble_transport.hpp"
 #include "sf_ble.hpp"
 
+#include "Particle.h"
+#include <ctime>
+
 #include <cstring>
 
 /**
