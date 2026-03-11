@@ -71,8 +71,9 @@ bool BleLiveStream::init()
 
 bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
 {
-    // Not initialized, or something wrong with data
-    if (!initialized_.load(std::memory_order_acquire) || pData == nullptr || len == 0)
+    // Not initialized, shutting down, or bad data
+    if (!initialized_.load(std::memory_order_acquire) || pData == nullptr || len == 0 ||
+        !TransportWorker::getInstance().isAccepting())
     {
         return false;
     }

@@ -75,6 +75,9 @@ public:
      */
     bool enqueueTxPacket(const sf::ble::transport::TxPacket& packet);
 
+    /** @brief Return true if producers may enqueue work. */
+    bool isAccepting() const { return accepting_.load(std::memory_order_acquire); }
+
 private:
     /** @brief Private ctor to enforce singleton. */
     TransportWorker();
@@ -96,6 +99,8 @@ private:
 #endif
     /** @brief True while the transport thread is running. */
     std::atomic<bool> transportActive_;
+    /** @brief True while producers are allowed to enqueue. */
+    std::atomic<bool> accepting_;
 
     /** @brief Count of producer drops due to full queue. */
     std::atomic<uint32_t> droppedProducerRecords_;
