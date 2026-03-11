@@ -1,6 +1,6 @@
 /**
  * @file high_rate_stream.cpp
- * @brief Transport loop for high-rate IMU BLE streaming.
+ * @brief Unified transport worker for all BLE telemetry and recorder IO.
  * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  * @date 2026-03-10
  */
