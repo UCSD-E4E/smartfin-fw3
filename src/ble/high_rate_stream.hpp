@@ -107,6 +107,8 @@ private:
     std::atomic<bool> transportActive_;
     /** @brief True while producers are allowed to enqueue. */
     std::atomic<bool> accepting_;
+    /** @brief True when worker is fully idle (no in-flight work). */
+    std::atomic<bool> idle_;
 
     /** @brief Count of producer drops due to full queue. */
     std::atomic<uint32_t> droppedProducerRecords_;
