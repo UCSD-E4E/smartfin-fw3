@@ -19,7 +19,7 @@
  * @brief Singleton that manages the BLE transmit builder/queue.
  *
  * It lets the ride/recorder code enqueue ensemble blobs while the BLE stack
- * drains packets asynchronously. TransportWorker must be running to send.
+ * drains packets asynchronously. TransportService must be running to send.
  */
 class BleLiveStream
 {
@@ -46,7 +46,7 @@ public:
     void flush();
 
     /**
-     * @brief Legacy no-op; transport is handled by TransportWorker.
+     * @brief Legacy no-op; transport is handled by TransportService.
      */
     void processTx();
 
@@ -54,6 +54,11 @@ public:
      * @brief Estimate Unix time in seconds using last sync plus board millis.
      */
     uint32_t estimateUnixTime(uint32_t boardMillis) const;
+
+    /**
+     * @brief Return true if time sync is valid and younger than maxAgeMs.
+     */
+    bool isTimeSynced(uint32_t maxAgeMs = 60000) const;
 
     /**
      * @brief Check if a BLE central is currently connected.
@@ -69,6 +74,9 @@ public:
 private:
     /** @brief Construct the singleton (hide public ctor). */
     BleLiveStream();
+
+    /** @brief Static thunk used to flush low-rate producer buffers. */
+    static void flushThunk();
 
     sf::ble::transport::PacketBuilder packetBuilder_;
 

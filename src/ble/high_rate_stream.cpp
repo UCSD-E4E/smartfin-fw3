@@ -15,9 +15,9 @@
 #include <cstring>
 
 /**
- * @brief Construct the TransportWorker singleton (clears counters/queues).
+ * @brief Construct the TransportService singleton (clears counters/queues).
  */
-TransportWorker::TransportWorker() :
+TransportService::TransportService() :
     initialized_(false),
     running_(false),
     stopRequested_(false),
@@ -37,9 +37,9 @@ TransportWorker::TransportWorker() :
 {
 }
 
-TransportWorker& TransportWorker::getInstance()
+TransportService& TransportService::getInstance()
 {
-    static TransportWorker instance;
+    static TransportService instance;
     return instance;
 }
 
@@ -47,14 +47,14 @@ TransportWorker& TransportWorker::getInstance()
  * @brief Reset the builder/queue and counters.
  * @return true always (currently cannot fail).
  */
-bool TransportWorker::init()
+bool TransportService::init()
 {
     // Lazily create persistent transport thread once.
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (transportThread_ == nullptr)
     {
         transportThread_ = new Thread("transport_worker",
-                                      TransportWorker::transportLoopThunk,
+                                      TransportService::transportLoopThunk,
                                       this,
                                       OS_THREAD_PRIORITY_DEFAULT);
         workerStarted_.store(true, std::memory_order_release);
@@ -89,7 +89,7 @@ bool TransportWorker::init()
 /**
  * @brief Start draining the queue and transmitting over BLE.
  */
-void TransportWorker::start()
+void TransportService::start()
 {
     running_.store(true, std::memory_order_release);
     stopRequested_.store(false, std::memory_order_release);
@@ -99,7 +99,7 @@ void TransportWorker::start()
 /**
  * @brief Stop streaming; transport loop will exit on next iteration.
  */
-void TransportWorker::stop()
+void TransportService::stop()
 {
     stopRequested_.store(true, std::memory_order_release);
     running_.store(false, std::memory_order_release);
@@ -125,7 +125,7 @@ void TransportWorker::stop()
     accepting_.store(false, std::memory_order_release);
 }
 
-void TransportWorker::shutdown()
+void TransportService::shutdown()
 {
     // Flush producer-side low-rate buffers if provided.
     if (lowRateFlusher_)
@@ -137,7 +137,12 @@ void TransportWorker::shutdown()
     stop();
 }
 
-bool TransportWorker::enqueueRecorderPayload(const void* data, std::size_t len)
+void TransportService::setLowRateFlusher(void (*flusher)())
+{
+    lowRateFlusher_ = flusher;
+}
+
+bool TransportService::enqueueRecorderPayload(const void* data, std::size_t len)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
         !running_.load(std::memory_order_acquire) ||
@@ -152,7 +157,7 @@ bool TransportWorker::enqueueRecorderPayload(const void* data, std::size_t len)
     return recorderQueue_.push(chunk);
 }
 
-bool TransportWorker::enqueueTxPacket(const sf::ble::transport::TxPacket& packet)
+bool TransportService::enqueueTxPacket(const sf::ble::transport::TxPacket& packet)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
         !running_.load(std::memory_order_acquire) ||
@@ -167,7 +172,7 @@ bool TransportWorker::enqueueTxPacket(const sf::ble::transport::TxPacket& packet
  * @brief Enqueue a single IMU record from producer context.
  * @return false if uninitialized, stopped, or queue full.
  */
-bool TransportWorker::enqueueImuRecord(const HighRateImuRecord& record)
+bool TransportService::enqueueImuRecord(const HighRateImuRecord& record)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
         !running_.load(std::memory_order_acquire) ||
@@ -188,9 +193,9 @@ bool TransportWorker::enqueueImuRecord(const HighRateImuRecord& record)
 /**
  * @brief Thread entry thunk to call the instance transport loop.
  */
-void TransportWorker::transportLoopThunk(void* param)
+void TransportService::transportLoopThunk(void* param)
 {
-    TransportWorker* self = static_cast<TransportWorker*>(param);
+    TransportService* self = static_cast<TransportService*>(param);
     if (self)
     {
         self->transportLoop();
@@ -200,7 +205,7 @@ void TransportWorker::transportLoopThunk(void* param)
 /**
  * @brief Consumer loop that drains queued IMU records and sends via BLE.
  */
-void TransportWorker::transportLoop()
+void TransportService::transportLoop()
 {
     transportActive_.store(true, std::memory_order_release);
     while (true)
@@ -229,7 +234,7 @@ void TransportWorker::transportLoop()
 /**
  * @brief Single transport iteration: pop records, build packets, notify BLE.
  */
-void TransportWorker::serviceOnce()
+void TransportService::serviceOnce()
 {
     if (!initialized_.load(std::memory_order_acquire))
     {
@@ -321,7 +326,7 @@ void TransportWorker::serviceOnce()
 /**
  * @brief Flush any buffered payload immediately to BLE.
  */
-void TransportWorker::flush()
+void TransportService::flush()
 {
     sf::ble::transport::TxPacket packet;
     if (packetBuilder_.finalize(packet))
