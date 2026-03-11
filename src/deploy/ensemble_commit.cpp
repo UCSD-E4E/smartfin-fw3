@@ -36,7 +36,7 @@ int sf::deploy::commitEnsemble(const void *pData, std::size_t len)
 #if ENABLE_RECORD_SINK
     if (recordEnabled)
     {
-        TransportWorker& transport = TransportWorker::getInstance();
+        TransportService& transport = TransportService::getInstance();
         if (transport.enqueueRecorderPayload(pData, len))
         {
             recordOk = true;

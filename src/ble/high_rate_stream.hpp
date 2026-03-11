@@ -20,18 +20,18 @@
 #endif
 
 /**
- * @brief Singleton transport worker handling all BLE TX and recorder writes.
+ * @brief Singleton transport service handling all BLE TX and recorder writes.
  *
  * Producers enqueue high-rate IMU records, low-rate TxPackets, and recorder
  * payloads. A single consumer thread drains the queues, writes the recorder,
  * batches BLE packets, and notifies the connected central. This is the single
  * owner of BLE notify and recorder writes.
  */
-class TransportWorker
+class TransportService
 {
 public:
     /** @brief Access the singleton instance. */
-    static TransportWorker& getInstance();
+    static TransportService& getInstance();
 
     /** @brief Reset queues/counters; safe to call before start(). */
     bool init();
@@ -86,7 +86,7 @@ public:
 
 private:
     /** @brief Private ctor to enforce singleton. */
-    TransportWorker();
+    TransportService();
 
     /** @brief Consumer loop that drains the queue and builds packets. */
     void transportLoop();

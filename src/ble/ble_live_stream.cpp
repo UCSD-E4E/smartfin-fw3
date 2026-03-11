@@ -65,6 +65,7 @@ bool BleLiveStream::init()
     initialized_.store(true, std::memory_order_release);
     droppedPackets_.store(0, std::memory_order_relaxed);
     SFBLE::getInstance().setControlCallback(BleLiveStream::controlRxThunk, this);
+    TransportService::getInstance().setLowRateFlusher(&BleLiveStream::flushThunk);
     SFBLE::getInstance().startAdvertising();
     return true;
 }
@@ -73,7 +74,7 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
 {
     // Not initialized, shutting down, or bad data
     if (!initialized_.load(std::memory_order_acquire) || pData == nullptr || len == 0 ||
-        !TransportWorker::getInstance().isAccepting())
+        !TransportService::getInstance().isAccepting())
     {
         return false;
     }
@@ -90,7 +91,7 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
         sf::ble::transport::TxPacket packet;
         if (packetBuilder_.finalize(packet, sf::ble::transport::PACKET_TYPE_TELEMETRY))
         {
-            if (!TransportWorker::getInstance().enqueueTxPacket(packet))
+            if (!TransportService::getInstance().enqueueTxPacket(packet))
             {
                 droppedPackets_.fetch_add(1, std::memory_order_relaxed);
                 return false;
@@ -124,7 +125,7 @@ void BleLiveStream::flush()
     sf::ble::transport::TxPacket packet;
     if (packetBuilder_.finalize(packet))
     {
-        if (!TransportWorker::getInstance().enqueueTxPacket(packet))
+        if (!TransportService::getInstance().enqueueTxPacket(packet))
         {
             droppedPackets_.fetch_add(1, std::memory_order_relaxed);
         }
@@ -133,7 +134,7 @@ void BleLiveStream::flush()
 
 void BleLiveStream::processTx()
 {
-    // No-op: TransportWorker handles transmission; left for legacy callers.
+    // No-op: TransportService handles transmission; left for legacy callers.
 }
 
 bool BleLiveStream::isConnected() const
@@ -148,6 +149,11 @@ void BleLiveStream::controlRxThunk(const uint8_t* data, size_t len, void* contex
     {
         self->handleControlRx(data, len);
     }
+}
+
+void BleLiveStream::flushThunk()
+{
+    BleLiveStream::getInstance().flush();
 }
 
 /**
@@ -252,4 +258,21 @@ uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
         return 0;
     }
     return static_cast<uint32_t>(estimateMs / 1000);
+}
+
+bool BleLiveStream::isTimeSynced(uint32_t maxAgeMs) const
+{
+    if (!timeSync_.valid.load(std::memory_order_acquire))
+    {
+        return false;
+    }
+
+    uint32_t lastUpdate;
+    {
+        std::lock_guard<std::mutex> lock(timeSyncMutex_);
+        lastUpdate = timeSync_.lastUpdateMs;
+    }
+
+    const uint32_t nowMs = millis();
+    return (nowMs - lastUpdate) <= maxAgeMs;
 }
