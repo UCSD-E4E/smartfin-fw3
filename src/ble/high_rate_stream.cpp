@@ -26,6 +26,7 @@ TransportService::TransportService() :
 #endif
     transportActive_(false),
     lowRateFlusher_(nullptr),
+    idle_(true),
     droppedProducerRecords_(0),
     droppedTransportPackets_(0),
     notifyFailures_(0),
@@ -62,6 +63,7 @@ bool TransportService::init()
     packetBuilder_.reset();
     stopRequested_.store(false, std::memory_order_release);
     transportActive_.store(false, std::memory_order_release);
+    idle_.store(true, std::memory_order_release);
     accepting_.store(false, std::memory_order_release);
     sf::ble::transport::TxPacket dummyPacket;
     while (txQueue_.pop(dummyPacket))
@@ -92,6 +94,7 @@ void TransportService::start()
     running_.store(true, std::memory_order_release);
     stopRequested_.store(false, std::memory_order_release);
     accepting_.store(true, std::memory_order_release);
+    idle_.store(false, std::memory_order_release);
 }
 
 /**
@@ -103,7 +106,7 @@ void TransportService::stop()
     running_.store(false, std::memory_order_release);
     accepting_.store(false, std::memory_order_release);
     // Wait for queues to drain; thread remains alive.
-    while (!recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty())
+    while (!idle_.load(std::memory_order_acquire))
     {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         delay(1);
@@ -225,6 +228,8 @@ void TransportService::serviceOnce()
         return;
     }
 
+    idle_.store(false, std::memory_order_release);
+
     HighRateImuRecord record;
     while (recordQueue_.pop(record))
     {
@@ -320,6 +325,12 @@ void TransportService::serviceOnce()
                 droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
             }
         }
+    }
+
+    if (recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() &&
+        !packetBuilder_.hasData() && stopRequested_.load(std::memory_order_acquire))
+    {
+        idle_.store(true, std::memory_order_release);
     }
 }
 
