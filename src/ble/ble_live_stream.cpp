@@ -226,15 +226,11 @@ uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
         return 0;
     }
 
-    uint32_t boardSnap;
-    uint64_t watchSnap;
     int64_t offsetSnap;
     uint32_t lastUpdate;
 
     {
         std::lock_guard<std::mutex> lock(timeSyncMutex_);
-        boardSnap = timeSync_.boardMillisAtSync;
-        watchSnap = timeSync_.watchUnixMsAtSync;
         offsetSnap = timeSync_.offsetEmaMs;
         lastUpdate = timeSync_.lastUpdateMs;
     }
