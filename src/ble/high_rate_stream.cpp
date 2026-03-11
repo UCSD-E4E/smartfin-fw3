@@ -204,7 +204,10 @@ void HighRateStream::serviceOnce()
 #if ENABLE_RECORD_SINK
         if (pSystemDesc && pSystemDesc->pRecorder)
         {
-            pSystemDesc->pRecorder->putBytes(&record, sizeof(record));
+            if (pSystemDesc->pRecorder->putBytes(&record, sizeof(record)) != 0)
+            {
+                ++droppedTransportPackets_;
+            }
         }
 #endif
         if (!packetBuilder_.canAppend(sizeof(record)))
@@ -243,7 +246,10 @@ void HighRateStream::serviceOnce()
         RecorderChunk chunk;
         while (recorderQueue_.pop(chunk))
         {
-            pSystemDesc->pRecorder->putBytes(chunk.bytes, chunk.len);
+            if (pSystemDesc->pRecorder->putBytes(chunk.bytes, chunk.len) != 0)
+            {
+                ++droppedTransportPackets_;
+            }
         }
     }
 
