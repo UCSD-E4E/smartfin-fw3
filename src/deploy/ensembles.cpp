@@ -486,7 +486,7 @@ void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
     HighRateImuRecord record;
     record.header = ensData.header;
     record.data = ensData.data;
-    HighRateStream::getInstance().enqueueImuRecord(record);
+    TransportWorker::getInstance().enqueueImuRecord(record);
 
 #endif
 }

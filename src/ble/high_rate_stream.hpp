@@ -3,7 +3,7 @@
 
 /**
  * @file high_rate_stream.hpp
- * @brief Producer/consumer pipeline for high-rate IMU records.
+ * @brief Unified transport worker for BLE telemetry and recorder writes.
  * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
  * @date 2026-03-10
  */
@@ -20,16 +20,18 @@
 #endif
 
 /**
- * @brief Singleton that shuttles high-rate IMU records to BLE packets.
+ * @brief Singleton transport worker handling all BLE TX and recorder writes.
  *
- * Producers enqueue fixed-size IMU records; a consumer thread drains the queue,
- * batches them into BLE telemetry packets, and notifies the connected central.
+ * Producers enqueue high-rate IMU records, low-rate TxPackets, and recorder
+ * payloads. A single consumer thread drains the queues, writes the recorder,
+ * batches BLE packets, and notifies the connected central. This is the single
+ * owner of BLE notify and recorder writes.
  */
-class HighRateStream
+class TransportWorker
 {
 public:
     /** @brief Access the singleton instance. */
-    static HighRateStream& getInstance();
+    static TransportWorker& getInstance();
 
     /** @brief Reset queues/counters; safe to call before start(). */
     bool init();
@@ -72,7 +74,7 @@ public:
 
 private:
     /** @brief Private ctor to enforce singleton. */
-    HighRateStream();
+    TransportWorker();
 
     /** @brief Consumer loop that drains the queue and builds packets. */
     void transportLoop();

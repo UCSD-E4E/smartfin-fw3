@@ -15,9 +15,9 @@
 #include <cstring>
 
 /**
- * @brief Construct the HighRateStream singleton (clears counters/queues).
+ * @brief Construct the TransportWorker singleton (clears counters/queues).
  */
-HighRateStream::HighRateStream() :
+TransportWorker::TransportWorker() :
     initialized_(false),
     running_(false),
     stopRequested_(false),
@@ -35,9 +35,9 @@ HighRateStream::HighRateStream() :
 {
 }
 
-HighRateStream& HighRateStream::getInstance()
+TransportWorker& TransportWorker::getInstance()
 {
-    static HighRateStream instance;
+    static TransportWorker instance;
     return instance;
 }
 
@@ -45,7 +45,7 @@ HighRateStream& HighRateStream::getInstance()
  * @brief Reset the builder/queue and counters.
  * @return true always (currently cannot fail).
  */
-bool HighRateStream::init()
+bool TransportWorker::init()
 {
     packetBuilder_.reset();
     stopRequested_.store(false, std::memory_order_release);
@@ -74,7 +74,7 @@ bool HighRateStream::init()
 /**
  * @brief Start draining the queue and transmitting over BLE.
  */
-void HighRateStream::start()
+void TransportWorker::start()
 {
     running_.store(true, std::memory_order_release);
     stopRequested_.store(false, std::memory_order_release);
@@ -83,7 +83,7 @@ void HighRateStream::start()
     if (transportThread_ == nullptr)
     {
         transportThread_ = new Thread("hr_stream",
-                                      HighRateStream::transportLoopThunk,
+                                      TransportWorker::transportLoopThunk,
                                       this,
                                       OS_THREAD_PRIORITY_DEFAULT);
     }
@@ -93,7 +93,7 @@ void HighRateStream::start()
 /**
  * @brief Stop streaming; transport loop will exit on next iteration.
  */
-void HighRateStream::stop()
+void TransportWorker::stop()
 {
     stopRequested_.store(true, std::memory_order_release);
     running_.store(false, std::memory_order_release);
@@ -110,14 +110,14 @@ void HighRateStream::stop()
     stopRequested_.store(false, std::memory_order_release);
 }
 
-void HighRateStream::shutdown()
+void TransportWorker::shutdown()
 {
     // Flush any in-flight builder payload into TX queue.
     flush();
     stop();
 }
 
-bool HighRateStream::enqueueRecorderPayload(const void* data, std::size_t len)
+bool TransportWorker::enqueueRecorderPayload(const void* data, std::size_t len)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
         !running_.load(std::memory_order_acquire) ||
@@ -131,7 +131,7 @@ bool HighRateStream::enqueueRecorderPayload(const void* data, std::size_t len)
     return recorderQueue_.push(chunk);
 }
 
-bool HighRateStream::enqueueTxPacket(const sf::ble::transport::TxPacket& packet)
+bool TransportWorker::enqueueTxPacket(const sf::ble::transport::TxPacket& packet)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
         !running_.load(std::memory_order_acquire))
@@ -145,7 +145,7 @@ bool HighRateStream::enqueueTxPacket(const sf::ble::transport::TxPacket& packet)
  * @brief Enqueue a single IMU record from producer context.
  * @return false if uninitialized, stopped, or queue full.
  */
-bool HighRateStream::enqueueImuRecord(const HighRateImuRecord& record)
+bool TransportWorker::enqueueImuRecord(const HighRateImuRecord& record)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
         !running_.load(std::memory_order_acquire))
@@ -165,9 +165,9 @@ bool HighRateStream::enqueueImuRecord(const HighRateImuRecord& record)
 /**
  * @brief Thread entry thunk to call the instance transport loop.
  */
-void HighRateStream::transportLoopThunk(void* param)
+void TransportWorker::transportLoopThunk(void* param)
 {
-    HighRateStream* self = static_cast<HighRateStream*>(param);
+    TransportWorker* self = static_cast<TransportWorker*>(param);
     if (self)
     {
         self->transportLoop();
@@ -177,7 +177,7 @@ void HighRateStream::transportLoopThunk(void* param)
 /**
  * @brief Consumer loop that drains queued IMU records and sends via BLE.
  */
-void HighRateStream::transportLoop()
+void TransportWorker::transportLoop()
 {
     transportActive_.store(true, std::memory_order_release);
     while (true)
@@ -206,7 +206,7 @@ void HighRateStream::transportLoop()
 /**
  * @brief Single transport iteration: pop records, build packets, notify BLE.
  */
-void HighRateStream::serviceOnce()
+void TransportWorker::serviceOnce()
 {
     if (!initialized_.load(std::memory_order_acquire))
     {
@@ -282,7 +282,7 @@ void HighRateStream::serviceOnce()
 /**
  * @brief Flush any buffered payload immediately to BLE.
  */
-void HighRateStream::flush()
+void TransportWorker::flush()
 {
     sf::ble::transport::TxPacket packet;
     if (packetBuilder_.finalize(packet))
