@@ -413,15 +413,24 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
     ens.header.elapsedTime_ds = Ens_getStartTime();
     ens.header.ensembleType = ENS_TEXT;
 
-    ens.nChars = snprintf(ens.verBuf,
-                          32,
-                          "FW%d.%d.%d%s",
-                          FW_MAJOR_VERSION,
-                          FW_MINOR_VERSION,
-                          FW_BUILD_NUM,
-                          FW_BRANCH);
-    sf::deploy::commitEnsemble(&ens, 
-            sizeof(EnsembleHeader_t) + sizeof(uint8_t) + ens.nChars);
+    int n = snprintf(ens.verBuf,
+                     32,
+                     "FW%d.%d.%d%s",
+                     FW_MAJOR_VERSION,
+                     FW_MINOR_VERSION,
+                     FW_BUILD_NUM,
+                     FW_BRANCH);
+    if (n < 0)
+    {
+        n = 0;
+    }
+    if (n > 31)
+    {
+        n = 31;
+    }
+    ens.nChars = static_cast<uint8_t>(n);
+    sf::deploy::commitEnsemble(&ens,
+                               sizeof(EnsembleHeader_t) + sizeof(uint8_t) + ens.nChars);
 }
 /** @} */
 
