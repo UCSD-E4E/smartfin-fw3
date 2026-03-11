@@ -43,6 +43,10 @@ BleLiveStream::BleLiveStream()
     timeSync_.boardMillisAtSync = 0;
     timeSync_.watchUnixMsAtSync = 0;
     timeSync_.syncSeq = 0;
+    timeSync_.offsetMs = 0;
+    timeSync_.offsetEmaMs = 0;
+    timeSync_.lastUpdateMs = 0;
+    timeSync_.quality = 0;
 }
 
 BleLiveStream &BleLiveStream::getInstance()
@@ -170,9 +174,40 @@ void BleLiveStream::handleControlRx(const uint8_t* data, size_t len)
  */
 void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
 {
+    const uint32_t nowMs = millis();
+
     std::lock_guard<std::mutex> lock(timeSyncMutex_);
-    timeSync_.boardMillisAtSync = millis();
+
+    // Basic seq gap handling: decay quality on gaps.
+    if (timeSync_.valid.load(std::memory_order_relaxed) && seq != (timeSync_.syncSeq + 1))
+    {
+        if (timeSync_.quality > 10)
+        {
+            timeSync_.quality = static_cast<uint8_t>(timeSync_.quality - 10);
+        }
+    }
+
+    // Offset estimate (no RTT field available; assume negligible).
+    const int64_t offsetMs = static_cast<int64_t>(watchUnixMs) - static_cast<int64_t>(nowMs);
+    if (!timeSync_.valid.load(std::memory_order_relaxed))
+    {
+        timeSync_.offsetEmaMs = offsetMs;
+        timeSync_.quality = 128;
+    }
+    else
+    {
+        // EMA with alpha=1/4 for smoothing.
+        timeSync_.offsetEmaMs = (timeSync_.offsetEmaMs * 3 + offsetMs) / 4;
+        if (timeSync_.quality < 250)
+        {
+            timeSync_.quality = static_cast<uint8_t>(timeSync_.quality + 5);
+        }
+    }
+
+    timeSync_.offsetMs = offsetMs;
+    timeSync_.boardMillisAtSync = nowMs;
     timeSync_.watchUnixMsAtSync = watchUnixMs;
+    timeSync_.lastUpdateMs = nowMs;
     timeSync_.syncSeq = seq;
     timeSync_.valid.store(true, std::memory_order_release);
     timeSyncVersion_.fetch_add(1, std::memory_order_relaxed);
@@ -183,7 +218,9 @@ void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
  */
 uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
 {
-    // Double-checked snapshot to avoid lock on common fast path.
+    constexpr uint32_t MAX_SYNC_AGE_MS = 60000; // 60s validity window
+
+    // Fast checks first.
     if (!timeSync_.valid.load(std::memory_order_acquire))
     {
         return 0;
@@ -192,13 +229,15 @@ uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
     uint32_t startVer = timeSyncVersion_.load(std::memory_order_acquire);
     uint32_t boardSnap;
     uint64_t watchSnap;
-    uint32_t seqSnap;
+    int64_t offsetSnap;
+    uint32_t lastUpdate;
 
     {
         std::lock_guard<std::mutex> lock(timeSyncMutex_);
         boardSnap = timeSync_.boardMillisAtSync;
         watchSnap = timeSync_.watchUnixMsAtSync;
-        seqSnap = timeSync_.syncSeq;
+        offsetSnap = timeSync_.offsetEmaMs;
+        lastUpdate = timeSync_.lastUpdateMs;
     }
 
     uint32_t endVer = timeSyncVersion_.load(std::memory_order_acquire);
@@ -207,9 +246,12 @@ uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
         return 0;
     }
 
-    (void)seqSnap; // currently unused, kept for future validation/logging
+    const uint32_t ageMs = boardMillis - lastUpdate;
+    if (ageMs > MAX_SYNC_AGE_MS)
+    {
+        return 0;
+    }
 
-    uint64_t delta = boardMillis - boardSnap;
-    uint64_t estimate = watchSnap + delta;
+    uint64_t estimate = static_cast<int64_t>(boardMillis) + offsetSnap;
     return static_cast<uint32_t>(estimate / 1000);
 }
