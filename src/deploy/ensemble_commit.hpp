@@ -32,7 +32,7 @@ namespace deploy
      * @brief Enqueue an ensemble blob to enabled sinks (recorder/stream).
      * @param pData Pointer to ensemble bytes.
      * @param len Size of the ensemble in bytes.
-     * @return COMMIT_OK on success, otherwise a CommitResult failure code
+     * @return 0 if accepted for enqueue; sink-specific failure codes otherwise.
      */
     int commitEnsemble(const void *pData, std::size_t len);
 }
