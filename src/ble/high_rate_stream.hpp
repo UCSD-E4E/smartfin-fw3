@@ -83,8 +83,6 @@ private:
     std::atomic<bool> running_;
     /** @brief True when a stop has been requested (drain remaining work). */
     std::atomic<bool> stopRequested_;
-    /** @brief Set true when the transport thread exits. */
-    std::atomic<bool> transportExited_;
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     /** @brief Background thread handle for transportLoop(). */
     Thread* transportThread_;

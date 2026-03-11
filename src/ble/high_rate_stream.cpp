@@ -21,7 +21,6 @@ HighRateStream::HighRateStream() :
     initialized_(false),
     running_(false),
     stopRequested_(false),
-    transportExited_(false),
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     transportThread_(nullptr),
 #endif
@@ -49,7 +48,6 @@ bool HighRateStream::init()
 {
     packetBuilder_.reset();
     stopRequested_.store(false, std::memory_order_release);
-    transportExited_.store(false, std::memory_order_release);
     sf::ble::transport::TxPacket dummyPacket;
     while (txQueue_.pop(dummyPacket))
     {
@@ -78,7 +76,6 @@ void HighRateStream::start()
 {
     running_.store(true, std::memory_order_release);
     stopRequested_.store(false, std::memory_order_release);
-    transportExited_.store(false, std::memory_order_release);
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (transportThread_ == nullptr)
     {
@@ -97,13 +94,16 @@ void HighRateStream::stop()
 {
     stopRequested_.store(true, std::memory_order_release);
     running_.store(false, std::memory_order_release);
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    while (!transportExited_.load(std::memory_order_acquire))
+    // Wait for queues to drain.
+    while (!recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty())
     {
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
         delay(1);
-    }
-    transportThread_ = nullptr; // Thread API lacks join; allow OS to reclaim.
+#else
+        std::this_thread::yield();
 #endif
+    }
+    stopRequested_.store(false, std::memory_order_release);
 }
 
 bool HighRateStream::enqueueRecorderPayload(const void* data, std::size_t len)
@@ -170,18 +170,16 @@ void HighRateStream::transportLoop()
 {
     while (true)
     {
-        serviceOnce();
-        if (!running_.load(std::memory_order_acquire) &&
-            stopRequested_.load(std::memory_order_acquire) &&
-            recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty())
+        if (running_.load(std::memory_order_acquire) ||
+            stopRequested_.load(std::memory_order_acquire) ||
+            !recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty())
         {
-            break;
+            serviceOnce();
         }
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         delay(1);
 #endif
     }
-    transportExited_.store(true, std::memory_order_release);
 }
 
 /**
