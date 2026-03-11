@@ -47,6 +47,17 @@ TransportWorker& TransportWorker::getInstance()
  */
 bool TransportWorker::init()
 {
+    // Lazily create persistent transport thread once.
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    if (transportThread_ == nullptr)
+    {
+        transportThread_ = new Thread("transport_worker",
+                                      TransportWorker::transportLoopThunk,
+                                      this,
+                                      OS_THREAD_PRIORITY_DEFAULT);
+    }
+#endif
+
     packetBuilder_.reset();
     stopRequested_.store(false, std::memory_order_release);
     transportActive_.store(false, std::memory_order_release);
@@ -78,16 +89,6 @@ void TransportWorker::start()
 {
     running_.store(true, std::memory_order_release);
     stopRequested_.store(false, std::memory_order_release);
-    transportActive_.store(false, std::memory_order_release);
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    if (transportThread_ == nullptr)
-    {
-        transportThread_ = new Thread("hr_stream",
-                                      TransportWorker::transportLoopThunk,
-                                      this,
-                                      OS_THREAD_PRIORITY_DEFAULT);
-    }
-#endif
 }
 
 /**
