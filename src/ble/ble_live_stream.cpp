@@ -253,6 +253,10 @@ uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
         return 0;
     }
 
-    uint64_t estimate = static_cast<int64_t>(boardMillis) + offsetSnap;
-    return static_cast<uint32_t>(estimate / 1000);
+    int64_t estimateMs = static_cast<int64_t>(boardMillis) + offsetSnap;
+    if (estimateMs <= 0)
+    {
+        return 0;
+    }
+    return static_cast<uint32_t>(estimateMs / 1000);
 }
