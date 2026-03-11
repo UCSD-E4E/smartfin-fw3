@@ -66,8 +66,8 @@ bool BleLiveStream::init()
 
     initialized_.store(true, std::memory_order_release);
     droppedPackets_.store(0, std::memory_order_relaxed);
-    SFBLE::getInstance().startAdvertising();
     SFBLE::getInstance().setControlCallback(BleLiveStream::controlRxThunk, this);
+    SFBLE::getInstance().startAdvertising();
     return true;
 }
 
