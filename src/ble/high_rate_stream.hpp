@@ -12,6 +12,7 @@
 #include "ble/high_rate_record.hpp"
 #include "ble/spsc_queue.hpp"
 
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
@@ -44,10 +45,9 @@ public:
     bool enqueueImuRecord(const HighRateImuRecord& record);
 
     /**
-     * @brief Transport-side service loop; call from consumer thread/context.
-     * @param force When true, drains even if running_ is false (shutdown).
+     * @brief Transport-side service loop; called only by the transport thread.
      */
-    void serviceOnce(bool force = false);
+    void serviceOnce();
 
     /**
      * @brief Flush any pending packet to BLE immediately.
@@ -78,9 +78,13 @@ private:
     static void transportLoopThunk(void* param);
 
     /** @brief True after init() succeeds. */
-    bool initialized_;
+    std::atomic<bool> initialized_;
     /** @brief True while the stream is running. */
-    bool running_;
+    std::atomic<bool> running_;
+    /** @brief True when a stop has been requested (drain remaining work). */
+    std::atomic<bool> stopRequested_;
+    /** @brief Set true when the transport thread exits. */
+    std::atomic<bool> transportExited_;
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     /** @brief Background thread handle for transportLoop(). */
     Thread* transportThread_;
