@@ -211,7 +211,6 @@ void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
     timeSync_.lastUpdateMs = nowMs;
     timeSync_.syncSeq = seq;
     timeSync_.valid.store(true, std::memory_order_release);
-    timeSyncVersion_.fetch_add(1, std::memory_order_relaxed);
 }
 
 /**
@@ -227,7 +226,6 @@ uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
         return 0;
     }
 
-    uint32_t startVer = timeSyncVersion_.load(std::memory_order_acquire);
     uint32_t boardSnap;
     uint64_t watchSnap;
     int64_t offsetSnap;
@@ -239,12 +237,6 @@ uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
         watchSnap = timeSync_.watchUnixMsAtSync;
         offsetSnap = timeSync_.offsetEmaMs;
         lastUpdate = timeSync_.lastUpdateMs;
-    }
-
-    uint32_t endVer = timeSyncVersion_.load(std::memory_order_acquire);
-    if (startVer != endVer || !timeSync_.valid.load(std::memory_order_acquire))
-    {
-        return 0;
     }
 
     const uint32_t ageMs = boardMillis - lastUpdate;

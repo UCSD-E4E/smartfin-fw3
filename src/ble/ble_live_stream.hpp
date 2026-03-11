@@ -86,7 +86,6 @@ private:
     };
 
     TimeSyncState timeSync_;
-    std::atomic<uint32_t> timeSyncVersion_{0};
     mutable std::mutex timeSyncMutex_;
 
     std::atomic<bool> initialized_; //!< True when `init()` completed.
