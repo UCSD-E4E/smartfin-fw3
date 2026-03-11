@@ -89,6 +89,7 @@ void TransportWorker::start()
 {
     running_.store(true, std::memory_order_release);
     stopRequested_.store(false, std::memory_order_release);
+    accepting_.store(true, std::memory_order_release);
 }
 
 /**
@@ -109,11 +110,13 @@ void TransportWorker::stop()
 #endif
     }
     stopRequested_.store(false, std::memory_order_release);
+    accepting_.store(false, std::memory_order_release);
 }
 
 void TransportWorker::shutdown()
 {
     // Flush any in-flight builder payload into TX queue.
+    accepting_.store(false, std::memory_order_release);
     flush();
     stop();
 }
@@ -122,6 +125,7 @@ bool TransportWorker::enqueueRecorderPayload(const void* data, std::size_t len)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
         !running_.load(std::memory_order_acquire) ||
+        !accepting_.load(std::memory_order_acquire) ||
         data == nullptr || len == 0 || len > RECORDER_CHUNK_MAX)
     {
         return false;
@@ -135,7 +139,8 @@ bool TransportWorker::enqueueRecorderPayload(const void* data, std::size_t len)
 bool TransportWorker::enqueueTxPacket(const sf::ble::transport::TxPacket& packet)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
-        !running_.load(std::memory_order_acquire))
+        !running_.load(std::memory_order_acquire) ||
+        !accepting_.load(std::memory_order_acquire))
     {
         return false;
     }
@@ -149,7 +154,8 @@ bool TransportWorker::enqueueTxPacket(const sf::ble::transport::TxPacket& packet
 bool TransportWorker::enqueueImuRecord(const HighRateImuRecord& record)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
-        !running_.load(std::memory_order_acquire))
+        !running_.load(std::memory_order_acquire) ||
+        !accepting_.load(std::memory_order_acquire))
     {
         return false;
     }
