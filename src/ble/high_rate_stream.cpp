@@ -20,6 +20,8 @@
 HighRateStream::HighRateStream() :
     initialized_(false),
     running_(false),
+    stopRequested_(false),
+    transportExited_(false),
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     transportThread_(nullptr),
 #endif
@@ -46,6 +48,8 @@ HighRateStream& HighRateStream::getInstance()
 bool HighRateStream::init()
 {
     packetBuilder_.reset();
+    stopRequested_.store(false, std::memory_order_release);
+    transportExited_.store(false, std::memory_order_release);
     sf::ble::transport::TxPacket dummyPacket;
     while (txQueue_.pop(dummyPacket))
     {
@@ -63,7 +67,7 @@ bool HighRateStream::init()
     droppedProducerRecords_ = 0;
     droppedTransportPackets_ = 0;
     notifyFailures_ = 0;
-    initialized_ = true;
+    initialized_.store(true, std::memory_order_release);
     return true;
 }
 
@@ -72,7 +76,9 @@ bool HighRateStream::init()
  */
 void HighRateStream::start()
 {
-    running_ = true;
+    running_.store(true, std::memory_order_release);
+    stopRequested_.store(false, std::memory_order_release);
+    transportExited_.store(false, std::memory_order_release);
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (transportThread_ == nullptr)
     {
@@ -89,23 +95,22 @@ void HighRateStream::start()
  */
 void HighRateStream::stop()
 {
-    // Stop the loop and perform one final drain.
-    running_ = false;
-    serviceOnce(true);
+    stopRequested_.store(true, std::memory_order_release);
+    running_.store(false, std::memory_order_release);
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    if (transportThread_ != nullptr)
+    while (!transportExited_.load(std::memory_order_acquire))
     {
-        // Give the thread a moment to exit its loop.
-        delay(5);
-        delete transportThread_;
-        transportThread_ = nullptr;
+        delay(1);
     }
+    transportThread_ = nullptr; // Thread API lacks join; allow OS to reclaim.
 #endif
 }
 
 bool HighRateStream::enqueueRecorderPayload(const void* data, std::size_t len)
 {
-    if (!initialized_ || !running_ || data == nullptr || len == 0 || len > RECORDER_CHUNK_MAX)
+    if (!initialized_.load(std::memory_order_acquire) ||
+        !running_.load(std::memory_order_acquire) ||
+        data == nullptr || len == 0 || len > RECORDER_CHUNK_MAX)
     {
         return false;
     }
@@ -117,7 +122,8 @@ bool HighRateStream::enqueueRecorderPayload(const void* data, std::size_t len)
 
 bool HighRateStream::enqueueTxPacket(const sf::ble::transport::TxPacket& packet)
 {
-    if (!initialized_ || !running_)
+    if (!initialized_.load(std::memory_order_acquire) ||
+        !running_.load(std::memory_order_acquire))
     {
         return false;
     }
@@ -130,7 +136,8 @@ bool HighRateStream::enqueueTxPacket(const sf::ble::transport::TxPacket& packet)
  */
 bool HighRateStream::enqueueImuRecord(const HighRateImuRecord& record)
 {
-    if (!initialized_ || !running_)
+    if (!initialized_.load(std::memory_order_acquire) ||
+        !running_.load(std::memory_order_acquire))
     {
         return false;
     }
@@ -161,26 +168,28 @@ void HighRateStream::transportLoopThunk(void* param)
  */
 void HighRateStream::transportLoop()
 {
-    while (running_)
+    while (true)
     {
         serviceOnce();
+        if (!running_.load(std::memory_order_acquire) &&
+            stopRequested_.load(std::memory_order_acquire) &&
+            recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty())
+        {
+            break;
+        }
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         delay(1);
 #endif
     }
+    transportExited_.store(true, std::memory_order_release);
 }
 
 /**
  * @brief Single transport iteration: pop records, build packets, notify BLE.
  */
-void HighRateStream::serviceOnce(bool force)
+void HighRateStream::serviceOnce()
 {
-    if (!initialized_)
-    {
-        return;
-    }
-
-    if (!running_ && !force)
+    if (!initialized_.load(std::memory_order_acquire))
     {
         return;
     }
