@@ -78,6 +78,12 @@ public:
      */
     bool enqueueTxPacket(const sf::ble::transport::TxPacket& packet);
 
+    /**
+     * @brief Enqueue a low-rate ensemble blob to be packetized on the transport thread.
+     * @note Single producer: deployment/ride thread only.
+     */
+    bool enqueueLowRateEnsemble(const void* data, std::size_t len);
+
     /** @brief Return true if producers may enqueue work. */
     bool isAccepting() const { return accepting_.load(std::memory_order_acquire); }
 
@@ -124,6 +130,9 @@ private:
 
     /** @brief Maximum bytes per recorder payload chunk (independent of BLE MTU). */
     static constexpr std::size_t RECORDER_CHUNK_MAX = 1024;
+    /** @brief Maximum bytes per low-rate ensemble payload (bounded by BLE payload). */
+    static constexpr std::size_t LOW_RATE_MAX = sf::ble::transport::MAX_PAYLOAD_SIZE;
+    static constexpr uint32_t LOW_RATE_FLUSH_INTERVAL_MS = 1000;
 
     /** @brief Recorder payload chunk. */
     struct RecorderChunk
@@ -138,8 +147,20 @@ private:
     /** @brief Queue of TxPackets produced by other threads; drained here (single producer: ride thread). */
     sf::util::SpscQueue<sf::ble::transport::TxPacket, 64> txQueue_;
 
+    struct LowRateChunk
+    {
+        std::size_t len;
+        uint8_t bytes[LOW_RATE_MAX];
+    };
+
+    /** @brief Queue of low-rate ensemble blobs to be packetized (single producer: ride thread). */
+    sf::util::SpscQueue<LowRateChunk, 64> lowRateQueue_;
+
     /** @brief Optional producer-side flush hook for low-rate path. */
     void (*lowRateFlusher_)();
+
+    /** @brief Last time we flushed the telemetry builder (ms). */
+    uint32_t lastFlushMs_;
 };
 
 #endif // __HIGH_RATE_STREAM_HPP__
