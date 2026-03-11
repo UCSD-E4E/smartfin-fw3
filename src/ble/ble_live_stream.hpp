@@ -46,7 +46,7 @@ public:
     void flush();
 
     /**
-     * @brief Drain queued packets and hand them to the BLE backend.
+     * @brief Legacy no-op; transport is handled by TransportWorker.
      */
     void processTx();
 
