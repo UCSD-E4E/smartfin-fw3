@@ -13,6 +13,7 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <mutex>
 
 /**
  * @brief Singleton that manages the BLE transmit builder/queue.
@@ -78,6 +79,10 @@ private:
         uint32_t boardMillisAtSync;
         uint64_t watchUnixMsAtSync;
         uint32_t syncSeq;
+        int64_t offsetMs;      //!< Raw offset (watchUnixMs - boardMillis).
+        int64_t offsetEmaMs;   //!< Smoothed offset estimate.
+        uint32_t lastUpdateMs; //!< Board millis when last sync applied.
+        uint8_t quality;       //!< Simple quality score (0-255).
     };
 
     TimeSyncState timeSync_;
