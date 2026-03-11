@@ -24,6 +24,7 @@ HighRateStream::HighRateStream() :
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     transportThread_(nullptr),
 #endif
+    transportActive_(false),
     droppedProducerRecords_(0),
     droppedTransportPackets_(0),
     notifyFailures_(0),
@@ -48,6 +49,7 @@ bool HighRateStream::init()
 {
     packetBuilder_.reset();
     stopRequested_.store(false, std::memory_order_release);
+    transportActive_.store(false, std::memory_order_release);
     sf::ble::transport::TxPacket dummyPacket;
     while (txQueue_.pop(dummyPacket))
     {
@@ -76,6 +78,7 @@ void HighRateStream::start()
 {
     running_.store(true, std::memory_order_release);
     stopRequested_.store(false, std::memory_order_release);
+    transportActive_.store(false, std::memory_order_release);
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (transportThread_ == nullptr)
     {
@@ -94,8 +97,9 @@ void HighRateStream::stop()
 {
     stopRequested_.store(true, std::memory_order_release);
     running_.store(false, std::memory_order_release);
-    // Wait for queues to drain.
-    while (!recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty())
+    // Wait for transport thread to finish and queues to drain.
+    while (transportActive_.load(std::memory_order_acquire) ||
+           !recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty())
     {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         delay(1);
@@ -168,6 +172,7 @@ void HighRateStream::transportLoopThunk(void* param)
  */
 void HighRateStream::transportLoop()
 {
+    transportActive_.store(true, std::memory_order_release);
     while (true)
     {
         if (running_.load(std::memory_order_acquire) ||
@@ -180,6 +185,7 @@ void HighRateStream::transportLoop()
         delay(1);
 #endif
     }
+    transportActive_.store(false, std::memory_order_release);
 }
 
 /**
