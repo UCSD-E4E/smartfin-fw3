@@ -266,6 +266,9 @@ void HighRateStream::flush()
     sf::ble::transport::TxPacket packet;
     if (packetBuilder_.finalize(packet))
     {
-        txQueue_.push(packet);
+        if (!txQueue_.push(packet))
+        {
+            ++droppedTransportPackets_;
+        }
     }
 }
