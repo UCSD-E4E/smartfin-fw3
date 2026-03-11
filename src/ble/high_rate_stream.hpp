@@ -133,6 +133,8 @@ private:
     /** @brief Maximum bytes per low-rate ensemble payload (bounded by BLE payload). */
     static constexpr std::size_t LOW_RATE_MAX = sf::ble::transport::MAX_PAYLOAD_SIZE;
     static constexpr uint32_t LOW_RATE_FLUSH_INTERVAL_MS = 1000;
+    /** @brief Limit of IMU records to process before checking other queues to avoid starvation. */
+    static constexpr std::size_t MAX_RECORD_BATCH = 32;
 
     /** @brief Recorder payload chunk. */
     struct RecorderChunk
