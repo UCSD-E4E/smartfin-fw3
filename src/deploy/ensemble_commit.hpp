@@ -26,10 +26,10 @@ namespace deploy
         COMMIT_NO_SINKS_ENABLED,
     };
     /**
-     * @brief Write and optionally stream an ensemble blob.
+     * @brief Enqueue an ensemble blob to enabled sinks (recorder/stream).
      * @param pData Pointer to ensemble bytes.
      * @param len Size of the ensemble in bytes.
-     * @return 0 if succesful, flog error if not
+     * @return 0 if accepted for enqueue; sink-specific failure codes otherwise.
      */
     int commitEnsemble(const void *pData, std::size_t len);
 }
