@@ -18,9 +18,7 @@
 
 namespace
 {
-    /**
-     * @brief Control message type identifiers sent by the watch.
-     */
+    /** @brief Control message type identifiers sent by the watch (out-of-band from transport). */
     constexpr uint8_t TIME_SYNC_MSG = 1;
 
 #pragma pack(push, 1)
