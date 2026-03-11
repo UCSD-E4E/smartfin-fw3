@@ -101,6 +101,8 @@ private:
     std::atomic<bool> transportActive_;
     /** @brief True while producers are allowed to enqueue. */
     std::atomic<bool> accepting_;
+    /** @brief True after worker thread successfully started. */
+    std::atomic<bool> workerStarted_;
 
     /** @brief Count of producer drops due to full queue. */
     std::atomic<uint32_t> droppedProducerRecords_;
