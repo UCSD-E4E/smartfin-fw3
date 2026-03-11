@@ -122,8 +122,8 @@ void TransportService::shutdown()
     {
         lowRateFlusher_();
     }
-    // Flush any in-flight builder payload into TX queue.
-    flush();
+    // Stop accepting new work; worker thread will drain and flush its builder.
+    accepting_.store(false, std::memory_order_release);
     stop();
 }
 
@@ -303,6 +303,22 @@ void TransportService::serviceOnce()
         if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
         {
             notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+        }
+    }
+
+    // After draining all queues, if we were asked to stop and nothing remains, flush builder.
+    if (stopRequested_.load(std::memory_order_acquire) &&
+        recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() &&
+        packetBuilder_.hasData())
+    {
+        sf::ble::transport::TxPacket finalPacket;
+        if (packetBuilder_.finalize(finalPacket))
+        {
+            if (!SFBLE::getInstance().isConnected() ||
+                !SFBLE::getInstance().notifyTelemetry(finalPacket.bytes, finalPacket.len))
+            {
+                droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+            }
         }
     }
 }
