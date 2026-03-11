@@ -29,7 +29,6 @@ TransportService::TransportService() :
     droppedProducerRecords_(0),
     droppedTransportPackets_(0),
     notifyFailures_(0),
-    workerStarted_(false),
     recordQueue_(),
     packetBuilder_(),
     recorderQueue_(),
@@ -57,7 +56,6 @@ bool TransportService::init()
                                       TransportService::transportLoopThunk,
                                       this,
                                       OS_THREAD_PRIORITY_DEFAULT);
-        workerStarted_.store(true, std::memory_order_release);
     }
 #endif
 
@@ -104,22 +102,14 @@ void TransportService::stop()
     stopRequested_.store(true, std::memory_order_release);
     running_.store(false, std::memory_order_release);
     accepting_.store(false, std::memory_order_release);
-    // Wait for transport thread to finish and queues to drain.
-    uint32_t waitMs = 0;
-    while (workerStarted_.load(std::memory_order_acquire) &&
-           (transportActive_.load(std::memory_order_acquire) ||
-            !recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty()))
+    // Wait for queues to drain; thread remains alive.
+    while (!recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty())
     {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         delay(1);
 #else
         std::this_thread::yield();
 #endif
-        if (++waitMs > 5000)
-        {
-            // Timeout safeguard to avoid hang if worker died early.
-            break;
-        }
     }
     stopRequested_.store(false, std::memory_order_release);
     accepting_.store(false, std::memory_order_release);
@@ -216,19 +206,13 @@ void TransportService::transportLoop()
         {
             serviceOnce();
         }
-        if (!running_.load(std::memory_order_acquire) &&
-            stopRequested_.load(std::memory_order_acquire) &&
-            recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty())
-        {
-            break;
-        }
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         delay(1);
 #else
         std::this_thread::yield();
 #endif
     }
-    transportActive_.store(false, std::memory_order_release);
+    // Persistent thread; never exits under normal conditions.
 }
 
 /**
