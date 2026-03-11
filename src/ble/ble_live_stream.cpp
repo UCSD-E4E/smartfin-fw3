@@ -142,7 +142,7 @@ void BleLiveStream::processTx()
     sf::ble::transport::TxPacket packet;
     while (txQueue_.pop(packet))
     {
-        if (!HighRateStream::getInstance().enqueueTxPacket(packet))
+        if (!TransportWorker::getInstance().enqueueTxPacket(packet))
         {
             droppedPackets_.fetch_add(1, std::memory_order_relaxed);
         }

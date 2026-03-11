@@ -36,8 +36,8 @@ int sf::deploy::commitEnsemble(const void *pData, std::size_t len)
 #if ENABLE_RECORD_SINK
     if (recordEnabled)
     {
-        HighRateStream& hrs = HighRateStream::getInstance();
-        if (hrs.enqueueRecorderPayload(pData, len))
+        TransportWorker& transport = TransportWorker::getInstance();
+        if (transport.enqueueRecorderPayload(pData, len))
         {
             recordOk = true;
         }

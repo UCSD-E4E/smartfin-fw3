@@ -60,8 +60,8 @@ void RideTask::init()
     BleLiveStream::getInstance().init();
 #endif
 #if ENABLE_STREAM_SINK || ENABLE_RECORD_SINK
-    HighRateStream::getInstance().init();
-    HighRateStream::getInstance().start();
+    TransportWorker::getInstance().init();
+    TransportWorker::getInstance().start();
 #endif
 #if ENABLE_RECORD_SINK
     if (pSystemDesc->pRecorder && !pSystemDesc->pRecorder->openSession())
@@ -195,7 +195,7 @@ void RideTask::exit(void)
     BleLiveStream::getInstance().flush();
 #endif
 #if ENABLE_STREAM_SINK || ENABLE_RECORD_SINK
-    HighRateStream::getInstance().shutdown();
+    TransportWorker::getInstance().shutdown();
 #endif
 #if ENABLE_RECORD_SINK
     if (pSystemDesc->pRecorder)
