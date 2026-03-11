@@ -87,6 +87,8 @@ private:
     /** @brief Background thread handle for transportLoop(). */
     Thread* transportThread_;
 #endif
+    /** @brief True while the transport thread is running. */
+    std::atomic<bool> transportActive_;
 
     /** @brief Count of producer drops due to full queue. */
     uint32_t droppedProducerRecords_;
