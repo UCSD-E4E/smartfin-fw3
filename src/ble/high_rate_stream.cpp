@@ -25,6 +25,7 @@ TransportWorker::TransportWorker() :
     transportThread_(nullptr),
 #endif
     transportActive_(false),
+    lowRateFlusher_(nullptr),
     droppedProducerRecords_(0),
     droppedTransportPackets_(0),
     notifyFailures_(0),
@@ -63,6 +64,7 @@ bool TransportWorker::init()
     packetBuilder_.reset();
     stopRequested_.store(false, std::memory_order_release);
     transportActive_.store(false, std::memory_order_release);
+    accepting_.store(false, std::memory_order_release);
     sf::ble::transport::TxPacket dummyPacket;
     while (txQueue_.pop(dummyPacket))
     {
@@ -101,6 +103,7 @@ void TransportWorker::stop()
 {
     stopRequested_.store(true, std::memory_order_release);
     running_.store(false, std::memory_order_release);
+    accepting_.store(false, std::memory_order_release);
     // Wait for transport thread to finish and queues to drain.
     uint32_t waitMs = 0;
     while (workerStarted_.load(std::memory_order_acquire) &&
@@ -124,8 +127,12 @@ void TransportWorker::stop()
 
 void TransportWorker::shutdown()
 {
+    // Flush producer-side low-rate buffers if provided.
+    if (lowRateFlusher_)
+    {
+        lowRateFlusher_();
+    }
     // Flush any in-flight builder payload into TX queue.
-    accepting_.store(false, std::memory_order_release);
     flush();
     stop();
 }
