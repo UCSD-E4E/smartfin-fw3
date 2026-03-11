@@ -193,9 +193,9 @@ void RideTask::exit(void)
 #if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().flush();
     BleLiveStream::getInstance().processTx();
+#endif
     HighRateStream::getInstance().flush();
     HighRateStream::getInstance().stop();
-#endif
     pSystemDesc->pRecorder->closeSession();
     pSystemDesc->pChargerCheck->start();
     SF_OSAL_printf("| Task             | Avg. Duration (us) | Count        |" __NL__);
