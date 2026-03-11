@@ -43,9 +43,9 @@ BleLiveStream::BleLiveStream()
       droppedPackets_(0)
 {
     timeSync_.valid.store(false, std::memory_order_relaxed);
-    timeSync_.boardMillisAtSync.store(0, std::memory_order_relaxed);
-    timeSync_.watchUnixMsAtSync.store(0, std::memory_order_relaxed);
-    timeSync_.syncSeq.store(0, std::memory_order_relaxed);
+    timeSync_.boardMillisAtSync = 0;
+    timeSync_.watchUnixMsAtSync = 0;
+    timeSync_.syncSeq = 0;
 }
 
 BleLiveStream &BleLiveStream::getInstance()
@@ -190,10 +190,12 @@ void BleLiveStream::handleControlRx(const uint8_t* data, size_t len)
  */
 void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
 {
+    std::lock_guard<std::mutex> lock(timeSyncMutex_);
+    timeSync_.boardMillisAtSync = millis();
+    timeSync_.watchUnixMsAtSync = watchUnixMs;
+    timeSync_.syncSeq = seq;
     timeSync_.valid.store(true, std::memory_order_release);
-    timeSync_.boardMillisAtSync.store(millis(), std::memory_order_relaxed);
-    timeSync_.watchUnixMsAtSync.store(watchUnixMs, std::memory_order_relaxed);
-    timeSync_.syncSeq.store(seq, std::memory_order_relaxed);
+    timeSyncVersion_.fetch_add(1, std::memory_order_relaxed);
 }
 
 /**
@@ -201,11 +203,33 @@ void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
  */
 uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
 {
+    // Double-checked snapshot to avoid lock on common fast path.
     if (!timeSync_.valid.load(std::memory_order_acquire))
     {
         return 0;
     }
-    uint64_t delta = boardMillis - timeSync_.boardMillisAtSync.load(std::memory_order_acquire);
-    uint64_t estimate = timeSync_.watchUnixMsAtSync.load(std::memory_order_acquire) + delta;
+
+    uint32_t startVer = timeSyncVersion_.load(std::memory_order_acquire);
+    uint32_t boardSnap;
+    uint64_t watchSnap;
+    uint32_t seqSnap;
+
+    {
+        std::lock_guard<std::mutex> lock(timeSyncMutex_);
+        boardSnap = timeSync_.boardMillisAtSync;
+        watchSnap = timeSync_.watchUnixMsAtSync;
+        seqSnap = timeSync_.syncSeq;
+    }
+
+    uint32_t endVer = timeSyncVersion_.load(std::memory_order_acquire);
+    if (startVer != endVer || !timeSync_.valid.load(std::memory_order_acquire))
+    {
+        return 0;
+    }
+
+    (void)seqSnap; // currently unused, kept for future validation/logging
+
+    uint64_t delta = boardMillis - boardSnap;
+    uint64_t estimate = watchSnap + delta;
     return static_cast<uint32_t>(estimate / 1000);
 }

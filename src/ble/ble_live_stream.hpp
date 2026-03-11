@@ -75,13 +75,16 @@ private:
 
     struct TimeSyncState
     {
-        std::atomic<bool> valid;                 //!< True after at least one sync message.
-        std::atomic<uint32_t> boardMillisAtSync; //!< Board millis snapshot at sync receipt.
-        std::atomic<uint64_t> watchUnixMsAtSync; //!< Peer-provided Unix time in ms at sync.
-        std::atomic<uint32_t> syncSeq;           //!< Sequence counter echoed by peer.
+        std::atomic<bool> valid; //!< True after at least one sync message.
+        // Updated under timeSyncMutex_ to publish a consistent snapshot.
+        uint32_t boardMillisAtSync;
+        uint64_t watchUnixMsAtSync;
+        uint32_t syncSeq;
     };
 
     TimeSyncState timeSync_;
+    std::atomic<uint32_t> timeSyncVersion_{0};
+    mutable std::mutex timeSyncMutex_;
 
     std::atomic<bool> initialized_; //!< True when `init()` completed.
     std::atomic<uint32_t> droppedPackets_; //!< Count of dropped/overflow packets.
