@@ -36,7 +36,6 @@ namespace
 
 BleLiveStream::BleLiveStream()
     : packetBuilder_(),
-      txQueue_(),
       initialized_(false),
       droppedPackets_(0)
 {
@@ -59,11 +58,6 @@ bool BleLiveStream::init()
     {
         return false;
     }
-    sf::ble::transport::TxPacket packet;
-    while (txQueue_.pop(packet))
-    {
-    }
-
     initialized_.store(true, std::memory_order_release);
     droppedPackets_.store(0, std::memory_order_relaxed);
     SFBLE::getInstance().setControlCallback(BleLiveStream::controlRxThunk, this);
@@ -91,7 +85,7 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
         sf::ble::transport::TxPacket packet;
         if (packetBuilder_.finalize(packet, sf::ble::transport::PACKET_TYPE_TELEMETRY))
         {
-            if (!txQueue_.push(packet))
+            if (!TransportWorker::getInstance().enqueueTxPacket(packet))
             {
                 droppedPackets_.fetch_add(1, std::memory_order_relaxed);
                 return false;
@@ -100,11 +94,11 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
     }
 
     // Copy the ensemble data into the packet buffer.
-    if (!packetBuilder_.appendEnsemble(pData, len))
-    {
-        droppedPackets_.fetch_add(1, std::memory_order_relaxed);
-        return false;
-    }
+        if (!packetBuilder_.appendEnsemble(pData, len))
+        {
+            droppedPackets_.fetch_add(1, std::memory_order_relaxed);
+            return false;
+        }
 
     // If we exactly filled the packet, move it to the queue right away.
     if (packetBuilder_.remainingPayload() == 0)
@@ -125,7 +119,7 @@ void BleLiveStream::flush()
     sf::ble::transport::TxPacket packet;
     if (packetBuilder_.finalize(packet))
     {
-        if (!txQueue_.push(packet))
+        if (!TransportWorker::getInstance().enqueueTxPacket(packet))
         {
             droppedPackets_.fetch_add(1, std::memory_order_relaxed);
         }
@@ -134,19 +128,7 @@ void BleLiveStream::flush()
 
 void BleLiveStream::processTx()
 {
-    if (!initialized_.load(std::memory_order_acquire) || !isConnected())
-    {
-        return;
-    }
-
-    sf::ble::transport::TxPacket packet;
-    while (txQueue_.pop(packet))
-    {
-        if (!TransportWorker::getInstance().enqueueTxPacket(packet))
-        {
-            droppedPackets_.fetch_add(1, std::memory_order_relaxed);
-        }
-    }
+    // No-op: TransportWorker handles transmission; left for legacy callers.
 }
 
 bool BleLiveStream::isConnected() const
