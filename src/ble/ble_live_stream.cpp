@@ -35,10 +35,8 @@ namespace
 }
 
 BleLiveStream::BleLiveStream()
-    : packetBuilder_(),
-      initialized_(false),
-      droppedPackets_(0),
-      lastFlushMs_(0)
+    : initialized_(false),
+      droppedPackets_(0)
 {
     timeSync_.valid.store(false, std::memory_order_relaxed);
     timeSync_.boardMillisAtSync = 0;
@@ -58,8 +56,6 @@ BleLiveStream &BleLiveStream::getInstance()
 
 bool BleLiveStream::init()
 {
-    packetBuilder_.reset();
-    lastFlushMs_ = millis();
     if (!SFBLE::getInstance().init())
     {
         return false;
@@ -67,7 +63,6 @@ bool BleLiveStream::init()
     initialized_.store(true, std::memory_order_release);
     droppedPackets_.store(0, std::memory_order_relaxed);
     SFBLE::getInstance().setControlCallback(BleLiveStream::controlRxThunk, this);
-    TransportService::getInstance().setLowRateFlusher(&BleLiveStream::flushThunk);
     SFBLE::getInstance().startAdvertising();
     return true;
 }
@@ -86,60 +81,13 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
         return false;
     }
 
-    // If the current packet is full, finalize and queue it before appending.
-    // handles current packet full
-    if (!packetBuilder_.canAppend(len))
-    {
-        sf::ble::transport::TxPacket packet;
-        if (packetBuilder_.finalize(packet, sf::ble::transport::PACKET_TYPE_TELEMETRY))
-        {
-            if (!TransportService::getInstance().enqueueTxPacket(packet))
-            {
-                droppedPackets_.fetch_add(1, std::memory_order_relaxed);
-                return false;
-            }
-        }
-    }
-
-    // Copy the ensemble data into the packet buffer.
-    if (!packetBuilder_.appendEnsemble(pData, len))
+    // Enqueue raw ensemble into transport-owned builder.
+    if (!TransportService::getInstance().enqueueLowRateEnsemble(pData, len))
     {
         droppedPackets_.fetch_add(1, std::memory_order_relaxed);
         return false;
     }
-
-    const uint32_t now = millis();
-    if ((now - lastFlushMs_) >= LOW_RATE_FLUSH_INTERVAL_MS)
-    {
-        flush();
-        lastFlushMs_ = now;
-    }
-
-    // If we exactly filled the packet, move it to the queue right away.
-    if (packetBuilder_.remainingPayload() == 0)
-    {
-        flush();
-        lastFlushMs_ = millis();
-    }
-
     return true;
-}
-
-void BleLiveStream::flush()
-{
-    if (!initialized_.load(std::memory_order_acquire))
-    {
-        return;
-    }
-
-    sf::ble::transport::TxPacket packet;
-    if (packetBuilder_.finalize(packet))
-    {
-        if (!TransportService::getInstance().enqueueTxPacket(packet))
-        {
-            droppedPackets_.fetch_add(1, std::memory_order_relaxed);
-        }
-    }
 }
 
 void BleLiveStream::processTx()
@@ -159,11 +107,6 @@ void BleLiveStream::controlRxThunk(const uint8_t* data, size_t len, void* contex
     {
         self->handleControlRx(data, len);
     }
-}
-
-void BleLiveStream::flushThunk()
-{
-    BleLiveStream::getInstance().flush();
 }
 
 /**

@@ -8,11 +8,11 @@
 #include "high_rate_stream.hpp"
 
 #include "ble/sf_ble.hpp"
-#include "ble/ble_live_stream.hpp"
 #include "cli/flog.hpp"
 #include "product.hpp"
 #include "system.hpp"
 #include <cstring>
+#include <thread>
 
 /**
  * @brief Construct the TransportService singleton (clears counters/queues).
@@ -33,7 +33,9 @@ TransportService::TransportService() :
     recordQueue_(),
     packetBuilder_(),
     recorderQueue_(),
-    txQueue_()
+    txQueue_(),
+    lowRateQueue_(),
+    lastFlushMs_(0)
 {
 }
 
@@ -61,6 +63,7 @@ bool TransportService::init()
 #endif
 
     packetBuilder_.reset();
+    lastFlushMs_ = millis();
     stopRequested_.store(false, std::memory_order_release);
     transportActive_.store(false, std::memory_order_release);
     idle_.store(true, std::memory_order_release);
@@ -73,7 +76,10 @@ bool TransportService::init()
     while (recorderQueue_.pop(dummyChunk))
     {
     }
-
+    LowRateChunk dummyLow{};
+    while (lowRateQueue_.pop(dummyLow))
+    {
+    }
     HighRateImuRecord dummy;
     while (recordQueue_.pop(dummy))
     {
@@ -161,6 +167,21 @@ bool TransportService::enqueueTxPacket(const sf::ble::transport::TxPacket& packe
     return txQueue_.push(packet);
 }
 
+bool TransportService::enqueueLowRateEnsemble(const void* data, std::size_t len)
+{
+    if (!initialized_.load(std::memory_order_acquire) ||
+        !running_.load(std::memory_order_acquire) ||
+        !accepting_.load(std::memory_order_acquire) ||
+        data == nullptr || len == 0 || len > LOW_RATE_MAX)
+    {
+        return false;
+    }
+    LowRateChunk chunk{};
+    chunk.len = len;
+    std::memcpy(chunk.bytes, data, len);
+    return lowRateQueue_.push(chunk);
+}
+
 /**
  * @brief Enqueue a single IMU record from producer context.
  * @return false if uninitialized, stopped, or queue full.
@@ -205,7 +226,8 @@ void TransportService::transportLoop()
     {
         if (running_.load(std::memory_order_acquire) ||
             stopRequested_.load(std::memory_order_acquire) ||
-            !recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty())
+            !recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty() ||
+            !lowRateQueue_.empty())
         {
             serviceOnce();
         }
@@ -229,6 +251,7 @@ void TransportService::serviceOnce()
     }
 
     idle_.store(false, std::memory_order_release);
+    const uint32_t nowMs = millis();
 
     HighRateImuRecord record;
     while (recordQueue_.pop(record))
@@ -279,6 +302,58 @@ void TransportService::serviceOnce()
                     notifyFailures_.fetch_add(1, std::memory_order_relaxed);
                 }
             }
+            lastFlushMs_ = millis();
+        }
+    }
+
+    // Packetize low-rate ensembles on the transport thread.
+    LowRateChunk low;
+    while (lowRateQueue_.pop(low))
+    {
+        if (!packetBuilder_.canAppend(low.len))
+        {
+            sf::ble::transport::TxPacket packet;
+            if (packetBuilder_.finalize(packet))
+            {
+                const bool connected = SFBLE::getInstance().isConnected();
+                if (!connected)
+                {
+                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                }
+                else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                {
+                    notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                }
+                else
+                {
+                    lastFlushMs_ = millis();
+                }
+            }
+        }
+
+        if (!packetBuilder_.appendEnsemble(low.bytes, low.len))
+        {
+            droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+        }
+        else if (packetBuilder_.remainingPayload() == 0)
+        {
+            sf::ble::transport::TxPacket packet;
+            if (packetBuilder_.finalize(packet))
+            {
+                const bool connected = SFBLE::getInstance().isConnected();
+                if (!connected)
+                {
+                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                }
+                else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                {
+                    notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                }
+                else
+                {
+                    lastFlushMs_ = millis();
+                }
+            }
         }
     }
 
@@ -311,9 +386,31 @@ void TransportService::serviceOnce()
         }
     }
 
+    // Periodic flush for partial payloads to keep low-rate data live.
+    if (packetBuilder_.hasData() && (millis() - lastFlushMs_ >= LOW_RATE_FLUSH_INTERVAL_MS))
+    {
+        sf::ble::transport::TxPacket flushPacket;
+        if (packetBuilder_.finalize(flushPacket))
+        {
+            const bool connected = SFBLE::getInstance().isConnected();
+            if (!connected)
+            {
+                droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+            }
+            else if (!SFBLE::getInstance().notifyTelemetry(flushPacket.bytes, flushPacket.len))
+            {
+                notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+            }
+            else
+            {
+                lastFlushMs_ = millis();
+            }
+        }
+    }
+
     // After draining all queues, if we were asked to stop and nothing remains, flush builder.
     if (stopRequested_.load(std::memory_order_acquire) &&
-        recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() &&
+        recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() && lowRateQueue_.empty() &&
         packetBuilder_.hasData())
     {
         sf::ble::transport::TxPacket finalPacket;
@@ -327,7 +424,7 @@ void TransportService::serviceOnce()
         }
     }
 
-    if (recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() &&
+    if (recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() && lowRateQueue_.empty() &&
         !packetBuilder_.hasData() && stopRequested_.load(std::memory_order_acquire))
     {
         idle_.store(true, std::memory_order_release);
@@ -345,6 +442,10 @@ void TransportService::flush()
         if (!txQueue_.push(packet))
         {
             droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+        }
+        else
+        {
+            lastFlushMs_ = millis();
         }
     }
 }
