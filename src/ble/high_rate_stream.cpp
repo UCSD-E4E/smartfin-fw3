@@ -64,9 +64,9 @@ bool HighRateStream::init()
     {
     }
 
-    droppedProducerRecords_ = 0;
-    droppedTransportPackets_ = 0;
-    notifyFailures_ = 0;
+    droppedProducerRecords_.store(0, std::memory_order_relaxed);
+    droppedTransportPackets_.store(0, std::memory_order_relaxed);
+    notifyFailures_.store(0, std::memory_order_relaxed);
     initialized_.store(true, std::memory_order_release);
     return true;
 }
@@ -110,6 +110,13 @@ void HighRateStream::stop()
     stopRequested_.store(false, std::memory_order_release);
 }
 
+void HighRateStream::shutdown()
+{
+    // Flush any in-flight builder payload into TX queue.
+    flush();
+    stop();
+}
+
 bool HighRateStream::enqueueRecorderPayload(const void* data, std::size_t len)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
@@ -148,7 +155,7 @@ bool HighRateStream::enqueueImuRecord(const HighRateImuRecord& record)
 
     if (!recordQueue_.push(record))
     {
-        ++droppedProducerRecords_;
+        droppedProducerRecords_.fetch_add(1, std::memory_order_relaxed);
         return false;
     }
 
@@ -181,8 +188,16 @@ void HighRateStream::transportLoop()
         {
             serviceOnce();
         }
+        if (!running_.load(std::memory_order_acquire) &&
+            stopRequested_.load(std::memory_order_acquire) &&
+            recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty())
+        {
+            break;
+        }
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         delay(1);
+#else
+        std::this_thread::yield();
 #endif
     }
     transportActive_.store(false, std::memory_order_release);
@@ -206,7 +221,7 @@ void HighRateStream::serviceOnce()
         {
             if (pSystemDesc->pRecorder->putBytes(&record, sizeof(record)) != 0)
             {
-                ++droppedTransportPackets_;
+                droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
             }
         }
 #endif
@@ -217,14 +232,14 @@ void HighRateStream::serviceOnce()
             {
                 if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
                 {
-                    ++notifyFailures_;
+                    notifyFailures_.fetch_add(1, std::memory_order_relaxed);
                 }
             }
         }
 
         if (!packetBuilder_.appendEnsemble(&record, sizeof(record)))
         {
-            ++droppedTransportPackets_;
+            droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
         }
 
         if (packetBuilder_.remainingPayload() == 0)
@@ -234,7 +249,7 @@ void HighRateStream::serviceOnce()
             {
                 if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
                 {
-                    ++notifyFailures_;
+                    notifyFailures_.fetch_add(1, std::memory_order_relaxed);
                 }
             }
         }
@@ -248,7 +263,7 @@ void HighRateStream::serviceOnce()
         {
             if (pSystemDesc->pRecorder->putBytes(chunk.bytes, chunk.len) != 0)
             {
-                ++droppedTransportPackets_;
+                droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
             }
         }
     }
@@ -259,7 +274,7 @@ void HighRateStream::serviceOnce()
     {
         if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
         {
-            ++notifyFailures_;
+            notifyFailures_.fetch_add(1, std::memory_order_relaxed);
         }
     }
 }
@@ -274,7 +289,7 @@ void HighRateStream::flush()
     {
         if (!txQueue_.push(packet))
         {
-            ++droppedTransportPackets_;
+            droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
         }
     }
 }

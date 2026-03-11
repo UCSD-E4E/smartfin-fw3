@@ -150,7 +150,6 @@ STATES_e RideTask::run(void)
             }
             delay(1);
 #if ENABLE_STREAM_SINK
-            BleLiveStream::getInstance().processTx();
 #endif
         }
         start = micros();
@@ -194,10 +193,10 @@ void RideTask::exit(void)
     SF_OSAL_printf("Closing session" __NL__);
 #if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().flush();
-    BleLiveStream::getInstance().processTx();
 #endif
-    HighRateStream::getInstance().flush();
-    HighRateStream::getInstance().stop();
+#if ENABLE_STREAM_SINK || ENABLE_RECORD_SINK
+    HighRateStream::getInstance().shutdown();
+#endif
 #if ENABLE_RECORD_SINK
     if (pSystemDesc->pRecorder)
     {

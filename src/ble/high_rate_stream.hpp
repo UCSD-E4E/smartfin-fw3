@@ -37,6 +37,8 @@ public:
     void start();
     /** @brief Stop streaming; transport loop will exit. */
     void stop();
+    /** @brief Flush, drain, and stop transport; waits until all work completes. */
+    void shutdown();
 
     /**
      * @brief Enqueue a single IMU record from the producer thread.
@@ -112,10 +114,10 @@ private:
         uint8_t bytes[RECORDER_CHUNK_MAX];
     };
 
-    /** @brief Queue of recorder writes serialized to the transport thread (single producer). */
+    /** @brief Queue of recorder writes serialized to the transport thread (single producer: ride thread). */
     sf::util::SpscQueue<RecorderChunk, 64> recorderQueue_;
 
-    /** @brief Queue of TxPackets produced by other threads; drained here (single producer). */
+    /** @brief Queue of TxPackets produced by other threads; drained here (single producer: ride thread). */
     sf::util::SpscQueue<sf::ble::transport::TxPacket, 64> txQueue_;
 };
 
