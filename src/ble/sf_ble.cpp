@@ -204,7 +204,7 @@ SFBLE::SFBLE()
  */
 void SFBLE::handleConnectionEvent(bool isConnected)
 {
-    this->connected = isConnected;
+    this->connected.store(isConnected, std::memory_order_release);
 
     if (this->connectionCallback)
     {
@@ -231,7 +231,7 @@ void SFBLE::handleControlEvent(const uint8_t *data, size_t len)
  */
 bool SFBLE::init(void)
 {
-    if (this->initialized)
+    if (this->initialized.load(std::memory_order_acquire))
     {
         return true;
     }
@@ -248,7 +248,7 @@ bool SFBLE::init(void)
     (void)backend.telemetryCharacteristic;
     (void)backend.controlCharacteristic;
 
-    this->initialized = true;
+    this->initialized.store(true, std::memory_order_release);
     return true;
 #else
     return false;
@@ -261,7 +261,7 @@ bool SFBLE::init(void)
  */
 bool SFBLE::startAdvertising(void)
 {
-    if (!this->initialized)
+    if (!this->initialized.load(std::memory_order_acquire))
     {
         return false;
     }
@@ -282,7 +282,7 @@ bool SFBLE::startAdvertising(void)
  */
 bool SFBLE::stopAdvertising(void)
 {
-    if (!this->initialized)
+    if (!this->initialized.load(std::memory_order_acquire))
     {
         return false;
     }
@@ -301,7 +301,7 @@ bool SFBLE::stopAdvertising(void)
  */
 bool SFBLE::isConnected(void) const
 {
-    return this->connected;
+    return this->connected.load(std::memory_order_acquire);
 }
 
 /**
@@ -312,7 +312,8 @@ bool SFBLE::isConnected(void) const
  */
 bool SFBLE::notifyTelemetry(const void *pData, size_t len)
 {
-    if (!this->initialized || !this->connected || !pData)
+    if (!this->initialized.load(std::memory_order_acquire) ||
+        !this->connected.load(std::memory_order_acquire) || !pData)
     {
         return false;
     }

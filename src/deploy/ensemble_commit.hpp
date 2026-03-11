@@ -7,8 +7,8 @@
 #ifndef __ENSEMBLE_COMMIT_HPP__
 #define __ENSEMBLE_COMMIT_HPP__
 
-
 #include <cstdint>
+#include <cstddef>
 
 
 namespace sf

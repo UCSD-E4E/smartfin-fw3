@@ -39,10 +39,13 @@ namespace
 BleLiveStream::BleLiveStream()
     : packetBuilder_(),
       txQueue_(),
-      timeSync_{false, 0, 0, 0},
       initialized_(false),
       droppedPackets_(0)
 {
+    timeSync_.valid.store(false, std::memory_order_relaxed);
+    timeSync_.boardMillisAtSync.store(0, std::memory_order_relaxed);
+    timeSync_.watchUnixMsAtSync.store(0, std::memory_order_relaxed);
+    timeSync_.syncSeq.store(0, std::memory_order_relaxed);
 }
 
 BleLiveStream &BleLiveStream::getInstance()
@@ -63,8 +66,8 @@ bool BleLiveStream::init()
     {
     }
 
-    initialized_ = true;
-    droppedPackets_ = 0;
+    initialized_.store(true, std::memory_order_release);
+    droppedPackets_.store(0, std::memory_order_relaxed);
     SFBLE::getInstance().startAdvertising();
     SFBLE::getInstance().setControlCallback(BleLiveStream::controlRxThunk, this);
     return true;
@@ -73,13 +76,13 @@ bool BleLiveStream::init()
 bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
 {
     // Not initialized, or something wrong with data
-    if (!initialized_ || pData == nullptr || len == 0)
+    if (!initialized_.load(std::memory_order_acquire) || pData == nullptr || len == 0)
     {
         return false;
     }
     if (len > sf::ble::transport::MAX_PAYLOAD_SIZE)
     {
-        ++droppedPackets_;
+        droppedPackets_.fetch_add(1, std::memory_order_relaxed);
         return false;
     }
 
@@ -92,7 +95,7 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
         {
             if (!txQueue_.push(packet))
             {
-                ++droppedPackets_;
+                droppedPackets_.fetch_add(1, std::memory_order_relaxed);
                 return false;
             }
         }
@@ -101,7 +104,7 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
     // Copy the ensemble data into the packet buffer.
     if (!packetBuilder_.appendEnsemble(pData, len))
     {
-        ++droppedPackets_;
+        droppedPackets_.fetch_add(1, std::memory_order_relaxed);
         return false;
     }
 
@@ -116,7 +119,7 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
 
 void BleLiveStream::flush()
 {
-    if (!initialized_)
+    if (!initialized_.load(std::memory_order_acquire))
     {
         return;
     }
@@ -126,14 +129,14 @@ void BleLiveStream::flush()
     {
         if (!txQueue_.push(packet))
         {
-            ++droppedPackets_;
+            droppedPackets_.fetch_add(1, std::memory_order_relaxed);
         }
     }
 }
 
 void BleLiveStream::processTx()
 {
-    if (!initialized_ || !isConnected())
+    if (!initialized_.load(std::memory_order_acquire) || !isConnected())
     {
         return;
     }
@@ -143,7 +146,7 @@ void BleLiveStream::processTx()
     {
         if (!HighRateStream::getInstance().enqueueTxPacket(packet))
         {
-            ++droppedPackets_;
+            droppedPackets_.fetch_add(1, std::memory_order_relaxed);
         }
     }
 }
@@ -187,10 +190,10 @@ void BleLiveStream::handleControlRx(const uint8_t* data, size_t len)
  */
 void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
 {
-    timeSync_.valid = true;
-    timeSync_.boardMillisAtSync = millis();
-    timeSync_.watchUnixMsAtSync = watchUnixMs;
-    timeSync_.syncSeq = seq;
+    timeSync_.valid.store(true, std::memory_order_release);
+    timeSync_.boardMillisAtSync.store(millis(), std::memory_order_relaxed);
+    timeSync_.watchUnixMsAtSync.store(watchUnixMs, std::memory_order_relaxed);
+    timeSync_.syncSeq.store(seq, std::memory_order_relaxed);
 }
 
 /**
@@ -198,11 +201,11 @@ void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
  */
 uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
 {
-    if (!timeSync_.valid)
+    if (!timeSync_.valid.load(std::memory_order_acquire))
     {
         return 0;
     }
-    uint64_t delta = boardMillis - timeSync_.boardMillisAtSync;
-    uint64_t estimate = timeSync_.watchUnixMsAtSync + delta;
+    uint64_t delta = boardMillis - timeSync_.boardMillisAtSync.load(std::memory_order_acquire);
+    uint64_t estimate = timeSync_.watchUnixMsAtSync.load(std::memory_order_acquire) + delta;
     return static_cast<uint32_t>(estimate / 1000);
 }

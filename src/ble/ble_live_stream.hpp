@@ -11,6 +11,7 @@
 #include "ble_packet_builder.hpp"
 #include "spsc_queue.hpp"
 
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 
@@ -74,16 +75,16 @@ private:
 
     struct TimeSyncState
     {
-        bool valid;                 //!< True after at least one sync message.
-        uint32_t boardMillisAtSync; //!< Board millis snapshot at sync receipt.
-        uint64_t watchUnixMsAtSync; //!< Peer-provided Unix time in ms at sync.
-        uint32_t syncSeq;           //!< Sequence counter echoed by peer.
+        std::atomic<bool> valid;                 //!< True after at least one sync message.
+        std::atomic<uint32_t> boardMillisAtSync; //!< Board millis snapshot at sync receipt.
+        std::atomic<uint64_t> watchUnixMsAtSync; //!< Peer-provided Unix time in ms at sync.
+        std::atomic<uint32_t> syncSeq;           //!< Sequence counter echoed by peer.
     };
 
     TimeSyncState timeSync_;
 
-    bool initialized_;        //!< True when `init()` completed.
-    uint32_t droppedPackets_; //!< Count of dropped/overflow packets.
+    std::atomic<bool> initialized_; //!< True when `init()` completed.
+    std::atomic<uint32_t> droppedPackets_; //!< Count of dropped/overflow packets.
 
     /** @brief Handle control-channel RX and dispatch message types. */
     void handleControlRx(const uint8_t *data, size_t len);

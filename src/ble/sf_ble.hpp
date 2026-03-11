@@ -8,6 +8,7 @@
 #ifndef __SF_BLE_HPP__
 #define __SF_BLE_HPP__
 
+#include <atomic>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -111,10 +112,10 @@ private:
     SFBLE& operator=(const SFBLE&);
 
     /** @brief True after BLE stack/characteristics are initialized. */
-    bool initialized;
+    std::atomic<bool> initialized;
 
     /** @brief True when a central is currently connected. */
-    bool connected;
+    std::atomic<bool> connected;
 
     /** @brief Registered control data callback. */
     control_rx_callback_t controlCallback;
