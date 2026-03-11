@@ -44,6 +44,7 @@ public:
 
     /**
      * @brief Enqueue a single IMU record from the producer thread.
+     * @note Single producer: ride thread only. Do not call from multiple threads.
      * @return false if the queue is full or stream not running.
      */
     bool enqueueImuRecord(const HighRateImuRecord& record);
@@ -60,6 +61,7 @@ public:
 
     /**
      * @brief Enqueue a low-rate ensemble payload for recorder + BLE handling.
+     * @note Single producer: ride thread only.
      * @param data Pointer to bytes to copy.
      * @param len Number of bytes to copy (must fit internal buffer).
      * @return true if accepted into the queue.
@@ -68,6 +70,7 @@ public:
 
     /**
      * @brief Enqueue an already-built BLE TxPacket for transmission.
+     * @note Single producer: ride thread only.
      * @return true if queued successfully.
      */
     bool enqueueTxPacket(const sf::ble::transport::TxPacket& packet);
