@@ -78,6 +78,9 @@ public:
     /** @brief Return true if producers may enqueue work. */
     bool isAccepting() const { return accepting_.load(std::memory_order_acquire); }
 
+    /** @brief Optional hook to flush producer-side low-rate buffers before shutdown. */
+    void setLowRateFlusher(void (*flusher)());
+
 private:
     /** @brief Private ctor to enforce singleton. */
     TransportWorker();
@@ -131,6 +134,9 @@ private:
 
     /** @brief Queue of TxPackets produced by other threads; drained here (single producer: ride thread). */
     sf::util::SpscQueue<sf::ble::transport::TxPacket, 64> txQueue_;
+
+    /** @brief Optional producer-side flush hook for low-rate path. */
+    void (*lowRateFlusher_)();
 };
 
 #endif // __HIGH_RATE_STREAM_HPP__
