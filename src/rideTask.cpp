@@ -211,8 +211,10 @@ void RideTask::exit(void)
     SF_OSAL_printf("| Task             | Avg. Duration (us) | Count        |" __NL__);
     for (DeploymentSchedule_t *pEvent = deploymentSchedule; pEvent->measure; pEvent++)
     {
-        std::uint32_t avg_duration =
-            pEvent->state.durationAccumulate / pEvent->state.measurementCount;
+        std::uint32_t avg_duration = pEvent->state.measurementCount
+                                         ? (pEvent->state.durationAccumulate /
+                                            pEvent->state.measurementCount)
+                                         : 0;
         SF_OSAL_printf("| %16s | %18" PRIu32 " | %12" PRIu32 " |" __NL__,
                        pEvent->taskName,
                        avg_duration,
