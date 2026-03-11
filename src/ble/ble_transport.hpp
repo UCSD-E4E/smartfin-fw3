@@ -31,7 +31,6 @@ enum PacketType : std::uint8_t
 {
     PACKET_TYPE_TELEMETRY = 1, //!< Streaming data payload
     PACKET_TYPE_STATUS    = 2, //!< Device/ride status
-    PACKET_TYPE_TIME_SYNC = 3, //!< Time sync message
 };
 
 #pragma pack(push, 1)
