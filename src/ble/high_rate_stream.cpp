@@ -251,140 +251,151 @@ void TransportService::serviceOnce()
     }
 
     idle_.store(false, std::memory_order_release);
-    const uint32_t nowMs = millis();
 
-    HighRateImuRecord record;
-    while (recordQueue_.pop(record))
+    bool progress = false;
+    do
     {
+        progress = false;
+
+        // Drain a bounded batch of high-rate records to avoid starving other queues.
+        HighRateImuRecord record;
+        for (std::size_t i = 0; i < MAX_RECORD_BATCH && recordQueue_.pop(record); ++i)
+        {
+            progress = true;
 #if ENABLE_RECORD_SINK
+            if (pSystemDesc && pSystemDesc->pRecorder)
+            {
+                if (pSystemDesc->pRecorder->putBytes(&record, sizeof(record)) != 0)
+                {
+                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                }
+            }
+#endif
+            if (!packetBuilder_.canAppend(sizeof(record)))
+            {
+                sf::ble::transport::TxPacket packet;
+                if (packetBuilder_.finalize(packet))
+                {
+                    const bool connected = SFBLE::getInstance().isConnected();
+                    if (!connected)
+                    {
+                        droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                    {
+                        notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                }
+            }
+
+            if (!packetBuilder_.appendEnsemble(&record, sizeof(record)))
+            {
+                droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+            }
+
+            if (packetBuilder_.remainingPayload() == 0)
+            {
+                sf::ble::transport::TxPacket packet;
+                if (packetBuilder_.finalize(packet))
+                {
+                    const bool connected = SFBLE::getInstance().isConnected();
+                    if (!connected)
+                    {
+                        droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                    {
+                        notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                }
+                lastFlushMs_ = millis();
+            }
+        }
+
+        // Packetize at most one low-rate ensemble per round to keep fairness.
+        LowRateChunk low;
+        if (lowRateQueue_.pop(low))
+        {
+            progress = true;
+            if (!packetBuilder_.canAppend(low.len))
+            {
+                sf::ble::transport::TxPacket packet;
+                if (packetBuilder_.finalize(packet))
+                {
+                    const bool connected = SFBLE::getInstance().isConnected();
+                    if (!connected)
+                    {
+                        droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                    {
+                        notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else
+                    {
+                        lastFlushMs_ = millis();
+                    }
+                }
+            }
+
+            if (!packetBuilder_.appendEnsemble(low.bytes, low.len))
+            {
+                droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+            }
+            else if (packetBuilder_.remainingPayload() == 0)
+            {
+                sf::ble::transport::TxPacket packet;
+                if (packetBuilder_.finalize(packet))
+                {
+                    const bool connected = SFBLE::getInstance().isConnected();
+                    if (!connected)
+                    {
+                        droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                    {
+                        notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else
+                    {
+                        lastFlushMs_ = millis();
+                    }
+                }
+            }
+        }
+
+        // Drain one recorder chunk per round.
         if (pSystemDesc && pSystemDesc->pRecorder)
         {
-            if (pSystemDesc->pRecorder->putBytes(&record, sizeof(record)) != 0)
+            RecorderChunk chunk;
+            if (recorderQueue_.pop(chunk))
+            {
+                progress = true;
+                if (pSystemDesc->pRecorder->putBytes(chunk.bytes, chunk.len) != 0)
+                {
+                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                }
+            }
+        }
+
+        // Drain one tx packet per round.
+        sf::ble::transport::TxPacket packet;
+        const bool connected = SFBLE::getInstance().isConnected();
+        if (txQueue_.pop(packet))
+        {
+            progress = true;
+            if (!connected)
             {
                 droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
             }
-        }
-#endif
-        if (!packetBuilder_.canAppend(sizeof(record)))
-        {
-            sf::ble::transport::TxPacket packet;
-            if (packetBuilder_.finalize(packet))
+            else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
             {
-                const bool connected = SFBLE::getInstance().isConnected();
-                if (!connected)
-                {
-                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
-                }
-                else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
-                {
-                    notifyFailures_.fetch_add(1, std::memory_order_relaxed);
-                }
+                notifyFailures_.fetch_add(1, std::memory_order_relaxed);
             }
         }
-
-        if (!packetBuilder_.appendEnsemble(&record, sizeof(record)))
-        {
-            droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
-        }
-
-        if (packetBuilder_.remainingPayload() == 0)
-        {
-            sf::ble::transport::TxPacket packet;
-            if (packetBuilder_.finalize(packet))
-            {
-                const bool connected = SFBLE::getInstance().isConnected();
-                if (!connected)
-                {
-                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
-                }
-                else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
-                {
-                    notifyFailures_.fetch_add(1, std::memory_order_relaxed);
-                }
-            }
-            lastFlushMs_ = millis();
-        }
-    }
-
-    // Packetize low-rate ensembles on the transport thread.
-    LowRateChunk low;
-    while (lowRateQueue_.pop(low))
-    {
-        if (!packetBuilder_.canAppend(low.len))
-        {
-            sf::ble::transport::TxPacket packet;
-            if (packetBuilder_.finalize(packet))
-            {
-                const bool connected = SFBLE::getInstance().isConnected();
-                if (!connected)
-                {
-                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
-                }
-                else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
-                {
-                    notifyFailures_.fetch_add(1, std::memory_order_relaxed);
-                }
-                else
-                {
-                    lastFlushMs_ = millis();
-                }
-            }
-        }
-
-        if (!packetBuilder_.appendEnsemble(low.bytes, low.len))
-        {
-            droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
-        }
-        else if (packetBuilder_.remainingPayload() == 0)
-        {
-            sf::ble::transport::TxPacket packet;
-            if (packetBuilder_.finalize(packet))
-            {
-                const bool connected = SFBLE::getInstance().isConnected();
-                if (!connected)
-                {
-                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
-                }
-                else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
-                {
-                    notifyFailures_.fetch_add(1, std::memory_order_relaxed);
-                }
-                else
-                {
-                    lastFlushMs_ = millis();
-                }
-            }
-        }
-    }
-
-    // Drain recorder writes queued by other threads.
-    if (pSystemDesc && pSystemDesc->pRecorder)
-    {
-        RecorderChunk chunk;
-        while (recorderQueue_.pop(chunk))
-        {
-            if (pSystemDesc->pRecorder->putBytes(chunk.bytes, chunk.len) != 0)
-            {
-                droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
-            }
-        }
-    }
-
-    // Drain any TxPackets generated by high-rate or low-rate producers.
-    sf::ble::transport::TxPacket packet;
-    const bool connected = SFBLE::getInstance().isConnected();
-    while (txQueue_.pop(packet))
-    {
-        if (!connected)
-        {
-            droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
-            continue;
-        }
-        if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
-        {
-            notifyFailures_.fetch_add(1, std::memory_order_relaxed);
-        }
-    }
+    } while (progress && (stopRequested_.load(std::memory_order_acquire) ||
+                          !recordQueue_.empty() || !lowRateQueue_.empty() ||
+                          !recorderQueue_.empty() || !txQueue_.empty()));
 
     // Periodic flush for partial payloads to keep low-rate data live.
     if (packetBuilder_.hasData() && (millis() - lastFlushMs_ >= LOW_RATE_FLUSH_INTERVAL_MS))
