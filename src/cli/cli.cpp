@@ -28,6 +28,8 @@
 #include "util.hpp"
 #include "vers.hpp"
 #include "cellular/sf_cloud.hpp"
+#include "temperature/tmp117_cpp.h"
+#include "temperature/tmp117.h"
 
 #include <bits/stdc++.h>
 #include <cstdlib>
@@ -598,6 +600,13 @@ static void CLI_monitorSensors(void)
         }
         if (sensors[TEMP])
         {
+            extern TMP117 tmp117Sensor_hw;
+            int16_t raw = 0;
+            if (tmp117Sensor_hw.read_reg16(&raw, TMP117_TEMP_DATA) == TMP117_NO_ERROR)
+            {
+                SF_OSAL_printf("TMP117 raw=0x%04x (%d) -> %.4f C" __NL__,
+                               (uint16_t)raw, (int)raw, (float)raw * TMP117_RESOLUTION);
+            }
             sensor_headers[SensorHeader_Temp].value = pSystemDesc->pTempSensor->getTemp();
         }
         sensor_headers[SensorHeader_WetDryReading].value = NAN;

@@ -56,6 +56,35 @@ int TMP117::read_cfg_reg(uint8_t *value)
 }
 
 /******************************************************************************/
+int TMP117::read_device_id(uint16_t *value)
+{
+    int32_t ret;
+    char data[2] = {0, 0};
+    char reg = TMP117_DEVICE_ID;
+    tmp117_raw_data tmp;
+
+    /* write to the Register Select, true is for repeated start */
+    ret = m_i2c.write(m_write_address, &reg, 1, true);
+    if (ret == 0) {
+        /* read the two bytes of data */
+        ret = m_i2c.read(m_read_address, data, 2, false);
+        if (ret == 0) {
+            tmp.msb = data[0];
+            tmp.lsb = data[1];
+            *value = tmp.uwrd;
+            return TMP117_NO_ERROR;
+        } else {
+            SF_OSAL_printf("%s: failed to read device ID: ret: %ld\r" __NL__,
+                           __func__, ret);
+        }
+    } else {
+        SF_OSAL_printf("%s: failed to select device ID register: ret: %ld\r" __NL__,
+                       __func__, ret);
+    }
+    return TMP117_ERROR;
+}
+
+/******************************************************************************/
 int TMP117::read_reg16(int16_t *value, char reg) 
 {
     int32_t ret;

@@ -74,6 +74,13 @@ class TMP117
     int read_cfg_reg(uint8_t *value);
 
     /**
+     * @brief  Read the 16-bit device ID register.
+     * @param[out] value - Read device ID on success
+     * @return 0 on success, negative number on failure
+     */
+    int read_device_id(uint16_t *value);
+
+    /**
      * @brief  Read 16-bit register of device at slave address
      * @param[out] value - Read data on success
      * @param reg - Register address
