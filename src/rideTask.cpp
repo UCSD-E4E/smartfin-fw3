@@ -99,11 +99,13 @@ STATES_e RideTask::run(void)
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, this->deployTime);
     this->scheduler.initializeScheduler();
     Ens_setStartTime();
-    if (Time.isValid())
+#if ENABLE_RECORD_SINK
+    if (pSystemDesc->pRecorder && Time.isValid())
     {
         pSystemDesc->pRecorder->setSessionTime(Time.now());
         this->sessionTimeSet = true;
     }
+#endif
     FLOG_AddError(FLOG_RIDE_DEPLOY, this->deployTime);
     this->ledStatus.setPattern(LED_PATTERN_FADE);
 
@@ -111,12 +113,14 @@ STATES_e RideTask::run(void)
     {
         if (!this->sessionTimeSet)
         {
-            if (Time.isValid())
+#if ENABLE_RECORD_SINK
+            if (pSystemDesc->pRecorder && Time.isValid())
             {
                 pSystemDesc->pRecorder->setSessionTime(Time.now() -
                                                        (millis() - this->deployTime) / 1000);
                 this->sessionTimeSet = true;
             }
+#endif
         }
         SCH_error_e retval =
             this->scheduler.getNextTask(&pNextEvent, (std::uint32_t *)&nextEventTime, millis());
