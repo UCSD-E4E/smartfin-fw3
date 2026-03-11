@@ -37,7 +37,8 @@ namespace
 BleLiveStream::BleLiveStream()
     : packetBuilder_(),
       initialized_(false),
-      droppedPackets_(0)
+      droppedPackets_(0),
+      lastFlushMs_(0)
 {
     timeSync_.valid.store(false, std::memory_order_relaxed);
     timeSync_.boardMillisAtSync = 0;
@@ -58,6 +59,7 @@ BleLiveStream &BleLiveStream::getInstance()
 bool BleLiveStream::init()
 {
     packetBuilder_.reset();
+    lastFlushMs_ = millis();
     if (!SFBLE::getInstance().init())
     {
         return false;
@@ -100,16 +102,24 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
     }
 
     // Copy the ensemble data into the packet buffer.
-        if (!packetBuilder_.appendEnsemble(pData, len))
-        {
-            droppedPackets_.fetch_add(1, std::memory_order_relaxed);
-            return false;
-        }
+    if (!packetBuilder_.appendEnsemble(pData, len))
+    {
+        droppedPackets_.fetch_add(1, std::memory_order_relaxed);
+        return false;
+    }
+
+    const uint32_t now = millis();
+    if ((now - lastFlushMs_) >= LOW_RATE_FLUSH_INTERVAL_MS)
+    {
+        flush();
+        lastFlushMs_ = now;
+    }
 
     // If we exactly filled the packet, move it to the queue right away.
     if (packetBuilder_.remainingPayload() == 0)
     {
         flush();
+        lastFlushMs_ = millis();
     }
 
     return true;

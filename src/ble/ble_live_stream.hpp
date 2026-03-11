@@ -78,6 +78,9 @@ private:
     /** @brief Static thunk used to flush low-rate producer buffers. */
     static void flushThunk();
 
+    /** @brief Milliseconds between forced low-rate flushes. */
+    static constexpr uint32_t LOW_RATE_FLUSH_INTERVAL_MS = 1000;
+
     sf::ble::transport::PacketBuilder packetBuilder_;
 
     struct TimeSyncState
@@ -98,6 +101,7 @@ private:
 
     std::atomic<bool> initialized_; //!< True when `init()` completed.
     std::atomic<uint32_t> droppedPackets_; //!< Count of dropped/overflow packets.
+    uint32_t lastFlushMs_;
 
     /** @brief Handle control-channel RX and dispatch message types. */
     void handleControlRx(const uint8_t *data, size_t len);
