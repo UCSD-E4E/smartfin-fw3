@@ -179,6 +179,11 @@ void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
 
     std::lock_guard<std::mutex> lock(timeSyncMutex_);
 
+    if (timeSync_.valid.load(std::memory_order_relaxed) && seq <= timeSync_.syncSeq)
+    {
+        return;
+    }
+
     // Basic seq gap handling: decay quality on gaps.
     if (timeSync_.valid.load(std::memory_order_relaxed) && seq != (timeSync_.syncSeq + 1))
     {
