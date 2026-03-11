@@ -368,11 +368,8 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         ens.ensData.water = water;
 
         uint32_t unixEstimate = BleLiveStream::getInstance().estimateUnixTime(millis());
-        if (unixEstimate != 0)
-        {
-            ens.ensData.timestamp = unixEstimate;
-            sf::deploy::commitEnsemble(&ens, sizeof(ens));
-        }
+        ens.ensData.timestamp = unixEstimate; // 0 indicates unsynced
+        sf::deploy::commitEnsemble(&ens, sizeof(ens));
         memset(pData, 0, sizeof(Ensemble08_eventData_t));
     }
 #endif
