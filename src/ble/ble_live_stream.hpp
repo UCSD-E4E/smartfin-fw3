@@ -19,7 +19,7 @@
  * @brief Singleton that manages the BLE transmit builder/queue.
  *
  * It lets the ride/recorder code enqueue ensemble blobs while the BLE stack
- * drains packets asynchronously.
+ * drains packets asynchronously. TransportWorker must be running to send.
  */
 class BleLiveStream
 {
