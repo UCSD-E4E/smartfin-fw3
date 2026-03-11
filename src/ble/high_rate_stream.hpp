@@ -122,8 +122,8 @@ private:
     /** @brief Builder used to batch IMU records into BLE packets. */
     sf::ble::transport::PacketBuilder packetBuilder_;
 
-    /** @brief Maximum bytes per recorder payload chunk. */
-    static constexpr std::size_t RECORDER_CHUNK_MAX = sf::ble::transport::MAX_PACKET_SIZE;
+    /** @brief Maximum bytes per recorder payload chunk (independent of BLE MTU). */
+    static constexpr std::size_t RECORDER_CHUNK_MAX = 512;
 
     /** @brief Recorder payload chunk. */
     struct RecorderChunk
