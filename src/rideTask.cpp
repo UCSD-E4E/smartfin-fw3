@@ -58,6 +58,8 @@ void RideTask::init()
     this->sessionTimeSet = false;
 #if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().init();
+#endif
+#if ENABLE_STREAM_SINK || ENABLE_RECORD_SINK
     HighRateStream::getInstance().init();
     HighRateStream::getInstance().start();
 #endif
@@ -192,7 +194,6 @@ void RideTask::exit(void)
     BleLiveStream::getInstance().flush();
     BleLiveStream::getInstance().processTx();
     HighRateStream::getInstance().flush();
-    HighRateStream::getInstance().serviceOnce();
     HighRateStream::getInstance().stop();
 #endif
     pSystemDesc->pRecorder->closeSession();
@@ -213,8 +214,4 @@ void RideTask::exit(void)
     // pSystemDesc->pIMU->close();
     // pSystemDesc->pGPS->gpsModuleStop();
 
-#if ENABLE_STREAM_SINK
-    HighRateStream::getInstance().flush();
-    HighRateStream::getInstance().stop();
-#endif
 }
