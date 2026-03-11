@@ -63,10 +63,12 @@ void RideTask::init()
     HighRateStream::getInstance().init();
     HighRateStream::getInstance().start();
 #endif
-    if (!pSystemDesc->pRecorder->openSession())
+#if ENABLE_RECORD_SINK
+    if (pSystemDesc->pRecorder && !pSystemDesc->pRecorder->openSession())
     {
         SF_OSAL_printf("Failed to open session!" __NL__);
     }
+#endif
 }
 
 /**
@@ -196,7 +198,12 @@ void RideTask::exit(void)
 #endif
     HighRateStream::getInstance().flush();
     HighRateStream::getInstance().stop();
-    pSystemDesc->pRecorder->closeSession();
+#if ENABLE_RECORD_SINK
+    if (pSystemDesc->pRecorder)
+    {
+        pSystemDesc->pRecorder->closeSession();
+    }
+#endif
     pSystemDesc->pChargerCheck->start();
     SF_OSAL_printf("| Task             | Avg. Duration (us) | Count        |" __NL__);
     for (DeploymentSchedule_t *pEvent = deploymentSchedule; pEvent->measure; pEvent++)
