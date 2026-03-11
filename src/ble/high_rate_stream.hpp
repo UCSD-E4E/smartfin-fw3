@@ -91,11 +91,11 @@ private:
     std::atomic<bool> transportActive_;
 
     /** @brief Count of producer drops due to full queue. */
-    uint32_t droppedProducerRecords_;
+    std::atomic<uint32_t> droppedProducerRecords_;
     /** @brief Count of transport-side packet drops. */
-    uint32_t droppedTransportPackets_;
+    std::atomic<uint32_t> droppedTransportPackets_;
     /** @brief Count of BLE notify failures. */
-    uint32_t notifyFailures_;
+    std::atomic<uint32_t> notifyFailures_;
 
     /** @brief Lock-free queue holding pending IMU records. */
     sf::util::SpscQueue<HighRateImuRecord, 512> recordQueue_;
