@@ -7,6 +7,8 @@
 
 #include "sf_ble.hpp"
 
+#include <atomic>
+
 #include "cli/conio.hpp"
 #include "product.hpp"
 #include "sf_ble_defs.hpp"
@@ -206,9 +208,12 @@ void SFBLE::handleConnectionEvent(bool isConnected)
 {
     this->connected.store(isConnected, std::memory_order_release);
 
-    if (this->connectionCallback)
+    std::atomic_thread_fence(std::memory_order_acquire);
+    auto cb  = this->connectionCallback;
+    auto ctx = this->connectionContext;
+    if (cb)
     {
-        this->connectionCallback(isConnected, this->connectionContext);
+        cb(isConnected, ctx);
     }
 }
 
@@ -219,9 +224,12 @@ void SFBLE::handleConnectionEvent(bool isConnected)
  */
 void SFBLE::handleControlEvent(const uint8_t *data, size_t len)
 {
-    if (this->controlCallback)
+    std::atomic_thread_fence(std::memory_order_acquire);
+    auto cb  = this->controlCallback;
+    auto ctx = this->controlContext;
+    if (cb)
     {
-        this->controlCallback(data, len, this->controlContext);
+        cb(data, len, ctx);
     }
 }
 
@@ -340,6 +348,7 @@ void SFBLE::setControlCallback(control_rx_callback_t cb, void *context)
 {
     this->controlCallback = cb;
     this->controlContext = context;
+    std::atomic_thread_fence(std::memory_order_release);
 }
 
 /**
@@ -351,4 +360,5 @@ void SFBLE::setConnectionCallback(connection_callback_t cb, void *context)
 {
     this->connectionCallback = cb;
     this->connectionContext = context;
+    std::atomic_thread_fence(std::memory_order_release);
 }
