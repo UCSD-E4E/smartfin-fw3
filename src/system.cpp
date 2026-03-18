@@ -312,9 +312,10 @@ static int SYS_initGPS(void)
     LocationService::instance().setFastLock(true);
 
     systemDesc.pLocService = &LocationService::instance();
-    
+
     return 1;
 }
+#endif // SF_ENABLE_GPS
 
 
 /**
@@ -332,10 +333,11 @@ static int SYS_initNVRAM(void)
 }
 
 
+#if SF_ENABLE_GPS
 /**
  * @brief Create a location service config object with defaults
- * 
- * @return LocationServiceConfiguration 
+ *
+ * @return LocationServiceConfiguration
  */
 static LocationServiceConfiguration create_location_service_config() {
     LocationServiceConfiguration config;
