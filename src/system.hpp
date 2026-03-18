@@ -3,7 +3,10 @@
 
 #include "cellular/recorder.hpp"
 #include "imu/newIMU.hpp"
+#include "product.hpp"
+#if SF_ENABLE_GPS
 #include "location_service.h"
+#endif
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
 #include "temperature/tmpSensor.h"
@@ -30,11 +33,12 @@ typedef struct SystemDesc_
      * @brief Unique device identifier
      */
     const char* deviceID;
+#if SF_ENABLE_GPS
     /**
      * @brief Pointer to Location service object that handles GPS tracking and settings
-     * 
      */
     LocationService* pLocService;
+#endif
      /**
      * @brief Pointer to Recorder object that stores and manages data packets
      * 

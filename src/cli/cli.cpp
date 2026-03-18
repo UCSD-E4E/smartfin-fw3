@@ -18,7 +18,9 @@
 #include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
+#if SF_ENABLE_GPS
 #include "menuItems/gpsCommands.hpp"
+#endif
 #include "menuItems/systemCommands.hpp"
 #include "product.hpp"
 #include "rideTask.hpp"
@@ -61,7 +63,9 @@ const Menu_t CLI_menu[] = {
     {5, "test printf", &CLI_testPrintf, MENU_CMD},
     {6, "debug menu", {.pMenu = CLI_debugMenu}, MENU_SUBMENU},
     {7, "hexdump", &CLI_hexdump, MENU_CMD},
+#if SF_ENABLE_GPS
     {8, "gps", &CLI_GPS, MENU_CMD},
+#endif
     {9, "sleep", &CLI_doSleep, MENU_CMD},
     {10, "Self Identify", &CLI_self_identify, MENU_CMD},
     {11, "check charge ports", &CLI_checkCharging, MENU_CMD},
@@ -404,12 +408,16 @@ static void CLI_monitorSensors(void)
         TEMP,
         WET_DRY,
         DMP,
+#if SF_ENABLE_GPS
         GPS,
+#endif
         NUM_SENSORS
     } Sensor;
     bool sensors[NUM_SENSORS] = {false};
 
+#if SF_ENABLE_GPS
     LocationPoint point;
+#endif
 
     memset(input_buffer, 0, SF_CLI_MAX_CMD_LEN);
     SF_OSAL_printf("Enter delay time (ms): ");
@@ -453,10 +461,12 @@ static void CLI_monitorSensors(void)
             sensors[DMP] = true;
             valid = true;
             break;
+#if SF_ENABLE_GPS
         case 'G':
             sensors[GPS] = true;
             valid = true;
             break;
+#endif
         case 'x':
             break;
         default:
@@ -530,15 +540,16 @@ static void CLI_monitorSensors(void)
         sensor_headers[SensorHeader_DMPMagY].active = true;
         sensor_headers[SensorHeader_DMPMagZ].active = true;
     }
+#if SF_ENABLE_GPS
     if (sensors[GPS])
     {
-        // gps
         sensor_headers[SensorHeader_GpsLock].active = true;
         sensor_headers[SensorHeader_GpsNSats].active = true;
         sensor_headers[SensorHeader_GpsLat].active = true;
         sensor_headers[SensorHeader_GpsLon].active = true;
         sensor_headers[SensorHeader_GpsAlt].active = true;
     }
+#endif
     int count = 0;
 
     while (1)
@@ -610,6 +621,7 @@ static void CLI_monitorSensors(void)
             sensor_headers[SensorHeader_WetDryStatus].value =
                 pSystemDesc->pWaterSensor->getLastStatus();
         }
+#if SF_ENABLE_GPS
         if (sensors[GPS])
         {
             pSystemDesc->pLocService->getLocation(point);
@@ -619,6 +631,7 @@ static void CLI_monitorSensors(void)
             sensor_headers[SensorHeader_GpsLon].value = point.longitude;
             sensor_headers[SensorHeader_GpsAlt].value = point.altitude;
         }
+#endif
 
         if (count % 20 == 0)
         {
