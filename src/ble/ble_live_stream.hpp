@@ -56,6 +56,11 @@ public:
      */
     bool isConnected() const;
 
+    /**
+     * @brief Estimate Unix time in seconds using last sync plus board millis.
+     */
+    uint32_t estimateUnixTime(uint32_t boardMillis) const;
+
 private:
     /** @brief Construct the singleton (hide public ctor). */
     BleLiveStream();
@@ -80,8 +85,6 @@ private:
     void handleControlRx(const uint8_t* data, size_t len);
     void handleTimeSync(uint64_t watchUnixMs, uint32_t seq);
     static void controlRxThunk(const uint8_t* data, size_t len, void* context);
-
-    uint32_t estimateUnixTime(uint32_t boardMillis) const;
 };
 
 #endif // __BLE_LIVE_STREAM_HPP__
