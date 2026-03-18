@@ -1,9 +1,11 @@
-#include "Particle.h"
-
 #include "gpsCommands.hpp"
+#include "product.hpp"
+
+#if SF_ENABLE_GPS
+
+#include "Particle.h"
 #include "cli/conio.hpp"
 #include "consts.hpp"
-
 #include "location_service.h"
 
 void CLI_GPS() 
@@ -51,3 +53,5 @@ void CLI_GPS()
                         );
     }
 }
+
+#endif // SF_ENABLE_GPS
