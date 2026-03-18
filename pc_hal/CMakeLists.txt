@@ -55,6 +55,8 @@ set(SMARTFIN_SOURCE_FILES
     ../src/deploy/ensembleTypes.cpp
     ../src/deploy/ensemble_commit.cpp
     ../src/ble/ble_live_stream.cpp
+    ../src/ble/ble_packet_builder.cpp
+    ../src/ble/sf_ble.cpp
 )
 add_executable(smartfin_pc ${SMARTFIN_SOURCE_FILES})
 target_link_libraries(smartfin_pc
