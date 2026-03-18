@@ -11,6 +11,9 @@
 #ifndef __PRODUCT_HPP__
 #define __PRODUCT_HPP__
 
+/** @brief Set to 1 to compile GPS support; 0 to exclude (saves SRAM). */
+#define SF_ENABLE_GPS 0
+
 /******************************************************************************
  * Pin Definitions
  *****************************************************************************/
