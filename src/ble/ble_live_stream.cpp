@@ -184,17 +184,15 @@ uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
 {
     constexpr uint32_t MAX_SYNC_AGE_MS = 60000; // 60s validity window
 
-    // Fast checks first.
-    if (!timeSync_.valid.load(std::memory_order_acquire))
-    {
-        return 0;
-    }
-
     int64_t offsetSnap;
     uint32_t lastUpdate;
 
     {
         std::lock_guard<std::mutex> lock(timeSyncMutex_);
+        if (!timeSync_.valid.load(std::memory_order_relaxed))
+        {
+            return 0;
+        }
         offsetSnap = timeSync_.offsetEmaMs;
         lastUpdate = timeSync_.lastUpdateMs;
     }
@@ -215,14 +213,13 @@ uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
 
 bool BleLiveStream::isTimeSynced(uint32_t maxAgeMs) const
 {
-    if (!timeSync_.valid.load(std::memory_order_acquire))
-    {
-        return false;
-    }
-
     uint32_t lastUpdate;
     {
         std::lock_guard<std::mutex> lock(timeSyncMutex_);
+        if (!timeSync_.valid.load(std::memory_order_relaxed))
+        {
+            return false;
+        }
         lastUpdate = timeSync_.lastUpdateMs;
     }
 
