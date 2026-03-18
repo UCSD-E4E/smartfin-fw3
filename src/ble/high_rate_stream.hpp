@@ -56,11 +56,6 @@ public:
     void serviceOnce();
 
     /**
-     * @brief Flush any pending packet to BLE immediately.
-     */
-    void flush();
-
-    /**
      * @brief Enqueue a low-rate ensemble payload for recorder + BLE handling.
      * @note Single producer: deployment/ride thread only. Do NOT call from BLE callbacks or other
      * worker threads.
@@ -162,6 +157,11 @@ private:
     void (*lowRateFlusher_)();
 
     /** @brief Last time we flushed the telemetry builder (ms). */
+    uint32_t lastFlushMs_;
+};
+
+#endif // __HIGH_RATE_STREAM_HPP__
+ telemetry builder (ms). */
     uint32_t lastFlushMs_;
 };
 
