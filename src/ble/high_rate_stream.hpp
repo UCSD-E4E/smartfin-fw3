@@ -131,7 +131,7 @@ private:
 
     /** @brief Maximum bytes per recorder payload chunk
      * (independent of BLE MTU). */
-    static constexpr std::size_t RECORDER_CHUNK_MAX = 1024;
+    static constexpr std::size_t RECORDER_CHUNK_MAX = 512;
     /** @brief Maximum bytes per low-rate ensemble payload
      * (bounded by BLE payload). */
     static constexpr std::size_t LOW_RATE_MAX =
@@ -150,11 +150,11 @@ private:
 
     /** @brief Queue of recorder writes serialized to the transport thread
      * (single producer: ride thread). */
-    sf::util::SpscQueue<RecorderChunk, 64> recorderQueue_;
+    sf::util::SpscQueue<RecorderChunk, 8> recorderQueue_;
 
     /** @brief Queue of TxPackets produced by other threads; drained here
      * (single producer: ride thread). */
-    sf::util::SpscQueue<sf::ble::transport::TxPacket, 64> txQueue_;
+    sf::util::SpscQueue<sf::ble::transport::TxPacket, 8> txQueue_;
 
     struct LowRateChunk
     {
@@ -164,7 +164,7 @@ private:
 
     /** @brief Queue of low-rate ensemble blobs to be packetized
      * (single producer: ride thread). */
-    sf::util::SpscQueue<LowRateChunk, 64> lowRateQueue_;
+    sf::util::SpscQueue<LowRateChunk, 8> lowRateQueue_;
 
     /** @brief Optional producer-side flush hook for low-rate path. */
     void (*lowRateFlusher_)();
