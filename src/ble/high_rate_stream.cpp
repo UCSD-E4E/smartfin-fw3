@@ -51,6 +51,11 @@ TransportService& TransportService::getInstance()
  */
 bool TransportService::init()
 {
+    if (running_.load(std::memory_order_acquire))
+    {
+        return false;
+    }
+
     // Lazily create persistent transport thread once.
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (transportThread_ == nullptr)
