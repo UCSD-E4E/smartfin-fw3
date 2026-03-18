@@ -181,9 +181,6 @@ void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
     timeSync_.syncSeq = seq;
 }
 
-    // Do not adjust the system clock; we only keep the sync anchor.
-}
-
 uint32_t BleLiveStream::estimateUnixTime(uint32_t boardMillis) const
 {
     if (!timeSync_.valid)
