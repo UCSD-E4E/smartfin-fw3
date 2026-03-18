@@ -39,13 +39,14 @@ public:
     void start();
     /** @brief Stop streaming; transport loop will exit. */
     void stop();
-    /** @brief Flush, drain, and stop transport; waits until all work completes. */
+    /** @brief Flush, drain, and stop transport; waits until all work
+     *  completes. */
     void shutdown();
 
     /**
      * @brief Enqueue a single IMU record from the producer thread.
-     * @note Single producer: deployment/ride thread only. Do NOT call from BLE callbacks or other
-     * worker threads.
+     * @note Single producer: deployment/ride thread only. Do NOT call
+     * from BLE callbacks or other worker threads.
      * @return false if the queue is full or stream not running.
      */
     bool enqueueImuRecord(const HighRateImuRecord& record);
@@ -57,8 +58,8 @@ public:
 
     /**
      * @brief Enqueue a low-rate ensemble payload for recorder + BLE handling.
-     * @note Single producer: deployment/ride thread only. Do NOT call from BLE callbacks or other
-     * worker threads.
+     * @note Single producer: deployment/ride thread only. Do NOT call
+     * from BLE callbacks or other worker threads.
      * @param data Pointer to bytes to copy.
      * @param len Number of bytes to copy (must fit internal buffer).
      * @return true if accepted into the queue.
@@ -67,22 +68,27 @@ public:
 
     /**
      * @brief Enqueue an already-built BLE TxPacket for transmission.
-     * @note Single producer: deployment/ride thread only. Do NOT call from BLE callbacks or other
-     * worker threads.
+     * @note Single producer: deployment/ride thread only. Do NOT call
+     * from BLE callbacks or other worker threads.
      * @return true if queued successfully.
      */
     bool enqueueTxPacket(const sf::ble::transport::TxPacket& packet);
 
     /**
-     * @brief Enqueue a low-rate ensemble blob to be packetized on the transport thread.
+     * @brief Enqueue a low-rate ensemble blob to be packetized on the
+     * transport thread.
      * @note Single producer: deployment/ride thread only.
      */
     bool enqueueLowRateEnsemble(const void* data, std::size_t len);
 
     /** @brief Return true if producers may enqueue work. */
-    bool isAccepting() const { return accepting_.load(std::memory_order_acquire); }
+    bool isAccepting() const
+    {
+        return accepting_.load(std::memory_order_acquire);
+    }
 
-    /** @brief Optional hook to flush producer-side low-rate buffers before shutdown. */
+    /** @brief Optional hook to flush producer-side low-rate buffers
+     *  before shutdown. */
     void setLowRateFlusher(void (*flusher)());
 
 private:
@@ -123,12 +129,16 @@ private:
     /** @brief Builder used to batch IMU records into BLE packets. */
     sf::ble::transport::PacketBuilder packetBuilder_;
 
-    /** @brief Maximum bytes per recorder payload chunk (independent of BLE MTU). */
+    /** @brief Maximum bytes per recorder payload chunk
+     * (independent of BLE MTU). */
     static constexpr std::size_t RECORDER_CHUNK_MAX = 1024;
-    /** @brief Maximum bytes per low-rate ensemble payload (bounded by BLE payload). */
-    static constexpr std::size_t LOW_RATE_MAX = sf::ble::transport::MAX_PAYLOAD_SIZE;
+    /** @brief Maximum bytes per low-rate ensemble payload
+     * (bounded by BLE payload). */
+    static constexpr std::size_t LOW_RATE_MAX =
+        sf::ble::transport::MAX_PAYLOAD_SIZE;
     static constexpr uint32_t LOW_RATE_FLUSH_INTERVAL_MS = 1000;
-    /** @brief Limit of IMU records to process before checking other queues to avoid starvation. */
+    /** @brief Limit of IMU records to process before checking other
+     * queues to avoid starvation. */
     static constexpr std::size_t MAX_RECORD_BATCH = 32;
 
     /** @brief Recorder payload chunk. */
@@ -138,10 +148,12 @@ private:
         uint8_t bytes[RECORDER_CHUNK_MAX];
     };
 
-    /** @brief Queue of recorder writes serialized to the transport thread (single producer: ride thread). */
+    /** @brief Queue of recorder writes serialized to the transport thread
+     * (single producer: ride thread). */
     sf::util::SpscQueue<RecorderChunk, 64> recorderQueue_;
 
-    /** @brief Queue of TxPackets produced by other threads; drained here (single producer: ride thread). */
+    /** @brief Queue of TxPackets produced by other threads; drained here
+     * (single producer: ride thread). */
     sf::util::SpscQueue<sf::ble::transport::TxPacket, 64> txQueue_;
 
     struct LowRateChunk
@@ -150,18 +162,14 @@ private:
         uint8_t bytes[LOW_RATE_MAX];
     };
 
-    /** @brief Queue of low-rate ensemble blobs to be packetized (single producer: ride thread). */
+    /** @brief Queue of low-rate ensemble blobs to be packetized
+     * (single producer: ride thread). */
     sf::util::SpscQueue<LowRateChunk, 64> lowRateQueue_;
 
     /** @brief Optional producer-side flush hook for low-rate path. */
     void (*lowRateFlusher_)();
 
     /** @brief Last time we flushed the telemetry builder (ms). */
-    uint32_t lastFlushMs_;
-};
-
-#endif // __HIGH_RATE_STREAM_HPP__
- telemetry builder (ms). */
     uint32_t lastFlushMs_;
 };
 
