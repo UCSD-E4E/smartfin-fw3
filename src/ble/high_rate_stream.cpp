@@ -126,13 +126,12 @@ void TransportService::stop()
 
 void TransportService::shutdown()
 {
-    // Flush producer-side low-rate buffers if provided.
+    // Close the gate before flushing so no new enqueues can sneak in after the flush.
+    accepting_.store(false, std::memory_order_release);
     if (lowRateFlusher_)
     {
         lowRateFlusher_();
     }
-    // Stop accepting new work; worker thread will drain and flush its builder.
-    accepting_.store(false, std::memory_order_release);
     stop();
 }
 
