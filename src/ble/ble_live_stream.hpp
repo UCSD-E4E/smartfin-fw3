@@ -60,11 +60,6 @@ public:
      */
     bool isConnected() const;
 
-    /**
-     * @brief Estimate Unix time in seconds using last sync plus board millis.
-     */
-    uint32_t estimateUnixTime(uint32_t boardMillis) const;
-
 private:
     /** @brief Construct the singleton (hide public ctor). */
     BleLiveStream();
