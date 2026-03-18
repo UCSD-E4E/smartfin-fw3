@@ -446,21 +446,3 @@ void TransportService::serviceOnce()
     }
 }
 
-/**
- * @brief Flush any buffered payload immediately to BLE.
- */
-void TransportService::flush()
-{
-    sf::ble::transport::TxPacket packet;
-    if (packetBuilder_.finalize(packet))
-    {
-        if (!txQueue_.push(packet))
-        {
-            droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
-        }
-        else
-        {
-            lastFlushMs_ = millis();
-        }
-    }
-}
