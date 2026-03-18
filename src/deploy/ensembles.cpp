@@ -188,11 +188,15 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     float temp = NAN;
     uint8_t water = UINT8_MAX;
+#if SF_ENABLE_GPS
     int32_t lat = INT32_MAX, lng = INT32_MAX;
+#endif
     float accelData[3] = {NAN, NAN, NAN};
     float gyroData[3] = {NAN, NAN, NAN};
     float magData[3] = {NAN, NAN, NAN};
+#if SF_ENABLE_GPS
     bool hasGPS = false;
+#endif
     Ensemble10_eventData_t *pData = (Ensemble10_eventData_t *)pDeployment->state.pData;
 
 #pragma pack(push, 1)
@@ -246,9 +250,11 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
     pData->mag[0] += magData[0];
     pData->mag[1] += magData[1];
     pData->mag[2] += magData[2];
+#if SF_ENABLE_GPS
     pData->location[0] += lat;
     pData->location[1] += lng;
     pData->hasGPS += hasGPS ? 1 : 0;
+#endif
     pData->accumulateCount++;
 
     // Report accumulated measurements
@@ -276,6 +282,7 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
         ensData.data.ens10.rawMagField[0] = (pData->mag[0] / pDeployment->measurementsToAccumulate);
         ensData.data.ens10.rawMagField[1] = (pData->mag[1] / pDeployment->measurementsToAccumulate);
         ensData.data.ens10.rawMagField[2] = (pData->mag[2] / pDeployment->measurementsToAccumulate);
+#if SF_ENABLE_GPS
         ensData.data.ens11.location[0] =
             (pData->location[0] / pDeployment->measurementsToAccumulate);
         ensData.data.ens11.location[1] =
@@ -288,6 +295,7 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
                                        sizeof(EnsembleHeader_t) + sizeof(Ensemble11_data_t));
         }
         else
+#endif
         {
             ensData.header.ensembleType = ENS_TEMP_IMU;
             sf::deploy::commitEnsemble(&ensData,

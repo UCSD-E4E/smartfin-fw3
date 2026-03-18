@@ -49,8 +49,13 @@ void RideTask::init()
     SF_OSAL_printf("Entering STATE_DEPLOYED at %" PRId32 __NL__, millis());
     pSystemDesc->pChargerCheck->stop();
     this->ledStatus.setColor(RIDE_RGB_LED_COLOR);
+#if SF_ENABLE_GPS
     this->ledStatus.setPattern(RIDE_RGB_LED_PATTERN_GPS);
     this->ledStatus.setPeriod(RIDE_RGB_LED_PERIOD_GPS);
+#else
+    this->ledStatus.setPattern(RIDE_RGB_LED_PATTERN_NOGPS);
+    this->ledStatus.setPeriod(RIDE_RGB_LED_PERIOD_NOGPS);
+#endif
     this->ledStatus.setPriority(RIDE_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
 
