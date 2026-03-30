@@ -17,12 +17,14 @@ m_sensor(sensor)
 
 bool tmp117Sensor::init()
 {
+    SF_OSAL_printf("TMP117 sensor trying to initialize!!!" __NL__);
     int success = m_sensor.write_cfg_reg(TMP117_MODE_CONTINUOUS);
     if (!success)
     {
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
-        return success;
+        // return success;
     }
+    SF_OSAL_printf("TMP117 sensor initialized!" __NL__);
 
     // Verify we are talking to a TMP117 by reading the device ID register.
     uint16_t device_id = 0;
@@ -34,9 +36,9 @@ bool tmp117Sensor::init()
     }
 
     SF_OSAL_printf("TMP117: device ID = 0x%04x (expected 0x%04x)" __NL__,
-                   device_id, (unsigned)TMP117_DEVICE_ID);
+                   device_id, WHOAMI_ANSWER);
 
-    if (device_id != TMP117_DEVICE_ID)
+    if (device_id != WHOAMI_ANSWER)
     {
         SF_OSAL_printf("TMP117: unexpected device ID, temperature readings may be invalid" __NL__);
         FLOG_AddError(FLOG_TEMP_FAIL, device_id);

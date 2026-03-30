@@ -33,6 +33,7 @@ bool tmpSensor::init()
     {
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
     }
+    SF_OSAL_printf("MAX31725 sensor initialized!" __NL__);
     return sucsess;
 }
 

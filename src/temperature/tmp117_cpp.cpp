@@ -121,10 +121,16 @@ int TMP117::read_reg16(int16_t *value, char reg)
 float TMP117::read_reg_as_temperature(uint8_t reg)
 {
     tmp117_raw_data tmp;
+    tmp117_raw_data high_limit;
+    tmp117_raw_data low_limit;
     float temperature;
     if (reg == TMP117_TEMP_DATA || 
         reg == TMP117_T_LOW_LIMIT || reg == TMP117_T_HIGH_LIMIT) {
         read_reg16(&tmp.swrd, reg);
+        read_reg16(&low_limit.swrd, TMP117_T_LOW_LIMIT);
+        read_reg16(&high_limit.swrd, TMP117_T_HIGH_LIMIT);
+        SF_OSAL_printf("%s: raw high value: 0x%04x (%.4f)\r" __NL__, __func__, (uint16_t)high_limit.swrd, (float)high_limit.swrd*TMP117_RESOLUTION);
+        SF_OSAL_printf("%s: raw low value: 0x%04x (%.4f)\r" __NL__, __func__, (uint16_t)low_limit.swrd, (float)low_limit.swrd*TMP117_RESOLUTION);
         temperature = (float)tmp.swrd;  /* values are 2's complement */
         temperature *= TMP117_RESOLUTION;
         return temperature;
