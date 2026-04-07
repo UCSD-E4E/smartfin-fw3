@@ -23,7 +23,6 @@ bool tmp117Sensor::init()
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
         return false;
     }
-    SF_OSAL_printf("TMP117 sensor initialized!" __NL__);
 
     // Verify we are talking to a TMP117 by reading the device ID register.
     uint16_t device_id = 0;
