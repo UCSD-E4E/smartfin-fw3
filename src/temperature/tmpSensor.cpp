@@ -28,13 +28,13 @@ m_sensor(sensor)
 
 bool tmpSensor::init()
 {
-    int sucsess = m_sensor.write_cfg_reg(MAX31725_CFG_CONTINUOUS);
-    if(!sucsess) 
+    int init_success_err = m_sensor.write_cfg_reg(MAX31725_CFG_CONTINUOUS);
+    if(init_success_err) 
     {
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
+        return false;
     }
-    SF_OSAL_printf("MAX31725 sensor initialized!" __NL__);
-    return sucsess;
+    return true;
 }
 
 bool tmpSensor::stop()

@@ -17,18 +17,17 @@ m_sensor(sensor)
 
 bool tmp117Sensor::init()
 {
-    SF_OSAL_printf("TMP117 sensor trying to initialize!!!" __NL__);
-    int success = m_sensor.write_cfg_reg(TMP117_MODE_CONTINUOUS);
-    if (!success)
+    int init_success_err = m_sensor.write_cfg_reg(TMP117_CFG_RESET/*TMP117_MODE_CONTINUOUS*/);
+    if (init_success_err)
     {
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
-        // return success;
+        return false;
     }
     SF_OSAL_printf("TMP117 sensor initialized!" __NL__);
 
     // Verify we are talking to a TMP117 by reading the device ID register.
     uint16_t device_id = 0;
-    if (m_sensor.read_device_id(&device_id) != TMP117_NO_ERROR)
+    if (m_sensor.read_device_id(&device_id))
     {
         SF_OSAL_printf("TMP117: failed to read device ID" __NL__);
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
@@ -50,7 +49,7 @@ bool tmp117Sensor::init()
 
 bool tmp117Sensor::stop()
 {
-    m_sensor.write_cfg_reg(TMP117_MODE_SHUTDOWN);
+    m_sensor.write_cfg_reg(TMP117_CFG_MODE_SHUTDOWN/*TMP117_MODE_SHUTDOWN*/);
     return true;
 }
 

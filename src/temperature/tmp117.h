@@ -26,6 +26,16 @@
 
 #define TMP117_RESOLUTION 0.0078125f ///< Scalar to convert from LSB value to degrees C
 
+#define TMP117_CFG_HIGH_ALERT_MASK  (0x01 << 15)
+#define TMP117_CFG_LOW_ALERT_MASK   (0x01 << 14)
+#define TMP117_CFG_DATA_READY_MASK  (0x01 << 13)
+#define TMP117_CFG_MODE_MASK        (0x03 << 10)
+
+#define TMP117_CFG_MODE_CONT        (0x00 << 10)
+#define TMP117_CFG_MODE_SHUTDOWN    (0x01 << 10)
+#define TMP117_CFG_MODE_OS          (0x03 << 10)
+#define TMP117_CFG_RESET            0x0220
+
 ///////////////////////////////////////////////////////////////
 
 /**

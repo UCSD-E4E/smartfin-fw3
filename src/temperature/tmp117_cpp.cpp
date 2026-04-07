@@ -31,18 +31,22 @@ TMP117::~TMP117(void)
 }
 
 /******************************************************************************/
-int TMP117::read_cfg_reg(uint8_t *value) 
+int TMP117::read_cfg_reg(uint16_t *value) 
 {
+    
     int32_t ret;
-    char data[1] = {0};
+    char data[2] = {0, 0};
     char reg = TMP117_CONFIGURATION;
+    tmp117_raw_data tmp;
 
     /* write to the Register Select, true is for repeated start */
     ret = m_i2c.write(m_write_address, &reg, 1, true);
     if (ret == 0) {
-        ret = m_i2c.read(m_read_address, data, 1, false);
+        ret = m_i2c.read(m_read_address, data, 2, false);
         if (ret == 0) {
-            *value = data[0];
+            tmp.msb = data[0];
+            tmp.lsb = data[1];
+            *value = tmp.uwrd;
             return TMP117_NO_ERROR;
         } else {
             SF_OSAL_printf(
@@ -121,16 +125,10 @@ int TMP117::read_reg16(int16_t *value, char reg)
 float TMP117::read_reg_as_temperature(uint8_t reg)
 {
     tmp117_raw_data tmp;
-    tmp117_raw_data high_limit;
-    tmp117_raw_data low_limit;
     float temperature;
     if (reg == TMP117_TEMP_DATA || 
         reg == TMP117_T_LOW_LIMIT || reg == TMP117_T_HIGH_LIMIT) {
         read_reg16(&tmp.swrd, reg);
-        read_reg16(&low_limit.swrd, TMP117_T_LOW_LIMIT);
-        read_reg16(&high_limit.swrd, TMP117_T_HIGH_LIMIT);
-        SF_OSAL_printf("%s: raw high value: 0x%04x (%.4f)\r" __NL__, __func__, (uint16_t)high_limit.swrd, (float)high_limit.swrd*TMP117_RESOLUTION);
-        SF_OSAL_printf("%s: raw low value: 0x%04x (%.4f)\r" __NL__, __func__, (uint16_t)low_limit.swrd, (float)low_limit.swrd*TMP117_RESOLUTION);
         temperature = (float)tmp.swrd;  /* values are 2's complement */
         temperature *= TMP117_RESOLUTION;
         return temperature;
@@ -168,14 +166,17 @@ int TMP117::write_reg16(int16_t value, char reg)
 
 
 /******************************************************************************/
-int TMP117::write_cfg_reg(uint8_t cfg)
+int TMP117::write_cfg_reg(uint16_t cfg)
 {
     int32_t ret;
-    char cmd[2];
+    char cmd[3];
+    tmp117_raw_data tmp;
 
     cmd[0] = TMP117_CONFIGURATION;
-    cmd[1] = cfg;
-    ret = m_i2c.write(m_write_address, cmd, 2, false);
+    tmp.uwrd = cfg;
+    cmd[1] = tmp.msb;
+    cmd[2] = tmp.lsb;
+    ret = m_i2c.write(m_write_address, cmd, 3, false);
 
     if (ret == 0) {
         return TMP117_NO_ERROR;

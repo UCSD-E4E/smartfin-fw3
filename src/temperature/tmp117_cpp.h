@@ -71,7 +71,7 @@ class TMP117
      * @param[out] value - Read data on success
      * @return 0 on success, negative number on failure
      */
-    int read_cfg_reg(uint8_t *value);
+    int read_cfg_reg(uint16_t *value);
 
     /**
      * @brief  Read the 16-bit device ID register.
@@ -99,7 +99,7 @@ class TMP117
      * @param cfg - configuration word
      * @return 0 on success, negative number on failure
      */
-    int write_cfg_reg(uint8_t cfg);
+    int write_cfg_reg(uint16_t cfg);
 
     /** * @brief Writes to the low threshold register
      * @param temperature - the temperature in Celsius degrees
