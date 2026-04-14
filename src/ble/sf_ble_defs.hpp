@@ -38,7 +38,7 @@ inline constexpr const char *CONTROL_CHAR_UUID = "c39513e6-631e-439a-9b3b-affa06
 inline constexpr const char* DEVICE_NAME = "Smartfin";
 
 /** @brief Max notification payload bytes. */
-inline constexpr std::size_t MAX_NOTIFY_LEN = SF_BLE_MAX_NOTIFY_LEN;
+inline constexpr std::size_t MAX_NOTIFY_LEN = SF_BLE_MAX_PACKET_SIZE;
 
 /** @brief Max command/control payload bytes accepted from the peer. */
 inline constexpr std::size_t MAX_CONTROL_LEN = SF_BLE_MAX_CONTROL_LEN;

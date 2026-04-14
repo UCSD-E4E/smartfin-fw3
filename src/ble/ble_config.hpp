@@ -24,11 +24,6 @@
 #define SF_BLE_PROTOCOL_VERSION 1
 
 /**
- * @brief Maximum notification payload length (bytes).
- */
-#define SF_BLE_MAX_NOTIFY_LEN 236
-
-/**
  * @brief Maximum control (write) payload length (bytes).
  */
 #define SF_BLE_MAX_CONTROL_LEN 64
