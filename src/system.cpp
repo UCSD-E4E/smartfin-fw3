@@ -18,12 +18,12 @@
 #include "product.hpp"
 #include "states.hpp"
 #include "sys/led.hpp"
-#include "temperature/max31725.h"
-#include "temperature/max31725_cpp.h"
+// #include "temperature/max31725.h"
+// #include "temperature/max31725_cpp.h"
 #include "temperature/tmp117.h"
 #include "temperature/tmp117Sensor.h"
 #include "temperature/tmp117_cpp.h"
-#include "temperature/tmpSensor.h"
+// #include "temperature/tmpSensor.h"
 
 #include <fcntl.h>
 
