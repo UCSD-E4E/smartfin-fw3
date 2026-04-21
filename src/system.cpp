@@ -50,7 +50,9 @@ Recorder dataRecorder;
 
 
 static void SYS_chargerTask(void);
+#if SF_ENABLE_GPS
 static int SYS_initGPS(void);
+#endif
 static int SYS_initNVRAM(void);
 static int SYS_initTasks(void);
 static void SYS_waterTask(void);
@@ -86,7 +88,9 @@ static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 
 static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN);
 
+#if SF_ENABLE_GPS
 static LocationServiceConfiguration create_location_service_config();
+#endif
 
 static FuelGauge battery_desc;
 
@@ -104,7 +108,9 @@ void SYS_initSys(void)
     strncpy(SYS_deviceID, System.deviceID().c_str(), 31);
 
     SYS_initTasks();
+#if SF_ENABLE_GPS
     SYS_initGPS();
+#endif
     SYS_initTempSensor();
     SYS_initNVRAM();
     SYS_initFS();
@@ -321,12 +327,13 @@ static void SYS_waterTask(void)
     }
 }
 
+#if SF_ENABLE_GPS
 /**
  * @brief Initialization function for GPS
  * Ublox gps
  * @return int 1 on success, otherwise 0
  */
-static int SYS_initGPS(void) 
+static int SYS_initGPS(void)
 {
     LocationServiceConfiguration config = create_location_service_config();
     LocationService::instance().setModuleType();
@@ -350,9 +357,10 @@ static int SYS_initGPS(void)
     LocationService::instance().setFastLock(true);
 
     systemDesc.pLocService = &LocationService::instance();
-    
+
     return 1;
 }
+#endif // SF_ENABLE_GPS
 
 
 /**
@@ -370,10 +378,11 @@ static int SYS_initNVRAM(void)
 }
 
 
+#if SF_ENABLE_GPS
 /**
  * @brief Create a location service config object with defaults
- * 
- * @return LocationServiceConfiguration 
+ *
+ * @return LocationServiceConfiguration
  */
 static LocationServiceConfiguration create_location_service_config() {
     LocationServiceConfiguration config;
@@ -392,11 +401,14 @@ static LocationServiceConfiguration create_location_service_config() {
 
     return config;
 }
+#endif // SF_ENABLE_GPS
 
 void SYS_displaySys(void)
 {
     SF_OSAL_printf("Device ID: %s" __NL__, pSystemDesc->deviceID);
+#if SF_ENABLE_GPS
     SF_OSAL_printf("Location Service: 0x%08x" __NL__, pSystemDesc->pLocService);
+#endif
     SF_OSAL_printf("Charger Check Timer: 0x%08x" __NL__, pSystemDesc->pChargerCheck);
     SF_OSAL_printf("NVRAM: 0x%08x" __NL__, pSystemDesc->pNvram);
     SF_OSAL_printf("Battery LED: 0x%08x" __NL__, pSystemDesc->pBatteryLED);
@@ -426,12 +438,14 @@ void SYS_dumpSys(int indent)
     {
         SF_OSAL_printf("%sDevice ID: %s" __NL__, indent_str, pSystemDesc->deviceID);
     }
+#if SF_ENABLE_GPS
     {
         SF_OSAL_printf("%sLocation Service: 0x%08x" __NL__, indent_str, pSystemDesc->pLocService);
         SF_OSAL_printf("%s  Location Service Status: %d" __NL__,
                        indent_str,
                        pSystemDesc->pLocService->isActive());
     }
+#endif
     {
         SF_OSAL_printf("%sRecorder: 0x%08x" __NL__, indent_str, pSystemDesc->pRecorder);
     }

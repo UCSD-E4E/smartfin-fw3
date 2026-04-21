@@ -17,7 +17,9 @@ MfgTest::mfg_test_entry MfgTest::MFG_TEST_TABLE[] = {
     {&MfgTest::temperature_sensor_test, "Temperature Sensor", MfgTest::PENDING},
     {&MfgTest::imu_test, "IMU", MfgTest::PENDING},
     {&MfgTest::cellular_test, "Cellular", MfgTest::PENDING},
+#if SF_ENABLE_GPS
     {&MfgTest::gps_test, "GPS", MfgTest::PENDING},
+#endif
     {nullptr, nullptr, MfgTest::PENDING}};
 
 #ifdef PARTICLE
@@ -385,6 +387,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::cellular_test(void)
     return MfgTest::PASS;
 }
 
+#if SF_ENABLE_GPS
 MfgTest::MFG_TEST_RESULT_t MfgTest::gps_test(void)
 {
     SF_OSAL_printf("Running GPS test" __NL__);
@@ -401,3 +404,4 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::gps_test(void)
     #endif
     return MfgTest::PASS;
 }
+#endif // SF_ENABLE_GPS

@@ -113,7 +113,9 @@ private:
      * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
      * MfgTest::MFG_TEST_RESULT_t::FAIL
      */
+#if SF_ENABLE_GPS
     static MFG_TEST_RESULT_t gps_test(void);
+#endif
 };
 
 #endif

@@ -10,11 +10,13 @@
  */
 #include "rideTask.hpp"
 
+#include "ble/ble_live_stream.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "deploy/ensembles.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "imu/newIMU.hpp"
 #include "product.hpp"
 #include "system.hpp"
@@ -47,18 +49,31 @@ void RideTask::init()
     SF_OSAL_printf("Entering STATE_DEPLOYED at %" PRId32 __NL__, millis());
     pSystemDesc->pChargerCheck->stop();
     this->ledStatus.setColor(RIDE_RGB_LED_COLOR);
+#if SF_ENABLE_GPS
     this->ledStatus.setPattern(RIDE_RGB_LED_PATTERN_GPS);
     this->ledStatus.setPeriod(RIDE_RGB_LED_PERIOD_GPS);
+#else
+    this->ledStatus.setPattern(RIDE_RGB_LED_PATTERN_NOGPS);
+    this->ledStatus.setPeriod(RIDE_RGB_LED_PERIOD_NOGPS);
+#endif
     this->ledStatus.setPriority(RIDE_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
 
     this->startTime = millis();
     this->sessionTimeSet = false;
-
-    if (!pSystemDesc->pRecorder->openSession())
+#if ENABLE_STREAM_SINK
+    BleLiveStream::getInstance().init();
+#endif
+#if ENABLE_STREAM_SINK || ENABLE_RECORD_SINK
+    TransportService::getInstance().init();
+    TransportService::getInstance().start();
+#endif
+#if ENABLE_RECORD_SINK
+    if (pSystemDesc->pRecorder && !pSystemDesc->pRecorder->openSession())
     {
         SF_OSAL_printf("Failed to open session!" __NL__);
     }
+#endif
 }
 
 /**
@@ -89,11 +104,13 @@ STATES_e RideTask::run(void)
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, this->deployTime);
     this->scheduler.initializeScheduler();
     Ens_setStartTime();
-    if (Time.isValid())
+#if ENABLE_RECORD_SINK
+    if (pSystemDesc->pRecorder && Time.isValid())
     {
         pSystemDesc->pRecorder->setSessionTime(Time.now());
         this->sessionTimeSet = true;
     }
+#endif
     FLOG_AddError(FLOG_RIDE_DEPLOY, this->deployTime);
     this->ledStatus.setPattern(LED_PATTERN_FADE);
 
@@ -101,11 +118,14 @@ STATES_e RideTask::run(void)
     {
         if (!this->sessionTimeSet)
         {
-            if (Time.isValid())
+#if ENABLE_RECORD_SINK
+            if (pSystemDesc->pRecorder && Time.isValid())
             {
                 pSystemDesc->pRecorder->setSessionTime(Time.now() -
                                                        (millis() - this->deployTime) / 1000);
+                this->sessionTimeSet = true;
             }
+#endif
         }
         SCH_error_e retval =
             this->scheduler.getNextTask(&pNextEvent, (std::uint32_t *)&nextEventTime, millis());
@@ -138,6 +158,8 @@ STATES_e RideTask::run(void)
                 return STATE_DEEP_SLEEP;
             }
             delay(1);
+#if ENABLE_STREAM_SINK
+#endif
         }
         start = micros();
         pNextEvent->measure(pNextEvent);
@@ -178,13 +200,26 @@ STATES_e RideTask::run(void)
 void RideTask::exit(void)
 {
     SF_OSAL_printf("Closing session" __NL__);
-    pSystemDesc->pRecorder->closeSession();
+#if ENABLE_STREAM_SINK
+    BleLiveStream::getInstance().finalizePacket();
+#endif
+#if ENABLE_STREAM_SINK || ENABLE_RECORD_SINK
+    TransportService::getInstance().shutdown();
+#endif
+#if ENABLE_RECORD_SINK
+    if (pSystemDesc->pRecorder)
+    {
+        pSystemDesc->pRecorder->closeSession();
+    }
+#endif
     pSystemDesc->pChargerCheck->start();
     SF_OSAL_printf("| Task             | Avg. Duration (us) | Count        |" __NL__);
     for (DeploymentSchedule_t *pEvent = deploymentSchedule; pEvent->measure; pEvent++)
     {
-        std::uint32_t avg_duration =
-            pEvent->state.durationAccumulate / pEvent->state.measurementCount;
+        std::uint32_t avg_duration = pEvent->state.measurementCount
+                                         ? (pEvent->state.durationAccumulate /
+                                            pEvent->state.measurementCount)
+                                         : 0;
         SF_OSAL_printf("| %16s | %18" PRIu32 " | %12" PRIu32 " |" __NL__,
                        pEvent->taskName,
                        avg_duration,
@@ -195,4 +230,5 @@ void RideTask::exit(void)
     // pSystemDesc->pCompass->close();
     // pSystemDesc->pIMU->close();
     // pSystemDesc->pGPS->gpsModuleStop();
+
 }
