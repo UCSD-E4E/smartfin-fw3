@@ -18,12 +18,19 @@
 #include "product.hpp"
 #include "states.hpp"
 #include "sys/led.hpp"
-// #include "temperature/max31725.h"
-// #include "temperature/max31725_cpp.h"
-#include "temperature/tmp117.h"
-#include "temperature/tmp117Sensor.h"
-#include "temperature/tmp117_cpp.h"
-// #include "temperature/tmpSensor.h"
+
+// includes for temperature sensor based on which one is selected
+#if TEMP_SENSOR_TYPE == 1
+    #include "temperature/max31725.h"
+    #include "temperature/max31725_cpp.h"
+    #include "temperature/tmpSensor.h"
+#elif TEMP_SENSOR_TYPE == 2
+    #include "temperature/tmp117.h"
+    #include "temperature/tmp117Sensor.h"
+    #include "temperature/tmp117_cpp.h"
+#else
+    #error "Invalid TEMP_SENSOR_TYPE. Must be 1 (MAX31725) or 2 (TMP117)"
+#endif
 
 #include <fcntl.h>
 
@@ -51,13 +58,17 @@ static int SYS_initIMU(void);
 
 I2C i2cBus;
 
-// MAX31725 temperature sensor
-MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
-tmpSensor tempSensorMAX31725(max31725);
-
-// TMP117 temperature sensor
-TMP117 tmp117Sensor_hw(i2cBus, TMP117_I2CADDR_DEFAULT);
-tmp117Sensor tempSensorTMP117(tmp117Sensor_hw);
+#if TEMP_SENSOR_TYPE == 1
+    // MAX31725 temperature sensor
+    MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
+    tmpSensor tempSensorMAX31725(max31725);
+#elif TEMP_SENSOR_TYPE == 2
+    // TMP117 temperature sensor
+    TMP117 tmp117Sensor_hw(i2cBus, TMP117_I2CADDR_DEFAULT);
+    tmp117Sensor tempSensorTMP117(tmp117Sensor_hw);
+#else
+    #error "Invalid TEMP_SENSOR_TYPE. Must be 1 (MAX31725) or 2 (TMP117)"
+#endif
 
 // Temperature sensor interface pointer - will be assigned based on TEMP_SENSOR_TYPE
 ITemperatureSensor *pActiveTempSensor = nullptr;
@@ -172,7 +183,7 @@ static int SYS_initTempSensor(void)
     pActiveTempSensor = &tempSensorTMP117;
     SF_OSAL_printf("Using TMP117 temperature sensor" __NL__);
 #else
-#error "Invalid TEMP_SENSOR_TYPE. Must be 1 (MAX31725) or 2 (TMP117)"
+    #error "Invalid TEMP_SENSOR_TYPE. Must be 1 (MAX31725) or 2 (TMP117)"
 #endif
 
     systemDesc.pTempSensor = pActiveTempSensor;
