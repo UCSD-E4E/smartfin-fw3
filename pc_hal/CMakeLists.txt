@@ -34,8 +34,8 @@ set(SMARTFIN_SOURCE_FILES
     ../src/cellular/recorder.cpp
     ../src/sys/led.cpp
     ../src/watersensor/waterSensor.cpp
-    ../src/temperature/max317275_cpp.cpp
-    ../src/temperature/tmpSensor.cpp
+    ../src/temperature/tmp117_cpp.cpp
+    ../src/temperature/tmp117Sensor.cpp
     ../src/vers.cpp
     ../src/cellular/encoding/base64.c
     ../src/cli/menu.cpp

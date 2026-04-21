@@ -1,0 +1,49 @@
+#ifndef TMP117SENSOR_H
+#define TMP117SENSOR_H
+#include "temperatureSensorInterface.h"
+#include "tmp117_cpp.h"
+
+#include <stdint.h>
+
+/**
+ * @brief The tmp117Sensor adapter class wraps a TMP117 temperature sensor.
+ * It provides methods to confirm successful configuration register writing and getting sensor
+ * temperature data.
+ */
+class tmp117Sensor : public ITemperatureSensor
+{
+public:
+    /**
+     * @brief Constructs a tmpSensor adapter class object
+     * @param sensor A reference to a TMP117 sensor instance that the adapter will interface with
+     */
+    tmp117Sensor(TMP117 &sensor);
+    /**
+     * @brief Initializes TMP117 sensor and setup I2c connection
+     * @return Boolean value of whether a TMP117 sensor successfully wrote
+     * to a configuration register
+     * * true on success, false on failure
+     */
+    bool init() override;
+    /**
+     * @brief Determines whether the TMP117 sensor is functional
+     * @return Boolean value of whether a TMP117 sensor successfully stopped writing
+     * to a configuration register, determining whether it is functional
+     *
+     * true on sensor being functional and false otherwise
+     */
+    bool stop() override;
+    /**
+     * @brief Gets the current temperature reading from the TMP117 sensor
+     * @return temperature in degrees Celsius, or NAN if error
+     */
+    float getTemp() override;
+
+private:
+    /**
+     * @brief TMP117 sensor reference
+     */
+    TMP117& m_sensor;
+};
+
+#endif // TMP117SENSOR_H

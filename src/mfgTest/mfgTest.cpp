@@ -166,8 +166,6 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::temperature_sensor_test()
 
     MFG_TEST_RESULT_t retval = MFG_TEST_RESULT_t::PASS;
 
-    SF_OSAL_printf("Running the Temp Test" __NL__);
-
     pSystemDesc->pTempSensor->init();
 
     for (std::size_t idx = 0; idx < nIterations; idx++)
