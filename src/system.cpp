@@ -9,6 +9,10 @@
 #define TEMP_SENSOR_TYPE 2
 // ============================================
 
+#if SF_ENABLE_GPS
+    #include "location_service.h"
+#endif
+
 #include "Particle.h"
 #include "SPI.h"
 #include "cli/conio.hpp"
