@@ -36,18 +36,18 @@ namespace
     {
     public:
         /**
-         * @brief Construct and register both GATT characteristics.
+         * @brief Construct both custom GATT characteristic objects.
          *
-         * Particle registers a @c BleCharacteristic into the GATT server at
-         * construction time, so both characteristics must be fully described
-         * here rather than in @c init().
+         * The characteristic definitions live here so they remain owned by a
+         * single backend instance. They are explicitly added to the Particle
+         * BLE stack later in @c SFBLE::init() after @c BLE.on().
          *
-         * @c telemetryCharacteristic — short name @c "tele", property NOTIFY,
-         * carries fin→watch data. No write callback; the central subscribes and
-         * receives notifications pushed by @c notifyTelemetry().
+         * @c telemetryCharacteristic  short name @c "tele", property NOTIFY,
+         * carries fin->watch data. No write callback; the central subscribes
+         * and receives notifications pushed by @c notifyTelemetry().
          *
-         * @c controlCharacteristic — short name @c "ctrl", property
-         * WRITE_WO_RSP, carries watch→fin commands. Registers
+         * @c controlCharacteristic  short name @c "ctrl", property
+         * WRITE_WO_RSP, carries watch->fin commands. Registers
          * @c onControlReceivedStatic as the write callback with @c this as
          * context so Particle can invoke it as a plain C function pointer.
          */
@@ -74,14 +74,10 @@ namespace
         /**
          * @brief Access the singleton backend instance.
          *
-         * A single instance is required because each @c BleCharacteristic
-         * object represents one physical GATT entry. Constructing a second
-         * instance would attempt to register duplicate characteristics and
-         * corrupt the GATT table. The static-local pattern also controls
-         * construction order: the instance is created on the first call to
-         * @c getInstance(), which happens inside @c SFBLE::init() after
-         * @c BLE.on(), guaranteeing the GATT server is live before any
-         * characteristic tries to register.
+         * A single instance is required so only one pair of characteristic
+         * objects exists. The static-local pattern lets @c SFBLE::init()
+         * decide when the backend is first constructed relative to
+         * @c BLE.on() and @c BLE.addCharacteristic().
          */
         static ParticleBleBackend &getInstance()
         {
@@ -239,16 +235,18 @@ bool SFBLE::init(void)
     }
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    ParticleBleBackend &backend = ParticleBleBackend::getInstance();
-
     BLE.on();
     BLE.setDeviceName(sf::bledefs::DEVICE_NAME);
+    this->connected.store(false, std::memory_order_release);
+
+    // Create backend after BLE.on(), then explicitly register both custom
+    // characteristics with the live Particle BLE stack.
+    ParticleBleBackend &backend = ParticleBleBackend::getInstance();
+    BLE.addCharacteristic(backend.telemetryCharacteristic);
+    BLE.addCharacteristic(backend.controlCharacteristic);
+
     BLE.onConnected(&ParticleBleBackend::onConnected, &backend);
     BLE.onDisconnected(&ParticleBleBackend::onDisconnected, &backend);
-
-    // Ensure characteristic objects are instantiated before advertising.
-    (void)backend.telemetryCharacteristic;
-    (void)backend.controlCharacteristic;
 
     this->initialized.store(true, std::memory_order_release);
     return true;
@@ -269,9 +267,15 @@ bool SFBLE::startAdvertising(void)
     }
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    this->connected.store(false, std::memory_order_release);
+
     BleAdvertisingData advData;
     advData.appendServiceUUID(BleUuid(sf::bledefs::SERVICE_UUID));
-    BLE.advertise(&advData);
+
+    BleAdvertisingData scanResponse;
+    scanResponse.appendLocalName(sf::bledefs::DEVICE_NAME);
+
+    BLE.advertise(&advData, &scanResponse);
     return true;
 #else
     return false;
@@ -291,6 +295,7 @@ bool SFBLE::stopAdvertising(void)
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     BLE.stopAdvertising();
+    this->connected.store(false, std::memory_order_release);
     return true;
 #else
     return false;
