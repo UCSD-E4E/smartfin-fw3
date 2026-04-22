@@ -1,0 +1,38 @@
+@startuml BLE States
+hide empty description
+
+title BLE Session State
+
+state Off
+Off: Stack not active
+Off: No advertising
+
+state Advertising
+Advertising: Broadcasting presence
+Advertising: Waiting for watch to connect
+
+state Connected
+Connected: Watch paired
+Connected: Clock sync active
+Connected: No ride in progress
+
+state "Live Streaming" as Streaming
+Streaming: Ride in progress
+Streaming: Data queued and batched to watch
+Streaming: Clock sync active
+
+state Draining
+Draining: Ride ended
+Draining: No new data accepted
+Draining: Remaining queued data sent
+
+[*] -d-> Off
+Off -d-> Advertising : ride task starts
+Advertising -d-> Connected : watch connects
+Connected -u-> Advertising : watch disconnects
+Connected -d-> Streaming : capture begins
+Streaming -r-> Draining : ride ends
+Streaming -u-> Advertising : watch disconnects mid-ride\nqueued data is dropped
+Draining -u-> Off : drain complete, ride task exits
+
+@enduml

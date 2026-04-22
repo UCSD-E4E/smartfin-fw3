@@ -1,0 +1,297 @@
+@startuml BLE Data Packet Flow
+title Data Packet Flow: Sensor Sample -> Apple Watch (BLE)
+
+skinparam activityBackgroundColor #FAFAFA
+skinparam activityBorderColor #888888
+skinparam activityDiamondBackgroundColor #FFFDE7
+skinparam activityDiamondBorderColor #888888
+skinparam swimlaneBorderColor #AAAAAA
+skinparam arrowColor #555555
+skinparam noteBackgroundColor #FFFFF0
+skinparam noteBorderColor #BBBBBB
+
+|#E3F2FD|RideTask|
+|#FFF8E1|Ensemble Functions|
+|#E8F5E9|commitEnsemble()|
+|#F3E5F5|BleLiveStream|
+|#EDE7F6|PacketBuilder|
+|#F5F5F5|SFBLE / Particle|
+
+'─────────────────────────────────────────────────
+' INIT
+'─────────────────────────────────────────────────
+|RideTask|
+start
+:RideTask::init()
+  └─ BleLiveStream::init()
+       ├─ packetBuilder_.reset()
+       ├─ SFBLE::init()
+       │    ├─ BLE.on()
+       │    ├─ BLE.setDeviceName("Smartfin")
+       │    └─ register connect / disconnect callbacks
+       ├─ drain stale txQueue_ packets
+       ├─ initialized_ = true
+       ├─ SFBLE::startAdvertising()
+       │    └─ BLE.advertise(serviceUUID)
+       └─ setControlCallback(controlRxThunk, this) ;
+
+:Scheduler initialized
+Ens_setStartTime()
+deployTime = millis() ;
+
+'─────────────────────────────────────────────────
+' MAIN RIDE LOOP
+'─────────────────────────────────────────────────
+repeat
+
+  :scheduler.getNextTask(&pNextEvent, &nextEventTime) ;
+
+  note right
+    Scheduler returns next ensemble
+    function pointer + absolute run time
+    (interval/duration per ensemble type)
+  end note
+
+  '── WAIT PHASE ──────────────────────────────────
+  while (millis() < nextEventTime?) is (waiting)
+
+    :Particle.process()
+delay(1 ms) ;
+
+    |SFBLE / Particle|
+    :BleLiveStream::processTx() ;
+
+    if (initialized_ && isConnected()?) then (yes)
+      while (txQueue_.pop(packet)?) is (packet available)
+        :SFBLE::notifyTelemetry\n(packet.bytes, packet.len) ;
+        if (initialized && connected\n&& 0 < len ≤ 236?) then (yes)
+          #PowderBlue:telemetryCharacteristic\n.setValue(pData, len) ;
+          :**── BLE GATT Notify ──**
+Apple Watch receives packet ;
+        else (invalid)
+          :droppedPackets_++
+return false ;
+        endif
+      end while (queue empty)
+    else (not connected)
+      :return (no-op) ;
+    endif
+
+    |RideTask|
+    if (water sensor LOW\nor battery LOW?) then (yes)
+      :return STATE_UPLOAD\nor STATE_DEEP_SLEEP ;
+      stop
+    endif
+
+  end while (task time reached)
+
+  '── EXECUTE PHASE ───────────────────────────────
+  |Ensemble Functions|
+  :pNextEvent->measure(pNextEvent)
+[function pointer dispatch] ;
+
+  note right
+    Active ensembles:
+    • SS_Ensemble01_Func  - Temp + Water
+      interval=10 ms, accumulate=20
+    • SS_ensemble10Func   - IMU + optional GPS
+      interval=18 ms, accumulate=N
+    • SS_ensemble07Func   - Battery voltage
+    • SS_ensemble08Func   - Temp + Unix time
+  end note
+
+  :Read sensors:
+  pTempSensor->getTemp()
+  pWaterSensor->getLastReading()
+  pIMU->getDmpAccel_ms2/getDmpRotVel_dps/getDmpMag_uT()
+  pBattery->getVCell()
+  [ubloxGPS->getLat/Lng if locked] ;
+
+  :Accumulate into eventData struct
+  pData->value += reading
+  pData->accumulateCount++ ;
+
+  if (accumulateCount ==\nmeasurementsToAccumulate?) then (yes — commit)
+
+    :Average readings
+Scale to fixed-point:
+  temp  * Q7_SCALAR  ( x/128 on decode)
+  accel * Q14 / gyro * Q7 / mag * Q3 ;
+
+    :Pack struct (no padding):
+  EnsembleHeader_t {
+    ensembleType : 4 bits   (e.g. 0x01, 0x0C)
+    elapsedTime_ds : 20 bits (deciseconds)
+  }
+  + EnsembleXX_data_t
+    (7-30 bytes depending on type) ;
+
+    note right
+      Example sizes:
+        Ens01 (Temp)      =  7 bytes
+        Ens07 (Battery)   =  6 bytes
+        Ens10 (IMU)       = 22 bytes
+        Ens11 (IMU + GPS) = 30 bytes
+    end note
+
+    :sf::deploy::commitEnsemble(&ensData, sizeof(ensData)) ;
+
+    |commitEnsemble()|
+    if (pData == null\nor len == 0?) then (yes)
+      :FLOG_AddError
+return COMMIT_INVALID_ARG ;
+      stop
+    endif
+
+    if (no sinks enabled?) then (yes)
+      :return COMMIT_NO_SINKS_ENABLED ;
+      stop
+    endif
+
+    fork
+      '── RECORD SINK ───────────────────────────
+      if (ENABLE_RECORD_SINK?) then (yes)
+        :pRecorder->putBytes(pData, len) ;
+        note right: Writes raw bytes\nto SD card / NVRAM
+        if (writeResult == 0?) then (ok)
+          :recordOk = true ;
+        else (fail)
+          :FLOG_AddError(FLOG_REC_COMMIT_FAIL)
+recordOk = false ;
+        endif
+      endif
+
+    fork again
+      '── STREAM SINK ───────────────────────────
+      if (ENABLE_STREAM_SINK?) then (yes)
+        |BleLiveStream|
+        :BleLiveStream::enqueueEnsemble(pData, len) ;
+
+        if (!initialized_\nor pData == null\nor len == 0?) then (yes)
+          :return false ;
+        endif
+
+        if (len > MAX_PAYLOAD_SIZE\n(230 bytes)?) then (yes)
+          :droppedPackets_++
+return false ;
+        endif
+
+        if (packetBuilder_\n.canAppend(len)?) then (no — packet full)
+
+          |PacketBuilder|
+          :PacketBuilder::finalize\n(packet, PACKET_TYPE_TELEMETRY) ;
+
+          if (hasData()?) then (yes)
+            :Build PacketHeader {
+  version   = PROTOCOL_VERSION (1)
+  type      = TELEMETRY (1)
+  seq       = nextSeq++ (monotonic)
+  payloadLen = current payload size
+}
+memcpy header  (6 bytes) -> out.bytes
+memcpy payload (N bytes) -> out.bytes + 6
+out.len = 6 + payloadLen ;
+
+            :reset():
+  payloadLen = 0
+  clear payload buffer ;
+
+          else (no data)
+            :return false\n(nothing to finalize) ;
+          endif
+
+          |BleLiveStream|
+          :txQueue_.push(TxPacket) ;
+
+          note right
+            SpscQueue<TxPacket, 256>
+            lock-free ring buffer
+            head/tail atomic with
+            release/acquire ordering
+          end note
+
+          if (queue full (256 slots)?) then (yes)
+            :droppedPackets_++
+return false ;
+          endif
+
+        endif
+
+        |PacketBuilder|
+        :PacketBuilder::appendEnsemble(pData, len) ;
+        :memcpy ensemble -> payload[payloadLen]
+payloadLen += len ;
+
+        |BleLiveStream|
+        if (remainingPayload() == 0\n(packet exactly full)?) then (yes)
+          :flush():
+  finalize() -> TxPacket
+  txQueue_.push(TxPacket) ;
+        endif
+
+        :return true
+[ensemble queued in txQueue_] ;
+
+        |commitEnsemble()|
+        :streamOk = true ;
+
+      endif
+    end fork
+
+    :return:
+  both OK   -> COMMIT_OK
+  rec fail  -> COMMIT_RECORD_FAIL
+  str fail  -> COMMIT_STREAM_FAIL
+  both fail -> COMMIT_BOTH_FAIL ;
+
+    |Ensemble Functions|
+    :Reset accumulator:
+memset(pData, 0, sizeof(eventData)) ;
+
+  else (no — keep accumulating)
+  endif
+
+  |RideTask|
+  if (water LOW or\nbattery LOW?) then (yes)
+    :return STATE_UPLOAD\nor STATE_DEEP_SLEEP ;
+    stop
+  endif
+
+repeat while (ride loop continues?)
+
+'─────────────────────────────────────────────────
+' EXIT / DRAIN
+'─────────────────────────────────────────────────
+:RideTask::exit()
+  ├─ BleLiveStream::flush()      [finalize any partial packet]
+  ├─ BleLiveStream::processTx()  [drain txQueue_ -> BLE notify]
+  └─ pRecorder->closeSession() ;
+stop
+
+'═════════════════════════════════════════════════
+' SIDE CHANNEL: Time Sync (Watch -> Fin)
+'═════════════════════════════════════════════════
+|SFBLE / Particle|
+note
+  <b>Watch -> Fin (Control Characteristic)</b>
+  UUID: c39513e6-…  WRITE_WO_RSP  max 64 bytes
+
+  onControlReceived() (Particle BLE callback)
+    -> SFBLE::handleControlEvent(data, len)
+      -> controlRxThunk(data, len, context)
+        -> BleLiveStream::handleControlRx(data, len)
+          if len >= sizeof(TimeSyncMsg) && type == TIME_SYNC_MSG (1):
+            handleTimeSync(watchUnixMs, seq)
+              timeSync_.valid           = true
+              timeSync_.boardMillisAtSync = millis()
+              timeSync_.watchUnixMsAtSync = watchUnixMs
+              timeSync_.syncSeq           = seq
+
+  estimateUnixTime(boardMillis):
+    delta    = boardMillis − boardMillisAtSync
+    estimate = watchUnixMsAtSync + delta
+    return   estimate / 1000  (Unix seconds)
+    [used by Ens08 to embed wall-clock time in packets]
+end note
+
+@enduml

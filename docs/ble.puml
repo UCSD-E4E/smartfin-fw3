@@ -1,0 +1,139 @@
+@startuml BLE Concurrency
+
+title Thread Interaction, Data Flow, and Shutdown
+
+skinparam noteBorderColor #BBBBBB
+skinparam noteBackgroundColor #FFFFF0
+skinparam sequenceGroupBorderColor #888888
+skinparam sequenceGroupBackgroundColor #FAFAFA
+
+box "Ride Task Thread  (producer)" #E3F2FD
+    participant "RideTask" as RT
+    participant "commitEnsemble()" as CE
+end box
+
+participant "BleLiveStream\n(singleton)" as BLS #EDE7F6
+participant "TransportService\n(singleton)" as TS #F3E5F5
+
+box "SpscQueue<T,N>  (lock-free ring buffer)" #E8F5E9
+    participant "recordQueue_\nSpscQueue<HighRateImuRecord, 512>" as RQ
+    participant "lowRateQueue_\nSpscQueue<LowRateChunk, 8>" as LQ
+    participant "recorderQueue_\nSpscQueue<RecorderChunk, 8>" as RecQ
+end box
+
+box "Transport Thread  (consumer)" #FFF3E0
+    participant "serviceOnce()" as SO
+end box
+
+participant "SFBLE\n(BLE wrapper)" as BLE #FAFAFA
+participant "Watch / Central" as W
+
+== High-Rate IMU Path ==
+
+RT -> TS: enqueueImuRecord(record)
+TS -> RQ: push(record)\nhead_.store(next, memory_order_release)
+
+note over RQ
+  Producer's release store on head_
+  publishes the buffer write.
+  Consumer's acquire load pairs
+  with it - guarantees visibility.
+  Each thread reads its own index
+  with relaxed (sole writer).
+end note
+
+SO -> RQ: pop(record)\ntail_.load(relaxed)\nhead_.load(memory_order_acquire)
+SO -> SO: appendEnsemble() - batch records into TxPacket\nfinalize() when full or remainingPayload == 0
+SO -> BLE: notifyTelemetry(packet.bytes, len)
+BLE -> W: GATT notification
+
+== Low-Rate Ensemble Path  (commitEnsemble) ==
+
+RT -> CE: commitEnsemble(pData, len)
+
+CE -> TS: enqueueRecorderPayload(pData, len)
+TS -> RecQ: push(RecorderChunk)\nhead_.store(next, release)
+
+CE -> BLS: enqueueEnsemble(pData, len)
+BLS -> TS: enqueueLowRateEnsemble(pData, len)
+TS -> LQ: push(LowRateChunk)\nhead_.store(next, release)
+
+SO -> RecQ: pop(chunk) - drain 1 per round
+SO -> LQ: pop(chunk) - drain 1 per round\npacketize -> finalize() -> notifyTelemetry()
+SO -> BLE: notifyTelemetry(packet)
+BLE -> W: GATT notification
+
+== Fair Scheduling  (per serviceOnce() round) ==
+
+note over SO
+  do {
+    for i in [0, MAX_RECORD_BATCH=32):
+      pop from recordQueue_ -> append/finalize
+    pop 1 from lowRateQueue_ -> packetize
+    pop 1 from recorderQueue_ -> putBytes()
+    pop 1 from txQueue_ -> notifyTelemetry()
+  } while (progress && (stopRequested_ || !allEmpty))
+
+  if (hasData && millis() - lastFlushMs > 1000ms)
+    -> periodic flush keeps low-rate stream alive
+end note
+
+== Shutdown / Drain Sequence ==
+
+RT -> TS: shutdown()
+TS -> TS: accepting_.store(false, release)\n[gate closed - all enqueue* will reject]
+TS -> CE: lowRateFlusher_()\n[one final ensemble before drain]
+CE -> BLS: enqueueEnsemble(finalData)
+BLS -> TS: enqueueLowRateEnsemble(finalData)
+TS -> LQ: push(finalChunk)
+
+TS -> TS: stop()\n  stopRequested_.store(true, release)\n  running_.store(false, release)
+
+loop spin until drained
+    TS -> TS: idle_.load(acquire) == false -> yield/delay(1ms)
+end
+
+SO -> SO: serviceOnce() - stopRequested_ true\ncontinues draining all queues
+SO -> SO: all queues empty + hasData -> finalize last packet
+SO -> BLE: notifyTelemetry(finalPacket)
+SO -> TS: idle_.store(true, release)
+
+note right of TS
+  Queues empty, builder clean,
+  stopRequested_ true -> signal idle.
+  stop() spin exits.
+end note
+
+TS -> RT: shutdown() returns
+
+== Clock Sync  (BLE Callback Thread) ==
+
+W -> BLE: write control characteristic\n{ type=TIME_SYNC_MSG, watchUnixMs:uint64, seq:uint32 }
+BLE -> BLE: handleControlEvent()\natomic_thread_fence(memory_order_acquire)
+
+note right of BLE
+  Standalone fence orders all stores
+  preceding the release fence in
+  setControlCallback() - publishes
+  controlCallback + controlContext
+  as a pair. Safe only while
+  registration is a one-time init.
+end note
+
+BLE -> BLS: controlRxThunk -> handleControlRx()
+BLS -> BLS: handleTimeSync(watchUnixMs, seq)\n[lock timeSyncMutex_]\nrawOffsetMs = watchUnixMs - boardMillis()\nsmoothedOffsetMs = (3 * prev + rawOffsetMs) / 4\nquality -= 10 on seq gap
+
+RT -> BLS: estimateUnixTime(boardMillis)\n[lock timeSyncMutex_]
+
+note right of BLS
+  Snapshots smoothedOffsetMs under mutex.
+  Returns 0 if:
+    - !valid  (no sync received yet)
+    - age > 60000ms  (stale)
+    - estimate <= 0
+  Otherwise: (boardMillis + smoothedOffset) / 1000
+end note
+
+BLS -> RT: uint32_t unix seconds (or 0)
+
+@enduml
