@@ -9,12 +9,17 @@
 #include "cli.hpp"
 
 #include "Particle.h"
+#include "ble/ble_live_stream.hpp"
+#include "ble/high_rate_stream.hpp"
+#include "ble/sf_ble.hpp"
+#include "cellular/sf_cloud.hpp"
 #include "cli/flog.hpp"
 #include "cliDebug.hpp"
 #include "conio.hpp"
 #include "consts.hpp"
 #include "debug/recorder_debug.hpp"
 #include "debug/session_debug.hpp"
+#include "deploy/ensembleTypes.hpp"
 #include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
@@ -29,7 +34,6 @@
 #include "system.hpp"
 #include "util.hpp"
 #include "vers.hpp"
-#include "cellular/sf_cloud.hpp"
 
 #include <bits/stdc++.h>
 #include <cstdlib>
@@ -50,6 +54,7 @@ static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
 static void CLI_doEnsemble(void);
 static void CLI_setWaterSensorWindow(void);
+static void CLI_doBleTest(void);
 
 static std::uint8_t packet_buffer[SF_PACKET_SIZE];
 static char input_buffer[SF_CLI_MAX_CMD_LEN];
@@ -85,6 +90,7 @@ const Menu_t CLI_menu[] = {
     {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior, MENU_CMD},
     {300, "Display Reset Reason", &CLI_displayResetReason, MENU_CMD},
     {400, "Set Water Sensor Window", &CLI_setWaterSensorWindow, MENU_CMD},
+    {500, "BLE Stream Test", &CLI_doBleTest, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}};
 
 STATES_e CLI_nextState;
@@ -765,4 +771,115 @@ void CLI_setWaterSensorWindow(void)
     }
     pSystemDesc->pWaterSensor->setWindowSize(window_length);
     pSystemDesc->pWaterSensor->resetArray();
+}
+
+/**
+ * @brief BLE live-stream test
+ *
+ * Initializes SFBLE + TransportService, runs the deployment schedule in a
+ * loop until the user presses 'q', then shuts down cleanly.
+ *
+ * Run this from CLI while tests/ble_reciever.py is open on the host to
+ * verify the full BLE data path end-to-end.
+ */
+static void CLI_doBleTest(void)
+{
+    BleLiveStream &stream = BleLiveStream::getInstance();
+    TransportService &transport = TransportService::getInstance();
+    SF_OSAL_printf("=== Starting BLE Test ===" __NL__);
+    SF_OSAL_printf("Initializing BLE..." __NL__);
+    if (!stream.init())
+    {
+        SF_OSAL_printf("BLE init failed!" __NL__);
+        return;
+    }
+    transport.init();
+    transport.start();
+    SFBLE::getInstance().setConnectionCallback(
+        [](bool connected, void *)
+        { SF_OSAL_printf("[BLE EVT] %s" __NL__, connected ? "CONNECTED" : "DISCONNECTED"); },
+        nullptr);
+    SF_OSAL_printf("Advertising. Connect your device, then press 'q' to stop." __NL__ __NL__);
+
+    pSystemDesc->pChargerCheck->stop();
+    pSystemDesc->pWaterCheck->stop();
+    pSystemDesc->pTempSensor->init();
+
+#if ENABLE_RECORD_SINK
+    if (!pSystemDesc->pRecorder->openSession())
+    {
+        SF_OSAL_printf("Warning: failed to open recorder session" __NL__);
+    }
+#endif
+
+    Scheduler bleScheduler(deploymentSchedule);
+    Ens_setStartTime();
+    bleScheduler.initializeScheduler();
+
+    DeploymentSchedule_t *pNextEvent = nullptr;
+    uint32_t nextEventTime = 0;
+    uint32_t ensCount = 0;
+    uint32_t lastStatusMs = millis();
+    bool quit = false;
+
+    while (!quit)
+    {
+        if (SF_OSAL_kbhit())
+        {
+            char ch = SF_OSAL_getch();
+            if (ch == 'q' || ch == 'Q')
+            {
+                break;
+            }
+        }
+
+        uint32_t now = millis();
+        if (now - lastStatusMs >= 2000)
+        {
+            SF_OSAL_printf("[BLE STATUS] %s | ensembles: %" PRIu32 __NL__,
+                           stream.isConnected() ? "connected" : "advertising",
+                           ensCount);
+            lastStatusMs = now;
+        }
+
+        SCH_error_e ret = bleScheduler.getNextTask(&pNextEvent, &nextEventTime, millis());
+        if (ret == TASK_SEARCH_FAIL)
+        {
+            SF_OSAL_printf("Scheduler error — aborting BLE test" __NL__);
+            break;
+        }
+
+        while (millis() < nextEventTime && !quit)
+        {
+            Particle.process();
+            if (SF_OSAL_kbhit())
+            {
+                char ch = SF_OSAL_getch();
+                if (ch == 'q' || ch == 'Q')
+                {
+                    quit = true;
+                }
+            }
+            delay(1);
+        }
+
+        if (quit)
+        {
+            break;
+        }
+
+        pNextEvent->measure(pNextEvent);
+        ensCount++;
+    }
+
+    transport.shutdown();
+
+#if ENABLE_RECORD_SINK
+    pSystemDesc->pRecorder->closeSession();
+#endif
+    pSystemDesc->pTempSensor->stop();
+    pSystemDesc->pChargerCheck->start();
+    pSystemDesc->pWaterCheck->start();
+
+    SF_OSAL_printf("BLE stream test complete. %" PRIu32 " ensembles run." __NL__, ensCount);
 }

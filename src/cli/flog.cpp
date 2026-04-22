@@ -13,6 +13,7 @@
 
 #include "conio.hpp"
 #include "consts.hpp"
+#include "product.hpp"
 
 #include <Particle.h>
 
@@ -152,6 +153,12 @@ void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
     pEntry->param = parameter;
     flogData.numEntries++;
     flogData.nNumEntries = ~flogData.numEntries;
+#ifdef SF_PRINT_FLOG
+    SF_OSAL_printf("FLOG %8" PRId32 " %48s, 0x%08" FLOG_PARAM_FMT __NL__,
+                   pEntry->timestamp_ms,
+                   FLOG_FindMessage(errorCode),
+                   parameter);
+#endif
 }
 
 void FLOG_DisplayLog(void)
