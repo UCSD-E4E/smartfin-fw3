@@ -243,9 +243,17 @@
 
 /**
  * @brief Enable initialization delay
- * 
+ *
  */
 // #define SF_ENABLE_DEBUG_DELAY   15
+
+/**
+ * @brief Print FLOG entries to serial as they are logged
+ *
+ * When defined, each call to FLOG_AddError will immediately print the
+ * log entry to the serial console in addition to storing it in retained SRAM.
+ */
+#define SF_PRINT_FLOG
 
 /**
  * @brief Base85 encoding flag
@@ -330,7 +338,7 @@
 
 // Transition period policy switches.
 // Later, when recorder is removed, set ENABLE_RECORD_SINK to 0.
-#define ENABLE_RECORD_SINK 1
+#define ENABLE_RECORD_SINK 0
 #define ENABLE_STREAM_SINK 1
 
 /**
