@@ -27,12 +27,20 @@
 // clang-format off
 DeploymentSchedule_t deploymentSchedule[] = {
     // measure,                 init,                       accumulate, interval,   duration,   delay,  name, state
+#if SF_POWER_PROFILE_MODE
+    {SS_fwVerFunc,              SS_fwVerInit,               1,          UINT32_MAX, 1,          0,      "FW VER", {0}},
+#if defined(SF_HIGH_DATA_RATE)
+    {SS_HighRateIMU_x0C_Func,   SS_HighRateIMU_x0C_Init,    1,          50,         1,          0,      "HDR IMU", {0}},
+#endif
+    {SS_Ensemble01_Func,        SS_Ensemble01_Init,         1,          1000,       20,         0,      "Temp",   {0}},
+#else
     {SS_fwVerFunc,              SS_fwVerInit,               1,          UINT32_MAX, 1,          0,      "FW VER", {0}},
 #if defined(SF_HIGH_DATA_RATE)
     {SS_HighRateIMU_x0C_Func,   SS_HighRateIMU_x0C_Init,    1,          50,         1,          0,      "HDR IMU", {0}},
 #endif
     {SS_Ensemble01_Func,        SS_Ensemble01_Init,         1,          1000,       20,         0,      "Temp",   {0}},
     // {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
+#endif
     {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
 // clang-format on
 
@@ -86,6 +94,16 @@ STATES_e RideTask::run(void)
 
     unsigned long start, stop;
 
+#if SF_POWER_PROFILE_MODE
+    // Start immediately for autonomous current profiling without water gating.
+    this->deployTime = millis();
+    SF_OSAL_printf(__NL__ "Power profile mode: deployment started at %" PRId32 __NL__,
+                   this->deployTime);
+    this->scheduler.initializeScheduler();
+    Ens_setStartTime();
+    FLOG_AddError(FLOG_RIDE_DEPLOY, this->deployTime);
+    this->ledStatus.setPattern(LED_PATTERN_FADE);
+#else
     while (1)
     {
         // Wait for positive in-water signal.  This is run by waterCheck
@@ -113,6 +131,7 @@ STATES_e RideTask::run(void)
 #endif
     FLOG_AddError(FLOG_RIDE_DEPLOY, this->deployTime);
     this->ledStatus.setPattern(LED_PATTERN_FADE);
+#endif
 
     while (1)
     {
@@ -140,9 +159,24 @@ STATES_e RideTask::run(void)
         {
             // SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
         }
+#if SF_POWER_PROFILE_MODE
+        // In profiling mode, force one selected ensemble and run at scheduler cadence.
+        int selected_index = SF_POWER_PROFILE_ENSEMBLE_INDEX;
+        int i = 0;
+        for (DeploymentSchedule_t *pEvent = deploymentSchedule; pEvent->measure; ++pEvent, ++i)
+        {
+            if (i == selected_index)
+            {
+                pNextEvent = pEvent;
+                nextEventTime = millis();
+                break;
+            }
+        }
+#endif
         while (millis() < nextEventTime)
         {
             Particle.process();
+#if !SF_POWER_PROFILE_MODE
             if (!pSystemDesc->pWaterSensor->getLastStatus())
             {
                 SF_OSAL_printf("Out of water!" __NL__);
@@ -157,6 +191,7 @@ STATES_e RideTask::run(void)
                 SF_OSAL_printf("Low Battery!" __NL__);
                 return STATE_DEEP_SLEEP;
             }
+#endif
             delay(1);
 #if ENABLE_STREAM_SINK
 #endif
@@ -171,6 +206,7 @@ STATES_e RideTask::run(void)
 
         // pNextEvent->lastMeasurementTime = nextEventTime;
 
+#if !SF_POWER_PROFILE_MODE
         if (pSystemDesc->pWaterSensor->getLastStatus() == WATER_SENSOR_LOW_STATE)
         {
             SF_OSAL_printf("Out of water!" __NL__);
@@ -186,6 +222,7 @@ STATES_e RideTask::run(void)
             SF_OSAL_printf("Low Battery!" __NL__);
             return STATE_DEEP_SLEEP;
         }
+#endif
     }
 #if SF_CAN_UPLOAD
     return STATE_UPLOAD;

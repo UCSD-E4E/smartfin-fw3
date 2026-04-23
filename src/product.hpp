@@ -347,4 +347,23 @@
 #define SF_HIGH_DATA_RATE
 
 #define SF_CAN_UPLOAD !defined(SF_INHIBIT_UPLOAD) && !defined(SF_HIGH_DATA_RATE)
+
+/**
+ * @brief Autonomous ensemble power profiling mode.
+ *
+ * When enabled:
+ * - system boots directly to STATE_DEPLOYED
+ * - RideTask does not wait for in-water status to start deployment
+ * - out-of-water exits are ignored so the selected ensemble can run
+ *   without CLI interaction
+ */
+#define SF_POWER_PROFILE_MODE 1
+
+/**
+ * @brief Ensemble index to run in SF_POWER_PROFILE_MODE.
+ * 0 = FW VER
+ * 1 = HDR IMU (if SF_HIGH_DATA_RATE enabled) or Temp
+ * 2 = Temp (when HDR IMU exists)
+ */
+#define SF_POWER_PROFILE_ENSEMBLE_INDEX 2
 #endif // __PRODUCT_HPP__
