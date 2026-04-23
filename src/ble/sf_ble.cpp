@@ -9,7 +9,6 @@
 
 #include <atomic>
 
-#include "cli/conio.hpp"
 #include "product.hpp"
 #include "sf_ble_defs.hpp"
 
@@ -96,81 +95,43 @@ namespace
          * @param peer Peer device (unused).
          * @param context Pointer to backend instance.
          */
+        // BLE callbacks run on the BLE thread (small stack, Serial can deadlock).
+        // No Serial calls inside any of these — state updates only.
         static void onControlReceivedStatic(const uint8_t *data,
                                             size_t len,
                                             const BlePeerDevice &peer,
                                             void *context)
         {
             (void)peer;
-            ParticleBleBackend *self = static_cast<ParticleBleBackend *>(context);
-            if (self)
-            {
-                self->onControlReceived(data, len);
-            }
+            if (!context || !data) return;
+            static_cast<ParticleBleBackend *>(context)->onControlReceived(data, len);
         }
 
-        /**
-         * @brief Handle Particle connect event.
-         * @param peer Connected peer (unused).
-         */
         void onConnected(const BlePeerDevice & /*peer*/)
         {
-            SFBLE &ble = SFBLE::getInstance();
-            bleConnectionThunk(true, &ble);
+            bleConnectionThunk(true, &SFBLE::getInstance());
         }
 
-        /**
-         * @brief Handle Particle disconnect event.
-         * @param peer Disconnected peer (unused).
-         */
         void onDisconnected(const BlePeerDevice & /*peer*/)
         {
-            SFBLE &ble = SFBLE::getInstance();
-            bleConnectionThunk(false, &ble);
+            bleConnectionThunk(false, &SFBLE::getInstance());
         }
 
-        /**
-         * @brief Forward control writes to wrapper.
-         * @param data Control payload bytes.
-         * @param len Payload length.
-         */
         void onControlReceived(const uint8_t *data, size_t len)
         {
-            SFBLE &ble = SFBLE::getInstance();
-            bleControlThunk(data, len, &ble);
+            bleControlThunk(data, len, &SFBLE::getInstance());
         }
 
-        /**
-         * @brief Bridge connection events to SFBLE instance.
-         * @param isConnected True if connected, false otherwise.
-         * @param context Pointer to SFBLE instance.
-         */
         static void bleConnectionThunk(bool isConnected, void *context)
         {
             SFBLE *ble = static_cast<SFBLE *>(context);
-            if (!ble)
-            {
-                return;
-            }
-
-            ble->handleConnectionEvent(isConnected);
+            if (ble) ble->handleConnectionEvent(isConnected);
         }
 
-        /**
-         * @brief Bridge control writes to SFBLE instance.
-         * @param data Control payload.
-         * @param len Payload length.
-         * @param context Pointer to SFBLE instance.
-         */
         static void bleControlThunk(const uint8_t *data, size_t len, void *context)
         {
             SFBLE *ble = static_cast<SFBLE *>(context);
-            if (!ble)
-            {
-                return;
-            }
-
-            ble->handleControlEvent(data, len);
+            if (ble) ble->handleControlEvent(data, len);
         }
     };
 } // namespace
@@ -191,7 +152,8 @@ SFBLE &SFBLE::getInstance(void)
  * @brief Construct default wrapper state.
  */
 SFBLE::SFBLE()
-    : initialized(false), connected(false), controlCallback(nullptr), controlContext(nullptr),
+    : initialized(false), connected(false), advertising(false),
+      controlCallback(nullptr), controlContext(nullptr),
       connectionCallback(nullptr), connectionContext(nullptr)
 {
 }
@@ -202,7 +164,12 @@ SFBLE::SFBLE()
  */
 void SFBLE::handleConnectionEvent(bool isConnected)
 {
+    // Called from the BLE thread — no Serial/BLE API here.
     this->connected.store(isConnected, std::memory_order_release);
+    if (isConnected)
+    {
+        this->advertising.store(false, std::memory_order_release);
+    }
 
     auto cb  = this->connectionCallback.load(std::memory_order_acquire);
     auto ctx = this->connectionContext;
@@ -219,6 +186,9 @@ void SFBLE::handleConnectionEvent(bool isConnected)
  */
 void SFBLE::handleControlEvent(const uint8_t *data, size_t len)
 {
+    // Called from the BLE thread — no Serial/BLE API here.
+    if (!data || len == 0) return;
+
     auto cb  = this->controlCallback.load(std::memory_order_acquire);
     auto ctx = this->controlContext;
     if (cb)
@@ -239,16 +209,15 @@ bool SFBLE::init(void)
     }
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    ParticleBleBackend &backend = ParticleBleBackend::getInstance();
-
     BLE.on();
     BLE.setDeviceName(sf::bledefs::DEVICE_NAME);
+
+    ParticleBleBackend &backend = ParticleBleBackend::getInstance();
     BLE.onConnected(&ParticleBleBackend::onConnected, &backend);
     BLE.onDisconnected(&ParticleBleBackend::onDisconnected, &backend);
 
-    // Ensure characteristic objects are instantiated before advertising.
-    (void)backend.telemetryCharacteristic;
-    (void)backend.controlCharacteristic;
+    BLE.addCharacteristic(backend.telemetryCharacteristic);
+    BLE.addCharacteristic(backend.controlCharacteristic);
 
     this->initialized.store(true, std::memory_order_release);
     return true;
@@ -271,7 +240,13 @@ bool SFBLE::startAdvertising(void)
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     BleAdvertisingData advData;
     advData.appendServiceUUID(BleUuid(sf::bledefs::SERVICE_UUID));
-    BLE.advertise(&advData);
+
+    // Local name goes in the scan response so it appears alongside the UUID.
+    BleAdvertisingData scanResp;
+    scanResp.appendLocalName(sf::bledefs::DEVICE_NAME);
+
+    BLE.advertise(&advData, &scanResp);
+    this->advertising.store(true, std::memory_order_release);
     return true;
 #else
     return false;
@@ -291,10 +266,29 @@ bool SFBLE::stopAdvertising(void)
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     BLE.stopAdvertising();
+    this->advertising.store(false, std::memory_order_release);
     return true;
 #else
     return false;
 #endif
+}
+
+/**
+ * @brief Report initialization status.
+ * @return true after a successful init(), else false.
+ */
+bool SFBLE::isInitialized(void) const
+{
+    return this->initialized.load(std::memory_order_acquire);
+}
+
+/**
+ * @brief Report advertising status.
+ * @return true when advertising is active, else false.
+ */
+bool SFBLE::isAdvertising(void) const
+{
+    return this->advertising.load(std::memory_order_acquire);
 }
 
 /**
