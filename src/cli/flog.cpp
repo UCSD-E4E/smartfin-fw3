@@ -13,9 +13,9 @@
 
 #include "conio.hpp"
 #include "consts.hpp"
+#include "product.hpp"
 
 #include <Particle.h>
-
 
 typedef struct FLOG_Entry_
 {

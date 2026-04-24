@@ -9,12 +9,17 @@
 #include "cli.hpp"
 
 #include "Particle.h"
+#include "ble/ble_live_stream.hpp"
+#include "ble/high_rate_stream.hpp"
+#include "ble/sf_ble.hpp"
+#include "cellular/sf_cloud.hpp"
 #include "cli/flog.hpp"
 #include "cliDebug.hpp"
 #include "conio.hpp"
 #include "consts.hpp"
 #include "debug/recorder_debug.hpp"
 #include "debug/session_debug.hpp"
+#include "deploy/ensembleTypes.hpp"
 #include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
@@ -50,6 +55,7 @@ static void CLI_displayResetReason(void);
 static void CLI_monitorSensors(void);
 static void CLI_doEnsemble(void);
 static void CLI_setWaterSensorWindow(void);
+static void CLI_doBleTest(void);
 
 static std::uint8_t packet_buffer[SF_PACKET_SIZE];
 static char input_buffer[SF_CLI_MAX_CMD_LEN];
@@ -85,6 +91,7 @@ const Menu_t CLI_menu[] = {
     {201, "Sleep - Get Sleep Behavior", &CLI_sleepGetSleepBehavior, MENU_CMD},
     {300, "Display Reset Reason", &CLI_displayResetReason, MENU_CMD},
     {400, "Set Water Sensor Window", &CLI_setWaterSensorWindow, MENU_CMD},
+    {500, "BLE Stream Test", &CLI_doBleTest, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}};
 
 STATES_e CLI_nextState;
