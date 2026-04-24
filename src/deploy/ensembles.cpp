@@ -450,7 +450,7 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
  *
  * @param pDeployment Deployment event
  */
-void SS_HighRateIMU_x0C_Init(DeploymentSchedule_t *pDeployment)
+void SS_Ensemble12_Init(DeploymentSchedule_t *pDeployment)
 {
     (void)pDeployment;
 }
@@ -460,7 +460,7 @@ void SS_HighRateIMU_x0C_Init(DeploymentSchedule_t *pDeployment)
  *
  * @param pDeployment Deployment event
  */
-void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
+void SS_Ensemble12_Func(DeploymentSchedule_t *pDeployment)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE && defined(SF_HIGH_DATA_RATE)
 #pragma pack(push, 1)
