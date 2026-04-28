@@ -91,11 +91,17 @@ TELEMETRY_UUID = "deeddb00-166e-407c-8158-7b9693ad2685"
 CONTROL_UUID = "c39513e6-631e-439a-9b3b-affa0635b3d1"
 SCAN_TIMEOUT = 30
 RUN_DURATION = 60
+TARGET_ENSEMBLES = 10000
+TRANSPORT_HEADER_SIZE = 6
+ENSEMBLE_HEADER_SIZE = 4
+ENS_TEMP = 0x01
+ENS_TEMP_HIGH_DATA_RATE_IMU = 0x0C
 
 # ---------------------------------------------------------------------------
 # State
 # ---------------------------------------------------------------------------
 _notify_count = 0
+_ensemble_count = 0
 _notify_errors = 0
 _first_notify = None
 _last_notify = None
@@ -109,11 +115,47 @@ def _ascii(data: bytes | bytearray) -> str:
     return "".join(chr(b) if 0x20 <= b < 0x7F else "." for b in data)
 
 
+def _count_ensembles(data: bytes | bytearray) -> int:
+    """Count known ensembles inside one BLE transport packet."""
+    if len(data) < TRANSPORT_HEADER_SIZE:
+        return 0
+
+    try:
+        _version, _ptype, _seq, payload_len = struct.unpack_from(
+            "<BBHH", data, 0)
+    except struct.error:
+        return 0
+
+    payload_end = min(len(data), TRANSPORT_HEADER_SIZE + payload_len)
+    offset = TRANSPORT_HEADER_SIZE
+    count = 0
+
+    while offset + ENSEMBLE_HEADER_SIZE <= payload_end:
+        header_word = int.from_bytes(
+            data[offset:offset + ENSEMBLE_HEADER_SIZE], "little")
+        ensemble_type = header_word & 0x0F
+
+        if ensemble_type == ENS_TEMP:
+            record_size = ENSEMBLE_HEADER_SIZE + 3
+        elif ensemble_type == ENS_TEMP_HIGH_DATA_RATE_IMU:
+            record_size = ENSEMBLE_HEADER_SIZE + 18
+        else:
+            break
+
+        if offset + record_size > payload_end:
+            break
+
+        count += 1
+        offset += record_size
+
+    return count
+
+
 # ---------------------------------------------------------------------------
 # Notification handler
 # ---------------------------------------------------------------------------
 def on_notify(char: BleakGATTCharacteristic, data: bytearray) -> None:
-    global _notify_count, _notify_errors, _first_notify, _last_notify
+    global _notify_count, _ensemble_count, _notify_errors, _first_notify, _last_notify
     try:
         now = time.monotonic()
         _notify_count += 1
@@ -127,6 +169,9 @@ def on_notify(char: BleakGATTCharacteristic, data: bytearray) -> None:
             1000.0 if _last_notify is not None else 0.0
         _last_notify = now
 
+        ensembles_in_packet = _count_ensembles(data)
+        _ensemble_count += ensembles_in_packet
+
         log.debug("--- notify #%d ---", _notify_count)
         log.debug("  handle  : 0x%04X  uuid=%s", char.handle, char.uuid)
         log.debug("  len     : %d bytes", len(data))
@@ -134,6 +179,8 @@ def on_notify(char: BleakGATTCharacteristic, data: bytearray) -> None:
         log.debug("  ascii   : %s", _ascii(data))
         log.debug("  dt      : %.2f ms since last", dt_ms)
         log.debug("  rate    : %.1f Hz over %.2f s", rate, elapsed)
+        log.debug("  ensembles total: %d (+%d)",
+                  _ensemble_count, ensembles_in_packet)
 
         n_words = len(data) // 4
         if n_words > 0:
@@ -275,9 +322,14 @@ async def main() -> None:
                     elapsed = time.monotonic() - t_run
                     if elapsed >= RUN_DURATION:
                         break
-                    log.debug("status: %.0f s remaining  notifies=%d errors=%d",
-                              RUN_DURATION - elapsed, _notify_count, _notify_errors)
-                    await asyncio.sleep(5)
+                    if _ensemble_count >= TARGET_ENSEMBLES:
+                        log.info("target reached: ensembles=%d >= %d",
+                                 _ensemble_count, TARGET_ENSEMBLES)
+                        break
+                    print(f"Ensembles recieved: {_ensemble_count}", end="\r")
+                    log.debug("status: %.0f s remaining  notifies=%d ensembles=%d errors=%d",
+                              RUN_DURATION - elapsed, _notify_count, _ensemble_count, _notify_errors)
+                    await asyncio.sleep(0.25)
             except asyncio.CancelledError:
                 log.warning("run loop cancelled")
                 raise
@@ -295,6 +347,7 @@ async def main() -> None:
             log.info("=== session summary ===")
             log.info("  run time   : %.2f s", run_time)
             log.info("  notifies   : %d", _notify_count)
+            log.info("  ensembles  : %d", _ensemble_count)
             log.info("  parse errs : %d", _notify_errors)
             log.info("  avg rate   : %.2f Hz", _notify_count /
                      run_time if run_time > 0 else 0)
