@@ -11,13 +11,11 @@
 #include "ble/ble_packet_builder.hpp"
 #include "ble/high_rate_record.hpp"
 #include "ble/spsc_queue.hpp"
+#include "platform/hal.hpp"
 
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "Particle.h"
-#endif
 
 /**
  * @brief Singleton transport service handling all BLE TX and recorder writes.
@@ -35,7 +33,7 @@ public:
 
     /** @brief Reset queues/counters; safe to call before start(). */
     bool init();
-    /** @brief Begin streaming (spawns transport thread on Particle). */
+    /** @brief Begin streaming (transport worker is created during init()). */
     void start();
     /** @brief Stop streaming; transport loop will exit. */
     void stop();
@@ -106,10 +104,8 @@ private:
     std::atomic<bool> running_;
     /** @brief True when a stop has been requested (drain remaining work). */
     std::atomic<bool> stopRequested_;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     /** @brief Background thread handle for transportLoop(). */
-    Thread* transportThread_;
-#endif
+    void* transportThread_;
     /** @brief True while the transport thread is running. */
     std::atomic<bool> transportActive_;
     /** @brief True while producers are allowed to enqueue. */

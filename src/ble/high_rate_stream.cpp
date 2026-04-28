@@ -12,7 +12,6 @@
 #include "product.hpp"
 #include "system.hpp"
 #include <cstring>
-#include <thread>
 
 /**
  * @brief Construct the TransportService singleton (clears counters/queues).
@@ -57,18 +56,16 @@ bool TransportService::init()
     }
 
     // Lazily create persistent transport thread once.
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (transportThread_ == nullptr)
     {
-        transportThread_ = new Thread("transport_worker",
-                                      TransportService::transportLoopThunk,
-                                      this,
-                                      OS_THREAD_PRIORITY_DEFAULT);
+        transportThread_ = SF_HAL::thread_create("transport_worker",
+                                                 TransportService::transportLoopThunk,
+                                                 this,
+                                                 SF_HAL::ThreadPriority::DEFAULT);
     }
-#endif
 
     packetBuilder_.reset();
-    lastFlushMs_ = millis();
+    lastFlushMs_ = SF_HAL::millis();
     stopRequested_.store(false, std::memory_order_release);
     transportActive_.store(false, std::memory_order_release);
     idle_.store(true, std::memory_order_release);
@@ -119,11 +116,7 @@ void TransportService::stop()
     // Wait for queues to drain; thread remains alive.
     while (!idle_.load(std::memory_order_acquire))
     {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-        delay(1);
-#else
-        std::this_thread::yield();
-#endif
+        SF_HAL::delay_ms(1);
     }
     stopRequested_.store(false, std::memory_order_release);
     accepting_.store(false, std::memory_order_release);
@@ -235,11 +228,7 @@ void TransportService::transportLoop()
         {
             serviceOnce();
         }
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-        delay(1);
-#else
-        std::this_thread::yield();
-#endif
+        SF_HAL::thread_yield();
     }
     // Persistent thread; never exits under normal conditions.
 }
@@ -312,7 +301,7 @@ void TransportService::serviceOnce()
                         notifyFailures_.fetch_add(1, std::memory_order_relaxed);
                     }
                 }
-                lastFlushMs_ = millis();
+                lastFlushMs_ = SF_HAL::millis();
             }
         }
 
@@ -337,7 +326,7 @@ void TransportService::serviceOnce()
                     }
                     else
                     {
-                        lastFlushMs_ = millis();
+                        lastFlushMs_ = SF_HAL::millis();
                     }
                 }
             }
@@ -362,7 +351,7 @@ void TransportService::serviceOnce()
                     }
                     else
                     {
-                        lastFlushMs_ = millis();
+                        lastFlushMs_ = SF_HAL::millis();
                     }
                 }
             }
@@ -402,7 +391,8 @@ void TransportService::serviceOnce()
                           !recorderQueue_.empty() || !txQueue_.empty()));
 
     // Periodic flush for partial payloads to keep low-rate data live.
-    if (packetBuilder_.hasData() && (millis() - lastFlushMs_ >= LOW_RATE_FLUSH_INTERVAL_MS))
+    if (packetBuilder_.hasData() &&
+        (SF_HAL::millis() - lastFlushMs_ >= LOW_RATE_FLUSH_INTERVAL_MS))
     {
         sf::ble::transport::TxPacket flushPacket;
         if (packetBuilder_.finalize(flushPacket))
@@ -418,7 +408,7 @@ void TransportService::serviceOnce()
             }
             else
             {
-                lastFlushMs_ = millis();
+                lastFlushMs_ = SF_HAL::millis();
             }
         }
     }
@@ -445,4 +435,3 @@ void TransportService::serviceOnce()
         idle_.store(true, std::memory_order_release);
     }
 }
-

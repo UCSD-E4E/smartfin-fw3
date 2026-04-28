@@ -10,9 +10,8 @@
 #include "ble_config.hpp"
 #include "ble_transport.hpp"
 #include "ble/high_rate_stream.hpp"
+#include "platform/hal.hpp"
 #include "sf_ble.hpp"
-
-#include "Particle.h"
 
 #include <cstring>
 
@@ -145,7 +144,7 @@ void BleLiveStream::handleControlRx(const uint8_t* data, size_t len)
  */
 void BleLiveStream::handleTimeSync(uint64_t watchUnixMs, uint32_t seq)
 {
-    const uint32_t nowMs = millis();
+    const uint32_t nowMs = SF_HAL::millis();
 
     std::lock_guard<std::mutex> lock(timeSyncMutex_);
 
@@ -234,6 +233,6 @@ bool BleLiveStream::isTimeSynced(uint32_t maxAgeMs) const
         lastUpdate = timeSync_.lastUpdateMs;
     }
 
-    const uint32_t nowMs = millis();
+    const uint32_t nowMs = SF_HAL::millis();
     return (nowMs - lastUpdate) <= maxAgeMs;
 }
