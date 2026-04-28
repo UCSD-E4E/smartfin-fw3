@@ -1,17 +1,14 @@
-
 import argparse
 import asyncio
 import logging
+from pathlib import Path
 import struct
-import sys
 import time
 from bleak import BleakClient, BleakScanner
 from bleak.backends.characteristic import BleakGATTCharacteristic
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
-
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(line_buffering=True, write_through=True)
+import sys
 
 # ---------------------------------------------------------------------------
 # Args
@@ -20,6 +17,23 @@ _args = argparse.ArgumentParser()
 _args.add_argument("-v", "--verbose", action="store_true",
                    help="also print logs to terminal")
 args = _args.parse_args()
+
+
+def _prune_old_devtty_logs() -> None:
+    """Keep only the newest logs/devtty*.txt file at startup."""
+    log_dir = Path("logs")
+    matches = [path for path in log_dir.glob("devtty*.txt") if path.is_file()]
+    if len(matches) <= 1:
+        return
+
+    newest = max(matches, key=lambda path: (path.stat().st_mtime, path.name))
+    for path in matches:
+        if path == newest:
+            continue
+        path.unlink()
+
+
+_prune_old_devtty_logs()
 
 # ---------------------------------------------------------------------------
 # Logging — flush after every record, timestamps as HH:MM:SS:mmm
@@ -49,7 +63,7 @@ class _FlushStreamHandler(logging.StreamHandler):
 log = logging.getLogger("ble_receiver")
 log.setLevel(logging.DEBUG)
 
-_file = _FlushFileHandler("ble_log.txt", mode="w")
+_file = _FlushFileHandler("tests/ble_log.txt", mode="w")
 _file.setFormatter(_fmt)
 log.addHandler(_file)
 
@@ -58,11 +72,21 @@ if args.verbose:
     _console.setFormatter(_fmt)
     log.addHandler(_console)
 
+# Also log Bleak debug info
+bleak_log = logging.getLogger("bleak")
+bleak_log.setLevel(logging.DEBUG)
+bleak_fh = _FlushFileHandler("bleak_debug.txt", mode="w")
+bleak_fh.setFormatter(_fmt)
+bleak_log.addHandler(bleak_fh)
+if args.verbose:
+    bleak_sh = _FlushStreamHandler()
+    bleak_sh.setFormatter(_fmt)
+    bleak_log.addHandler(bleak_sh)
+
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-DEVICE_NAME    = "Smartfin"
-SERVICE_UUID = "a86d7b16-dd6c-434b-a7ee-f0ca33ac614c"
+DEVICE_NAME = "Smartfin"
 TELEMETRY_UUID = "deeddb00-166e-407c-8158-7b9693ad2685"
 CONTROL_UUID = "c39513e6-631e-439a-9b3b-affa0635b3d1"
 SCAN_TIMEOUT = 30
@@ -151,103 +175,135 @@ def on_scan(device: BLEDevice, adv: AdvertisementData) -> None:
 async def main() -> None:
     log.info("=== ble_receiver starting ===")
     log.info("target         : %r", DEVICE_NAME)
-    log.info("service UUID   : %s", SERVICE_UUID)
     log.info("telemetry UUID : %s", TELEMETRY_UUID)
     log.info("control UUID   : %s", CONTROL_UUID)
     log.info("scan timeout   : %d s", SCAN_TIMEOUT)
     log.info("run duration   : %d s", RUN_DURATION)
 
-    log.info("starting scan...")
+    # Scan — use BleakScanner as context manager so detection_callback works
+    log.info("starting scan (timeout=%ds)...", SCAN_TIMEOUT)
     t0 = time.monotonic()
-    found_device: BLEDevice | None = None
+    device: BLEDevice | None = None
     found_event = asyncio.Event()
 
-    def on_target_scan(device: BLEDevice, adv: AdvertisementData) -> None:
-        nonlocal found_device
-        on_scan(device, adv)
-        if SERVICE_UUID in (adv.service_uuids or []):
-            found_device = device
+    def on_scan_find(d: BLEDevice, adv: AdvertisementData) -> None:
+        nonlocal device
+        on_scan(d, adv)
+        if (d.name == DEVICE_NAME or adv.local_name == DEVICE_NAME) and not found_event.is_set():
+            log.info("target found: name=%r addr=%s rssi=%s",
+                     d.name, d.address, adv.rssi)
+            device = d
             found_event.set()
 
-    async with BleakScanner(detection_callback=on_target_scan) as scanner:
-        try:
-            await asyncio.wait_for(found_event.wait(), timeout=SCAN_TIMEOUT)
-        except asyncio.TimeoutError:
-            for device, adv in scanner.discovered_devices_and_advertisement_data.values():
-                if SERVICE_UUID in (adv.service_uuids or []):
-                    found_device = device
-                    break
+    try:
+        async with BleakScanner(detection_callback=on_scan_find):
+            try:
+                await asyncio.wait_for(found_event.wait(), timeout=SCAN_TIMEOUT)
+            except asyncio.TimeoutError:
+                pass
+    except Exception:
+        log.exception("scan failed with exception")
+        return
 
-    device = found_device
     log.info("scan done in %.2f s", time.monotonic() - t0)
 
     if not device:
-        log.error("device advertising service UUID %s not found — giving up", SERVICE_UUID)
+        log.error("device %r not found after %.1f s — giving up",
+                  DEVICE_NAME, time.monotonic() - t0)
         return
 
     log.info("found: name=%r addr=%s rssi=%s",
              device.name, device.address, getattr(device, "rssi", "?"))
 
+    # Connect
     log.info("connecting to %s...", device.address)
     t1 = time.monotonic()
-    async with BleakClient(device) as client:
-        log.info("connected in %.2f s  mtu=%s",
-                 time.monotonic() - t1, getattr(client, "mtu_size", "?"))
+    try:
+        # macOS workaround: disable cached services and set winrt parameter
+        log.debug(
+            f"creating BleakClient with timeout={SCAN_TIMEOUT}s, use_cached=False")
+        async with BleakClient(device, timeout=SCAN_TIMEOUT, use_cached=False) as client:
+            log.info("connected in %.2f s  mtu=%s",
+                     time.monotonic() - t1, getattr(client, "mtu_size", "?"))
 
-        log.debug("--- GATT table ---")
-        for svc in client.services:
-            log.debug("  service: %s  (%s)", svc.uuid, svc.description)
-            for char in svc.characteristics:
-                log.debug("    char: %s  props=%s  handle=0x%04X  (%s)",
-                          char.uuid, char.properties, char.handle, char.description)
-                for desc in char.descriptors:
-                    log.debug("      desc: %s  handle=0x%04X",
-                              desc.uuid, desc.handle)
-        log.debug("--- end GATT ---")
+            # Try to get MTU info
+            try:
+                mtu = client.mtu_size
+                log.info("MTU size: %d", mtu)
+            except Exception as e:
+                log.warning("Could not get MTU: %s", e)
 
-        tele_char = client.services.get_characteristic(TELEMETRY_UUID)
-        if tele_char:
-            log.info("telemetry char found: handle=0x%04X props=%s",
-                     tele_char.handle, tele_char.properties)
-        else:
-            log.warning("telemetry char %s NOT in GATT table", TELEMETRY_UUID)
+            # Dump GATT table
+            log.debug("--- GATT table ---")
+            for svc in client.services:
+                log.debug("  service: %s  (%s)", svc.uuid, svc.description)
+                for char in svc.characteristics:
+                    log.debug("    char: %s  props=%s  handle=0x%04X  (%s)",
+                              char.uuid, char.properties, char.handle, char.description)
+                    for desc in char.descriptors:
+                        log.debug("      desc: %s  handle=0x%04X",
+                                  desc.uuid, desc.handle)
+            log.debug("--- end GATT ---")
 
-        ctrl_char = client.services.get_characteristic(CONTROL_UUID)
-        if ctrl_char:
-            log.info("control char found: handle=0x%04X props=%s",
-                     ctrl_char.handle, ctrl_char.properties)
-        else:
-            log.info("control char %s not found (optional)", CONTROL_UUID)
+            tele_char = client.services.get_characteristic(TELEMETRY_UUID)
+            if tele_char:
+                log.info("telemetry char found: handle=0x%04X props=%s",
+                         tele_char.handle, tele_char.properties)
+            else:
+                log.warning("telemetry char %s NOT in GATT table",
+                            TELEMETRY_UUID)
 
-        if not tele_char:
-            log.error("cannot subscribe: telemetry characteristic %s is missing from the connected device",
-                      TELEMETRY_UUID)
-            return
+            ctrl_char = client.services.get_characteristic(CONTROL_UUID)
+            if ctrl_char:
+                log.info("control char found: handle=0x%04X props=%s",
+                         ctrl_char.handle, ctrl_char.properties)
+            else:
+                log.info("control char %s not found (optional)", CONTROL_UUID)
 
-        log.info("subscribing to telemetry notifications...")
-        await client.start_notify(TELEMETRY_UUID, on_notify)
-        log.info("subscribed — running for %d s", RUN_DURATION)
+            # Subscribe
+            log.info("subscribing to telemetry notifications...")
+            try:
+                await client.start_notify(TELEMETRY_UUID, on_notify)
+            except Exception:
+                log.exception("start_notify failed")
+                return
+            log.info("subscribed — running for %d s", RUN_DURATION)
 
-        t_run = time.monotonic()
-        while True:
-            elapsed = time.monotonic() - t_run
-            if elapsed >= RUN_DURATION:
-                break
-            log.debug("status: %.0f s remaining  notifies=%d errors=%d",
-                      RUN_DURATION - elapsed, _notify_count, _notify_errors)
-            await asyncio.sleep(5)
+            t_run = time.monotonic()
+            try:
+                while True:
+                    elapsed = time.monotonic() - t_run
+                    if elapsed >= RUN_DURATION:
+                        break
+                    log.debug("status: %.0f s remaining  notifies=%d errors=%d",
+                              RUN_DURATION - elapsed, _notify_count, _notify_errors)
+                    await asyncio.sleep(5)
+            except asyncio.CancelledError:
+                log.warning("run loop cancelled")
+                raise
+            except Exception:
+                log.exception("run loop exception")
 
-        log.info("stopping notifications...")
-        await client.stop_notify(TELEMETRY_UUID)
-        log.info("unsubscribed")
+            log.info("stopping notifications...")
+            try:
+                await client.stop_notify(TELEMETRY_UUID)
+            except Exception:
+                log.exception("stop_notify failed")
+            log.info("unsubscribed")
 
-        run_time = time.monotonic() - t_run
-        log.info("=== session summary ===")
-        log.info("  run time   : %.2f s", run_time)
-        log.info("  notifies   : %d", _notify_count)
-        log.info("  parse errs : %d", _notify_errors)
-        log.info("  avg rate   : %.2f Hz", _notify_count /
-                 run_time if run_time > 0 else 0)
+            run_time = time.monotonic() - t_run
+            log.info("=== session summary ===")
+            log.info("  run time   : %.2f s", run_time)
+            log.info("  notifies   : %d", _notify_count)
+            log.info("  parse errs : %d", _notify_errors)
+            log.info("  avg rate   : %.2f Hz", _notify_count /
+                     run_time if run_time > 0 else 0)
+
+    except Exception:
+        log.exception("connection-level exception (connect/GATT/disconnect)")
+        import traceback
+        tb = traceback.format_exc()
+        log.error("Full traceback:\n%s", tb)
 
     log.info("disconnected — done")
 
