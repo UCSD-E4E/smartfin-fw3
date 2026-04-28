@@ -345,6 +345,141 @@ namespace cloud
     constexpr std::size_t MAX_EVENT_NAME_LEN = 64;
 } // namespace cloud
 
+namespace ble
+{
+
+/**
+ * @brief Opaque handle identifying a registered BLE service.
+ *
+ * Value 0 is reserved as an invalid handle.
+ */
+using ServiceHandle = uint16_t;
+
+/**
+ * @brief Opaque handle identifying a registered BLE characteristic.
+ *
+ * Value 0 is reserved as an invalid handle.
+ */
+using CharHandle = uint16_t;
+
+/**
+ * @brief 128-bit BLE UUID in raw byte form.
+ *
+ * The platform backend translates this neutral representation into its native
+ * SDK UUID type.
+ */
+struct Uuid128
+{
+    uint8_t bytes[16];
+};
+
+/**
+ * @brief Characteristic property bitmask.
+ */
+enum class CharProperty : uint8_t
+{
+    NONE         = 0,
+    READ         = 1u << 0,
+    WRITE        = 1u << 1,
+    WRITE_NO_RSP = 1u << 2,
+    NOTIFY       = 1u << 3,
+    INDICATE     = 1u << 4,
+};
+
+/**
+ * @brief Combine characteristic property flags.
+ */
+inline constexpr CharProperty operator|(CharProperty lhs, CharProperty rhs)
+{
+    return static_cast<CharProperty>(static_cast<uint8_t>(lhs) |
+                                     static_cast<uint8_t>(rhs));
+}
+
+/**
+ * @brief Return true when @p value contains @p flag.
+ */
+inline constexpr bool has_property(CharProperty value, CharProperty flag)
+{
+    return (static_cast<uint8_t>(value) & static_cast<uint8_t>(flag)) != 0;
+}
+
+/**
+ * @brief Characteristic registration descriptor.
+ */
+struct CharacteristicSpec
+{
+    Uuid128 uuid;
+    CharProperty properties;
+    std::size_t max_len;
+};
+
+/**
+ * @brief Service registration descriptor.
+ *
+ * The @c characteristics pointer must remain valid for the duration of the
+ * registration call; the backend copies or translates it as needed.
+ */
+struct ServiceSpec
+{
+    Uuid128 uuid;
+    const CharacteristicSpec* characteristics;
+    std::size_t characteristic_count;
+};
+
+/**
+ * @brief Advertising configuration for a BLE peripheral.
+ */
+struct AdvertisingParams
+{
+    const Uuid128* primary_service_uuid;
+    const char* local_name;
+    bool connectable;
+};
+
+/**
+ * @brief Coarse BLE stack lifecycle state.
+ */
+enum class State : uint8_t
+{
+    OFF = 0,
+    IDLE,
+    ADVERTISING,
+    CONNECTED,
+};
+
+/**
+ * @brief Callback invoked when a central connects or disconnects.
+ *
+ * @param connected true on connect, false on disconnect.
+ * @param context Caller-supplied context pointer.
+ */
+using ConnectionCallback = void (*)(bool connected, void* context);
+
+/**
+ * @brief Callback invoked when a peer writes to a characteristic.
+ *
+ * @param characteristic Handle of the characteristic that received the write.
+ * @param data Raw payload bytes.
+ * @param len Payload length in bytes.
+ * @param context Caller-supplied context pointer.
+ */
+using WriteCallback = void (*)(CharHandle characteristic,
+                               const uint8_t* data,
+                               std::size_t len,
+                               void* context);
+
+/**
+ * @brief Callback bundle registered with the BLE backend.
+ */
+struct Callbacks
+{
+    ConnectionCallback on_connection;
+    WriteCallback on_write;
+    void* context;
+};
+
+} // namespace ble
+
 // ---------------------------------------------------------------------------
 // Threading
 // ---------------------------------------------------------------------------

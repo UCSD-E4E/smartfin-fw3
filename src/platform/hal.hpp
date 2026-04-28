@@ -311,36 +311,52 @@ void cloud_process();
 // BLE
 // Replaces: BLE.on(), BLE.setDeviceName(), BLE.advertise(),
 //           BLE.stopAdvertising(), BLE.onConnected(), BLE.onDisconnected(),
-//           BLE.addCharacteristic()
+//           BLE.addCharacteristic(), BleCharacteristic::setValue()
 //
-// Concrete BLE characteristic and UUID types remain behind the
-// SF_PLATFORM_PARTICLE guard in sf_ble.cpp. This surface covers only the
-// lifecycle operations that cross module boundaries.
+// Concrete BLE characteristic and UUID types remain behind the platform
+// backend. This surface exposes only the Smartfin BLE capabilities currently
+// needed by src/ble while keeping Particle BLE types out of the rest of the
+// codebase.
 // ---------------------------------------------------------------------------
 
 /**
- * @brief Initialise the BLE stack and set the device name.
+ * @brief Initialise the BLE stack, configure the GATT profile, and set the device name.
  *
- * Must be called before @c ble_advertise().  On Particle this calls
- * @c BLE.on() and @c BLE.setDeviceName().  GATT characteristics are
- * registered by the platform-specific backend inside @c sf_ble.cpp.
+ * Must be called before @c ble_advertise(). On Particle this powers up BLE,
+ * sets the local device name, and registers the Smartfin telemetry/control
+ * characteristics.
  *
- * @param device_name Null-terminated UTF-8 device name broadcast in
- *                    advertising packets (max 20 bytes recommended).
+ * @param device_name          Null-terminated UTF-8 local device name.
+ * @param service_uuid         Null-terminated UUID string for the primary service.
+ * @param telemetry_char_uuid  Null-terminated UUID string for the notify characteristic.
+ * @param control_char_uuid    Null-terminated UUID string for the write characteristic.
+ * @return @c true on success, @c false on failure.
  */
-void ble_init(const char* device_name);
+bool ble_init(const char* device_name,
+              const char* service_uuid,
+              const char* telemetry_char_uuid,
+              const char* control_char_uuid);
+
+/**
+ * @brief Register BLE connection and control-write callbacks.
+ *
+ * Replaces any previously registered callback bundle.
+ *
+ * @param callbacks Callback bundle to invoke on connection and write events.
+ */
+void ble_set_callbacks(const ble::Callbacks& callbacks);
 
 /**
  * @brief Begin BLE advertising with the given service UUID and local name.
  *
- * Constructs and starts an advertising payload containing the 128-bit service
- * UUID and a scan-response local name.  Safe to call repeatedly; a prior
- * advertising session is stopped automatically.
+ * Safe to call repeatedly; a prior advertising session is stopped
+ * automatically if required by the backend.
  *
- * @param service_uuid_128 Pointer to a 16-byte little-endian UUID array.
- * @param local_name       Null-terminated local name for the scan response.
+ * @param service_uuid Null-terminated UUID string for the advertised service.
+ * @param local_name   Null-terminated local device name.
+ * @return @c true on success, @c false on failure.
  */
-void ble_advertise(const uint8_t* service_uuid_128, const char* local_name);
+bool ble_advertise(const char* service_uuid, const char* local_name);
 
 /**
  * @brief Stop BLE advertising.
@@ -349,6 +365,21 @@ void ble_advertise(const uint8_t* service_uuid_128, const char* local_name);
  * attempts.
  */
 void ble_stop_advertising();
+
+/**
+ * @brief Return whether a BLE central is currently connected.
+ * @return @c true if a central is connected, @c false otherwise.
+ */
+bool ble_is_connected();
+
+/**
+ * @brief Send telemetry bytes over the Smartfin notify characteristic.
+ *
+ * @param data Pointer to payload bytes.
+ * @param len  Number of bytes to transmit.
+ * @return @c true on success, @c false on failure.
+ */
+bool ble_notify(const uint8_t* data, std::size_t len);
 
 // ---------------------------------------------------------------------------
 // System identity and control
