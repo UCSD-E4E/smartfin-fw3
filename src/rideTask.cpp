@@ -11,16 +11,16 @@
 #include "rideTask.hpp"
 
 #include "ble/ble_live_stream.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "deploy/ensembles.hpp"
-#include "ble/high_rate_stream.hpp"
 #include "imu/newIMU.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"
-
 /** @brief deployment schedule of ensembles to run
  * @see SCH_getNextEvent
  */
@@ -46,7 +46,7 @@ RideTask::RideTask() : scheduler(deploymentSchedule)
  */
 void RideTask::init()
 {
-    SF_OSAL_printf("Entering STATE_DEPLOYED at %" PRId32 __NL__, millis());
+    SF_OSAL_printf("Entering STATE_DEPLOYED at %" PRId32 __NL__, SF_HAL::millis());
     pSystemDesc->pChargerCheck->stop();
     this->ledStatus.setColor(RIDE_RGB_LED_COLOR);
 #if SF_ENABLE_GPS
@@ -59,7 +59,7 @@ void RideTask::init()
     this->ledStatus.setPriority(RIDE_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
 
-    this->startTime = millis();
+    this->startTime = SF_HAL::millis();
     this->sessionTimeSet = false;
 #if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().init();
@@ -93,14 +93,14 @@ STATES_e RideTask::run(void)
         {
             break;
         }
-        else if (millis() - this->startTime > SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS)
+        else if (SF_HAL::millis() - this->startTime > SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS)
         {
             return STATE_DEEP_SLEEP;
         }
         Particle.process();
         delay(1000);
     }
-    this->deployTime = millis();
+    this->deployTime = SF_HAL::millis();
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, this->deployTime);
     this->scheduler.initializeScheduler();
     Ens_setStartTime();
@@ -121,14 +121,14 @@ STATES_e RideTask::run(void)
 #if ENABLE_RECORD_SINK
             if (pSystemDesc->pRecorder && Time.isValid())
             {
-                pSystemDesc->pRecorder->setSessionTime(Time.now() -
-                                                       (millis() - this->deployTime) / 1000);
+                pSystemDesc->pRecorder->setSessionTime(
+                    Time.now() - (SF_HAL::millis() - this->deployTime) / 1000);
                 this->sessionTimeSet = true;
             }
 #endif
         }
-        SCH_error_e retval =
-            this->scheduler.getNextTask(&pNextEvent, (std::uint32_t *)&nextEventTime, millis());
+        SCH_error_e retval = this->scheduler.getNextTask(
+            &pNextEvent, (std::uint32_t *)&nextEventTime, SF_HAL::millis());
         // Check if scheduler failed to find nextEvent
         if (TASK_SEARCH_FAIL == retval)
         {
@@ -140,7 +140,7 @@ STATES_e RideTask::run(void)
         {
             // SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
         }
-        while (millis() < nextEventTime)
+        while (SF_HAL::millis() < nextEventTime)
         {
             Particle.process();
             if (!pSystemDesc->pWaterSensor->getLastStatus())

@@ -1,13 +1,13 @@
 #include "chargeTask.hpp"
 
 #include "Particle.h"
+#include "cellular/sf_cloud.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "cellular/sf_cloud.hpp"
-
-#include "system.hpp"
-#include "sleepTask.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
+#include "sleepTask.hpp"
+#include "system.hpp"
 
 static void byteshiftl(void* pData, size_t dataLen, size_t nPos, uint8_t fill);
 
@@ -20,7 +20,7 @@ void ChargeTask::init(void)
     this->ledStatus.setPeriod(CHARGE_RGB_LED_PERIOD);
     this->ledStatus.setPriority(CHARGE_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
-    this->startTime = millis();
+    this->startTime = SF_HAL::millis();
 
     //referenced dataupload
     this->initSuccess = 1;

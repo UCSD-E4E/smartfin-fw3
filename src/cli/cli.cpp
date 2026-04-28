@@ -18,6 +18,7 @@
 #include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
+#include "platform/hal.hpp"
 #if SF_ENABLE_GPS
 #include "menuItems/gpsCommands.hpp"
 #endif
@@ -563,7 +564,7 @@ static void CLI_monitorSensors(void)
                 break;
             }
         }
-        sensor_headers[SensorHeader_Time].value = millis();
+        sensor_headers[SensorHeader_Time].value = SF_HAL::millis();
         if (sensors[ACCEL])
         {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE

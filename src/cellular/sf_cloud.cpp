@@ -1,14 +1,14 @@
 #include "sf_cloud.hpp"
 
+#include "Particle.h"
 #include "cli/flog.hpp"
+#include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "sys/NVRAM.hpp"
 #include "system.hpp"
-#include "consts.hpp"
 
 #include <stdint.h>
-
-#include "Particle.h"
 
 namespace sf::cloud
 {
@@ -16,7 +16,7 @@ namespace sf::cloud
     int wait_connect(int timeout_ms, bool bypass_attempts)
     {
         uint16_t n_attempts;
-        system_tick_t end_time = millis() + timeout_ms;
+        system_tick_t end_time = SF_HAL::millis() + timeout_ms;
         NVRAM& nvram = *pSystemDesc->pNvram;
         if (Particle.connected())
         {
@@ -34,7 +34,7 @@ namespace sf::cloud
         while (!Particle.connected())
         {
             Particle.process();
-            if (millis() > end_time)
+            if (SF_HAL::millis() > end_time)
             {
                 FLOG_AddError(FLOG_CELL_CONNECT_FAIL_TIMEOUT, timeout_ms);
                 return TIMEOUT;
@@ -47,12 +47,12 @@ namespace sf::cloud
 
     int wait_disconnect(int timeout_ms)
     {
-        system_tick_t end_time = millis() + timeout_ms;
+        system_tick_t end_time = SF_HAL::millis() + timeout_ms;
         Particle.disconnect();
         while (!Particle.disconnected())
         {
             Particle.process();
-            if (millis() > end_time)
+            if (SF_HAL::millis() > end_time)
             {
                 return TIMEOUT;
             }
@@ -78,7 +78,7 @@ namespace sf::cloud
 
     int publish_blob(const char* title, const char* blob)
     {
-        system_tick_t time_since_last = millis() - last_publish_time;
+        system_tick_t time_since_last = SF_HAL::millis() - last_publish_time;
         // SF_OSAL_printf("%u ms since last publish" __NL__, time_since_last);
         if (time_since_last < SF_UPLOAD_MS_PER_TRANSMIT)
         {
@@ -100,7 +100,7 @@ namespace sf::cloud
         {
             return PUBLISH_FAIL;
         }
-        last_publish_time = millis();
+        last_publish_time = SF_HAL::millis();
         return SUCCESS;
     }
 

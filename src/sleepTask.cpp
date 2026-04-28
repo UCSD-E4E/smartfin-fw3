@@ -4,6 +4,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"
 
@@ -43,7 +44,7 @@ void SleepTask::init(void)
     // Set WATER_EN LOW so that we can wake from it
     digitalWrite(WATER_DETECT_EN_PIN, LOW);
 
-    FLOG_AddError(FLOG_SYS_SLEEP, millis());
+    FLOG_AddError(FLOG_SYS_SLEEP, SF_HAL::millis());
     FLOG_AddError(FLOG_SYS_SLEEP, behavior);
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     switch(behavior)

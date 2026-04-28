@@ -1,9 +1,8 @@
 #ifndef __CHARGETASK_HPP__
 #define __CHARGETASK_HPP__
-#include "task.hpp"
-
 #include "Particle.h"
-
+#include "platform/hal.hpp"
+#include "task.hpp"
 #define CLI_INTERRUPT_PHRASE  "#CLI"
 #define CLI_BUFFER_LEN  5
 

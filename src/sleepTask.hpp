@@ -1,9 +1,9 @@
 #ifndef __SLEEPTASK_HPP__
 #define __SLEEPTASK_HPP__
 
-#include "task.hpp"
 #include "Particle.h"
-
+#include "platform/hal.hpp"
+#include "task.hpp"
 #define SLEEP_RGB_LED_COLOR 0x4A192C
 #define SLEEP_RGB_LED_PATTERN LED_PATTERN_BLINK
 #define SLEEP_RGB_LED_PERIOD 20
