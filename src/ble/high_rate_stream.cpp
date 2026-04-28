@@ -22,9 +22,7 @@ TransportService::TransportService() :
     initialized_(false),
     running_(false),
     stopRequested_(false),
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     transportThread_(nullptr),
-#endif
     transportActive_(false),
     lowRateFlusher_(nullptr),
     idle_(true),
