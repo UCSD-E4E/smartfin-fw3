@@ -138,6 +138,8 @@ namespace
         BleCharacteristic telemetryCharacteristic_;
         BleCharacteristic controlCharacteristic_;
     };
+
+    ParticleBleBackend* backend_ = nullptr;
 } // namespace
 
 namespace SF_HAL
@@ -162,6 +164,7 @@ bool ble_init(const char* device_name,
     ParticleBleBackend& backend = ParticleBleBackend::getInstance(service_uuid,
                                                                   telemetry_char_uuid,
                                                                   control_char_uuid);
+    backend_ = &backend;
 
     BLE.on();
     BLE.setDeviceName(device_name);
@@ -216,13 +219,12 @@ bool ble_notify(const uint8_t* data, std::size_t len)
 {
     if (!initialized_.load(std::memory_order_acquire) ||
         !connected_.load(std::memory_order_acquire) ||
-        data == nullptr || len == 0)
+        backend_ == nullptr || data == nullptr || len == 0)
     {
         return false;
     }
 
-    ParticleBleBackend& backend = ParticleBleBackend::getInstance(nullptr, nullptr, nullptr);
-    return backend.notifyTelemetry(data, len);
+    return backend_->notifyTelemetry(data, len);
 }
 
 } // namespace SF_HAL

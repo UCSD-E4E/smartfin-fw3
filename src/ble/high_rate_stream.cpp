@@ -9,8 +9,10 @@
 
 #include "ble/sf_ble.hpp"
 #include "cli/flog.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"
+
 #include <cstring>
 
 /**
