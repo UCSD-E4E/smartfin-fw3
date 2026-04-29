@@ -525,7 +525,7 @@ using ThreadFn = void (*)(void*);
  * @param name       Null-terminated debug name shown in the thread list.
  * @param function   Thread entry point; must never return.
  * @param param      Opaque argument forwarded to @p function.
- * @param priority   Scheduling priority; defaults to @c ThreadPriority::DEFAULT.
+ * @param priority   Scheduling priority; defaults to @c ThreadPriority::NORMAL.
  * @param stack_size Stack allocation in bytes; defaults to
  *                   @c THREAD_STACK_SIZE_DEFAULT.
  * @return Opaque thread handle, or @c nullptr if creation failed.
@@ -533,7 +533,7 @@ using ThreadFn = void (*)(void*);
 void* thread_create(const char*    name,
                     ThreadFn       function,
                     void*          param      = nullptr,
-                    ThreadPriority priority   = ThreadPriority::DEFAULT,
+                    ThreadPriority priority   = ThreadPriority::NORMAL,
                     std::size_t    stack_size = THREAD_STACK_SIZE_DEFAULT);
 
 /**

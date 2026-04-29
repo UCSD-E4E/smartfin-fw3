@@ -149,6 +149,7 @@ enum class LedSignal : uint8_t
 namespace color
 {
     constexpr uint32_t BLUE   = 0x000000FFu; ///< Pure blue.
+    constexpr uint32_t ORANGE = 0x00FFA500u; ///< Orange.
     constexpr uint32_t RED    = 0x00FF0000u; ///< Pure red.
     constexpr uint32_t YELLOW = 0x00FFFF00u; ///< Red + green = yellow.
     constexpr uint32_t WHITE  = 0x00FFFFFFu; ///< Full RGB = white.
@@ -492,7 +493,7 @@ struct Callbacks
  */
 enum class ThreadPriority : uint8_t
 {
-    DEFAULT = 2, ///< Standard application thread priority (Particle: OS_THREAD_PRIORITY_DEFAULT).
+    NORMAL = 2, ///< Standard application thread priority (Particle: OS_THREAD_PRIORITY_DEFAULT).
 };
 
 /// Default thread stack size in bytes. Replaces @c OS_THREAD_STACK_SIZE_DEFAULT.
