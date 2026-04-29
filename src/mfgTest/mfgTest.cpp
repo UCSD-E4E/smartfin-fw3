@@ -3,10 +3,9 @@
 #include "cellular/sf_cloud.hpp"
 #include "cli/conio.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"
-
-#include <Particle.h>
 #include <cmath>
 #include <errno.h>
 #include <float.h>
@@ -22,7 +21,7 @@ MfgTest::mfg_test_entry MfgTest::MFG_TEST_TABLE[] = {
 #endif
     {nullptr, nullptr, MfgTest::PENDING}};
 
-#ifdef PARTICLE
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     char MfgTest::json_buffer[1024];
     spark::JSONBufferWriter MfgTest::json_writer(MfgTest::json_buffer, sizeof(MfgTest::json_buffer));
 #endif
@@ -30,15 +29,15 @@ MfgTest::mfg_test_entry MfgTest::MFG_TEST_TABLE[] = {
 void MfgTest::run(void)
 {
     mfg_test_entry *test_entry = nullptr;
-    String deviceID = System.deviceID();
+    const char* deviceID = SF_HAL::system_device_id();
     int retval = 0;
 
     SF_OSAL_printf("Starting Manufacturing Testing" __NL__);
-    SF_OSAL_printf("Testing Device %s" __NL__, deviceID.c_str());
+    SF_OSAL_printf("Testing Device %s" __NL__, deviceID);
 
-    #ifdef PARTICLE
+    #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         json_writer.beginObject();
-        json_writer.name("device_id").value(deviceID.c_str());
+        json_writer.name("device_id").value(deviceID);
     #endif
         for (test_entry = MFG_TEST_TABLE; test_entry->fn; test_entry++)
         {
