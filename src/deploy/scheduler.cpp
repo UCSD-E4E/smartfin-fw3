@@ -14,6 +14,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 
 #include <cstring>
 
@@ -42,7 +43,7 @@ void Scheduler::initializeScheduler()
     for (DeploymentSchedule_t *pDeployment = this->scheduleTable; pDeployment->init; pDeployment++)
     {
         memset(&(pDeployment->state), 0, sizeof(StateInformation));
-        pDeployment->state.nextRunTime = millis();
+        pDeployment->state.nextRunTime = SF_HAL::millis();
         pDeployment->init(pDeployment);
         this->tableSize++;
     }
