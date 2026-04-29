@@ -4,11 +4,17 @@ import logging
 from pathlib import Path
 import struct
 import time
+from collections import deque
 from bleak import BleakClient, BleakScanner
 from bleak.backends.characteristic import BleakGATTCharacteristic
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
 import sys
+
+try:
+    import matplotlib.pyplot as plt
+except Exception:
+    plt = None
 
 # ---------------------------------------------------------------------------
 # Args
@@ -91,7 +97,7 @@ TELEMETRY_UUID = "deeddb00-166e-407c-8158-7b9693ad2685"
 CONTROL_UUID = "c39513e6-631e-439a-9b3b-affa0635b3d1"
 SCAN_TIMEOUT = 30
 RUN_DURATION = 60
-TARGET_ENSEMBLES = 10000
+TARGET_ENSEMBLES = 300
 TRANSPORT_HEADER_SIZE = 6
 ENSEMBLE_HEADER_SIZE = 4
 ENS_TEMP = 0x01
@@ -105,6 +111,24 @@ _ensemble_count = 0
 _notify_errors = 0
 _first_notify = None
 _last_notify = None
+_notify_index = deque(maxlen=12000)
+_notify_dt_ms = deque(maxlen=12000)
+_notify_ensemble_batch = deque(maxlen=12000)
+_notify_payload_bytes = deque(maxlen=12000)
+_notify_elapsed_s = deque(maxlen=12000)
+_cumulative_ensembles = deque(maxlen=12000)
+_temp_time_ds = deque(maxlen=12000)
+_temp_c = deque(maxlen=12000)
+_imu_time_ds = deque(maxlen=12000)
+_accel_x = deque(maxlen=12000)
+_accel_y = deque(maxlen=12000)
+_accel_z = deque(maxlen=12000)
+_gyro_x = deque(maxlen=12000)
+_gyro_y = deque(maxlen=12000)
+_gyro_z = deque(maxlen=12000)
+_mag_x = deque(maxlen=12000)
+_mag_y = deque(maxlen=12000)
+_mag_z = deque(maxlen=12000)
 
 
 def _hex(data: bytes | bytearray) -> str:
@@ -113,6 +137,14 @@ def _hex(data: bytes | bytearray) -> str:
 
 def _ascii(data: bytes | bytearray) -> str:
     return "".join(chr(b) if 0x20 <= b < 0x7F else "." for b in data)
+
+
+def _decode_ensemble_header(data: bytes | bytearray, offset: int) -> tuple[int, int]:
+    header_word = int.from_bytes(
+        data[offset:offset + ENSEMBLE_HEADER_SIZE], "little")
+    ensemble_type = header_word & 0x0F
+    elapsed_time_ds = (header_word >> 4) & 0xFFFFF
+    return ensemble_type, elapsed_time_ds
 
 
 def _count_ensembles(data: bytes | bytearray) -> int:
@@ -151,6 +183,172 @@ def _count_ensembles(data: bytes | bytearray) -> int:
     return count
 
 
+def _decode_sensor_ensembles(data: bytes | bytearray) -> None:
+    if len(data) < TRANSPORT_HEADER_SIZE:
+        return
+
+    try:
+        _version, _ptype, _seq, payload_len = struct.unpack_from(
+            "<BBHH", data, 0)
+    except struct.error:
+        return
+
+    payload_end = min(len(data), TRANSPORT_HEADER_SIZE + payload_len)
+    offset = TRANSPORT_HEADER_SIZE
+
+    while offset + ENSEMBLE_HEADER_SIZE <= payload_end:
+        ensemble_type, elapsed_time_ds = _decode_ensemble_header(data, offset)
+
+        if ensemble_type == ENS_TEMP:
+            record_size = ENSEMBLE_HEADER_SIZE + 3
+            if offset + record_size > payload_end:
+                break
+            scaled_temp, _water = struct.unpack_from(
+                "<hB", data, offset + ENSEMBLE_HEADER_SIZE)
+            _temp_time_ds.append(elapsed_time_ds)
+            _temp_c.append(scaled_temp / 128.0)
+            offset += record_size
+            continue
+
+        if ensemble_type == ENS_TEMP_HIGH_DATA_RATE_IMU:
+            record_size = ENSEMBLE_HEADER_SIZE + 18
+            if offset + record_size > payload_end:
+                break
+            ax, ay, az, gx, gy, gz, mx, my, mz = struct.unpack_from(
+                "<9h", data, offset + ENSEMBLE_HEADER_SIZE)
+            _imu_time_ds.append(elapsed_time_ds)
+            _accel_x.append(ax / 1024.0)
+            _accel_y.append(ay / 1024.0)
+            _accel_z.append(az / 1024.0)
+            _gyro_x.append(gx / 128.0)
+            _gyro_y.append(gy / 128.0)
+            _gyro_z.append(gz / 128.0)
+            _mag_x.append(mx / 8.0)
+            _mag_y.append(my / 8.0)
+            _mag_z.append(mz / 8.0)
+            offset += record_size
+            continue
+
+        break
+
+
+def _plot_collected_ensembles() -> None:
+    if plt is None:
+        log.warning("matplotlib unavailable; skipping plot generation")
+        return
+    if not _temp_time_ds and not _imu_time_ds and not _notify_index:
+        log.warning("no decodable data collected; skipping plot generation")
+        return
+
+    if _temp_time_ds or _imu_time_ds:
+        fig_sensor, axes = plt.subplots(2, 2, figsize=(12, 7))
+        fig_sensor.canvas.manager.set_window_title(
+            "Smartfin BLE Sensor Summary")
+        ax_temp = axes[0][0]
+        ax_acc = axes[0][1]
+        ax_gyro = axes[1][0]
+        ax_mag = axes[1][1]
+
+        if _temp_time_ds:
+            ax_temp.plot(list(_temp_time_ds), list(
+                _temp_c), lw=1.8, color="#CA472F")
+        ax_temp.set_title("Temperature")
+        ax_temp.set_xlabel("elapsed time (ds)")
+        ax_temp.set_ylabel("deg C")
+
+        if _imu_time_ds:
+            x = list(_imu_time_ds)
+            ax_acc.plot(x, list(_accel_x), lw=1.2, color="#0B84A5", label="ax")
+            ax_acc.plot(x, list(_accel_y), lw=1.2, color="#F6C85F", label="ay")
+            ax_acc.plot(x, list(_accel_z), lw=1.2, color="#6F4E7C", label="az")
+            ax_gyro.plot(x, list(_gyro_x), lw=1.2, color="#9DD866", label="gx")
+            ax_gyro.plot(x, list(_gyro_y), lw=1.2, color="#FFA600", label="gy")
+            ax_gyro.plot(x, list(_gyro_z), lw=1.2, color="#BC5090", label="gz")
+            ax_mag.plot(x, list(_mag_x), lw=1.2, color="#003F5C", label="mx")
+            ax_mag.plot(x, list(_mag_y), lw=1.2, color="#58508D", label="my")
+            ax_mag.plot(x, list(_mag_z), lw=1.2, color="#FF6361", label="mz")
+            ax_acc.legend(loc="upper right")
+            ax_gyro.legend(loc="upper right")
+            ax_mag.legend(loc="upper right")
+
+        ax_acc.set_title("Acceleration")
+        ax_acc.set_xlabel("elapsed time (ds)")
+        ax_acc.set_ylabel("m/s^2")
+        ax_gyro.set_title("Gyroscope")
+        ax_gyro.set_xlabel("elapsed time (ds)")
+        ax_gyro.set_ylabel("deg/s")
+        ax_mag.set_title("Magnetometer")
+        ax_mag.set_xlabel("elapsed time (ds)")
+        ax_mag.set_ylabel("uT")
+
+        fig_sensor.suptitle(
+            f"Smartfin BLE sensor summary  ensembles={_ensemble_count}  notifies={_notify_count}"
+        )
+        fig_sensor.tight_layout()
+
+    if _notify_index:
+        fig_ble, axes = plt.subplots(2, 2, figsize=(12, 7))
+        fig_ble.canvas.manager.set_window_title(
+            "Smartfin BLE Transport Analysis")
+        ax_dt = axes[0][0]
+        ax_batch = axes[0][1]
+        ax_throughput = axes[1][0]
+        ax_payload = axes[1][1]
+
+        n = list(_notify_index)
+        elapsed_s = list(_notify_elapsed_s)
+        dt_ms = list(_notify_dt_ms)
+        batch = list(_notify_ensemble_batch)
+        payload = list(_notify_payload_bytes)
+        cumulative = list(_cumulative_ensembles)
+
+        ax_dt.plot(n, dt_ms, lw=1.2, color="#2F4B7C")
+        if dt_ms:
+            mean_dt = sum(dt_ms) / len(dt_ms)
+            ax_dt.axhline(mean_dt, color="#D45087", lw=1.0,
+                          linestyle="--", label=f"mean {mean_dt:.2f} ms")
+            ax_dt.legend(loc="upper right")
+        ax_dt.set_title("Notify Interval Jitter")
+        ax_dt.set_xlabel("notification index")
+        ax_dt.set_ylabel("ms")
+
+        ax_batch.plot(n, batch, lw=1.2, color="#FFA600")
+        ax_batch.set_title("Ensembles Per Notify")
+        ax_batch.set_xlabel("notification index")
+        ax_batch.set_ylabel("ensembles")
+
+        throughput = []
+        for t, c in zip(elapsed_s, cumulative):
+            throughput.append(c / t if t > 0 else 0.0)
+        ax_throughput.plot(elapsed_s, throughput, lw=1.4,
+                           color="#00A6ED", label="avg ensembles/s")
+        ax_throughput.plot(elapsed_s, cumulative, lw=1.0,
+                           color="#7A5195", label="cumulative ensembles")
+        ax_throughput.set_title("Throughput / Progress")
+        ax_throughput.set_xlabel("elapsed time (s)")
+        ax_throughput.set_ylabel("ensembles")
+        ax_throughput.legend(loc="upper left")
+
+        ax_payload.plot(n, payload, lw=1.2, color="#3CAEA3",
+                        label="payload bytes")
+        if batch:
+            efficiency = [p / b if b > 0 else 0 for p,
+                          b in zip(payload, batch)]
+            ax_payload.plot(n, efficiency, lw=1.0,
+                            color="#ED553B", label="bytes per ensemble")
+        ax_payload.set_title("Batching Efficiency")
+        ax_payload.set_xlabel("notification index")
+        ax_payload.set_ylabel("bytes")
+        ax_payload.legend(loc="upper right")
+
+        fig_ble.suptitle(
+            f"Smartfin BLE transport analysis  ensembles={_ensemble_count}  notifies={_notify_count}"
+        )
+        fig_ble.tight_layout()
+
+    plt.show()
+
+
 # ---------------------------------------------------------------------------
 # Notification handler
 # ---------------------------------------------------------------------------
@@ -171,6 +369,13 @@ def on_notify(char: BleakGATTCharacteristic, data: bytearray) -> None:
 
         ensembles_in_packet = _count_ensembles(data)
         _ensemble_count += ensembles_in_packet
+        _decode_sensor_ensembles(data)
+        _notify_index.append(_notify_count)
+        _notify_dt_ms.append(dt_ms)
+        _notify_ensemble_batch.append(ensembles_in_packet)
+        _notify_payload_bytes.append(len(data))
+        _notify_elapsed_s.append(elapsed)
+        _cumulative_ensembles.append(_ensemble_count)
 
         log.debug("--- notify #%d ---", _notify_count)
         log.debug("  handle  : 0x%04X  uuid=%s", char.handle, char.uuid)
@@ -326,7 +531,8 @@ async def main() -> None:
                         log.info("target reached: ensembles=%d >= %d",
                                  _ensemble_count, TARGET_ENSEMBLES)
                         break
-                    print(f"Ensembles recieved: {_ensemble_count}", end="\r")
+                    end_c = "\r" if TARGET_ENSEMBLES > _ensemble_count else "\n"
+                    print(f"Ensembles recieved: {_ensemble_count}", end=end_c)
                     log.debug("status: %.0f s remaining  notifies=%d ensembles=%d errors=%d",
                               RUN_DURATION - elapsed, _notify_count, _ensemble_count, _notify_errors)
                     await asyncio.sleep(0.25)
@@ -351,6 +557,7 @@ async def main() -> None:
             log.info("  parse errs : %d", _notify_errors)
             log.info("  avg rate   : %.2f Hz", _notify_count /
                      run_time if run_time > 0 else 0)
+            _plot_collected_ensembles()
 
     except Exception:
         log.exception("connection-level exception (connect/GATT/disconnect)")
