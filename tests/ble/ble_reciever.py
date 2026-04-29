@@ -16,6 +16,8 @@ try:
 except Exception:
     plt = None
 
+LOG_DIR = Path("tests/ble/logs")
+
 # ---------------------------------------------------------------------------
 # Args
 # ---------------------------------------------------------------------------
@@ -26,9 +28,8 @@ args = _args.parse_args()
 
 
 def _prune_old_devtty_logs() -> None:
-    """Keep only the newest logs/devtty*.txt file at startup."""
-    log_dir = Path("logs")
-    matches = [path for path in log_dir.glob("devtty*.txt") if path.is_file()]
+    """Keep only the newest devtty*.txt file at startup."""
+    matches = [path for path in LOG_DIR.glob("devtty*.txt") if path.is_file()]
     if len(matches) <= 1:
         return
 
@@ -69,7 +70,7 @@ class _FlushStreamHandler(logging.StreamHandler):
 log = logging.getLogger("ble_receiver")
 log.setLevel(logging.DEBUG)
 
-_file = _FlushFileHandler("tests/ble_log.txt", mode="w")
+_file = _FlushFileHandler(LOG_DIR / "ble_log.txt", mode="w")
 _file.setFormatter(_fmt)
 log.addHandler(_file)
 
@@ -81,7 +82,7 @@ if args.verbose:
 # Also log Bleak debug info
 bleak_log = logging.getLogger("bleak")
 bleak_log.setLevel(logging.DEBUG)
-bleak_fh = _FlushFileHandler("bleak_debug.txt", mode="w")
+bleak_fh = _FlushFileHandler(LOG_DIR / "bleak_debug.txt", mode="w")
 bleak_fh.setFormatter(_fmt)
 bleak_log.addHandler(bleak_fh)
 if args.verbose:
