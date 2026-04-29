@@ -82,7 +82,7 @@ void RideTask::init()
 STATES_e RideTask::run(void)
 {
     DeploymentSchedule_t *pNextEvent = NULL;
-    system_tick_t nextEventTime;
+    SF_HAL::tick_t nextEventTime;
 
     unsigned long start, stop;
 
@@ -112,7 +112,7 @@ STATES_e RideTask::run(void)
     }
 #endif
     FLOG_AddError(FLOG_RIDE_DEPLOY, this->deployTime);
-    this->ledStatus.setPattern(LED_PATTERN_FADE);
+    this->ledStatus.setPattern(SF_HAL::LedPattern::FADE);
 
     while (1)
     {
