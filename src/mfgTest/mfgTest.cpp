@@ -46,20 +46,20 @@ void MfgTest::run(void)
 
         SF_OSAL_printf("| %24s | %16s |" __NL__, "Sensor", "Pass (0)/Fail (1)");
         SF_OSAL_printf("|--------------------------|------------------|" __NL__);
-        #ifdef PARTICLE
+        #if SF_PLATFORM == SF_PLATFORM_PARTICLE
             json_writer.name("results").beginObject();
         #endif
         for (test_entry = MFG_TEST_TABLE; test_entry->fn; test_entry++)
         {
             SF_OSAL_printf("| %24s | %16d |" __NL__, test_entry->name, test_entry->pass);
-            #ifdef PARTICLE
+            #if SF_PLATFORM == SF_PLATFORM_PARTICLE
                 json_writer.name(test_entry->name)
                 .value(test_entry->pass 
                     == MFG_TEST_RESULT_t::PASS ? "true" : "false");
             #endif
             retval |= (int)(test_entry->pass);
         }
-        #ifdef PARTICLE
+        #if SF_PLATFORM == SF_PLATFORM_PARTICLE
             json_writer.endObject();
         #endif
 
@@ -71,7 +71,7 @@ void MfgTest::run(void)
         {
             SF_OSAL_printf("All tests passed." __NL__);
         }
-    #ifdef PARTICLE
+    #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         json_writer.endObject();
 
         SF_OSAL_printf("Manufacturing Test JSON Output: %s" __NL__, MfgTest::json_buffer);
@@ -93,9 +93,9 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
     // set the initial state to "not in water" (because hystersis)
     pSystemDesc->pWaterSensor->forceState(WATER_SENSOR_LOW_STATE);
     // set in-water
-    digitalWrite(WATER_MFG_TEST_EN, HIGH);
+    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::HIGH);
 
-    int wet_value = digitalRead(WATER_MFG_TEST_EN);
+    int wet_value = static_cast<int>(SF_HAL::gpio_read(WATER_MFG_TEST_EN));
 
     SF_OSAL_printf("value: %d " , wet_value);
 
@@ -115,9 +115,9 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
     }
 
     // set out-of-water
-    digitalWrite(WATER_MFG_TEST_EN, LOW);
+    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::LOW);
 
-    int dry_value = digitalRead(WATER_MFG_TEST_EN);
+    int dry_value = static_cast<int>(SF_HAL::gpio_read(WATER_MFG_TEST_EN));
 
     SF_OSAL_printf("value: %d " , dry_value);
 
@@ -137,11 +137,11 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
         SF_OSAL_printf("Dry Sensor passed" __NL__);
     }
 
-    digitalWrite(WATER_MFG_TEST_EN, LOW);
+    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::LOW);
 
     pSystemDesc->pWaterCheck->start();
 
-    #ifdef PARTICLE
+    #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         json_writer.name("wetDry").beginObject();
             json_writer.name("wetValue").value(wet_value);
             json_writer.name("dryValue").value(dry_value);
@@ -179,13 +179,13 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::temperature_sensor_test()
 
         temp_acc += temp;
         temp_acc2 += temp * temp;
-        delay(5);
+        SF_HAL::delay_ms(5);
     }
 
     float temp_mean = temp_acc / nIterations;
     float temp_std = _std_dev(temp_acc, temp_acc2, nIterations);
 
-    #ifdef PARTICLE
+    #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         json_writer.name("temperature").beginObject();
             json_writer.name("mean").value(temp_mean);
             json_writer.name("stdDev").value(temp_std);
@@ -257,7 +257,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::imu_test(void)
         mag_acc2[0] += mag[0] * mag[0];
         mag_acc2[1] += mag[1] * mag[1];
         mag_acc2[2] += mag[2] * mag[2];
-        delay(5);
+        SF_HAL::delay_ms(5);
     }
     if (fail_flag)
     {
@@ -301,7 +301,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::imu_test(void)
     _print_axis("Mag.Y", mag_mean[1], mag_std[1]);
     _print_axis("Mag.Z", mag_mean[2], mag_std[2]);
 
-    #ifdef PARTICLE
+    #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         json_writer.name("imu").beginObject();
             json_writer.name("acc.X").beginObject();
                 json_writer.name("mean").value(accel_mean[0]);
@@ -369,14 +369,14 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::cellular_test(void)
             return MfgTest::FAIL;
         }
     }
-    Particle.syncTime();
-    system_tick_t start = millis();
-    while (millis() < start + MANUFACTURING_CELL_TIMEOUT_MS || !Particle.syncTimeDone())
+    SF_HAL::cloud_sync_time();
+    SF_HAL::tick_t start = SF_HAL::millis();
+    while (SF_HAL::millis() < start + MANUFACTURING_CELL_TIMEOUT_MS || !SF_HAL::cloud_sync_time_done())
     {
-        delay(1);
+        SF_HAL::delay_ms(1);
     }
 
-    #ifdef PARTICLE
+    #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         // put it as elapsed time and look into what the time measure
         json_writer.name("cellular").beginObject();
             json_writer.name("time").value(millis());
@@ -399,7 +399,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::gps_test(void)
     }
     SF_OSAL_printf("Location service pass" __NL__);
 
-    #ifdef PARTICLE
+    #if SF_PLATFORM == SF_PLATFORM_PARTICLE
         json_writer.name("gps").beginObject();
         json_writer.endObject();
     #endif
