@@ -11,6 +11,7 @@
 
 #include "Particle.h"
 #include "cellular/sf_cloud.hpp"
+#include "platform/hal.hpp"
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
@@ -22,7 +23,7 @@
 void CLI_connect(void)
 {
     int retval = sf::cloud::wait_connect(30000, true);
-    Particle.syncTime();
+    SF_HAL::cloud_sync_time();
     if (0 == retval)
     {
         SF_OSAL_printf("Connected" __NL__);

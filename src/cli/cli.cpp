@@ -115,7 +115,7 @@ void CLI::init(void)
     // else if (sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS) == 0) {
     //     CLI_ledStatus.setColor(RGB_COLOR_BLUE);
     // } 
-    Particle.syncTime();
+    SF_HAL::cloud_sync_time();
 
     // While there is an avaliable character typed, get it
     while (SF_OSAL_kbhit())

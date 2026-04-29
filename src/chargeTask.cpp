@@ -33,7 +33,7 @@ void ChargeTask::init(void)
     // else if(sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS) == 0){
     //     this->ledStatus.setColor(RGB_COLOR_BLUE);
     // }
-    Particle.syncTime();
+    SF_HAL::cloud_sync_time();
 }
 
 STATES_e ChargeTask::run(void)
