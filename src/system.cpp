@@ -78,7 +78,7 @@ void SYS_initSys(void)
     systemDesc.flags = &systemFlags;
 
     memset(SYS_deviceID, 0, 32);
-    strncpy(SYS_deviceID, System.deviceID().c_str(), 31);
+    strncpy(SYS_deviceID, SF_HAL::system_device_id(), 31);
 
     SYS_initTasks();
 #if SF_ENABLE_GPS
@@ -90,7 +90,7 @@ void SYS_initSys(void)
     SYS_initWaterSensor();
     SYS_initLEDs();
 
-    pinMode(WKP, INPUT);
+    SF_HAL::gpio_set_mode(WKP, SF_HAL::GpioMode::INPUT);
 
     systemDesc.pBattery = &battery_desc;    
 }
@@ -142,7 +142,7 @@ static int SYS_initFS(void)
  */
 static int SYS_initTasks(void)
 {
-    pinMode(SF_USB_PWR_DETECT_PIN, INPUT_PULLDOWN);
+    SF_HAL::gpio_set_mode(SF_USB_PWR_DETECT_PIN, SF_HAL::GpioMode::INPUT_PULLDOWN);
     systemFlags.hasCharger = true;
     systemFlags.batteryLow = false;
 
@@ -156,7 +156,7 @@ static int SYS_initTasks(void)
 
 static int SYS_initTempSensor(void)
 {
-    Wire.begin();
+    SF_HAL::i2c_begin();
     systemDesc.pTempSensor = &tempSensor;
 
     return 1;
@@ -166,11 +166,11 @@ static int SYS_initTempSensor(void)
 static int SYS_initWaterSensor(void)
 {
     uint8_t water_sensor_window = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
-    pinMode(WATER_DETECT_EN_PIN, OUTPUT);
-    digitalWrite(WATER_DETECT_EN_PIN, HIGH);
-    pinMode(WATER_DETECT_PIN, INPUT);
-    pinMode(WATER_MFG_TEST_EN, OUTPUT);
-    digitalWrite(WATER_MFG_TEST_EN, LOW);
+    SF_HAL::gpio_set_mode(WATER_DETECT_EN_PIN, SF_HAL::GpioMode::OUTPUT);
+    SF_HAL::gpio_write(WATER_DETECT_EN_PIN, SF_HAL::GpioState::HIGH);
+    SF_HAL::gpio_set_mode(WATER_DETECT_PIN, SF_HAL::GpioMode::INPUT);
+    SF_HAL::gpio_set_mode(WATER_MFG_TEST_EN, SF_HAL::GpioMode::OUTPUT);
+    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::LOW);
     systemDesc.pWaterSensor = &waterSensor;
     waterSensor.begin();
     ledTimer.start();
@@ -222,8 +222,8 @@ static int SYS_initLEDs(void)
 void SYS_chargerTask(void)
 {
     bool previous_state = systemFlags.hasCharger;
-    bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING;
-    systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
+    bool isCharging = SF_HAL::battery_state() == SF_HAL::BatteryState::CHARGING;
+    systemFlags.hasCharger = SF_HAL::gpio_read(SF_USB_PWR_DETECT_PIN);
     static int chargedTimestamp;
     static int chargingTimestamp;
 
@@ -371,9 +371,11 @@ void SYS_displaySys(void)
     SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
 
     SF_OSAL_printf(__NL__);
-    SF_OSAL_printf("Particle Connected: %d" __NL__, Particle.connected());
+    SF_OSAL_printf("Cloud Connected: %d" __NL__, SF_HAL::cloud_connected());
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     SF_OSAL_printf("Cellular On: %d" __NL__, Cellular.isOn());
     SF_OSAL_printf("Cellular Ready: %d" __NL__, Cellular.ready());
+#endif
 }
 
 void SYS_dumpSys(int indent)
