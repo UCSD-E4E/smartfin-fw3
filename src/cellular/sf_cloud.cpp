@@ -1,6 +1,5 @@
 #include "sf_cloud.hpp"
 
-#include "Particle.h"
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "platform/hal.hpp"
@@ -12,13 +11,12 @@
 
 namespace sf::cloud
 {
-    system_tick_t last_publish_time = 0;
+    SF_HAL::tick_t last_publish_time = 0;
     int wait_connect(int timeout_ms, bool bypass_attempts)
     {
         uint16_t n_attempts;
-        system_tick_t end_time = SF_HAL::millis() + timeout_ms;
         NVRAM& nvram = *pSystemDesc->pNvram;
-        if (Particle.connected())
+        if (SF_HAL::cloud_connected())
         {
             return SUCCESS;
         }
@@ -30,15 +28,10 @@ namespace sf::cloud
         }
         n_attempts++;
         nvram.put(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
-        Particle.connect();
-        while (!Particle.connected())
+        if (SF_HAL::cloud_connect(timeout_ms, bypass_attempts) != 0)
         {
-            Particle.process();
-            if (SF_HAL::millis() > end_time)
-            {
-                FLOG_AddError(FLOG_CELL_CONNECT_FAIL_TIMEOUT, timeout_ms);
-                return TIMEOUT;
-            }
+            FLOG_AddError(FLOG_CELL_CONNECT_FAIL_TIMEOUT, timeout_ms);
+            return TIMEOUT;
         }
         n_attempts = 0;
         nvram.put(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
@@ -47,17 +40,7 @@ namespace sf::cloud
 
     int wait_disconnect(int timeout_ms)
     {
-        system_tick_t end_time = SF_HAL::millis() + timeout_ms;
-        Particle.disconnect();
-        while (!Particle.disconnected())
-        {
-            Particle.process();
-            if (SF_HAL::millis() > end_time)
-            {
-                return TIMEOUT;
-            }
-        }
-        return SUCCESS;
+        return SF_HAL::cloud_disconnect(timeout_ms) == 0 ? SUCCESS : TIMEOUT;
     }
 
     bool initialize_counter(void)
@@ -78,25 +61,25 @@ namespace sf::cloud
 
     int publish_blob(const char* title, const char* blob)
     {
-        system_tick_t time_since_last = SF_HAL::millis() - last_publish_time;
+        SF_HAL::tick_t time_since_last = SF_HAL::millis() - last_publish_time;
         // SF_OSAL_printf("%u ms since last publish" __NL__, time_since_last);
         if (time_since_last < SF_UPLOAD_MS_PER_TRANSMIT)
         {
-            delay(SF_UPLOAD_MS_PER_TRANSMIT - time_since_last);
+            SF_HAL::delay_ms(SF_UPLOAD_MS_PER_TRANSMIT - time_since_last);
         }
-        if (strlen(blob) > particle::protocol::MAX_EVENT_DATA_LENGTH)
+        if (strlen(blob) > SF_HAL::cloud::MAX_EVENT_DATA_LEN)
         {
             return OVERSIZE_DATA;
         }
-        if (strlen(title) > particle::protocol::MAX_EVENT_NAME_LENGTH)
+        if (strlen(title) > SF_HAL::cloud::MAX_EVENT_NAME_LEN)
         {
             return OVERSIZE_NAME;
         }
-        if (!Particle.connected())
+        if (!SF_HAL::cloud_connected())
         {
             return NOT_CONNECTED;
         }
-        if (!Particle.publish(title, blob))
+        if (!SF_HAL::cloud_publish(title, blob))
         {
             return PUBLISH_FAIL;
         }
@@ -106,7 +89,7 @@ namespace sf::cloud
 
     bool is_connected()
     {
-        return Particle.connected();
+        return SF_HAL::cloud_connected();
     }
 
 }
