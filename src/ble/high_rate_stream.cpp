@@ -61,7 +61,7 @@ bool TransportService::init()
         transportThread_ = SF_HAL::thread_create("transport_worker",
                                                  TransportService::transportLoopThunk,
                                                  this,
-                                                 SF_HAL::ThreadPriority::DEFAULT);
+                                                 SF_HAL::ThreadPriority::NORMAL);
     }
 
     packetBuilder_.reset();
