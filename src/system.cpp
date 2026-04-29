@@ -19,7 +19,7 @@
 
 #include "sys/led.hpp"
 
-
+#include "platform/hal.hpp"
 #include "Particle.h"
 
 
@@ -29,7 +29,7 @@ char SYS_deviceID[32];
 SystemDesc_t systemDesc = {0}, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
-static LEDSystemTheme ledTheme;
+static SF_HAL::LedSystemTheme ledTheme;
 
 Recorder dataRecorder;
 
@@ -201,14 +201,14 @@ static int SYS_initLEDs(void)
     waterLED.init();
     systemDesc.pWaterLED = &waterLED;
 
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_OFF, 0x000000, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_ON, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_CONNECTING, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_DHCP, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_CONNECTED, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTING, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTED, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
-    ledTheme.setSignal(LED_SIGNAL_CLOUD_HANDSHAKE, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_OFF, 0x000000, SF_HAL::LedPattern::SOLID);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_ON, SF_DUP_RGB_LED_COLOR, SF_HAL::LedPattern::SOLID);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_CONNECTING, SF_DUP_RGB_LED_COLOR, SF_HAL::LedPattern::SOLID);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_DHCP, SF_DUP_RGB_LED_COLOR, SF_HAL::LedPattern::SOLID);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_CONNECTED, SF_DUP_RGB_LED_COLOR, SF_HAL::LedPattern::SOLID);
+    ledTheme.setSignal(SF_HAL::LedSignal::CLOUD_CONNECTING, SF_DUP_RGB_LED_COLOR, SF_HAL::LedPattern::SOLID);
+    ledTheme.setSignal(SF_HAL::LedSignal::CLOUD_CONNECTED, SF_DUP_RGB_LED_COLOR, SF_HAL::LedPattern::BLINK, SF_DUP_RGB_LED_PERIOD);
+    ledTheme.setSignal(SF_HAL::LedSignal::CLOUD_HANDSHAKE, SF_DUP_RGB_LED_COLOR, SF_HAL::LedPattern::BLINK, SF_DUP_RGB_LED_PERIOD);
 
     systemDesc.systemTheme = &ledTheme;
     return 1;
