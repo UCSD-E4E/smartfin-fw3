@@ -216,9 +216,10 @@ bool SFBLE::init(void)
     BLE.onConnected(&ParticleBleBackend::onConnected, &backend);
     BLE.onDisconnected(&ParticleBleBackend::onDisconnected, &backend);
 
-    // The characteristic objects register themselves with the Particle BLE
-    // stack when constructed. Re-adding them here duplicates GATT entries and
-    // can leave centrals stuck during connect/service discovery.
+    // BleCharacteristic construction does not auto-register with the GATT
+    // server on Particle Device OS — addCharacteristic is required.
+    BLE.addCharacteristic(backend.telemetryCharacteristic);
+    BLE.addCharacteristic(backend.controlCharacteristic);
 
     this->initialized.store(true, std::memory_order_release);
     return true;
