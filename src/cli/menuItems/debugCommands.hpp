@@ -69,4 +69,9 @@ void CLI_initCloudCounters(void);
  *
  */
 void CLI_dumpIMURegs(void);
+/**
+ * @brief Sample useful GPIO pins once a second for 10 seconds
+ *
+ */
+void CLI_dumpPinSamples(void);
 #endif

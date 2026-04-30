@@ -27,6 +27,28 @@
 
 static MfgTest mfgTask;
 
+namespace
+{
+struct PinSampleTarget
+{
+    int pin;
+    const char *pinName;
+    const char *usageName;
+};
+
+constexpr size_t PIN_SAMPLE_COUNT = 10;
+
+const PinSampleTarget PIN_SAMPLE_TARGETS[] = {
+    {WATER_DETECT_EN_PIN, "A2", "WATER_EN"},
+    {WATER_MFG_TEST_EN, "A3", "WATER_MFG_TEST_EN"},
+    {SF_USB_PWR_DETECT_PIN, "A4", "USB_PWR_DETECT"},
+    {STAT_LED_PIN, "A5", "STAT_LED"},
+    {WATER_DETECT_PIN, "A6", "WATER_DETECT"},
+    {WKP_PIN, "A7", "WKP"},
+    {WATER_STATUS_LED, "D9", "WATER_STATUS_LED"},
+};
+} // namespace
+
 void CLI_restart(void)
 {
     System.reset();
@@ -211,4 +233,37 @@ void CLI_dumpIMURegs(void)
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     pSystemDesc->pIMU->dumpRegs(SF_OSAL_printf);
 #endif
+}
+
+void CLI_dumpPinSamples(void)
+{
+    int samples[sizeof(PIN_SAMPLE_TARGETS) / sizeof(PIN_SAMPLE_TARGETS[0])][PIN_SAMPLE_COUNT] = {{0}};
+
+    SF_OSAL_printf("Sampling useful pins once per second for %u seconds..." __NL__,
+                   static_cast<unsigned>(PIN_SAMPLE_COUNT));
+
+    for (size_t sampleIdx = 0; sampleIdx < PIN_SAMPLE_COUNT; ++sampleIdx)
+    {
+        for (size_t pinIdx = 0; pinIdx < sizeof(PIN_SAMPLE_TARGETS) / sizeof(PIN_SAMPLE_TARGETS[0]); ++pinIdx)
+        {
+            samples[pinIdx][sampleIdx] = digitalRead(PIN_SAMPLE_TARGETS[pinIdx].pin);
+        }
+
+        if (sampleIdx + 1 < PIN_SAMPLE_COUNT)
+        {
+            delay(1000);
+        }
+    }
+
+    SF_OSAL_printf("Pin  Function            Samples" __NL__);
+    for (size_t pinIdx = 0; pinIdx < sizeof(PIN_SAMPLE_TARGETS) / sizeof(PIN_SAMPLE_TARGETS[0]); ++pinIdx)
+    {
+        SF_OSAL_printf("%-4s %-18s", PIN_SAMPLE_TARGETS[pinIdx].pinName,
+                       PIN_SAMPLE_TARGETS[pinIdx].usageName);
+        for (size_t sampleIdx = 0; sampleIdx < PIN_SAMPLE_COUNT; ++sampleIdx)
+        {
+            SF_OSAL_printf(" %d", samples[pinIdx][sampleIdx]);
+        }
+        SF_OSAL_printf(__NL__);
+    }
 }
