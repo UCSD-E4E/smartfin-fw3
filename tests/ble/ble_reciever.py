@@ -43,7 +43,7 @@ def _prune_old_devtty_logs() -> None:
 _prune_old_devtty_logs()
 
 # ---------------------------------------------------------------------------
-# Logging — flush after every record, timestamps as HH:MM:SS:mmm
+# Logging - flush after every record, timestamps as HH:MM:SS:mmm
 # ---------------------------------------------------------------------------
 _fmt = logging.Formatter(
     fmt="%(asctime)s:%(msecs)03d [%(levelname)s] %(message)s",
@@ -433,7 +433,7 @@ async def main() -> None:
     log.info("scan timeout   : %d s", SCAN_TIMEOUT)
     log.info("run duration   : %d s", RUN_DURATION)
 
-    # Scan — use BleakScanner as context manager so detection_callback works
+    # Scan - use BleakScanner as context manager so detection_callback works
     log.info("starting scan (timeout=%ds)...", SCAN_TIMEOUT)
     t0 = time.monotonic()
     device: BLEDevice | None = None
@@ -461,7 +461,7 @@ async def main() -> None:
     log.info("scan done in %.2f s", time.monotonic() - t0)
 
     if not device:
-        log.error("device %r not found after %.1f s — giving up",
+        log.error("device %r not found after %.1f s - giving up",
                   DEVICE_NAME, time.monotonic() - t0)
         return
 
@@ -520,7 +520,7 @@ async def main() -> None:
             except Exception:
                 log.exception("start_notify failed")
                 return
-            log.info("subscribed — running for %d s", RUN_DURATION)
+            log.info("subscribed - running for %d s", RUN_DURATION)
 
             t_run = time.monotonic()
             try:
@@ -566,7 +566,7 @@ async def main() -> None:
         tb = traceback.format_exc()
         log.error("Full traceback:\n%s", tb)
 
-    log.info("disconnected — done")
+    log.info("disconnected - done")
 
 
 try:

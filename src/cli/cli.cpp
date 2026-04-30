@@ -37,6 +37,7 @@
 #include "cellular/sf_cloud.hpp"
 
 #include <bits/stdc++.h>
+#include <atomic>
 #include <cstdlib>
 #include <fstream>
 
@@ -785,6 +786,12 @@ void CLI_setWaterSensorWindow(void)
  */
 static void CLI_doBleTest(void)
 {
+    struct BleStatus
+    {
+        std::atomic<bool> connected{false};
+        std::atomic<bool> changed{false};
+    } bleStatus;
+
     BleLiveStream &stream = BleLiveStream::getInstance();
     TransportService &transport = TransportService::getInstance();
     SF_OSAL_printf("=== Starting BLE Test ===" __NL__);
@@ -797,9 +804,18 @@ static void CLI_doBleTest(void)
     transport.init();
     transport.start();
     SFBLE::getInstance().setConnectionCallback(
-        [](bool connected, void *)
-        { SF_OSAL_printf("[BLE EVT] %s" __NL__, connected ? "CONNECTED" : "DISCONNECTED"); },
-        nullptr);
+        [](bool connected, void *context)
+        {
+            BleStatus *status = static_cast<BleStatus *>(context);
+            if (status == nullptr)
+            {
+                return;
+            }
+
+            status->connected.store(connected, std::memory_order_release);
+            status->changed.store(true, std::memory_order_release);
+        },
+        &bleStatus);
     SF_OSAL_printf("Advertising. Connect your device, then press 'q' to stop." __NL__ __NL__);
 
     pSystemDesc->pChargerCheck->stop();
@@ -825,6 +841,12 @@ static void CLI_doBleTest(void)
 
     while (!quit)
     {
+        if (bleStatus.changed.exchange(false, std::memory_order_acq_rel))
+        {
+            const bool connected = bleStatus.connected.load(std::memory_order_acquire);
+            SF_OSAL_printf("[BLE EVT] %s" __NL__, connected ? "CONNECTED" : "DISCONNECTED");
+        }
+
         if (SF_OSAL_kbhit())
         {
             char ch = SF_OSAL_getch();
@@ -873,6 +895,7 @@ static void CLI_doBleTest(void)
         ensCount++;
     }
 
+    SFBLE::getInstance().setConnectionCallback(nullptr, nullptr);
     transport.shutdown();
 
 #if ENABLE_RECORD_SINK

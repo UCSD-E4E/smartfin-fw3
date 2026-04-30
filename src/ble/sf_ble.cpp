@@ -42,11 +42,11 @@ namespace
          * here rather than in @c init().
          *
          * @c telemetryCharacteristic — short name @c "tele", property NOTIFY,
-         * carries fin→watch data. No write callback; the central subscribes and
+         * carries fin->watch data. No write callback; the central subscribes and
          * receives notifications pushed by @c notifyTelemetry().
          *
          * @c controlCharacteristic — short name @c "ctrl", property
-         * WRITE_WO_RSP, carries watch→fin commands. Registers
+         * WRITE_WO_RSP, carries watch->fin commands. Registers
          * @c onControlReceivedStatic as the write callback with @c this as
          * context so Particle can invoke it as a plain C function pointer.
          */
