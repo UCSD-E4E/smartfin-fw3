@@ -3,7 +3,6 @@ import argparse
 import asyncio
 from datetime import datetime
 import logging
-import threading
 
 import numpy as np
 
@@ -11,7 +10,13 @@ from ble_receiver.config import LOG_DIR
 from ble_receiver.state import BLEState
 from ble_receiver.processor import packet_processor
 from ble_receiver.receiver import run_ble
-from ble_receiver.plotter import show_realtime_plots
+from ble_receiver.plotter import setup_realtime_figures, realtime_plot_task
+
+try:
+    import matplotlib.pyplot as plt
+    _MPL_AVAILABLE = True
+except Exception:
+    _MPL_AVAILABLE = False
 
 
 def _prune_old_devtty_logs() -> None:
@@ -65,22 +70,54 @@ def setup_logging(verbose: bool) -> logging.Logger:
     return log
 
 
-def _run_ble_thread(state: BLEState, log: logging.Logger) -> None:
-    """Run the full BLE session (scan -> connect -> receive -> decode) in a thread."""
-    async def _async() -> None:
-        queue: asyncio.Queue = asyncio.Queue()
-        processor_task = asyncio.create_task(packet_processor(queue, state, log))
-        try:
-            await run_ble(state, queue, log)
-        finally:
-            await queue.join()
-            await queue.put(None)
-            await processor_task
+def _save_records(state: BLEState, log: logging.Logger) -> None:
+    arr = state.as_numpy()
+    if arr.shape[0] > 0:
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        npy_path = LOG_DIR / f"records_{ts}.npy"
+        csv_path = LOG_DIR / f"records_{ts}.csv"
+        np.save(npy_path, arr)
+        np.savetxt(
+            csv_path, arr,
+            delimiter=",",
+            header="time_ds,sensor_type,ensemble_type,value",
+            comments="",
+            fmt=["%.6f", "%d", "%d", "%.8f"],
+        )
+        log.info("saved %d records -> %s  %s", arr.shape[0], npy_path, csv_path)
+    else:
+        log.info("no records collected - nothing saved")
+
+
+async def _main(log: logging.Logger, state: BLEState) -> None:
+    queue: asyncio.Queue = asyncio.Queue()
+
+    figs, update_fn = setup_realtime_figures(state)
+
+    processor_task = asyncio.create_task(packet_processor(queue, state, log))
+    plot_task = asyncio.create_task(realtime_plot_task(figs, update_fn))
 
     try:
-        asyncio.run(_async())
-    except Exception:
-        log.exception("BLE thread exception")
+        await run_ble(state, queue, log)
+    except asyncio.CancelledError:
+        log.info("BLE task cancelled")
+    finally:
+        plot_task.cancel()
+        try:
+            await plot_task
+        except asyncio.CancelledError:
+            pass
+
+        await queue.join()
+        await queue.put(None)
+        await processor_task
+
+    # Final plot refresh before handing control to user
+    if figs and _MPL_AVAILABLE:
+        update_fn()
+        for fig in figs:
+            fig.canvas.draw_idle()
+            fig.canvas.flush_events()
 
 
 if __name__ == "__main__":
@@ -94,33 +131,16 @@ if __name__ == "__main__":
     log = setup_logging(args.verbose)
     state = BLEState()
 
-    ble_thread = threading.Thread(
-        target=_run_ble_thread, args=(state, log), daemon=True
-    )
-    ble_thread.start()
+    if _MPL_AVAILABLE:
+        plt.ion()
 
-    # matplotlib must run on the main thread; show_realtime_plots blocks here
-    # until both plot windows are closed
     try:
-        show_realtime_plots(state)
+        asyncio.run(_main(log, state))
     except KeyboardInterrupt:
         log.info("interrupted by user")
     finally:
-        arr = state.as_numpy()
-        if arr.shape[0] > 0:
-            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-            npy_path = LOG_DIR / f"records_{ts}.npy"
-            csv_path = LOG_DIR / f"records_{ts}.csv"
-            np.save(npy_path, arr)
-            np.savetxt(
-                csv_path, arr,
-                delimiter=",",
-                header="time_ds,sensor_type,ensemble_type,value",
-                comments="",
-                fmt=["%.6f", "%d", "%d", "%.8f"],
-            )
-            log.info("saved %d records -> %s  %s", arr.shape[0], npy_path, csv_path)
-        else:
-            log.info("no records collected - nothing saved")
+        _save_records(state, log)
 
-    ble_thread.join(timeout=5)
+    if _MPL_AVAILABLE and plt.get_fignums():
+        plt.ioff()
+        plt.show(block=True)
