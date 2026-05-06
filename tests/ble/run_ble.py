@@ -3,6 +3,10 @@ import argparse
 import asyncio
 from datetime import datetime
 import logging
+import sys
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 import numpy as np
 
