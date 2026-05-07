@@ -1,5 +1,5 @@
-#ifndef __ENSEMBLE_TYPES_HPP__
-#define __ENSEMBLE_TYPES_HPP__
+#ifndef ENSEMBLETYPES_HPP
+#define ENSEMBLETYPES_HPP
 
 #include "Particle.h"
 #include <cstdint>
@@ -37,7 +37,7 @@ typedef enum EnsembleID_
 typedef struct EnsembleHeader_
 {
     unsigned int ensembleType : 4;
-    unsigned int elapsedTime_ds : 20;
+    unsigned int elapsedTime_ms : 28;
 } EnsembleHeader_t;
 
 /**
@@ -245,4 +245,4 @@ typedef struct Ensemble12_data_
 
 unsigned int Ens_getStartTime(void);
 void Ens_setStartTime(void);
-#endif
+#endif // ENSEMBLETYPES_HPP

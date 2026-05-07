@@ -9,7 +9,7 @@ CONTROL_UUID = "c39513e6-631e-439a-9b3b-affa0635b3d1"
 
 SCAN_TIMEOUT = 30
 RUN_DURATION = 60
-TARGET_ENSEMBLES = 300
+TARGET_ENSEMBLES = 20000
 
 TRANSPORT_HEADER_SIZE = 6
 # EnsembleHeader_t has 4+20 = 24 bits of bitfields. With #pragma pack(push,1)

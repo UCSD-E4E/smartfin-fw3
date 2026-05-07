@@ -84,7 +84,7 @@ def _save_records(state: BLEState, log: logging.Logger) -> None:
         np.savetxt(
             csv_path, arr,
             delimiter=",",
-            header="time_ds,sensor_type,ensemble_type,value",
+            header="time_ms,sensor_type,ensemble_type,value",
             comments="",
             fmt=["%.6f", "%d", "%d", "%.8f"],
         )

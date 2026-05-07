@@ -821,6 +821,12 @@ static void CLI_doBleTest(void)
     pSystemDesc->pChargerCheck->stop();
     pSystemDesc->pWaterCheck->stop();
     pSystemDesc->pTempSensor->init();
+    if (pSystemDesc->pIMU->begin())
+    {
+        SF_OSAL_printf("IMU init failed!" __NL__);
+        return;
+    }
+    delay(500);
 
 #if ENABLE_RECORD_SINK
     if (!pSystemDesc->pRecorder->openSession())

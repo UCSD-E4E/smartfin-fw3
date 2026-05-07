@@ -25,10 +25,10 @@ class BLEState:
     cumulative_ensembles: deque = field(default_factory=_dq)
 
     # Sensor data
-    temp_time_ds: deque = field(default_factory=_dq)
+    temp_time_ms: deque = field(default_factory=_dq)
     temp_c: deque = field(default_factory=_dq)
 
-    imu_time_ds: deque = field(default_factory=_dq)
+    imu_time_ms: deque = field(default_factory=_dq)
     accel_x: deque = field(default_factory=_dq)
     accel_y: deque = field(default_factory=_dq)
     accel_z: deque = field(default_factory=_dq)
@@ -40,13 +40,13 @@ class BLEState:
     mag_z: deque = field(default_factory=_dq)
 
     # Flat record log: one row per scalar reading.
-    # Columns: [time_ds, sensor_type (SensorType), ensemble_type, value]
+    # Columns: [time_ms, sensor_type (SensorType), ensemble_type, value]
     records: list = field(default_factory=list)
 
     def as_numpy(self) -> np.ndarray:
         """Return records as a float64 array of shape (N, 4).
 
-        Columns: time_ds | sensor_type | ensemble_type | value
+        Columns: time_ms | sensor_type | ensemble_type | value
         """
         if not self.records:
             return np.empty((0, 4), dtype=np.float64)

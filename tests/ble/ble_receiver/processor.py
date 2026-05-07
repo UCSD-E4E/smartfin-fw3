@@ -19,8 +19,8 @@ def ascii_str(data: bytes | bytearray) -> str:
 def decode_ensemble_header(data: bytes | bytearray, offset: int) -> tuple[int, int]:
     header_word = int.from_bytes(data[offset:offset + ENSEMBLE_HEADER_SIZE], "little")
     ensemble_type = header_word & 0x0F
-    elapsed_time_ds = (header_word >> 4) & 0xFFFFF
-    return ensemble_type, elapsed_time_ds
+    elapsed_time_ms = (header_word >> 4) & 0xFFFFFFF
+    return ensemble_type, elapsed_time_ms
 
 
 def count_ensembles(data: bytes | bytearray) -> int:
@@ -67,7 +67,7 @@ def decode_sensor_ensembles(data: bytes | bytearray, state: BLEState) -> None:
     offset = TRANSPORT_HEADER_SIZE
 
     while offset + ENSEMBLE_HEADER_SIZE <= payload_end:
-        ensemble_type, elapsed_time_ds = decode_ensemble_header(data, offset)
+        ensemble_type, elapsed_time_ms = decode_ensemble_header(data, offset)
 
         if ensemble_type == ENS_TEMP:
             record_size = ENSEMBLE_HEADER_SIZE + 3
@@ -75,9 +75,9 @@ def decode_sensor_ensembles(data: bytes | bytearray, state: BLEState) -> None:
                 break
             scaled_temp, _water = struct.unpack_from("<hB", data, offset + ENSEMBLE_HEADER_SIZE)
             temp_c = scaled_temp / 128.0
-            state.temp_time_ds.append(elapsed_time_ds)
+            state.temp_time_ms.append(elapsed_time_ms)
             state.temp_c.append(temp_c)
-            state.records.append([elapsed_time_ds, SensorType.TEMPERATURE, ensemble_type, temp_c])
+            state.records.append([elapsed_time_ms, SensorType.TEMPERATURE, ensemble_type, temp_c])
             offset += record_size
             continue
 
@@ -93,7 +93,7 @@ def decode_sensor_ensembles(data: bytes | bytearray, state: BLEState) -> None:
             #   accel: Q14  -> / 16384.0  (m/s²)
             #   gyro:  Q7   -> / 128.0    (deg/s)
             #   mag:   Q3   -> / 8.0      (µT)
-            state.imu_time_ds.append(elapsed_time_ds)
+            state.imu_time_ms.append(elapsed_time_ms)
             state.accel_x.append(ax / 16384.0)
             state.accel_y.append(ay / 16384.0)
             state.accel_z.append(az / 16384.0)
@@ -103,7 +103,7 @@ def decode_sensor_ensembles(data: bytes | bytearray, state: BLEState) -> None:
             state.mag_x.append(mx / 8.0)
             state.mag_y.append(my / 8.0)
             state.mag_z.append(mz / 8.0)
-            t = elapsed_time_ds
+            t = elapsed_time_ms
             e = ensemble_type
             state.records.extend([
                 [t, SensorType.ACCEL_X, e, ax / 16384.0],
