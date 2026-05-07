@@ -12,9 +12,10 @@ RUN_DURATION = 60
 TARGET_ENSEMBLES = 20000
 
 TRANSPORT_HEADER_SIZE = 6
-# EnsembleHeader_t has 4+20 = 24 bits of bitfields. With #pragma pack(push,1)
-# on ARM GCC the struct compresses to ceil(24/8) = 3 bytes, not sizeof(unsigned int) = 4.
-ENSEMBLE_HEADER_SIZE = 3
+# EnsembleHeader_t has 4+28 = 32 bits of bitfields in unsigned int base type.
+# With #pragma pack(push,1) on ARM GCC, bitfields still occupy their base type's
+# storage unit, so sizeof(EnsembleHeader_t) = 4 bytes.
+ENSEMBLE_HEADER_SIZE = 4
 ENS_TEMP = 0x01
 ENS_TEMP_HIGH_DATA_RATE_IMU = 0x0C
 
