@@ -824,7 +824,6 @@ static void CLI_doBleTest(void)
     if (pSystemDesc->pIMU->begin())
     {
         SF_OSAL_printf("IMU init failed!" __NL__);
-        return;
     }
     delay(500);
 
