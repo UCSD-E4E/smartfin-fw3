@@ -65,10 +65,10 @@ def setup_realtime_figures(state: BLEState):
                 ax_gyro.legend(loc="upper right", fontsize=7)
                 ax_mag.legend(loc="upper right", fontsize=7)
 
-        ax_temp.set_title("Temperature"); ax_temp.set_xlabel("elapsed time (ds)"); ax_temp.set_ylabel("deg C")
-        ax_acc.set_title("Acceleration"); ax_acc.set_xlabel("elapsed time (ds)"); ax_acc.set_ylabel("m/s^2")
-        ax_gyro.set_title("Gyroscope"); ax_gyro.set_xlabel("elapsed time (ds)"); ax_gyro.set_ylabel("deg/s")
-        ax_mag.set_title("Magnetometer"); ax_mag.set_xlabel("elapsed time (ds)"); ax_mag.set_ylabel("uT")
+        ax_temp.set_title("Temperature"); ax_temp.set_xlabel("elapsed time (ms)"); ax_temp.set_ylabel("deg C")
+        ax_acc.set_title("Acceleration"); ax_acc.set_xlabel("elapsed time (ms)"); ax_acc.set_ylabel("m/s^2")
+        ax_gyro.set_title("Gyroscope"); ax_gyro.set_xlabel("elapsed time (ms)"); ax_gyro.set_ylabel("deg/s")
+        ax_mag.set_title("Magnetometer"); ax_mag.set_xlabel("elapsed time (ms)"); ax_mag.set_ylabel("uT")
         fig_s.suptitle(
             f"Smartfin BLE sensor  ensembles={state.ensemble_count}  notifies={state.notify_count}"
         )
