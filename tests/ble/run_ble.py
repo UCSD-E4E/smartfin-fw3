@@ -1,20 +1,22 @@
 """Entry point: python tests/ble/run_ble.py [-v]"""
 import argparse
 import asyncio
+import csv
 from datetime import datetime
 import logging
 import sys
+import threading
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 import numpy as np
 
-from ble_receiver.config import LOG_DIR
+from ble_receiver.config import LOG_DIR, SensorType
 from ble_receiver.state import BLEState
 from ble_receiver.processor import packet_processor
 from ble_receiver.receiver import run_ble
-from ble_receiver.plotter import setup_realtime_figures, realtime_plot_task
+from ble_receiver.plotter import setup_realtime_figures
 
 try:
     import matplotlib.pyplot as plt
@@ -75,53 +77,56 @@ def setup_logging(verbose: bool) -> logging.Logger:
 
 
 def _save_records(state: BLEState, log: logging.Logger) -> None:
-    arr = state.as_numpy()
-    if arr.shape[0] > 0:
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        npy_path = LOG_DIR / f"records_{ts}.npy"
-        csv_path = LOG_DIR / f"records_{ts}.csv"
-        np.save(npy_path, arr)
-        np.savetxt(
-            csv_path, arr,
-            delimiter=",",
-            header="time_ms,sensor_type,ensemble_type,value",
-            comments="",
-            fmt=["%.6f", "%d", "%d", "%.8f"],
-        )
-        log.info("saved %d records -> %s  %s", arr.shape[0], npy_path, csv_path)
-    else:
+    if not state.records:
         log.info("no records collected - nothing saved")
+        return
+
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    npy_path = LOG_DIR / f"records_{ts}.npy"
+    csv_path = LOG_DIR / f"records_{ts}.csv"
+
+    arr = state.as_numpy()
+    np.save(npy_path, arr)
+
+    with csv_path.open("w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["time_ms", "sensor_type", "ensemble_type", "value"])
+        for row in state.records:
+            time_ms, sensor_int, ensemble_type, value = row
+            try:
+                sensor_name = SensorType(int(sensor_int)).name
+            except ValueError:
+                sensor_name = str(int(sensor_int))
+            writer.writerow([f"{time_ms:.6f}", sensor_name, int(ensemble_type), f"{value:.8f}"])
+
+    log.info("saved %d records -> %s  %s", len(state.records), npy_path, csv_path)
 
 
-async def _main(log: logging.Logger, state: BLEState) -> None:
+async def _ble_main(log: logging.Logger, state: BLEState) -> None:
+    """BLE + packet processing only — no matplotlib calls."""
     queue: asyncio.Queue = asyncio.Queue()
-
-    figs, update_fn = setup_realtime_figures(state)
-
     processor_task = asyncio.create_task(packet_processor(queue, state, log))
-    plot_task = asyncio.create_task(realtime_plot_task(figs, update_fn))
-
     try:
         await run_ble(state, queue, log)
     except asyncio.CancelledError:
         log.info("BLE task cancelled")
     finally:
-        plot_task.cancel()
-        try:
-            await plot_task
-        except asyncio.CancelledError:
-            pass
-
         await queue.join()
         await queue.put(None)
         await processor_task
 
-    # Final plot refresh before handing control to user
-    if figs and _MPL_AVAILABLE:
-        update_fn()
-        for fig in figs:
-            fig.canvas.draw_idle()
-            fig.canvas.flush_events()
+
+def _run_ble_thread(log: logging.Logger, state: BLEState, done: threading.Event) -> None:
+    """Run the asyncio BLE loop in a background thread."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(_ble_main(log, state))
+    except KeyboardInterrupt:
+        pass
+    finally:
+        loop.close()
+        done.set()
 
 
 if __name__ == "__main__":
@@ -135,16 +140,34 @@ if __name__ == "__main__":
     log = setup_logging(args.verbose)
     state = BLEState()
 
+    # Figures must be created on the main thread before asyncio takes over.
     if _MPL_AVAILABLE:
         plt.ion()
+        figs, update_fn = setup_realtime_figures(state)
+    else:
+        figs, update_fn = [], lambda: None
+
+    done = threading.Event()
+    ble_thread = threading.Thread(target=_run_ble_thread, args=(log, state, done), daemon=True)
+    ble_thread.start()
 
     try:
-        asyncio.run(_main(log, state))
+        # Main thread drives the GUI event loop via plt.pause().
+        while not done.is_set():
+            update_fn()
+            for fig in figs:
+                fig.canvas.draw_idle()
+            if _MPL_AVAILABLE:
+                plt.pause(0.5)
+            else:
+                done.wait(0.5)
     except KeyboardInterrupt:
         log.info("interrupted by user")
     finally:
+        ble_thread.join(timeout=5)
         _save_records(state, log)
 
     if _MPL_AVAILABLE and plt.get_fignums():
+        update_fn()
         plt.ioff()
         plt.show(block=True)

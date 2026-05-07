@@ -3,7 +3,7 @@ import struct
 import logging
 from .config import (
     TRANSPORT_HEADER_SIZE, ENSEMBLE_HEADER_SIZE,
-    ENS_TEMP, ENS_TEMP_HIGH_DATA_RATE_IMU, SensorType,
+    ENS_TEMP, ENS_TEMP_HIGH_DATA_RATE_IMU, ENS_TEXT, SensorType,
 )
 from .state import BLEState
 
@@ -43,6 +43,11 @@ def count_ensembles(data: bytes | bytearray) -> int:
             record_size = ENSEMBLE_HEADER_SIZE + 3
         elif ensemble_type == ENS_TEMP_HIGH_DATA_RATE_IMU:
             record_size = ENSEMBLE_HEADER_SIZE + 18
+        elif ensemble_type == ENS_TEXT:
+            if offset + ENSEMBLE_HEADER_SIZE + 1 > payload_end:
+                break
+            nchars = data[offset + ENSEMBLE_HEADER_SIZE]
+            record_size = ENSEMBLE_HEADER_SIZE + 1 + nchars
         else:
             break
 
@@ -55,7 +60,7 @@ def count_ensembles(data: bytes | bytearray) -> int:
     return count
 
 
-def decode_sensor_ensembles(data: bytes | bytearray, state: BLEState) -> None:
+def decode_sensor_ensembles(data: bytes | bytearray, state: BLEState, log: logging.Logger | None = None) -> None:
     if len(data) < TRANSPORT_HEADER_SIZE:
         return
     try:
@@ -119,6 +124,20 @@ def decode_sensor_ensembles(data: bytes | bytearray, state: BLEState) -> None:
             offset += record_size
             continue
 
+        if ensemble_type == ENS_TEXT:
+            if offset + ENSEMBLE_HEADER_SIZE + 1 > payload_end:
+                break
+            nchars = data[offset + ENSEMBLE_HEADER_SIZE]
+            record_size = ENSEMBLE_HEADER_SIZE + 1 + nchars
+            if offset + record_size > payload_end:
+                break
+            text = data[offset + ENSEMBLE_HEADER_SIZE + 1:offset + record_size].decode("ascii", errors="replace")
+            state.fw_version = text
+            if log is not None:
+                log.info("firmware version: %s", text)
+            offset += record_size
+            continue
+
         break
 
 
@@ -137,7 +156,7 @@ async def packet_processor(
             queue.task_done()
             break
         try:
-            decode_sensor_ensembles(data, state)
+            decode_sensor_ensembles(data, state, log)
         except Exception:
             log.exception("packet_processor: error decoding packet")
         queue.task_done()

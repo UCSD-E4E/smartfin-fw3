@@ -69,8 +69,9 @@ def setup_realtime_figures(state: BLEState):
         ax_acc.set_title("Acceleration"); ax_acc.set_xlabel("elapsed time (ms)"); ax_acc.set_ylabel("m/s^2")
         ax_gyro.set_title("Gyroscope"); ax_gyro.set_xlabel("elapsed time (ms)"); ax_gyro.set_ylabel("deg/s")
         ax_mag.set_title("Magnetometer"); ax_mag.set_xlabel("elapsed time (ms)"); ax_mag.set_ylabel("uT")
+        fw = f"  fw={state.fw_version}" if state.fw_version else ""
         fig_s.suptitle(
-            f"Smartfin BLE sensor  ensembles={state.ensemble_count}  notifies={state.notify_count}"
+            f"Smartfin BLE sensor  ensembles={state.ensemble_count}  notifies={state.notify_count}{fw}"
         )
         fig_s.tight_layout()
 

@@ -39,6 +39,9 @@ class BLEState:
     mag_y: deque = field(default_factory=_dq)
     mag_z: deque = field(default_factory=_dq)
 
+    # Firmware version string received via ENS_TEXT ensemble.
+    fw_version: str = ""
+
     # Flat record log: one row per scalar reading.
     # Columns: [time_ms, sensor_type (SensorType), ensemble_type, value]
     records: list = field(default_factory=list)
