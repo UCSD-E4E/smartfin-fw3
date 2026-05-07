@@ -93,7 +93,7 @@ void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment)
     temp = pSystemDesc->pTempSensor->getTemp();
     water = pSystemDesc->pWaterSensor->getLastReading();
     // FIXME: change error catch
-    if (0 != temp)
+    if (std::isfinite(temp))
     {
         pData->temperature += temp;
         pData->water += water;
