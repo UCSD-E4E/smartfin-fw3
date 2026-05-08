@@ -1,4 +1,7 @@
 """Entry point: python tests/ble/run_ble.py [-v]"""
+import matplotlib
+matplotlib.use("Qt5Agg")
+
 import argparse
 import asyncio
 import csv
