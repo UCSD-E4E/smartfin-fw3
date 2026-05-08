@@ -820,12 +820,20 @@ static void CLI_doBleTest(void)
 
     pSystemDesc->pChargerCheck->stop();
     pSystemDesc->pWaterCheck->stop();
-    pSystemDesc->pTempSensor->init();
-    if (pSystemDesc->pIMU->begin())
-    {
-        SF_OSAL_printf("IMU init failed!" __NL__);
-    }
+    const bool tempSensorReady = pSystemDesc->pTempSensor->init();
+    SF_OSAL_printf("[BLE TEST] temp sensor init: %s" __NL__,
+                   tempSensorReady ? "OK" : "FAILED");
     delay(500);
+
+    float tempProbe = pSystemDesc->pTempSensor->getTemp();
+    if (std::isfinite(tempProbe))
+    {
+        SF_OSAL_printf("[BLE TEST] initial temp sample: %.4f C" __NL__, tempProbe);
+    }
+    else
+    {
+        SF_OSAL_printf("[BLE TEST] initial temp sample invalid (NaN/Inf)" __NL__);
+    }
 
 #if ENABLE_RECORD_SINK
     if (!pSystemDesc->pRecorder->openSession())
@@ -864,9 +872,20 @@ static void CLI_doBleTest(void)
         uint32_t now = millis();
         if (now - lastStatusMs >= 2000)
         {
-            SF_OSAL_printf("[BLE STATUS] %s | ensembles: %" PRIu32 __NL__,
-                           stream.isConnected() ? "connected" : "advertising",
-                           ensCount);
+            tempProbe = pSystemDesc->pTempSensor->getTemp();
+            if (std::isfinite(tempProbe))
+            {
+                SF_OSAL_printf("[BLE STATUS] %s | ensembles: %" PRIu32 " | temp: %.4f C" __NL__,
+                               stream.isConnected() ? "connected" : "advertising",
+                               ensCount,
+                               tempProbe);
+            }
+            else
+            {
+                SF_OSAL_printf("[BLE STATUS] %s | ensembles: %" PRIu32 " | temp: invalid" __NL__,
+                               stream.isConnected() ? "connected" : "advertising",
+                               ensCount);
+            }
             lastStatusMs = now;
         }
 
