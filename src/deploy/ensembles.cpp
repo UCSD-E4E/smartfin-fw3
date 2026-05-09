@@ -462,7 +462,7 @@ void SS_Ensemble12_x0C_Init(DeploymentSchedule_t *pDeployment)
  */
 void SS_Ensemble12_x0C_Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE && defined(SF_HIGH_DATA_RATE)
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #pragma pack(push, 1)
     struct
     {
