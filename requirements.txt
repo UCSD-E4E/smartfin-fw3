@@ -7,10 +7,10 @@ matplotlib==3.10.8
 numpy==2.4.4
 packaging==26.0
 pillow==12.2.0
-pyobjc-core==12.1
-pyobjc-framework-Cocoa==12.1
-pyobjc-framework-CoreBluetooth==12.1
-pyobjc-framework-libdispatch==12.1
+pyobjc-core==12.1; sys_platform == "darwin"
+pyobjc-framework-Cocoa==12.1; sys_platform == "darwin"
+pyobjc-framework-CoreBluetooth==12.1; sys_platform == "darwin"
+pyobjc-framework-libdispatch==12.1; sys_platform == "darwin"
 pyparsing==3.3.2
 PyQt5==5.15.11
 PyQt5-Qt5==5.15.18
