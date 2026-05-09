@@ -34,7 +34,6 @@
 #include "system.hpp"
 #include "util.hpp"
 #include "vers.hpp"
-#include "cellular/sf_cloud.hpp"
 
 #include <bits/stdc++.h>
 #include <atomic>
