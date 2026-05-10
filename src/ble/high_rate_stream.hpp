@@ -50,6 +50,7 @@ public:
      * @return false if the queue is full or stream not running.
      */
     bool enqueueImuRecord(const HighRateImuRecord& record);
+    bool enqueueImuQuatRecord(const HighRateImuQuatRecord& record);
 
     /**
      * @brief Transport-side service loop; called only by the transport thread.
@@ -124,8 +125,10 @@ private:
     /** @brief Count of BLE notify failures. */
     std::atomic<uint32_t> notifyFailures_;
 
-    /** @brief Lock-free queue holding pending IMU records. */
+    /** @brief Lock-free queue holding pending Ensemble12 IMU records (0x0C). */
     sf::util::SpscQueue<HighRateImuRecord, 512> recordQueue_;
+    /** @brief Lock-free queue holding pending Ensemble13 IMU+Quat records (0x0D). */
+    sf::util::SpscQueue<HighRateImuQuatRecord, 512> quatRecordQueue_;
     /** @brief Builder used to batch IMU records into BLE packets. */
     sf::ble::transport::PacketBuilder packetBuilder_;
 
