@@ -209,6 +209,28 @@ bool TransportService::enqueueImuRecord(const HighRateImuRecord& record)
 }
 
 /**
+ * @brief Enqueue a single Ensemble13 IMU+Quat record from producer context.
+ * @return false if uninitialized, stopped, or queue full.
+ */
+bool TransportService::enqueueImuQuatRecord(const HighRateImuQuatRecord& record)
+{
+    if (!initialized_.load(std::memory_order_acquire) ||
+        !running_.load(std::memory_order_acquire) ||
+        !accepting_.load(std::memory_order_acquire))
+    {
+        return false;
+    }
+
+    if (!quatRecordQueue_.push(record))
+    {
+        droppedProducerRecords_.fetch_add(1, std::memory_order_relaxed);
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * @brief Thread entry thunk to call the instance transport loop.
  */
 void TransportService::transportLoopThunk(void* param)
@@ -230,7 +252,7 @@ void TransportService::transportLoop()
     {
         if (running_.load(std::memory_order_acquire) ||
             stopRequested_.load(std::memory_order_acquire) ||
-            !recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty() ||
+            !recordQueue_.empty() || !quatRecordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty() ||
             !lowRateQueue_.empty())
         {
             serviceOnce();
@@ -261,7 +283,62 @@ void TransportService::serviceOnce()
     {
         progress = false;
 
-        // Drain a bounded batch of high-rate records to avoid starving other queues.
+        // Drain a bounded batch of Ensemble13 quat records (active high-rate path).
+        HighRateImuQuatRecord quatRecord;
+        for (std::size_t i = 0; i < MAX_RECORD_BATCH && quatRecordQueue_.pop(quatRecord); ++i)
+        {
+            progress = true;
+#if ENABLE_RECORD_SINK
+            if (pSystemDesc && pSystemDesc->pRecorder)
+            {
+                if (pSystemDesc->pRecorder->putBytes(&quatRecord, sizeof(quatRecord)) != 0)
+                {
+                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                }
+            }
+#endif
+            if (!packetBuilder_.canAppend(sizeof(quatRecord)))
+            {
+                sf::ble::transport::TxPacket packet;
+                if (packetBuilder_.finalize(packet))
+                {
+                    const bool connected = SFBLE::getInstance().isConnected();
+                    if (!connected)
+                    {
+                        droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                    {
+                        notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                }
+            }
+
+            if (!packetBuilder_.appendEnsemble(&quatRecord, sizeof(quatRecord)))
+            {
+                droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+            }
+
+            if (packetBuilder_.remainingPayload() == 0)
+            {
+                sf::ble::transport::TxPacket packet;
+                if (packetBuilder_.finalize(packet))
+                {
+                    const bool connected = SFBLE::getInstance().isConnected();
+                    if (!connected)
+                    {
+                        droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                    {
+                        notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                }
+                lastFlushMs_ = millis();
+            }
+        }
+
+        // Drain a bounded batch of legacy Ensemble12 records.
         HighRateImuRecord record;
         for (std::size_t i = 0; i < MAX_RECORD_BATCH && recordQueue_.pop(record); ++i)
         {
@@ -425,7 +502,7 @@ void TransportService::serviceOnce()
 
     // After draining all queues, if we were asked to stop and nothing remains, flush builder.
     if (stopRequested_.load(std::memory_order_acquire) &&
-        recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() && lowRateQueue_.empty() &&
+        recordQueue_.empty() && quatRecordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() && lowRateQueue_.empty() &&
         packetBuilder_.hasData())
     {
         sf::ble::transport::TxPacket finalPacket;
