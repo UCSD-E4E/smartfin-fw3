@@ -22,8 +22,16 @@ struct HighRateImuRecord
 {
     /** @brief Ensemble header carrying timestamp/type info. */
     EnsembleHeader_t header;
-    /** @brief Quantized IMU/magnetometer values. */
+    /** @brief Quantized IMU/magnetometer values (Ensemble12, 0x0C). */
     Ensemble12_data_t data;
+};
+
+struct HighRateImuQuatRecord
+{
+    /** @brief Ensemble header carrying timestamp/type info. */
+    EnsembleHeader_t header;
+    /** @brief Quantized IMU/magnetometer/quaternion values (Ensemble13, 0x0D). */
+    Ensemble13_data_t data;
 };
 #pragma pack(pop)
 
