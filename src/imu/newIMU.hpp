@@ -252,6 +252,20 @@ public:
      */
     bool getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z);
     /**
+     * @brief Retrieves raw Quat9 components and heading accuracy from the DMP
+     *
+     * Components are Q30 integers; accuracy is a Q12 integer (radians).
+     * Recover q0 = sqrt(1 - q1^2 - q2^2 - q3^2) after scaling.
+     *
+     * @param q1 Reference to store Q1 (Q30)
+     * @param q2 Reference to store Q2 (Q30)
+     * @param q3 Reference to store Q3 (Q30)
+     * @param accuracy_q12 Reference to store heading accuracy (Q12, radians)
+     * @return Failure flag - true if failure, otherwise false
+     */
+    bool getRawQuat9(int32_t &q1, int32_t &q2, int32_t &q3,
+                     int16_t &accuracy_q12);
+    /**
      * @brief Dumps the registers
      *
      * @param printfn Printf function to use
