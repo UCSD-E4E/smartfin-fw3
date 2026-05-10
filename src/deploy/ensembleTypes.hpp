@@ -26,6 +26,11 @@ typedef enum EnsembleID_
      *
      */
     ENS_TEMP_HIGH_DATA_RATE_IMU,
+    /**
+     * @brief High Data Rate IMU with Quat9 orientation (0x0D)
+     *
+     */
+    ENS_HIGH_DATA_RATE_IMU_QUAT,
     ENS_TEXT = 0x0F,
     ENS_NUM_ENSEMBLES
 } EnsembleID_e;
@@ -241,6 +246,52 @@ typedef struct Ensemble12_data_
      */
     int16_t magIntensity_uT_q3[3];
 } Ensemble12_data_t;
+
+/**
+ * @brief High Data Rate IMU Ensemble with Quat9 orientation (0x0D)
+ *
+ */
+typedef struct Ensemble13_data_
+{
+    /**
+     * @brief Acceleration as a 3 vector (x, y, z) in m/s^2 represented in Q9
+     *
+     * acceleration = acceleration_ms2_q9 / 512
+     * Max range: ±64.0 m/s² (covers ±4g FSR)
+     */
+    int16_t acceleration_ms2_q9[3];
+
+    /**
+     * @brief Rotational velocity as a 3 vector (x, y, z) in deg/s represented
+     * in Q7
+     *
+     * angularVelocity = angularVel_dps_q7 / 128
+     */
+    int16_t angularVel_dps_q7[3];
+
+    /**
+     * @brief Magnetic field intensity as a 3 vector (x, y, z) in uT
+     * represented in Q3
+     *
+     * magneticFieldIntensity = magIntensity_uT_q3 / 8
+     */
+    int16_t magIntensity_uT_q3[3];
+
+    /**
+     * @brief 9-axis DMP quaternion components q1, q2, q3 in Q30
+     *
+     * qi = quat9_q30[i] / 1073741824
+     * q0 = sqrt(1 - q1^2 - q2^2 - q3^2)
+     */
+    int32_t quat9_q30[3];
+
+    /**
+     * @brief DMP heading accuracy estimate in Q12 (radians)
+     *
+     * heading_accuracy_rad = quat9_accuracy_q12 / 4096
+     */
+    int16_t quat9_accuracy_q12;
+} Ensemble13_data_t;
 #pragma pack(pop)
 
 unsigned int Ens_getStartTime(void);
