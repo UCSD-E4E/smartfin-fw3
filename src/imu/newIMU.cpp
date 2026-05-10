@@ -436,6 +436,24 @@ bool IMU::getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z)
     return fail;
 }
 
+bool IMU::getRawQuat9(int32_t &q1, int32_t &q2, int32_t &q3,
+                      int16_t &accuracy_q12)
+{
+    if (this->error_flag)
+    {
+        return true;
+    }
+    this->_data_mtx->lock();
+    {
+        q1 = this->fifo_data.Quat9_1;
+        q2 = this->fifo_data.Quat9_2;
+        q3 = this->fifo_data.Quat9_3;
+        accuracy_q12 = static_cast<int16_t>(this->fifo_data.Quat9_Acc);
+    }
+    this->_data_mtx->unlock();
+    return false;
+}
+
 void IMU::dumpRegs(int (*printfn)(const char *s, ...))
 {
     uint8_t data;
