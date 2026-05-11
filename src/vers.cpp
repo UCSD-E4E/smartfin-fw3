@@ -64,6 +64,18 @@ void VERS_printBanner(void)
     }
     SF_OSAL_printf(__NL__);
 #endif
+
+    SF_OSAL_printf("FW Flags: ");
+#ifdef SF_INHIBIT_UPLOAD
+    SF_OSAL_printf("INHIBIT_UPLOAD ");
+#endif
+#ifdef SF_HIGH_DATA_RATE
+    SF_OSAL_printf("HIGH_DATA_RATE ");
+#endif
+    SF_OSAL_printf("UPLOAD_ENCODING=%d ", SF_UPLOAD_ENCODING);
+    SF_OSAL_printf("PLATFORM=%d ", SF_PLATFORM);
+
+    SF_OSAL_printf(__NL__ __NL__);
 }
 
 const char* VERS_getBuildDate(void)
