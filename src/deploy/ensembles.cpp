@@ -93,7 +93,7 @@ void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment)
     temp = pSystemDesc->pTempSensor->getTemp();
     water = pSystemDesc->pWaterSensor->getLastReading();
     // FIXME: change error catch
-    if (0 != temp)
+    if (std::isfinite(temp))
     {
         pData->temperature += temp;
         pData->water += water;
@@ -108,7 +108,7 @@ void SS_Ensemble01_Func(DeploymentSchedule_t *pDeployment)
 
         // populate ensemble
         ensData.header.ensembleType = ENS_TEMP;
-        ensData.header.elapsedTime_ds = Ens_getStartTime();
+        ensData.header.elapsedTime_ms = Ens_getStartTime();
         ensData.data.scaled_temp = Q7_SCALAR * temp;
         ensData.data.water = water;
 
@@ -263,8 +263,8 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
         water = pData->water / pDeployment->measurementsToAccumulate;
         temp = pData->temperature / pDeployment->measurementsToAccumulate;
 
-        ensData.header.elapsedTime_ds = Ens_getStartTime();
-        SF_OSAL_printf("Ensemble timestamp: %d\n", ensData.header.elapsedTime_ds);
+        ensData.header.elapsedTime_ms = Ens_getStartTime();
+        SF_OSAL_printf("Ensemble timestamp: %d\n", ensData.header.elapsedTime_ms);
         ensData.data.ens10.scaled_temp = (temp * Q7_SCALAR);
         ensData.data.ens10.water = water;
         ensData.data.ens10.rawAcceleration[0] =
@@ -330,7 +330,7 @@ void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
     // Report accumulated measurements
     if (pData->accumulateCount == pDeployment->measurementsToAccumulate)
     {
-        ensData.header.elapsedTime_ds = Ens_getStartTime();
+        ensData.header.elapsedTime_ms = Ens_getStartTime();
         ensData.header.ensembleType = ENS_BATT;
         ensData.data.batteryVoltage = ((pData->battVoltage / pData->accumulateCount) * Q10_SCALAR);
 
@@ -370,7 +370,7 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         water = pData->water / pDeployment->measurementsToAccumulate;
         temp = pData->temperature / pDeployment->measurementsToAccumulate;
 
-        ens.header.elapsedTime_ds = Ens_getStartTime();
+        ens.header.elapsedTime_ms = Ens_getStartTime();
         ens.header.ensembleType = ENS_TEMP_TIME;
         ens.ensData.scaled_temp = (temp * Q7_SCALAR);
         ens.ensData.water = water;
@@ -415,7 +415,7 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
     } ens;
 #pragma pack(pop)
 
-    ens.header.elapsedTime_ds = Ens_getStartTime();
+    ens.header.elapsedTime_ms = Ens_getStartTime();
     ens.header.ensembleType = ENS_TEXT;
 
     int n = snprintf(ens.verBuf,
@@ -450,7 +450,7 @@ void SS_fwVerFunc(DeploymentSchedule_t *pDeployment)
  *
  * @param pDeployment Deployment event
  */
-void SS_HighRateIMU_x0C_Init(DeploymentSchedule_t *pDeployment)
+void SS_Ensemble12_x0C_Init(DeploymentSchedule_t *pDeployment)
 {
     (void)pDeployment;
 }
@@ -460,9 +460,9 @@ void SS_HighRateIMU_x0C_Init(DeploymentSchedule_t *pDeployment)
  *
  * @param pDeployment Deployment event
  */
-void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
+void SS_Ensemble12_x0C_Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE && defined(SF_HIGH_DATA_RATE)
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #pragma pack(push, 1)
     struct
     {
@@ -475,9 +475,9 @@ void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
     pSystemDesc->pIMU->getDmpAccel_ms2(values[0], values[1], values[2]);
     pSystemDesc->pIMU->getDmpRotVel_dps(values[3], values[4], values[5]);
     pSystemDesc->pIMU->getDmpMag_uT(values[6], values[7], values[8]);
-    ensData.data.acceleration_ms2_q14[0] = ((int16_t)(values[0] * Q10_SCALAR));
-    ensData.data.acceleration_ms2_q14[1] = ((int16_t)(values[1] * Q10_SCALAR));
-    ensData.data.acceleration_ms2_q14[2] = ((int16_t)(values[2] * Q10_SCALAR));
+    ensData.data.acceleration_ms2_q14[0] = ((int16_t)(values[0] * Q14_SCALAR));
+    ensData.data.acceleration_ms2_q14[1] = ((int16_t)(values[1] * Q14_SCALAR));
+    ensData.data.acceleration_ms2_q14[2] = ((int16_t)(values[2] * Q14_SCALAR));
     ensData.data.angularVel_dps_q7[0] = ((int16_t)(values[3] * Q7_SCALAR));
     ensData.data.angularVel_dps_q7[1] = ((int16_t)(values[4] * Q7_SCALAR));
     ensData.data.angularVel_dps_q7[2] = ((int16_t)(values[5] * Q7_SCALAR));
@@ -486,7 +486,7 @@ void SS_HighRateIMU_x0C_Func(DeploymentSchedule_t *pDeployment)
     ensData.data.magIntensity_uT_q3[2] = ((int16_t)(values[8] * Q3_SCALAR));
 
     ensData.header.ensembleType = ENS_TEMP_HIGH_DATA_RATE_IMU;
-    ensData.header.elapsedTime_ds = Ens_getStartTime();
+    ensData.header.elapsedTime_ms = Ens_getStartTime();
 
     HighRateImuRecord record;
     record.header = ensData.header;

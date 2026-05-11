@@ -41,7 +41,7 @@ public:
 
     /**
      * @brief Finalize any partial packet and push it into the transmit queue.
-     * Does not send over the air — call processTx() to drain the queue to BLE.
+     * Does not send over the air: call processTx() to drain the queue to BLE.
      */
     void finalizePacket();
 

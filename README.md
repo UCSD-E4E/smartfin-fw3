@@ -3,7 +3,7 @@ Smartfin FW v3
 
 ## Flashing via USB
 ### Required materials:
-- firmware-tracker-5.3.0.bin from https://github.com/UCSD-E4E/smartfin-fw3/release/latest, stored at `${fw_path}`
+- firmware-tracker-5.4.1.bin from https://github.com/UCSD-E4E/smartfin-fw3/release/latest, stored at `${fw_path}`
 - Particle Workbench from https://docs.particle.io/quickstart/workbench/
 - Smartfin v3
 - USB Cable
