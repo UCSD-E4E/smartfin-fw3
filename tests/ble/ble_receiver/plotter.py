@@ -88,6 +88,13 @@ def setup_realtime_figures(state: BLEState):
         payload    = list(state.notify_payload_bytes)
         cumulative = list(state.cumulative_ensembles)
 
+        # Truncate to shortest to guard against mid-append races from the BLE thread.
+        min_len = min(len(n), len(elapsed_s), len(dt_ms), len(batch), len(payload), len(cumulative))
+        n, elapsed_s, dt_ms, batch, payload, cumulative = (
+            n[:min_len], elapsed_s[:min_len], dt_ms[:min_len],
+            batch[:min_len], payload[:min_len], cumulative[:min_len],
+        )
+
         ax_dt.plot(n, dt_ms, lw=1.2, color="#2F4B7C")
         if dt_ms:
             mean_dt = sum(dt_ms) / len(dt_ms)

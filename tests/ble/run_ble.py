@@ -9,6 +9,7 @@ from datetime import datetime
 import logging
 import sys
 import threading
+import time
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -138,6 +139,7 @@ if __name__ == "__main__":
                         help="also print logs to terminal")
     args = parser.parse_args()
 
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
     _prune_old_devtty_logs()
 
     log = setup_logging(args.verbose)
@@ -161,7 +163,9 @@ if __name__ == "__main__":
             for fig in figs:
                 fig.canvas.draw_idle()
             if _MPL_AVAILABLE:
-                plt.pause(0.5)
+                for fig in figs:
+                    fig.canvas.flush_events()
+                time.sleep(0.5)
             else:
                 done.wait(0.5)
     except KeyboardInterrupt:
