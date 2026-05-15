@@ -27,9 +27,9 @@
 // clang-format off
 DeploymentSchedule_t deploymentSchedule[] = {
     // measure,                 init,                       accumulate, interval,   duration,   delay,  name, state
-    {SS_fwVerFunc,              SS_fwVerInit,               1,          UINT32_MAX, 1,          0,      "FW VER", {0}},
+    {SS_fwVerFunc,              SS_fwVerInit,               1,          UINT32_MAX, 1,         0,      "FW VER", {0}},
     // high rate IMU ensemble
-    {SS_Ensemble12_x0C_Func,        SS_Ensemble12_x0C_Init,         1,          18,        1,          0,      "HDR IMU", {0}},
+    {SS_Ensemble12_x0C_Func,    SS_Ensemble12_x0C_Init,     1,          18,         1,         0,      "HDR IMU", {0}},
     // temp + wet/dry
     {SS_Ensemble01_Func,        SS_Ensemble01_Init,         1,          100,        2,         0,      "Temp",   {0}},
     // {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},

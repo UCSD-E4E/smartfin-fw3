@@ -69,4 +69,37 @@ void CLI_initCloudCounters(void);
  *
  */
 void CLI_dumpIMURegs(void);
+
+/**
+ * @brief Stop GPS
+ */
+void CLI_stopGPS(void);
+/**
+ * @brief Start GPS
+ */
+void CLI_startGPS(void);
+/**
+ * @brief Stop IMU
+ */
+void CLI_stopIMU(void);
+/**
+ * @brief Start IMU
+ */
+void CLI_startIMU(void);
+/**
+ * @brief Stop Cellular
+ */
+void CLI_stopCellular(void);
+/**
+ * @brief Start Cellular
+ */
+void CLI_startCellular(void);
+/**
+ * @brief Stop BLE
+ */
+void CLI_stopBLE(void);
+/**
+ * @brief Start BLE
+ */
+void CLI_startBLE(void);
 #endif

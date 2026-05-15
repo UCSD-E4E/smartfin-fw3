@@ -866,6 +866,13 @@ static void CLI_doBleTest(void)
             {
                 break;
             }
+            // Hardware Toggles for Power Testing
+            else if (ch == 'G') { CLI_stopGPS(); }
+            else if (ch == 'g') { CLI_startGPS(); }
+            else if (ch == 'I') { CLI_stopIMU(); }
+            else if (ch == 'i') { CLI_startIMU(); }
+            else if (ch == 'C') { CLI_stopCellular(); }
+            else if (ch == 'c') { CLI_startCellular(); }
         }
 
         uint32_t now = millis();
@@ -905,6 +912,13 @@ static void CLI_doBleTest(void)
                 {
                     quit = true;
                 }
+                // Hardware Toggles for Power Testing (inner loop)
+                else if (ch == 'G') { CLI_stopGPS(); }
+                else if (ch == 'g') { CLI_startGPS(); }
+                else if (ch == 'I') { CLI_stopIMU(); }
+                else if (ch == 'i') { CLI_startIMU(); }
+                else if (ch == 'C') { CLI_stopCellular(); }
+                else if (ch == 'c') { CLI_startCellular(); }
             }
             delay(1);
         }

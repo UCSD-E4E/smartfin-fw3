@@ -42,4 +42,12 @@ const Menu_t CLI_debugMenu[] = {{1, "Display Fault Log", &CLI_displayFLOG, MENU_
                                 {13, "File CLI", &CLI_fileCLI, MENU_CMD},
                                 {14, "Init Cloud Counters", &CLI_initCloudCounters, MENU_CMD},
                                 {15, "Dump IMU Registers", &CLI_dumpIMURegs, MENU_CMD},
+                                {16, "Stop GPS", &CLI_stopGPS, MENU_CMD},
+                                {17, "Start GPS", &CLI_startGPS, MENU_CMD},
+                                {18, "Stop IMU", &CLI_stopIMU, MENU_CMD},
+                                {19, "Start IMU", &CLI_startIMU, MENU_CMD},
+                                {20, "Stop Cellular", &CLI_stopCellular, MENU_CMD},
+                                {21, "Start Cellular", &CLI_startCellular, MENU_CMD},
+                                {22, "Stop BLE", &CLI_stopBLE, MENU_CMD},
+                                {23, "Start BLE", &CLI_startBLE, MENU_CMD},
                                 {0, nullptr, nullptr, MENU_NULL}};

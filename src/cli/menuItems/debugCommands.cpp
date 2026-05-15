@@ -212,3 +212,79 @@ void CLI_dumpIMURegs(void)
     pSystemDesc->pIMU->dumpRegs(SF_OSAL_printf);
 #endif
 }
+
+void CLI_stopGPS(void)
+{
+#if SF_ENABLE_GPS
+    if (pSystemDesc->pLocService)
+    {
+        pSystemDesc->pLocService->stop();
+        SF_OSAL_printf("GPS Stopped" __NL__);
+    }
+#endif
+}
+
+void CLI_startGPS(void)
+{
+#if SF_ENABLE_GPS
+    if (pSystemDesc->pLocService)
+    {
+        pSystemDesc->pLocService->start();
+        SF_OSAL_printf("GPS Started" __NL__);
+    }
+#endif
+}
+
+void CLI_stopIMU(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    if (pSystemDesc->pIMU)
+    {
+        pSystemDesc->pIMU->end();
+        SF_OSAL_printf("IMU Stopped" __NL__);
+    }
+#endif
+}
+
+void CLI_startIMU(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    if (pSystemDesc->pIMU)
+    {
+        pSystemDesc->pIMU->begin();
+        SF_OSAL_printf("IMU Started" __NL__);
+    }
+#endif
+}
+
+void CLI_stopCellular(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    Cellular.off();
+    SF_OSAL_printf("Cellular OFF" __NL__);
+#endif
+}
+
+void CLI_startCellular(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    Cellular.on();
+    SF_OSAL_printf("Cellular ON" __NL__);
+#endif
+}
+
+void CLI_stopBLE(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    BLE.off();
+    SF_OSAL_printf("BLE OFF" __NL__);
+#endif
+}
+
+void CLI_startBLE(void)
+{
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    BLE.on();
+    SF_OSAL_printf("BLE ON" __NL__);
+#endif
+}

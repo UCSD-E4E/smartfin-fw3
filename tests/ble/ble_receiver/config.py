@@ -9,7 +9,7 @@ CONTROL_UUID = "c39513e6-631e-439a-9b3b-affa0635b3d1"
 
 SCAN_TIMEOUT = 30
 RUN_DURATION = 60
-TARGET_ENSEMBLES = 20000
+TARGET_ENSEMBLES = -1
 
 TRANSPORT_HEADER_SIZE = 6
 # EnsembleHeader_t has 4+28 = 32 bits of bitfields in unsigned int base type.
