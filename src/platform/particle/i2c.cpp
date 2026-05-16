@@ -62,6 +62,11 @@ int i2c_write(uint8_t address, const char *data, int length, bool repeated)
     return Wire.endTransmission(!repeated) == 0 ? length : -1;
 }
 
+TwoWire& i2c_get_wire()
+{
+    return Wire;
+}
+
 } // namespace SF_HAL
 
 #endif // SF_PLATFORM == SF_PLATFORM_PARTICLE

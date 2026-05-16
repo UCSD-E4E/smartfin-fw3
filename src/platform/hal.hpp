@@ -161,8 +161,15 @@ void serial_write(const uint8_t* buf, std::size_t len);
 // ---------------------------------------------------------------------------
 // I2C
 // Replaces: Wire.begin(), Wire.isEnabled(), Wire.beginTransmission(),
-//           Wire.requestFrom(), Wire.read(), Wire.write(), Wire.endTransmission()
+//           Wire.requestFrom(), Wire.read(), Wire.write(), Wire.endTransmission(),
+//           Wire (direct reference)
 // ---------------------------------------------------------------------------
+
+} // namespace SF_HAL
+// Forward declaration in global namespace — avoids including Particle.h / Wire.h.
+class TwoWire;
+namespace SF_HAL
+{
 
 /**
  * @brief Initialise the I2C (Wire) bus as controller.
@@ -204,6 +211,17 @@ int i2c_read(uint8_t address, char *data, int length, bool repeated);
  */
 int i2c_write(uint8_t address, const char *data, int length, bool repeated);
 
+/**
+ * @brief Return the platform I2C bus handle.
+ *
+ * Required by drivers that accept a @c TwoWire reference directly (e.g. IMU).
+ * Callers must include the appropriate platform header to use the returned
+ * reference.
+ *
+ * @return Reference to the platform I2C peripheral.
+ */
+TwoWire& i2c_get_wire();
+
 // ---------------------------------------------------------------------------
 // Non-volatile memory
 // Replaces: EEPROM.get(), EEPROM.put()
@@ -238,7 +256,7 @@ void nvm_write(uint32_t addr, const void* in, std::size_t len);
 // Cloud connectivity
 // Replaces: Particle.connect/disconnect/connected/disconnected,
 //           Particle.publish(), Particle.syncTime/syncTimeDone(),
-//           Particle.process()
+//           Particle.process(), Cellular.isOn(), Cellular.ready()
 // ---------------------------------------------------------------------------
 
 /**
@@ -288,6 +306,18 @@ void cloud_sync_time();
  * @return @c true once the RTC has been updated following @c cloud_sync_time().
  */
 bool cloud_sync_time_done();
+
+/**
+ * @brief Return whether the cellular modem is powered on.
+ * @return @c true if the modem is on, @c false otherwise.
+ */
+bool cellular_is_on();
+
+/**
+ * @brief Return whether the cellular modem has a network connection.
+ * @return @c true if the modem is registered and ready, @c false otherwise.
+ */
+bool cellular_is_ready();
 
 /**
  * @brief Yield to the platform network stack.
