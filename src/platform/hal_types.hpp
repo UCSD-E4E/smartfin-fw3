@@ -1,9 +1,9 @@
 /**
  * @file hal_types.hpp
+ * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
  * @brief Platform-agnostic type definitions for the Smartfin HAL.
- * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
- * @date 4-27-2026
- * 
+ * @date 2026-04-27
+ *
  * This header is the single source of truth for all types, enums, and
  * constants that application code uses in place of Particle SDK types.
  * No Particle.h or platform-specific header should be included here.
@@ -40,9 +40,7 @@
 namespace SF_HAL
 {
 
-// ---------------------------------------------------------------------------
 // Timing
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Millisecond tick counter type.
@@ -53,9 +51,7 @@ namespace SF_HAL
  */
 using tick_t = uint32_t;
 
-// ---------------------------------------------------------------------------
 // GPIO
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Pin direction and pull configuration.
@@ -64,9 +60,9 @@ using tick_t = uint32_t;
  */
 enum class GpioMode : uint8_t
 {
-    INPUT          = 0, ///< Floating input, no internal pull resistor.
+    INPUT = 0,          ///< Floating input, no internal pull resistor.
     INPUT_PULLDOWN = 1, ///< Input with internal pull-down resistor enabled.
-    OUTPUT         = 2, ///< Push-pull output.
+    OUTPUT = 2,         ///< Push-pull output.
 };
 
 /**
@@ -77,13 +73,11 @@ enum class GpioMode : uint8_t
  */
 enum class GpioState : uint8_t
 {
-    LOW  = 0, ///< Logic low (0 V reference).
+    LOW = 0,  ///< Logic low (0 V reference).
     HIGH = 1, ///< Logic high (VDD reference).
 };
 
-// ---------------------------------------------------------------------------
 // LED
-// ---------------------------------------------------------------------------
 
 /**
  * @brief LED animation pattern.
@@ -94,9 +88,9 @@ enum class GpioState : uint8_t
 enum class LedPattern : uint8_t
 {
     INVALID = 0, ///< Sentinel; should not be set intentionally.
-    SOLID   = 1, ///< Constant on at the configured colour.
-    BLINK   = 2, ///< On/off square-wave at the configured period.
-    FADE    = 3, ///< Sinusoidal brightness fade at the configured period.
+    SOLID = 1,   ///< Constant on at the configured colour.
+    BLINK = 2,   ///< On/off square-wave at the configured period.
+    FADE = 3,    ///< Sinusoidal brightness fade at the configured period.
 };
 
 /**
@@ -148,11 +142,11 @@ enum class LedSignal : uint8_t
  */
 namespace color
 {
-    constexpr uint32_t BLUE   = 0x000000FFu; ///< Pure blue.
+    constexpr uint32_t BLUE = 0x000000FFu;   ///< Pure blue.
     constexpr uint32_t ORANGE = 0x00FFA500u; ///< Orange.
-    constexpr uint32_t RED    = 0x00FF0000u; ///< Pure red.
+    constexpr uint32_t RED = 0x00FF0000u;    ///< Pure red.
     constexpr uint32_t YELLOW = 0x00FFFF00u; ///< Red + green = yellow.
-    constexpr uint32_t WHITE  = 0x00FFFFFFu; ///< Full RGB = white.
+    constexpr uint32_t WHITE = 0x00FFFFFFu;  ///< Full RGB = white.
 } // namespace color
 
 /**
@@ -230,7 +224,9 @@ public:
      * @param pattern Animation pattern to apply.
      * @param speed   Preset speed hint; defaults to @c LedSpeed::NORMAL.
      */
-    void setSignal(LedSignal signal, uint32_t color, LedPattern pattern,
+    void setSignal(LedSignal signal,
+                   uint32_t color,
+                   LedPattern pattern,
                    LedSpeed speed = LedSpeed::NORMAL);
 
     /**
@@ -240,13 +236,13 @@ public:
      * @param pattern   Animation pattern to apply.
      * @param period_ms Full animation cycle duration in milliseconds.
      */
-    void setSignal(LedSignal signal, uint32_t color, LedPattern pattern,
+    void setSignal(LedSignal signal,
+                   uint32_t color,
+                   LedPattern pattern,
                    uint16_t period_ms);
 };
 
-// ---------------------------------------------------------------------------
 // Battery
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Battery / charger state reported by the fuel gauge or PMIC.
@@ -256,18 +252,16 @@ public:
  */
 enum class BatteryState : uint8_t
 {
-    UNKNOWN      = 0, ///< State could not be determined.
+    UNKNOWN = 0,      ///< State could not be determined.
     NOT_CHARGING = 1, ///< External power present but charge current is zero.
-    CHARGING     = 2, ///< Actively accepting charge current.
-    CHARGED      = 3, ///< Charge complete; full capacity reached.
-    DISCHARGING  = 4, ///< Running on battery, no external power.
-    FAULT        = 5, ///< Charger or fuel gauge reported an error.
+    CHARGING = 2,     ///< Actively accepting charge current.
+    CHARGED = 3,      ///< Charge complete; full capacity reached.
+    DISCHARGING = 4,  ///< Running on battery, no external power.
+    FAULT = 5,        ///< Charger or fuel gauge reported an error.
     DISCONNECTED = 6, ///< No battery detected.
 };
 
-// ---------------------------------------------------------------------------
 // Reset reasons
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Cause of the most recent device reset.
@@ -278,25 +272,23 @@ enum class BatteryState : uint8_t
  */
 enum class ResetReason : uint8_t
 {
-    NONE             = 0,  ///< No reset has occurred (first boot or unknown).
-    PIN_RESET        = 1,  ///< External RESET pin asserted.
-    POWER_MANAGEMENT = 2,  ///< Reset triggered by the power management IC.
-    POWER_DOWN       = 3,  ///< Supply voltage dropped below POR threshold.
-    POWER_BROWNOUT   = 4,  ///< Brownout detector fired.
-    WATCHDOG         = 5,  ///< Hardware or software watchdog expired.
-    UPDATE           = 6,  ///< OTA firmware update applied.
-    UPDATE_TIMEOUT   = 7,  ///< OTA update timed out before completion.
-    FACTORY_RESET    = 8,  ///< User or cloud triggered factory reset.
-    SAFE_MODE        = 9,  ///< Device booted into safe / recovery mode.
-    DFU_MODE         = 10, ///< Device booted into DFU (USB flashing) mode.
-    PANIC            = 11, ///< Firmware panic / hard fault.
-    USER             = 12, ///< Application called @c SF_HAL::system_reset().
-    UNKNOWN          = 13, ///< Reset cause could not be determined.
+    NONE = 0,             ///< No reset has occurred (first boot or unknown).
+    PIN_RESET = 1,        ///< External RESET pin asserted.
+    POWER_MANAGEMENT = 2, ///< Reset triggered by the power management IC.
+    POWER_DOWN = 3,       ///< Supply voltage dropped below POR threshold.
+    POWER_BROWNOUT = 4,   ///< Brownout detector fired.
+    WATCHDOG = 5,         ///< Hardware or software watchdog expired.
+    UPDATE = 6,           ///< OTA firmware update applied.
+    UPDATE_TIMEOUT = 7,   ///< OTA update timed out before completion.
+    FACTORY_RESET = 8,    ///< User or cloud triggered factory reset.
+    SAFE_MODE = 9,        ///< Device booted into safe / recovery mode.
+    DFU_MODE = 10,        ///< Device booted into DFU (USB flashing) mode.
+    PANIC = 11,           ///< Firmware panic / hard fault.
+    USER = 12,            ///< Application called @c SF_HAL::system_reset().
+    UNKNOWN = 13,         ///< Reset cause could not be determined.
 };
 
-// ---------------------------------------------------------------------------
 // Sleep
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Sleep depth / wake-source configuration.
@@ -325,9 +317,7 @@ enum class SleepMode : uint8_t
     HIBERNATE = 1,
 };
 
-// ---------------------------------------------------------------------------
 // Cloud
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Cloud publish payload size limits.
@@ -379,25 +369,30 @@ struct Uuid128
  */
 enum class CharProperty : uint8_t
 {
-    NONE         = 0,
-    READ         = 1u << 0,
-    WRITE        = 1u << 1,
+    NONE = 0,
+    READ = 1u << 0,
+    WRITE = 1u << 1,
     WRITE_NO_RSP = 1u << 2,
-    NOTIFY       = 1u << 3,
-    INDICATE     = 1u << 4,
+    NOTIFY = 1u << 3,
+    INDICATE = 1u << 4,
 };
 
 /**
  * @brief Combine characteristic property flags.
+ * @param lhs Left-hand property.
+ * @param rhs Right-hand property.
+ * @return Combined property bitmask.
  */
 inline constexpr CharProperty operator|(CharProperty lhs, CharProperty rhs)
 {
-    return static_cast<CharProperty>(static_cast<uint8_t>(lhs) |
-                                     static_cast<uint8_t>(rhs));
+    return static_cast<CharProperty>(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 /**
  * @brief Return true when @p value contains @p flag.
+ * @param value Bitmask to test.
+ * @param flag  Property bit to check for.
+ * @return @c true if @p flag is set in @p value.
  */
 inline constexpr bool has_property(CharProperty value, CharProperty flag)
 {
@@ -409,9 +404,9 @@ inline constexpr bool has_property(CharProperty value, CharProperty flag)
  */
 struct CharacteristicSpec
 {
-    Uuid128 uuid;
-    CharProperty properties;
-    std::size_t max_len;
+    Uuid128 uuid;          ///< 128-bit characteristic UUID.
+    CharProperty properties; ///< Allowed operations bitmask.
+    std::size_t max_len;   ///< Maximum value length in bytes.
 };
 
 /**
@@ -422,9 +417,9 @@ struct CharacteristicSpec
  */
 struct ServiceSpec
 {
-    Uuid128 uuid;
-    const CharacteristicSpec* characteristics;
-    std::size_t characteristic_count;
+    Uuid128 uuid;                            ///< 128-bit service UUID.
+    const CharacteristicSpec* characteristics; ///< Array of characteristics.
+    std::size_t characteristic_count;        ///< Length of @c characteristics.
 };
 
 /**
@@ -432,9 +427,9 @@ struct ServiceSpec
  */
 struct AdvertisingParams
 {
-    const Uuid128* primary_service_uuid;
-    const char* local_name;
-    bool connectable;
+    const Uuid128* primary_service_uuid; ///< UUID to include in the AD payload.
+    const char* local_name;              ///< Null-terminated scan-response name.
+    bool connectable;                    ///< Whether to allow connections.
 };
 
 /**
@@ -474,16 +469,14 @@ using WriteCallback = void (*)(CharHandle characteristic,
  */
 struct Callbacks
 {
-    ConnectionCallback on_connection;
-    WriteCallback on_write;
-    void* context;
+    ConnectionCallback on_connection; ///< Fired on connect/disconnect.
+    WriteCallback on_write;           ///< Fired when a peer writes a characteristic.
+    void* context;                    ///< Passed verbatim to both callbacks.
 };
 
 } // namespace ble
 
-// ---------------------------------------------------------------------------
 // Threading
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Thread scheduling priority.

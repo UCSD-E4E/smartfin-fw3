@@ -1,8 +1,8 @@
 /**
  * @file hal.hpp
- * @brief Platform abstraction layer for Smartfin firmware.
- * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
- * @date 4-27-2026
+ * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
+ * @brief Platform abstraction layer declarations for the Smartfin firmware.
+ * @date 2026-04-27
  *
  * Declares every hardware-facing operation the application needs. All
  * declarations live in the SF_HAL namespace; no Particle SDK symbols appear
@@ -27,10 +27,8 @@
 namespace SF_HAL
 {
 
-// ---------------------------------------------------------------------------
 // Timing
 // Replaces: millis(), delay(), delayMicroseconds()
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Returns milliseconds elapsed since boot.
@@ -62,11 +60,9 @@ void delay_ms(uint32_t ms);
  */
 void delay_us(uint32_t us);
 
-// ---------------------------------------------------------------------------
 // GPIO
 // Replaces: pinMode(), digitalWrite(), digitalRead(),
 //           digitalWriteFast(), pinReadFast()
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Configure a pin's direction and pull resistor.
@@ -116,11 +112,9 @@ void gpio_write_fast(int pin, GpioState state);
  */
 bool gpio_read_fast(int pin);
 
-// ---------------------------------------------------------------------------
 // Serial / USART
 // Replaces: Serial.begin(), Serial.available(), Serial.read(),
 //           Serial.print(), Serial.write()
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Initialise the debug/CLI serial port.
@@ -158,12 +152,10 @@ void serial_print_char(char ch);
  */
 void serial_write(const uint8_t* buf, std::size_t len);
 
-// ---------------------------------------------------------------------------
 // I2C
 // Replaces: Wire.begin(), Wire.isEnabled(), Wire.beginTransmission(),
 //           Wire.requestFrom(), Wire.read(), Wire.write(), Wire.endTransmission(),
 //           Wire (direct reference)
-// ---------------------------------------------------------------------------
 
 } // namespace SF_HAL
 // Forward declaration in global namespace — avoids including Particle.h / Wire.h.
@@ -185,31 +177,31 @@ void i2c_begin();
 bool i2c_is_enabled();
 
 /**
- * @brief Read bytes from a device register over I2C.
+ * @brief Read bytes from a device over I2C.
  *
- * Performs a write of @p reg followed by a repeated-start read of @p len
- * bytes into @p buf.
+ * Performs a write of the address followed by a repeated-start read of
+ * @p length bytes into @p data.
  *
- * @param device_addr 7-bit I2C device address.
- * @param reg         Register (sub-address) to read from.
- * @param buf         Output buffer; must be at least @p len bytes.
- * @param len         Number of bytes to read.
- * @return @c true on success, @c false if a NAK or bus error occurred.
+ * @param address     7-bit I2C device address.
+ * @param data        Output buffer; must be at least @p length bytes.
+ * @param length      Number of bytes to read.
+ * @param repeated    If @c true, hold the bus (repeated start); release otherwise.
+ * @return Number of bytes read, or a negative error code on failure.
  */
-int i2c_read(uint8_t address, char *data, int length, bool repeated);
+int i2c_read(uint8_t address, char* data, int length, bool repeated);
 
 /**
- * @brief Write bytes to a device register over I2C.
+ * @brief Write bytes to a device over I2C.
  *
- * Sends @p reg followed by @p len bytes from @p buf in a single transaction.
+ * Sends @p length bytes from @p data in a single transaction.
  *
- * @param device_addr 7-bit I2C device address.
- * @param reg         Register (sub-address) to write to.
- * @param buf         Data to transmit; must be at least @p len bytes.
- * @param len         Number of bytes to write.
- * @return @c true on success, @c false if a NAK or bus error occurred.
+ * @param address     7-bit I2C device address.
+ * @param data        Data to transmit; must be at least @p length bytes.
+ * @param length      Number of bytes to write.
+ * @param repeated    If @c true, hold the bus (repeated start); release otherwise.
+ * @return Number of bytes written, or a negative error code on failure.
  */
-int i2c_write(uint8_t address, const char *data, int length, bool repeated);
+int i2c_write(uint8_t address, const char* data, int length, bool repeated);
 
 /**
  * @brief Return the platform I2C bus handle.
@@ -222,10 +214,8 @@ int i2c_write(uint8_t address, const char *data, int length, bool repeated);
  */
 TwoWire& i2c_get_wire();
 
-// ---------------------------------------------------------------------------
 // Non-volatile memory
 // Replaces: EEPROM.get(), EEPROM.put()
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Read bytes from non-volatile storage.
@@ -252,12 +242,10 @@ void nvm_read(uint32_t addr, void* out, std::size_t len);
  */
 void nvm_write(uint32_t addr, const void* in, std::size_t len);
 
-// ---------------------------------------------------------------------------
 // Cloud connectivity
 // Replaces: Particle.connect/disconnect/connected/disconnected,
 //           Particle.publish(), Particle.syncTime/syncTimeDone(),
 //           Particle.process(), Cellular.isOn(), Cellular.ready()
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Attempt to establish a cloud connection, blocking until success or timeout.
@@ -270,7 +258,7 @@ int cloud_connect(uint32_t timeout_ms);
 /**
  * @brief Disconnect from the cloud, blocking until disconnected or timeout.
  * @param timeout_ms Maximum time to wait for clean disconnect in milliseconds.
- * @return @c SUCCESS (0) or @c TIMEOUT.
+ * @return 0 on success, -1 on timeout.
  */
 int cloud_disconnect(uint32_t timeout_ms);
 
@@ -329,7 +317,6 @@ bool cellular_is_ready();
  */
 void cloud_process();
 
-// ---------------------------------------------------------------------------
 // BLE
 // Replaces: BLE.on(), BLE.setDeviceName(), BLE.addCharacteristic(),
 //           BLE.onConnected(), BLE.onDisconnected(), BLE.advertise(),
@@ -338,7 +325,6 @@ void cloud_process();
 // Concrete Particle BLE types (BleUuid, BleCharacteristic, etc.) are confined
 // to src/platform/particle/ble.cpp behind a platform guard. sf_ble.cpp is
 // fully platform-agnostic and calls only the functions declared here.
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Register connection and write callbacks with the BLE backend.
@@ -408,11 +394,9 @@ bool ble_is_connected();
  */
 bool ble_notify(const uint8_t* data, std::size_t len);
 
-// ---------------------------------------------------------------------------
 // System identity and control
 // Replaces: System.deviceID(), System.version(), System.reset(),
 //           System.sleep(), System.enableFeature(), System.batteryState()
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Return the platform's unique device identifier string.
@@ -448,7 +432,7 @@ void system_reset();
  * seconds (or immediately if 0).  For @c SleepMode::HIBERNATE @p duration_sec
  * is ignored; use @c system_sleep_gpio_wake() instead.
  *
- * @param mode        Target sleep depth.
+ * @param mode         Target sleep depth.
  * @param duration_sec Seconds to sleep before waking (SOFT_POWER_OFF only).
  */
 void system_sleep(SleepMode mode, uint32_t duration_sec = 0);
@@ -467,10 +451,8 @@ void system_sleep(SleepMode mode, uint32_t duration_sec = 0);
  */
 void system_sleep_gpio_wake(int wake_pin);
 
-// ---------------------------------------------------------------------------
 // Battery / fuel gauge
 // Replaces: FuelGauge::getVCell(), System.batteryState()
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Return the battery terminal voltage in volts.
@@ -489,11 +471,9 @@ float battery_voltage();
  */
 BatteryState battery_state();
 
-// ---------------------------------------------------------------------------
 // Reset diagnostics
 // Replaces: System.resetReason(), System.resetReasonData(),
 //           System.enableFeature(FEATURE_RESET_INFO)
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Enable reset-cause recording.
@@ -524,10 +504,8 @@ ResetReason reset_reason();
  */
 uint32_t reset_reason_data();
 
-// ---------------------------------------------------------------------------
 // Threading
 // Replaces: Particle Thread class, os_thread_yield()
-// ---------------------------------------------------------------------------
 
 /**
  * @brief Function pointer type for thread entry points.
@@ -552,11 +530,11 @@ using ThreadFn = void (*)(void*);
  *                   @c THREAD_STACK_SIZE_DEFAULT.
  * @return Opaque thread handle, or @c nullptr if creation failed.
  */
-void* thread_create(const char*    name,
-                    ThreadFn       function,
-                    void*          param      = nullptr,
-                    ThreadPriority priority   = ThreadPriority::NORMAL,
-                    std::size_t    stack_size = THREAD_STACK_SIZE_DEFAULT);
+void* thread_create(const char* name,
+                    ThreadFn function,
+                    void* param = nullptr,
+                    ThreadPriority priority = ThreadPriority::NORMAL,
+                    std::size_t stack_size = THREAD_STACK_SIZE_DEFAULT);
 
 /**
  * @brief Yield the calling thread to allow other threads to run.
