@@ -4,7 +4,7 @@
  * Author:
  * Date:
  */
-#include "Particle.h"
+
 #include "cellular/dataUpload.hpp"
 #include "cellular/sf_cloud.hpp"
 #include "chargeTask.hpp"
@@ -12,6 +12,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "rideTask.hpp"
 #include "sleepTask.hpp"
@@ -129,8 +130,11 @@ void setup()
     SYS_initSys();
 
     initalizeTaskObjects();
-    __sf_main_thread = Thread(
-        "SF_main", mainLoop, NULL, OS_THREAD_PRIORITY_DEFAULT, OS_THREAD_STACK_SIZE_DEFAULT_HIGH);
+    SF_HAL::thread_create("SF_main",
+                          mainLoop,
+                          nullptr,
+                          SF_HAL::ThreadPriority::NORMAL,
+                          SF_HAL::THREAD_STACK_SIZE_DEFAULT_HIGH);
 }
 
 // loop() runs over and over again, as quickly as it can execute.

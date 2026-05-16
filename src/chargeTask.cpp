@@ -65,7 +65,7 @@ STATES_e ChargeTask::run(void)
         }
 #endif
 
-        os_thread_yield();
+        SF_HAL::thread_yield();
     }
 }
 
