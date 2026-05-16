@@ -8,10 +8,10 @@
  * 
  */
 
-
 #include "led.hpp"
 
 #include "Particle.h"
+#include "platform/hal.hpp"
 
 SFLed* SFLed::firstLED = NULL;
 
@@ -28,11 +28,11 @@ void SFLed::init(void)
     {
         case SFLed::SFLED_STATE_BLINK:
         case SFLed::SFLED_STATE_ON:
-            digitalWrite(this->pin, SF_LED_ON_VALUE);
+            SF_HAL::gpio_write(this->pin, SF_LED_ON_VALUE);
             break;
         default:
         case SFLed::SFLED_STATE_OFF:
-            digitalWrite(this->pin, SF_LED_OFF_VALUE);
+            SF_HAL::gpio_write(this->pin, SF_LED_OFF_VALUE);
             break;
     }
 
@@ -92,16 +92,20 @@ void SFLed::doLEDs(void)
         switch(node->state)
         {
             case SFLed::SFLED_STATE_OFF:
-                digitalWriteFast(node->pin, SF_LED_OFF_VALUE);
+                SF_HAL::gpio_write_fast(node->pin, SF_LED_OFF_VALUE);
                 break;
             
             case SFLed::SFLED_STATE_ON:
-                digitalWriteFast(node->pin, SF_LED_ON_VALUE);
+                SF_HAL::gpio_write_fast(node->pin, SF_LED_ON_VALUE);
                 break;
 
             case SFLed::SFLED_STATE_BLINK:
-                digitalWriteFast(node->pin, !pinReadFast(node->pin));
+            {
+                SF_HAL::GpioState next = SF_HAL::gpio_read_fast(node->pin)
+                    ? SF_HAL::GpioState::LOW : SF_HAL::GpioState::HIGH;
+                SF_HAL::gpio_write_fast(node->pin, next);
                 break;
+            }
         }
     }
 }

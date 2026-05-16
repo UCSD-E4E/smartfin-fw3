@@ -3,6 +3,7 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
 #include "system.hpp"
 
@@ -198,10 +199,10 @@ uint8_t WaterSensor::getCurrentReading()
 {
     uint8_t temp_8;
 
-    digitalWrite(water_detect_en_pin, HIGH);
+    SF_HAL::gpio_write(water_detect_en_pin, SF_HAL::GpioState::HIGH);
     delayMicroseconds(WATER_DETECT_EN_TIME_US);
-    temp_8 = digitalRead(water_detect_pin); // comment out if using above logic block
-    digitalWrite(water_detect_en_pin, LOW);
+    temp_8 = SF_HAL::gpio_read(water_detect_pin); // comment out if using above logic block
+    SF_HAL::gpio_write(water_detect_en_pin, SF_HAL::GpioState::LOW);
 
     return temp_8; // comment out if using above logic block
 }
