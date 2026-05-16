@@ -8,21 +8,17 @@
 #include "location_service.h"
 #endif
 
+#include "Particle.h"
+#include "SPI.h"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "SPI.h"
-#include <fcntl.h>
-
 #include "consts.hpp"
-#include "states.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
-
+#include "states.hpp"
 #include "sys/led.hpp"
 
-
-#include "Particle.h"
-
-
+#include <fcntl.h>
 
 char SYS_deviceID[32];
 
@@ -371,7 +367,7 @@ void SYS_displaySys(void)
     SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
 
     SF_OSAL_printf(__NL__);
-    SF_OSAL_printf("Particle Connected: %d" __NL__, Particle.connected());
+    SF_OSAL_printf("Cloud Connected: %d" __NL__, SF_HAL::cloud_connected());
     SF_OSAL_printf("Cellular On: %d" __NL__, Cellular.isOn());
     SF_OSAL_printf("Cellular Ready: %d" __NL__, Cellular.ready());
 }
