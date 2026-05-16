@@ -1,7 +1,6 @@
 #ifndef ENSEMBLETYPES_HPP
 #define ENSEMBLETYPES_HPP
 
-#include "Particle.h"
 #include <cstdint>
 
 /**

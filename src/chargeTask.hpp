@@ -1,6 +1,6 @@
 #ifndef CHARGETASK_HPP
 #define CHARGETASK_HPP
-#include "Particle.h"
+
 #include "platform/hal.hpp"
 #include "task.hpp"
 
