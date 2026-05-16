@@ -8,7 +8,7 @@
 
 #include "cli.hpp"
 
-#include "Particle.h"
+#include "platform/hal_types.hpp"
 #include "ble/ble_live_stream.hpp"
 #include "ble/high_rate_stream.hpp"
 #include "ble/sf_ble.hpp"
@@ -43,7 +43,7 @@
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
 
-static LEDStatus CLI_ledStatus;
+static SF_HAL::LedStatus CLI_ledStatus;
 
 static void CLI_setState(void);
 static void CLI_displaySystemState(void);
@@ -59,7 +59,7 @@ static void CLI_doBleTest(void);
 
 static std::uint8_t packet_buffer[SF_PACKET_SIZE];
 static char input_buffer[SF_CLI_MAX_CMD_LEN];
-static char packet_name_buffer[particle::protocol::MAX_EVENT_NAME_LENGTH + 1];
+static char packet_name_buffer[SF_HAL::cloud::MAX_EVENT_NAME_LEN + 1];
 
 const Menu_t CLI_menu[] = {
     {1, "display Menu", &CLI_displayMenu, MENU_CMD},
