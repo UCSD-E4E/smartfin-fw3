@@ -189,7 +189,7 @@ bool i2c_is_enabled();
  * @param len         Number of bytes to read.
  * @return @c true on success, @c false if a NAK or bus error occurred.
  */
-bool i2c_read(uint8_t device_addr, uint8_t reg, uint8_t* buf, std::size_t len);
+int i2c_read(uint8_t address, char *data, int length, bool repeated);
 
 /**
  * @brief Write bytes to a device register over I2C.
@@ -202,8 +202,7 @@ bool i2c_read(uint8_t device_addr, uint8_t reg, uint8_t* buf, std::size_t len);
  * @param len         Number of bytes to write.
  * @return @c true on success, @c false if a NAK or bus error occurred.
  */
-bool i2c_write(uint8_t device_addr, uint8_t reg, const uint8_t* buf,
-               std::size_t len);
+int i2c_write(uint8_t address, const char *data, int length, bool repeated);
 
 // ---------------------------------------------------------------------------
 // Non-volatile memory

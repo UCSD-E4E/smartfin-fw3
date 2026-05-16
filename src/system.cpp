@@ -152,7 +152,7 @@ static int SYS_initTasks(void)
 
 static int SYS_initTempSensor(void)
 {
-    Wire.begin();
+    SF_HAL::i2c_begin();
     systemDesc.pTempSensor = &tempSensor;
 
     return 1;

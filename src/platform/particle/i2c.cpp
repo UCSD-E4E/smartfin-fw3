@@ -26,47 +26,40 @@ bool i2c_is_enabled()
     return Wire.isEnabled();
 }
 
-bool i2c_read(uint8_t device_addr, uint8_t reg, uint8_t* buf, std::size_t len)
+int i2c_read(uint8_t address, char *data, int length, bool repeated)
 {
-    if (!Wire.isEnabled())
+    if (!SF_HAL::i2c_is_enabled())
     {
-        Wire.begin();
+        SF_HAL::i2c_begin();
+        SF_HAL::delay_ms(1000);
     }
 
-    Wire.beginTransmission(device_addr);
-    Wire.write(reg);
-    if (Wire.endTransmission(false) != 0)
+    Wire.beginTransmission(address);
+    uint8_t bytes = Wire.requestFrom((int)address, length);
+    uint8_t idx;
+    for (idx = 0; Wire.available() && idx < bytes; idx++)
     {
-        return false;
+        data[idx] = (uint8_t)Wire.read();
     }
+    Wire.endTransmission(repeated == false);
 
-    Wire.requestFrom(static_cast<int>(device_addr), static_cast<int>(len));
-    for (std::size_t i = 0; i < len; ++i)
-    {
-        if (!Wire.available())
-        {
-            return false;
-        }
-        buf[i] = static_cast<uint8_t>(Wire.read());
-    }
-    return true;
+    return idx == length ? 0 : -1;
 }
 
-bool i2c_write(uint8_t device_addr, uint8_t reg, const uint8_t* buf,
-               std::size_t len)
+int i2c_write(uint8_t address, const char *data, int length, bool repeated)
 {
-    if (!Wire.isEnabled())
+    if (!SF_HAL::i2c_is_enabled())
     {
-        Wire.begin();
+        SF_HAL::i2c_begin();
+        SF_HAL::delay_ms(1000);
     }
 
-    Wire.beginTransmission(device_addr);
-    Wire.write(reg);
-    for (std::size_t i = 0; i < len; ++i)
+    Wire.beginTransmission(address);
+    for (int idx = 0; idx < length; idx++)
     {
-        Wire.write(buf[i]);
+        Wire.write(data[idx]);
     }
-    return Wire.endTransmission() == 0;
+    return Wire.endTransmission(!repeated) == 0 ? length : -1;
 }
 
 } // namespace SF_HAL
