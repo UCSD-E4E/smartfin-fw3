@@ -1,7 +1,6 @@
-#ifndef __LED_HPP__
-#define __LED_HPP__
+#ifndef LED_HPP
+#define LED_HPP
 
-#include "Particle.h"
 #include "platform/hal.hpp"
 
 #include <cstdint>
@@ -36,8 +35,6 @@ class SFLed
     SFLED_State_e state;
     SFLed* nextLED;
 
-    static SFLed* firstLED;
-    static Timer ledTimer;
-
+    static SFLed *firstLED;
 };
-#endif
+#endif // LED_HPP

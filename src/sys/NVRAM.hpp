@@ -1,7 +1,7 @@
-#ifndef __NVRAM_HPP__
-#define __NVRAM_HPP__
+#ifndef NVRAM_HPP
+#define NVRAM_HPP
 
-#include "Particle.h"
+#include "platform/hal.hpp"
 
 #include <cstdint>
 class NVRAM
@@ -73,7 +73,8 @@ class NVRAM
             }
 
             addr = tableEntry->addr;
-            EEPROM.get(addr, pData);
+
+            SF_HAL::nvm_read(addr, &pData, sizeof(pData));
             return 1;
         }
 
@@ -102,7 +103,7 @@ class NVRAM
         }
 
         addr = tableEntry->addr;
-        EEPROM.put(addr, pData);
+        SF_HAL::nvm_write(addr, &pData, sizeof(pData));
         return 1;
     }
 
@@ -115,4 +116,4 @@ class NVRAM
     NVRAM(NVRAM const&);
     void operator=(NVRAM const&);
 };
-#endif
+#endif // NVRAM_HPP

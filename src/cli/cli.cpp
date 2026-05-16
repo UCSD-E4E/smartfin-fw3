@@ -8,7 +8,6 @@
 
 #include "cli.hpp"
 
-#include "platform/hal_types.hpp"
 #include "ble/ble_live_stream.hpp"
 #include "ble/high_rate_stream.hpp"
 #include "ble/sf_ble.hpp"
@@ -23,6 +22,7 @@
 #include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
+#include "platform/hal_types.hpp"
 #if SF_ENABLE_GPS
 #include "menuItems/gpsCommands.hpp"
 #endif
@@ -570,7 +570,7 @@ static void CLI_monitorSensors(void)
                 break;
             }
         }
-        sensor_headers[SensorHeader_Time].value = millis();
+        sensor_headers[SensorHeader_Time].value = SF_HAL::millis();
         if (sensors[ACCEL])
         {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
@@ -848,7 +848,7 @@ static void CLI_doBleTest(void)
     DeploymentSchedule_t *pNextEvent = nullptr;
     uint32_t nextEventTime = 0;
     uint32_t ensCount = 0;
-    uint32_t lastStatusMs = millis();
+    uint32_t lastStatusMs = SF_HAL::millis();
     bool quit = false;
 
     while (!quit)
@@ -868,7 +868,7 @@ static void CLI_doBleTest(void)
             }
         }
 
-        uint32_t now = millis();
+        uint32_t now = SF_HAL::millis();
         if (now - lastStatusMs >= 2000)
         {
             tempProbe = pSystemDesc->pTempSensor->getTemp();
@@ -888,14 +888,14 @@ static void CLI_doBleTest(void)
             lastStatusMs = now;
         }
 
-        SCH_error_e ret = bleScheduler.getNextTask(&pNextEvent, &nextEventTime, millis());
+        SCH_error_e ret = bleScheduler.getNextTask(&pNextEvent, &nextEventTime, SF_HAL::millis());
         if (ret == TASK_SEARCH_FAIL)
         {
             SF_OSAL_printf("Scheduler error — aborting BLE test" __NL__);
             break;
         }
 
-        while (millis() < nextEventTime && !quit)
+        while (SF_HAL::millis() < nextEventTime && !quit)
         {
             Particle.process();
             if (SF_OSAL_kbhit())

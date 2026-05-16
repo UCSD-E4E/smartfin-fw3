@@ -10,9 +10,7 @@
 
 #include "led.hpp"
 
-#include "Particle.h"
 #include "platform/hal.hpp"
-
 SFLed* SFLed::firstLED = NULL;
 
 SFLed::SFLed(uint8_t pin, SFLed::SFLED_State_e state)
@@ -23,7 +21,8 @@ SFLed::SFLed(uint8_t pin, SFLed::SFLED_State_e state)
 
 void SFLed::init(void)
 {
-    pinMode(this->pin, OUTPUT);
+    SF_HAL::gpio_set_mode(this->pin, SF_HAL::GpioMode::OUTPUT);
+
     switch(this->state)
     {
         case SFLed::SFLED_STATE_BLINK:
@@ -44,8 +43,8 @@ void SFLed::init(void)
 SFLed::~SFLed(void)
 {
     SFLed* node = SFLed::firstLED;
-    pinMode(this->pin, INPUT);
-    
+    SF_HAL::gpio_set_mode(this->pin, SF_HAL::GpioMode::INPUT);
+
     // remove self from linkedlist
     while(node != this)
     {

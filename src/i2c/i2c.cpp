@@ -1,6 +1,5 @@
 #include "i2c.h"
 
-#include "Particle.h"
 #include "cli/conio.hpp"
 #include "platform/hal.hpp"
 #include "product.hpp"
