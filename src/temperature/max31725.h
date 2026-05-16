@@ -34,7 +34,6 @@
 */
 #ifndef MAX31725_H
 #define MAX31725_H
-#include "i2c/mbed.h"
 
 #define MAX31725_NO_ERROR   0
 #define MAX31725_ERROR      -1

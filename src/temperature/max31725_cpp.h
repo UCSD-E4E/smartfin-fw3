@@ -34,7 +34,6 @@
 */
 #ifndef MAX31725_CPP_H
 #define MAX31725_CPP_H
-#include "i2c/mbed.h"
 
 /**
  * @brief Digital thermometer, thermostat, temperature sensor.
@@ -42,7 +41,7 @@
  *
  * @details The MAX31725, MAX31726 temperature sensors
  * provides accurate temperature measurements.
- * Extended format allows for high temperature readings up to 150°C. 
+ * Extended format allows for high temperature readings up to 150°C.
  * The MAX31725 can operate in a low powered mode by utilizing
  * the shutdown and one-shot mode.
  * 8-pin TQDFN 3x3 mm package
@@ -50,12 +49,12 @@
  * Operating temperature: -55°C to +150°C (-67°F to +302°).
  * VDD: 2.5V to 3.7V.
  *
- * @code 
- * #include "mbed.h"
+ * @code
+
  * #include "max32630fthr.h"
  * #include "max31725.h"
  * #include "USBSerial.h"
- * MAX32630FTHR pegasus(MAX32630FTHR::VIO_3V3); 
+ * MAX32630FTHR pegasus(MAX32630FTHR::VIO_3V3);
  * I2C i2cBus(P3_4, P3_5);
  * int main()
  * {
@@ -68,7 +67,7 @@
  *     i2cBus.frequency(400000);
  *        temperature =
  *            temp_sensor.read_reg_as_temperature(MAX31725_REG_TEMPERATURE);
- *        printf("Temperature = %3.4f Celsius, %3.4f Fahrenheit\r\n", 
+ *        printf("Temperature = %3.4f Celsius, %3.4f Fahrenheit\r\n",
  *            temperature, temp_sensor.celsius_to_fahrenheit(temperature));
  * }
  * @endcode

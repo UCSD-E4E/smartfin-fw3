@@ -32,7 +32,6 @@
 */
 #include "cli/conio.hpp"
 #include "consts.hpp"
-#include "i2c/mbed.h"
 #include "max31725.h"
 #include "max31725_cpp.h"
 
