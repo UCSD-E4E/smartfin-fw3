@@ -3,6 +3,7 @@
 
 #include "cellular/recorder.hpp"
 #include "imu/newIMU.hpp"
+#include "platform/hal_types.hpp"
 #include "product.hpp"
 #if SF_ENABLE_GPS
 #include "location_service.h"
@@ -92,7 +93,7 @@ typedef struct SystemDesc_
      * @brief Pointer to LEDSystemTheme object that handles LED color and pattern settings
      * 
      */
-    LEDSystemTheme* systemTheme;
+    SF_HAL::LedSystemTheme* systemTheme;
     /**
      * @brief Pointer to FuelGauge object that handles voltage readings
      * 
