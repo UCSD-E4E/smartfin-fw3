@@ -11,13 +11,14 @@
 #include "rideTask.hpp"
 
 #include "ble/ble_live_stream.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "deploy/ensembles.hpp"
-#include "ble/high_rate_stream.hpp"
 #include "imu/newIMU.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"
 
@@ -112,7 +113,7 @@ STATES_e RideTask::run(void)
     }
 #endif
     FLOG_AddError(FLOG_RIDE_DEPLOY, this->deployTime);
-    this->ledStatus.setPattern(LED_PATTERN_FADE);
+    this->ledStatus.setPattern(SF_HAL::LedPattern::FADE);
 
     while (1)
     {

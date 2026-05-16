@@ -1,13 +1,13 @@
 #ifndef __SLEEPTASK_HPP__
 #define __SLEEPTASK_HPP__
 
+#include "platform/hal_types.hpp"
 #include "task.hpp"
-#include "Particle.h"
 
 #define SLEEP_RGB_LED_COLOR 0x4A192C
-#define SLEEP_RGB_LED_PATTERN LED_PATTERN_BLINK
+#define SLEEP_RGB_LED_PATTERN SF_HAL::LedPattern::BLINK
 #define SLEEP_RGB_LED_PERIOD 20
-#define SLEEP_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
+#define SLEEP_RGB_LED_PRIORITY SF_HAL::LedPriority::IMPORTANT
 
 class SleepTask : public Task {
     public:
@@ -75,6 +75,6 @@ class SleepTask : public Task {
     /**
      * @brief Manages LED status display settings
      */
-    LEDStatus ledStatus;
+        SF_HAL::LedStatus ledStatus;
 };
 #endif

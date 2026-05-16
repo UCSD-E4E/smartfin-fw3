@@ -76,6 +76,16 @@ void cloud_process()
     Particle.process();
 }
 
+bool cellular_is_on()
+{
+    return Cellular.isOn();
+}
+
+bool cellular_is_ready()
+{
+    return Cellular.ready();
+}
+
 } // namespace SF_HAL
 
 #endif // SF_PLATFORM == SF_PLATFORM_PARTICLE

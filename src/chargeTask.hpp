@@ -1,17 +1,17 @@
-#ifndef __CHARGETASK_HPP__
-#define __CHARGETASK_HPP__
-#include "task.hpp"
-
+#ifndef CHARGETASK_HPP
+#define CHARGETASK_HPP
 #include "Particle.h"
+#include "platform/hal.hpp"
+#include "task.hpp"
 
 #define CLI_INTERRUPT_PHRASE  "#CLI"
 #define CLI_BUFFER_LEN  5
 
 #define CHARGE_RGB_LED_COLOR    RGB_COLOR_YELLOW
 
-#define CHARGE_RGB_LED_PATTERN  LED_PATTERN_SOLID
+#define CHARGE_RGB_LED_PATTERN SF_HAL::LedPattern::SOLID
 #define CHARGE_RGB_LED_PERIOD   0
-#define CHARGE_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
+#define CHARGE_RGB_LED_PRIORITY SF_HAL::LedPriority::IMPORTANT
 
 /**
  * @brief Handles charging process
@@ -45,14 +45,14 @@ class ChargeTask : public Task{
      *
      * Object defines visual status of device's charging state
      */
-    LEDStatus ledStatus;
+    SF_HAL::LedStatus ledStatus;
     /**
      * @brief Timestamp for tracking start of charging process
      * 
      * startTime = 0 indicates the device charging since
      * the powering on of the device
      */
-    system_tick_t startTime;
+    SF_HAL::tick_t startTime;
 
     /**
      * @brief Flag storing if data upload state successfully initializes.
@@ -61,4 +61,4 @@ class ChargeTask : public Task{
      */
     int initSuccess;
 };
-#endif
+#endif // CHARGETASK_HPP

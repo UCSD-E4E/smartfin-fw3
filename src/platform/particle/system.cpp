@@ -30,6 +30,7 @@ const char* system_device_id()
 {
     if (device_id_buf[0] == '\0')
     {
+
         strncpy(device_id_buf, System.deviceID().c_str(), sizeof(device_id_buf) - 1);
     }
     return device_id_buf;
