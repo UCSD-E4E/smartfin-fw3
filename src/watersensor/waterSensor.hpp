@@ -12,7 +12,7 @@
  */
 #ifndef __WATERSENSOR_H__
 #define __WATERSENSOR_H__
-#include "Particle.h"
+
 #include <cstdlib>
 #include <cstdint>
 #include <cstring>
