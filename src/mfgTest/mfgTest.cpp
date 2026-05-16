@@ -7,7 +7,6 @@
 #include "product.hpp"
 #include "system.hpp"
 
-#include <Particle.h>
 #include <cmath>
 
 MfgTest::mfg_test_entry MfgTest::MFG_TEST_TABLE[] = {
