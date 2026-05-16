@@ -1,13 +1,15 @@
 #ifndef __LED_HPP__
 #define __LED_HPP__
 
-#include <cstdint>
 #include "Particle.h"
+#include "platform/hal.hpp"
+
+#include <cstdint>
 
 #define SF_LED_NUM_LEDS 2
 
-#define SF_LED_ON_VALUE LOW
-#define SF_LED_OFF_VALUE    HIGH
+#define SF_LED_ON_VALUE SF_HAL::GpioState::LOW
+#define SF_LED_OFF_VALUE SF_HAL::GpioState::HIGH
 #define SF_LED_BLINK_MS 1000
 
 class SFLed

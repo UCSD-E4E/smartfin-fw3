@@ -3,14 +3,12 @@
 #include "cellular/sf_cloud.hpp"
 #include "cli/conio.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"
 
 #include <Particle.h>
 #include <cmath>
-#include <errno.h>
-#include <float.h>
-#include <stdint.h>
 
 MfgTest::mfg_test_entry MfgTest::MFG_TEST_TABLE[] = {
     {&MfgTest::wet_dry_sensor_test, "Wet/Dry Sensor", MfgTest::PENDING},
@@ -94,9 +92,9 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
     // set the initial state to "not in water" (because hystersis)
     pSystemDesc->pWaterSensor->forceState(WATER_SENSOR_LOW_STATE);
     // set in-water
-    digitalWrite(WATER_MFG_TEST_EN, HIGH);
+    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::HIGH);
 
-    int wet_value = digitalRead(WATER_MFG_TEST_EN);
+    int wet_value = SF_HAL::gpio_read(WATER_MFG_TEST_EN);
 
     SF_OSAL_printf("value: %d " , wet_value);
 
@@ -116,9 +114,9 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
     }
 
     // set out-of-water
-    digitalWrite(WATER_MFG_TEST_EN, LOW);
+    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::LOW);
 
-    int dry_value = digitalRead(WATER_MFG_TEST_EN);
+    int dry_value = SF_HAL::gpio_read(WATER_MFG_TEST_EN);
 
     SF_OSAL_printf("value: %d " , dry_value);
 
@@ -138,7 +136,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
         SF_OSAL_printf("Dry Sensor passed" __NL__);
     }
 
-    digitalWrite(WATER_MFG_TEST_EN, LOW);
+    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::LOW);
 
     pSystemDesc->pWaterCheck->start();
 
