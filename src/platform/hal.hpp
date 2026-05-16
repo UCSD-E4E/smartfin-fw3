@@ -245,15 +245,10 @@ void nvm_write(uint32_t addr, const void* in, std::size_t len);
 /**
  * @brief Attempt to establish a cloud connection, blocking until success or timeout.
  *
- * Increments the NVRAM connection-attempt counter on each call; if the
- * counter exceeds @c SF_CLOUD_CONNECT_MAX_ATTEMPTS and @p bypass_attempts is
- * @c false the function returns immediately without connecting.
- *
- * @param timeout_ms      Maximum time to wait for connection in milliseconds.
- * @param bypass_attempts If @c true, ignore the attempt counter and always try.
- * @return @c SUCCESS (0), @c TIMEOUT, or @c ATTEMPTS_EXCEEDED.
+ * @param timeout_ms Maximum time to wait for connection in milliseconds.
+ * @return 0 on success, -1 on timeout.
  */
-int cloud_connect(uint32_t timeout_ms, bool bypass_attempts = false);
+int cloud_connect(uint32_t timeout_ms);
 
 /**
  * @brief Disconnect from the cloud, blocking until disconnected or timeout.
@@ -286,10 +281,8 @@ bool cloud_publish(const char* event, const char* data);
  * @brief Request a time synchronisation from the cloud.
  *
  * Non-blocking; check completion with @c cloud_sync_time_done().
- *
- * @return @c true if the request was sent, @c false if not connected.
  */
-bool cloud_sync_time();
+void cloud_sync_time();
 
 /**
  * @brief Return whether a pending time sync has completed.

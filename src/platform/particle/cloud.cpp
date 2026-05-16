@@ -15,29 +15,26 @@
 namespace SF_HAL
 {
 
-int cloud_connect(uint32_t timeout_ms, bool bypass_attempts)
-{
-    // bypass_attempts is an application-layer concern handled by sf_cloud.cpp;
-    // the HAL only performs the raw platform connect with timeout.
-    (void)bypass_attempts;
-
-    if (Particle.connected())
+    int cloud_connect(uint32_t timeout_ms)
     {
+        tick_t end = millis() + timeout_ms;
+        if (cloud_connected())
+        {
+            return 0;
+        }
+
+        Particle.connect();
+
+        while (!cloud_connected())
+        {
+            Particle.process();
+            if (millis() > end)
+            {
+                return -1;
+            }
+        }
         return 0;
     }
-
-    Particle.connect();
-    tick_t end = millis() + timeout_ms;
-    while (!Particle.connected())
-    {
-        Particle.process();
-        if (millis() > end)
-        {
-            return -1;
-        }
-    }
-    return 0;
-}
 
 int cloud_disconnect(uint32_t timeout_ms)
 {
@@ -64,9 +61,9 @@ bool cloud_publish(const char* event, const char* data)
     return Particle.publish(event, data);
 }
 
-bool cloud_sync_time()
+void cloud_sync_time()
 {
-    return Particle.syncTime();
+    Particle.syncTime();
 }
 
 bool cloud_sync_time_done()
