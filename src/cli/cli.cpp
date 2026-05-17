@@ -22,11 +22,9 @@
 #include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
-#include "platform/hal_types.hpp"
-#if SF_ENABLE_GPS
-#include "menuItems/gpsCommands.hpp"
-#endif
 #include "menuItems/systemCommands.hpp"
+#include "platform/hal.hpp"
+#include "platform/hal_types.hpp"
 #include "product.hpp"
 #include "rideTask.hpp"
 #include "sleepTask.hpp"
@@ -35,10 +33,13 @@
 #include "util.hpp"
 #include "vers.hpp"
 
-#include <bits/stdc++.h>
 #include <atomic>
+#include <cmath>
 #include <cstdlib>
-#include <fstream>
+
+#if SF_ENABLE_GPS
+#include "menuItems/gpsCommands.hpp"
+#endif
 
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
@@ -120,8 +121,8 @@ void CLI::init(void)
     }
     // else if (sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS) == 0) {
     //     CLI_ledStatus.setColor(RGB_COLOR_BLUE);
-    // } 
-    Particle.syncTime();
+    // }
+    SF_HAL::cloud_sync_time();
 
     // While there is an avaliable character typed, get it
     while (SF_OSAL_kbhit())
@@ -573,31 +574,28 @@ static void CLI_monitorSensors(void)
         sensor_headers[SensorHeader_Time].value = SF_HAL::millis();
         if (sensors[ACCEL])
         {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
             pSystemDesc->pIMU->getAccel_ms2(sensor_headers[SensorHeader_AccelX].value,
                                             sensor_headers[SensorHeader_AccelY].value,
                                             sensor_headers[SensorHeader_AccelZ].value);
-#endif
         }
         if (sensors[GYRO])
         {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
             pSystemDesc->pIMU->getRotVel_dps(sensor_headers[SensorHeader_GyroX].value,
                                              sensor_headers[SensorHeader_GyroY].value,
                                              sensor_headers[SensorHeader_GyroZ].value);
-#endif
         }
         if (sensors[MAG])
         {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
             pSystemDesc->pIMU->getMag_uT(sensor_headers[SensorHeader_MagX].value,
                                          sensor_headers[SensorHeader_MagY].value,
                                          sensor_headers[SensorHeader_MagZ].value);
-#endif
         }
         if (sensors[DMP])
         {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
             pSystemDesc->pIMU->getDmpAccel_ms2(sensor_headers[SensorHeader_DMPAccelX].value,
                                                sensor_headers[SensorHeader_DMPAccelY].value,
                                                sensor_headers[SensorHeader_DMPAccelZ].value);
@@ -612,7 +610,6 @@ static void CLI_monitorSensors(void)
             pSystemDesc->pIMU->getDmpMag_uT(sensor_headers[SensorHeader_DMPMagX].value,
                                             sensor_headers[SensorHeader_DMPMagY].value,
                                             sensor_headers[SensorHeader_DMPMagZ].value);
-#endif
         }
         if (sensors[TEMP])
         {
@@ -628,16 +625,14 @@ static void CLI_monitorSensors(void)
             sensor_headers[SensorHeader_WetDryStatus].value =
                 pSystemDesc->pWaterSensor->getLastStatus();
         }
+
 #if SF_ENABLE_GPS
-        if (sensors[GPS])
-        {
-            pSystemDesc->pLocService->getLocation(point);
-            sensor_headers[SensorHeader_GpsLock].value = point.locked;
-            sensor_headers[SensorHeader_GpsNSats].value = point.satsInUse;
-            sensor_headers[SensorHeader_GpsLat].value = point.latitude;
-            sensor_headers[SensorHeader_GpsLon].value = point.longitude;
-            sensor_headers[SensorHeader_GpsAlt].value = point.altitude;
-        }
+        pSystemDesc->pLocService->getLocation(point);
+        sensor_headers[SensorHeader_GpsLock].value = point.locked;
+        sensor_headers[SensorHeader_GpsNSats].value = point.satsInUse;
+        sensor_headers[SensorHeader_GpsLat].value = point.latitude;
+        sensor_headers[SensorHeader_GpsLon].value = point.longitude;
+        sensor_headers[SensorHeader_GpsAlt].value = point.altitude;
 #endif
 
         if (count % 20 == 0)
@@ -716,7 +711,7 @@ static void CLI_doEnsemble(void)
     int nBytes = pSystemDesc->pRecorder->getLastPacket(packet_buffer,
                                                        SF_PACKET_SIZE,
                                                        packet_name_buffer,
-                                                       particle::protocol::MAX_EVENT_NAME_LENGTH);
+                                                       SF_NAME_MAX);
     if (nBytes < 0)
     {
         SF_OSAL_printf("Failed to get last packet: %d" __NL__, nBytes);
@@ -897,7 +892,7 @@ static void CLI_doBleTest(void)
 
         while (SF_HAL::millis() < nextEventTime && !quit)
         {
-            Particle.process();
+            SF_HAL::cloud_process();
             if (SF_OSAL_kbhit())
             {
                 char ch = SF_OSAL_getch();
