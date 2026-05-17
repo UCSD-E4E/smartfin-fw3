@@ -14,6 +14,7 @@
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "Particle.h"
 #include "imu/ICM-20948/ICM_20948.h"
+#include "platform/hal.hpp"
 #endif
 
 #include <cstdint>
@@ -77,12 +78,12 @@ private:
      * @brief FIFO data access mutex
      *
      */
-    Mutex *_data_mtx = NULL;
+    SF_HAL::Mutex *_data_mtx = NULL;
     /**
      * @brief Device handle mutex
      *
      */
-    Mutex *_device_mtx = NULL;
+    SF_HAL::Mutex *_device_mtx = NULL;
     /**
      * @brief Data structure
      *

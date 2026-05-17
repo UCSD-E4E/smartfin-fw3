@@ -12,6 +12,7 @@
 
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 
 #include <cmath>
@@ -34,7 +35,7 @@ bool IMU::begin(void)
 
     if (NULL == _data_mtx)
     {
-        _data_mtx = new Mutex();
+        _data_mtx = new SF_HAL::Mutex();
     }
     _data_mtx->lock();
     memset(&fifo_data, 0, sizeof(struct FiFoData));
@@ -42,7 +43,7 @@ bool IMU::begin(void)
 
     if (NULL == _device_mtx)
     {
-        _device_mtx = new Mutex();
+        _device_mtx = new SF_HAL::Mutex();
     }
     _device_mtx->lock();
 
