@@ -5,9 +5,6 @@
 #include "product.hpp"
 
 #include <stdint.h>
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include <Wire.h>
-#endif
 
 // Map MBED I2C class to the Particle IO Device OS I2C class.
 

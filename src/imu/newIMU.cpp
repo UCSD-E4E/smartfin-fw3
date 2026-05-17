@@ -19,7 +19,6 @@
 #include <cstring>
 #include <functional>
 
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 /**
  * @brief Quaterinion Scale Factor
  *
@@ -1010,4 +1009,3 @@ IMU::IMU(TwoWire &port, const bool ad0_val) : i2c_port(port), AD0_VAL(ad0_val)
 {
 }
 
-#endif // SF_PLATFORM
