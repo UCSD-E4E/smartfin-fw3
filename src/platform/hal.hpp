@@ -214,6 +214,24 @@ int i2c_write(uint8_t address, const char* data, int length, bool repeated);
  */
 TwoWire& i2c_get_wire();
 
+/**
+ * @brief Acquire exclusive access to the I2C bus.
+ *
+ * Must be paired with @c i2c_unlock(). Callers that hold this lock must not
+ * call any other @c i2c_* function that itself tries to acquire the lock, as
+ * the underlying mutex is not reentrant.  On Particle this calls
+ * @c Wire.lock(), matching the acquire side of @c WITH_LOCK(Wire).
+ */
+void i2c_lock();
+
+/**
+ * @brief Release exclusive access to the I2C bus.
+ *
+ * Must be called once for every preceding @c i2c_lock().  On Particle this
+ * calls @c Wire.unlock(), matching the release side of @c WITH_LOCK(Wire).
+ */
+void i2c_unlock();
+
 // Non-volatile memory
 // Replaces: EEPROM.get(), EEPROM.put()
 
@@ -544,6 +562,44 @@ void* thread_create(const char* name,
  * starvation; on preemptive schedulers it is a hint only.
  */
 void thread_yield();
+
+/**
+ * @brief Platform-agnostic mutual exclusion primitive.
+ *
+ * Satisfies the C++ @c BasicLockable concept, so instances can be used
+ * directly with @c std::lock_guard and the @c WITH_LOCK macro.  The
+ * underlying OS handle is allocated in the constructor and released in
+ * the destructor; do not copy or move instances.
+ */
+class Mutex
+{
+public:
+    /**
+     * @brief Construct and initialise the underlying OS mutex.
+     */
+    Mutex();
+
+    /**
+     * @brief Destroy the mutex and release the underlying OS handle.
+     */
+    ~Mutex();
+
+    /**
+     * @brief Acquire the mutex, blocking until it becomes available.
+     */
+    void lock();
+
+    /**
+     * @brief Release the mutex.
+     */
+    void unlock();
+
+private:
+    /**
+     * @brief Opaque handle to the platform mutex object.
+     */
+    void *_handle;
+};
 
 } // namespace SF_HAL
 

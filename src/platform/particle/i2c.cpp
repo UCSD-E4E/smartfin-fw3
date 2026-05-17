@@ -67,6 +67,16 @@ TwoWire& i2c_get_wire()
     return Wire;
 }
 
+void i2c_lock()
+{
+    Wire.lock();
+}
+
+void i2c_unlock()
+{
+    Wire.unlock();
+}
+
 } // namespace SF_HAL
 
 #endif // SF_PLATFORM == SF_PLATFORM_PARTICLE

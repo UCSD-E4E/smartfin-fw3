@@ -16,6 +16,7 @@
 #include "consts.hpp"
 #include "max31725.h"
 #include "max31725_cpp.h"
+#include "platform/hal.hpp"
 #include "product.hpp"
 
 #include <math.h>
@@ -45,11 +46,11 @@ bool tmpSensor::stop()
 float tmpSensor::getTemp()
 {
     float value = NAN;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    WITH_LOCK(Wire)
-    {
-        value = m_sensor.read_reg_as_temperature(MAX31725_REG_TEMPERATURE);
-    }
-#endif
+
+    SF_HAL::i2c_lock();
+
+    value = m_sensor.read_reg_as_temperature(MAX31725_REG_TEMPERATURE);
+    SF_HAL::i2c_lock();
+
     return value;
 }

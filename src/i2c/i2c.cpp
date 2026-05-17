@@ -24,6 +24,6 @@ int I2C::write(uint8_t address, const char *data, int length, bool repeated)
 
     // convert from 8-bit to 7-bit address
     address >>= 1;
-
-    return SF_HAL::i2c_write(address, data, length, repeated);
+    int ret = SF_HAL::i2c_write(address, data, length, repeated);
+    return ret >= 0 ? I2C_NO_ERROR : I2C_ERROR;
 }

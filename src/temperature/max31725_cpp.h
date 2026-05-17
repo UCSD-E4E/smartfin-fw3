@@ -35,6 +35,9 @@
 #ifndef MAX31725_CPP_H
 #define MAX31725_CPP_H
 
+#include "i2c/i2c.h"
+
+#include <cstdint>
 /**
  * @brief Digital thermometer, thermostat, temperature sensor.
  * @version 1.0000.0002
