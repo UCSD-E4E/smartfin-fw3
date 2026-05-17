@@ -1,6 +1,5 @@
 #include "fileCLI.hpp"
 
-#include "Particle.h"
 #include "cellular/encoding/base64.h"
 #include "cellular/encoding/base85.h"
 #include "cli/conio.hpp"
@@ -16,6 +15,7 @@
 #include <limits.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 static char path_buffer[PATH_MAX];
 
@@ -53,14 +53,10 @@ void FileCLI::execute(void)
 
     this->run = 1;
     this->current_dir = 0;
-    this->dir_stack[this->current_dir] = opendir("/");
+    this->dir_stack[this->current_dir] = ::opendir("/");
     if (NULL == this->dir_stack[this->current_dir])
     {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-        FLOG_AddError(FLOG_FS_OPENDIR_FAIL, (uint32_t)this->dir_stack[this->current_dir]);
-#elif SF_PLATFORM == SF_PLATFORM_GLIBC
-        FLOG_AddError(FLOG_FS_OPENDIR_FAIL, this->current_dir);
-#endif
+        FLOG_AddError(FLOG_FS_OPENDIR_FAIL, (uint32_t)(uintptr_t)this->dir_stack[this->current_dir]);
         SF_OSAL_printf("Failed to open root" __NL__);
         return;
     }
@@ -83,7 +79,7 @@ void FileCLI::execute(void)
     }
     for (;this->current_dir >= 0; this->current_dir--)
     {
-        closedir(this->dir_stack[this->current_dir]);
+        ::closedir(this->dir_stack[this->current_dir]);
     }
 }
 
@@ -94,7 +90,7 @@ void FileCLI::list_dir(void)
     char f_type;
     struct stat file_stats;
 
-    while ((dirent = readdir(cwd)))
+    while ((dirent = ::readdir(cwd)))
     {
         switch (dirent->d_type)
         {
@@ -108,7 +104,7 @@ void FileCLI::list_dir(void)
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         const char* path = buildPath(true);
-        if (stat(path, &file_stats))
+        if (::stat(path, &file_stats))
         {
             FLOG_AddError(FLOG_FS_STAT_FAIL, errno);
             SF_OSAL_printf("Failed to stat %s" __NL__, path);
@@ -118,7 +114,7 @@ void FileCLI::list_dir(void)
             file_stats.st_size,
             dirent->d_name);
     }
-    rewinddir(cwd);
+    ::rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 }
 
@@ -172,33 +168,33 @@ int FileCLI::openFile(void)
     const char *path;
     int fp;
 
-    idx = telldir(cwd);
-    while ((dirent = readdir(cwd)))
+    idx = ::telldir(cwd);
+    while ((dirent = ::readdir(cwd)))
     {
         if (dirent->d_type != DT_REG)
         {
-            idx = telldir(cwd);
+            idx = ::telldir(cwd);
             continue;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         SF_OSAL_printf("%d: %-16s" __NL__, idx, dirent->d_name);
-        idx = telldir(cwd);
+        idx = ::telldir(cwd);
     }
-    rewinddir(cwd);
+    ::rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to hexdump: ");
     SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
-    seekdir(cwd, cmd_val);
-    dirent = readdir(cwd);
-    rewinddir(cwd);
+    ::seekdir(cwd, cmd_val);
+    dirent = ::readdir(cwd);
+    ::rewinddir(cwd);
     strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
     this->current_dir++;
     path = buildPath(false);
 
-    fp = open(path, O_RDONLY);
+    fp = ::open(path, O_RDONLY);
     if (-1 == fp)
     {
         SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
@@ -209,15 +205,12 @@ int FileCLI::openFile(void)
 
 void FileCLI::closeFile(int fp)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    close(fp);
+    ::close(fp);
     this->current_dir--;
-#endif
 }
 
 void FileCLI::checksum(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     struct stat fstats;
     size_t file_idx = 0;
@@ -229,16 +222,16 @@ void FileCLI::checksum(void)
 
     fp = this->openFile();
 
-    if (fstat(fp, &fstats))
+    if (::fstat(fp, &fstats))
     {
         SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
         this->closeFile(fp);
         return;
     }
 
-    for (file_idx = 0; file_idx < fstats.st_size; file_idx++)
+    for (file_idx = 0; file_idx < (size_t)fstats.st_size; file_idx++)
     {
-        if (1 != read(fp, &byte, 1))
+        if (1 != ::read(fp, &byte, 1))
         {
             SF_OSAL_printf("Failed to read" __NL__);
             this->closeFile(fp);
@@ -254,7 +247,6 @@ void FileCLI::checksum(void)
     crc = ~crc;
     SF_OSAL_printf("CRC32: %8X" __NL__, crc);
     this->closeFile(fp);
-#endif
 }
 
 void FileCLI::change_dir(void)
@@ -267,12 +259,12 @@ void FileCLI::change_dir(void)
     const char* path;
     long same_dir_idx = 0, prev_dir_idx = 0;
 
-    idx = telldir(cwd);
-    while ((dirent = readdir(cwd)))
+    idx = ::telldir(cwd);
+    while ((dirent = ::readdir(cwd)))
     {
         if (dirent->d_type == DT_REG)
         {
-            idx = telldir(cwd);
+            idx = ::telldir(cwd);
             continue;
         }
         SF_OSAL_printf("%d: %-16s" __NL__,
@@ -286,9 +278,9 @@ void FileCLI::change_dir(void)
         {
             prev_dir_idx = idx;
         }
-        idx = telldir(cwd);
+        idx = ::telldir(cwd);
     }
-    rewinddir(cwd);
+    ::rewinddir(cwd);
     SF_OSAL_printf(__NL__);
     SF_OSAL_printf("Enter the number of the directory to change to: ");
     SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
@@ -301,18 +293,18 @@ void FileCLI::change_dir(void)
     if (cmd_val == prev_dir_idx && this->current_dir != 0)
     {
         memset(this->path_stack[this->current_dir - 1], 0, NAME_MAX);
-        closedir(this->dir_stack[this->current_dir]);
+        ::closedir(this->dir_stack[this->current_dir]);
         this->current_dir--;
         return;
     }
 
-    seekdir(cwd, cmd_val);
-    dirent = readdir(cwd);
-    rewinddir(cwd);
+    ::seekdir(cwd, cmd_val);
+    dirent = ::readdir(cwd);
+    ::rewinddir(cwd);
     strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
     this->current_dir++;
     path = buildPath(true);
-    this->dir_stack[this->current_dir] = opendir(path);
+    this->dir_stack[this->current_dir] = ::opendir(path);
 }
 
 FileCLI::FileCLI(void)
@@ -331,7 +323,6 @@ void FileCLI::print_dir(void)
 
 void FileCLI::deleteFile(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
     DIR *cwd = this->dir_stack[this->current_dir];
     struct dirent *dirent;
@@ -340,8 +331,8 @@ void FileCLI::deleteFile(void)
     int cmd_val;
     const char *path;
 
-    idx = telldir(cwd);
-    while ((dirent = readdir(cwd)))
+    idx = ::telldir(cwd);
+    while ((dirent = ::readdir(cwd)))
     {
         switch (dirent->d_type)
         {
@@ -355,34 +346,32 @@ void FileCLI::deleteFile(void)
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         SF_OSAL_printf("%d: %c %-16s" __NL__, idx, f_type, dirent->d_name);
-        idx = telldir(cwd);
+        idx = ::telldir(cwd);
     }
-    rewinddir(cwd);
+    ::rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to remove: ");
     SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
-    seekdir(cwd, cmd_val);
-    dirent = readdir(cwd);
-    rewinddir(cwd);
+    ::seekdir(cwd, cmd_val);
+    dirent = ::readdir(cwd);
+    ::rewinddir(cwd);
     strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
     this->current_dir++;
     path = buildPath(false);
-    if (unlink(path))
+    if (::unlink(path))
     {
         SF_OSAL_printf("Failed to unlink file: %s" __NL__, strerror(errno));
     }
     this->current_dir--;
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
-#endif
 }
 
 
 void hexdump(int fp, size_t file_len)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #define BYTES_PER_LINE 16
     size_t file_idx = 0;
     uint8_t byte_buffer[BYTES_PER_LINE + 1];
@@ -393,7 +382,7 @@ void hexdump(int fp, size_t file_len)
     {
         SF_OSAL_printf("%08x  ", file_idx);
         memset(byte_buffer, 0, BYTES_PER_LINE + 1);
-        bytes_read = read(fp, byte_buffer, BYTES_PER_LINE);
+        bytes_read = ::read(fp, byte_buffer, BYTES_PER_LINE);
         if (-1 == bytes_read)
         {
             SF_OSAL_printf(__NL__ "Error in reading: %s" __NL__,
@@ -426,12 +415,10 @@ void hexdump(int fp, size_t file_len)
         SF_OSAL_printf(" |%s|" __NL__, (const char*)byte_buffer);
     }
     SF_OSAL_printf("%08x" __NL__, file_idx);
-#endif
 }
 
 void FileCLI::dumpHex(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
     DIR *cwd = this->dir_stack[this->current_dir];
     struct dirent *dirent;
@@ -441,56 +428,54 @@ void FileCLI::dumpHex(void)
     int fp;
     struct stat fstats;
 
-    idx = telldir(cwd);
-    while ((dirent = readdir(cwd)))
+    idx = ::telldir(cwd);
+    while ((dirent = ::readdir(cwd)))
     {
         if (dirent->d_type != DT_REG)
         {
-            idx = telldir(cwd);
+            idx = ::telldir(cwd);
             continue;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         SF_OSAL_printf("%d: %-16s" __NL__, idx, dirent->d_name);
-        idx = telldir(cwd);
+        idx = ::telldir(cwd);
     }
-    rewinddir(cwd);
+    ::rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to hexdump: ");
     SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
-    seekdir(cwd, cmd_val);
-    dirent = readdir(cwd);
-    rewinddir(cwd);
+    ::seekdir(cwd, cmd_val);
+    dirent = ::readdir(cwd);
+    ::rewinddir(cwd);
     strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
     this->current_dir++;
     path = buildPath(false);
 
-    fp = open(path, O_RDONLY);
+    fp = ::open(path, O_RDONLY);
     if (-1 == fp)
     {
         SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
         return;
     }
 
-    if (fstat(fp, &fstats))
+    if (::fstat(fp, &fstats))
     {
         SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
-        close(fp);
+        ::close(fp);
         return;
     }
 
     hexdump(fp, fstats.st_size);
 
-    close(fp);
+    ::close(fp);
     this->current_dir--;
-#endif
 }
 
 void base85dump(int fp, size_t file_len)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     size_t file_idx = 0, bytes_read;
     uint8_t *byte_buffer = new uint8_t[SF_PACKET_SIZE];
     char *encoded_buffer = new char[SF_RECORD_SIZE + 1];
@@ -499,7 +484,7 @@ void base85dump(int fp, size_t file_len)
     size_t encodedLen = 0;
     for (file_idx = 0; file_idx < file_len; file_idx += bytes_read)
     {
-        bytes_read = read(fp, byte_buffer, SF_PACKET_SIZE);
+        bytes_read = ::read(fp, byte_buffer, SF_PACKET_SIZE);
 #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
         encodedLen = bintob85(encoded_buffer, byte_buffer, bytes_read) - encodedBuffer;
 #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64
@@ -518,12 +503,10 @@ void base85dump(int fp, size_t file_len)
     SF_OSAL_printf("%d packets" __NL__, n_packets);
     delete[] encoded_buffer;
     delete[] byte_buffer;
-#endif
 }
 
 void FileCLI::dumpBase85(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
     DIR *cwd = this->dir_stack[this->current_dir];
     struct dirent *dirent;
@@ -533,33 +516,33 @@ void FileCLI::dumpBase85(void)
     int fp;
     struct stat fstats;
 
-    idx = telldir(cwd);
-    while ((dirent = readdir(cwd)))
+    idx = ::telldir(cwd);
+    while ((dirent = ::readdir(cwd)))
     {
         if (dirent->d_type != DT_REG)
         {
-            idx = telldir(cwd);
+            idx = ::telldir(cwd);
             continue;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         SF_OSAL_printf("%d: %-16s" __NL__, idx, dirent->d_name);
-        idx = telldir(cwd);
+        idx = ::telldir(cwd);
     }
-    rewinddir(cwd);
+    ::rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to dump: ");
     SF_OSAL_getline(input_buffer, FILE_CLI_INPUT_BUFFER_LEN);
     cmd_val = atoi(input_buffer);
 
-    seekdir(cwd, cmd_val);
-    dirent = readdir(cwd);
-    rewinddir(cwd);
+    ::seekdir(cwd, cmd_val);
+    dirent = ::readdir(cwd);
+    ::rewinddir(cwd);
     strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
     this->current_dir++;
     path = buildPath(false);
 
-    fp = open(path, O_RDONLY);
+    fp = ::open(path, O_RDONLY);
     if (-1 == fp)
     {
         SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
@@ -567,10 +550,10 @@ void FileCLI::dumpBase85(void)
         return;
     }
 
-    if (fstat(fp, &fstats))
+    if (::fstat(fp, &fstats))
     {
         SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
-        close(fp);
+        ::close(fp);
         this->current_dir--;
         return;
     }
@@ -578,14 +561,12 @@ void FileCLI::dumpBase85(void)
     SF_OSAL_printf("Publish Header: %s-%s" __NL__, pSystemDesc->deviceID, dirent->d_name);
     base85dump(fp, fstats.st_size);
 
-    close(fp);
+    ::close(fp);
     this->current_dir--;
-#endif
 }
 
 void encodedTransfer(int fp, size_t file_len)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     std::size_t file_idx = 0, bytes_read;
     std::uint8_t *byte_buffer = new std::uint8_t[SF_PACKET_SIZE];
     char *encoded_buffer = new char[SF_RECORD_SIZE + 1];
@@ -594,7 +575,7 @@ void encodedTransfer(int fp, size_t file_len)
 
     for (file_idx = 0; file_idx < file_len; file_idx += bytes_read)
     {
-        bytes_read = read(fp, byte_buffer, SF_PACKET_SIZE);
+        bytes_read = ::read(fp, byte_buffer, SF_PACKET_SIZE);
 #if SF_UPLOAD_ENCODING == SF_UPLOAD_BASE85
         encoded_len = bintob85(encoded_buffer, byte_buffer, bytes_read) - encodedBuffer;
 #elif SF_UPLOAD_ENCODING == SF_UPLOAD_BASE64
@@ -621,12 +602,10 @@ void encodedTransfer(int fp, size_t file_len)
     SF_OSAL_printf("%d packets" __NL__, n_packets);
     delete[] encoded_buffer;
     delete[] byte_buffer;
-#endif
 }
 
 void FileCLI::transfer(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     char input_buffer[FILE_CLI_INPUT_BUFFER_LEN];
     DIR *cwd = this->dir_stack[this->current_dir];
     struct dirent *dirent;
@@ -636,19 +615,19 @@ void FileCLI::transfer(void)
     int fp;
     struct stat fstats;
 
-    idx = telldir(cwd);
-    while ((dirent = readdir(cwd)))
+    idx = ::telldir(cwd);
+    while ((dirent = ::readdir(cwd)))
     {
         if (dirent->d_type != DT_REG)
         {
-            idx = telldir(cwd);
+            idx = ::telldir(cwd);
             continue;
         }
         strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
         SF_OSAL_printf("%d: %-16s" __NL__, idx, dirent->d_name);
-        idx = telldir(cwd);
+        idx = ::telldir(cwd);
     }
-    rewinddir(cwd);
+    ::rewinddir(cwd);
     memset(this->path_stack[this->current_dir], 0, NAME_MAX);
 
     SF_OSAL_printf("Enter the number of the file to dump: ");
@@ -660,14 +639,14 @@ void FileCLI::transfer(void)
         SF_OSAL_printf("Unknown entry" __NL__);
         return;
     }
-    seekdir(cwd, cmd_val);
-    dirent = readdir(cwd);
-    rewinddir(cwd);
+    ::seekdir(cwd, cmd_val);
+    dirent = ::readdir(cwd);
+    ::rewinddir(cwd);
     strncpy(this->path_stack[this->current_dir], dirent->d_name, NAME_MAX);
     this->current_dir++;
     path = this->buildPath(false);
 
-    fp = open(path, O_RDONLY);
+    fp = ::open(path, O_RDONLY);
     if (-1 == fp)
     {
         SF_OSAL_printf("Unable to open %s: %s" __NL__, path, strerror(errno));
@@ -675,19 +654,18 @@ void FileCLI::transfer(void)
         return;
     }
 
-    if (fstat(fp, &fstats))
+    if (::fstat(fp, &fstats))
     {
         SF_OSAL_printf("Unable to stat file: %s" __NL__, strerror(errno));
-        close(fp);
+        ::close(fp);
         this->current_dir--;
         return;
     }
 
     SF_OSAL_printf("Publish Header: %s-%s" __NL__, pSystemDesc->deviceID, dirent->d_name);
     encodedTransfer(fp, fstats.st_size);
-    close(fp);
+    ::close(fp);
     this->current_dir--;
-#endif
 }
 
 void FileCLI::mkdir(void)
