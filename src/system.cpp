@@ -45,14 +45,14 @@ I2C i2cBus;
 MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
 tmpSensor tempSensor(max31725);
 
-static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
-static SFLed waterLED(WATER_STATUS_LED, SFLed::SFLED_STATE_OFF);
+static SFLed batteryLED(SF_HAL::PinId::StatLed, SFLed::SFLED_STATE_OFF);
+static SFLed waterLED(SF_HAL::PinId::WaterStatusLed, SFLed::SFLED_STATE_OFF);
 
 static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
 static Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
 static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 
-static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN);
+static WaterSensor waterSensor(SF_HAL::PinId::WaterDetectEn, SF_HAL::PinId::WaterDetect);
 
 #if SF_ENABLE_GPS
 static LocationServiceConfiguration create_location_service_config();
@@ -81,7 +81,7 @@ void SYS_initSys(void)
     SYS_initWaterSensor();
     SYS_initLEDs();
 
-    SF_HAL::gpio_set_mode(WKP, SF_HAL::GpioMode::INPUT);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::Wkp, SF_HAL::GpioMode::INPUT);
 
     systemDesc.pBattery = &battery_desc;    
 }
@@ -133,7 +133,7 @@ static int SYS_initFS(void)
  */
 static int SYS_initTasks(void)
 {
-    SF_HAL::gpio_set_mode(SF_USB_PWR_DETECT_PIN, SF_HAL::GpioMode::INPUT_PULLDOWN);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::UsbPwrDetect, SF_HAL::GpioMode::INPUT_PULLDOWN);
     systemFlags.hasCharger = true;
     systemFlags.batteryLow = false;
 
@@ -157,11 +157,11 @@ static int SYS_initTempSensor(void)
 static int SYS_initWaterSensor(void)
 {
     uint8_t water_sensor_window = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
-    SF_HAL::gpio_set_mode(WATER_DETECT_EN_PIN, SF_HAL::GpioMode::OUTPUT);
-    SF_HAL::gpio_write(WATER_DETECT_EN_PIN, SF_HAL::GpioState::HIGH);
-    SF_HAL::gpio_set_mode(WATER_DETECT_PIN, SF_HAL::GpioMode::INPUT);
-    SF_HAL::gpio_set_mode(WATER_MFG_TEST_EN, SF_HAL::GpioMode::OUTPUT);
-    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::LOW);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::WaterDetectEn, SF_HAL::GpioMode::OUTPUT);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterDetectEn, SF_HAL::GpioState::HIGH);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::WaterDetect, SF_HAL::GpioMode::INPUT);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::WaterMfgTestEn, SF_HAL::GpioMode::OUTPUT);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterMfgTestEn, SF_HAL::GpioState::LOW);
     systemDesc.pWaterSensor = &waterSensor;
     waterSensor.begin();
     ledTimer.start();
@@ -238,7 +238,7 @@ void SYS_chargerTask(void)
 {
     bool previous_state = systemFlags.hasCharger;
     bool isCharging = SF_HAL::battery_state() == SF_HAL::BatteryState::CHARGING;
-    systemFlags.hasCharger = SF_HAL::gpio_read(SF_USB_PWR_DETECT_PIN);
+    systemFlags.hasCharger = SF_HAL::gpio_read(SF_HAL::PinId::UsbPwrDetect);
     static int chargedTimestamp;
     static int chargingTimestamp;
 

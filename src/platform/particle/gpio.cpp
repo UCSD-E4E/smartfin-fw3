@@ -10,39 +10,40 @@
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 
 #include "platform/hal.hpp"
+#include "platform/particle/pins.hpp"
 #include "Particle.h"
 
 namespace SF_HAL
 {
 
-void gpio_set_mode(int pin, GpioMode mode)
+void gpio_set_mode(PinId pin, GpioMode mode)
 {
     switch (mode)
     {
-        case GpioMode::INPUT:          ::pinMode(pin, INPUT);          break;
-        case GpioMode::INPUT_PULLDOWN: ::pinMode(pin, INPUT_PULLDOWN); break;
-        case GpioMode::OUTPUT:         ::pinMode(pin, OUTPUT);         break;
+        case GpioMode::INPUT:          ::pinMode(pinToInt(pin), INPUT);          break;
+        case GpioMode::INPUT_PULLDOWN: ::pinMode(pinToInt(pin), INPUT_PULLDOWN); break;
+        case GpioMode::OUTPUT:         ::pinMode(pinToInt(pin), OUTPUT);         break;
     }
 }
 
-void gpio_write(int pin, GpioState state)
+void gpio_write(PinId pin, GpioState state)
 {
-    ::digitalWrite(pin, state == GpioState::HIGH ? HIGH : LOW);
+    ::digitalWrite(pinToInt(pin), state == GpioState::HIGH ? HIGH : LOW);
 }
 
-bool gpio_read(int pin)
+bool gpio_read(PinId pin)
 {
-    return ::digitalRead(pin) == HIGH;
+    return ::digitalRead(pinToInt(pin)) == HIGH;
 }
 
-void gpio_write_fast(int pin, GpioState state)
+void gpio_write_fast(PinId pin, GpioState state)
 {
-    ::digitalWriteFast(pin, state == GpioState::HIGH ? HIGH : LOW);
+    ::digitalWriteFast(pinToInt(pin), state == GpioState::HIGH ? HIGH : LOW);
 }
 
-bool gpio_read_fast(int pin)
+bool gpio_read_fast(PinId pin)
 {
-    return ::pinReadFast(pin) == HIGH;
+    return ::pinReadFast(pinToInt(pin)) == HIGH;
 }
 
 } // namespace SF_HAL

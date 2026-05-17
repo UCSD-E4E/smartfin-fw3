@@ -3,8 +3,6 @@
 
 #include "platform/hal.hpp"
 
-#include <cstdint>
-
 #define SF_LED_NUM_LEDS 2
 
 #define SF_LED_ON_VALUE SF_HAL::GpioState::LOW
@@ -20,7 +18,7 @@ class SFLed
         SFLED_STATE_ON,
         SFLED_STATE_BLINK
     }SFLED_State_e;
-    SFLed(uint8_t pin, SFLED_State_e state);
+    SFLed(SF_HAL::PinId pin, SFLED_State_e state);
     ~SFLed(void);
 
     void setState(SFLED_State_e state);
@@ -31,7 +29,7 @@ class SFLed
     static void doLEDs(void);
 
     private:
-    uint8_t pin;
+    SF_HAL::PinId pin;
     SFLED_State_e state;
     SFLed* nextLED;
 

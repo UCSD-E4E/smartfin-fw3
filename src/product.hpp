@@ -14,53 +14,11 @@
 /** @brief Set to 1 to compile GPS support; 0 to exclude (saves SRAM). */
 #define SF_ENABLE_GPS 0
 
-/******************************************************************************
- * Pin Definitions
- *****************************************************************************/
-/**
- * USB Power Detection Pin TODO
- */
-
-#define SF_USB_PWR_DETECT_PIN   A4
-
-/**
- * Pin for the Battery Status LED
- */
-#define STAT_LED_PIN          A5
-
-/**
- * Water Detect Enable Pin
- */
-#define WATER_DETECT_EN_PIN   A2
-/**
- * Water Detect Pin
- */
-#define WATER_DETECT_PIN      A6
-
-/**
- * @brief Water Detection Status LED
- *
- */
-#define WATER_STATUS_LED D9
-/**
- * @brief Manufacturing Water Detect Pin
- *
- */
-#define WATER_MFG_TEST_EN     A3
-
-
 /**
  * @brief ICM20648 Address
- * 
+ *
  */
 #define SF_ICM20648_ADDR    (0x68 << 1)
-
-/**
- * @brief Wakeup pin 
- * 
- */
-#define WKP_PIN               A7
-
 
 /*******************************************************************************
  * Peripheral Configurations
