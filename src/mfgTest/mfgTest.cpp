@@ -91,9 +91,9 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
     // set the initial state to "not in water" (because hystersis)
     pSystemDesc->pWaterSensor->forceState(WATER_SENSOR_LOW_STATE);
     // set in-water
-    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::HIGH);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterMfgTestEn, SF_HAL::GpioState::HIGH);
 
-    int wet_value = SF_HAL::gpio_read(WATER_MFG_TEST_EN);
+    int wet_value = SF_HAL::gpio_read(SF_HAL::PinId::WaterMfgTestEn);
 
     SF_OSAL_printf("value: %d " , wet_value);
 
@@ -113,9 +113,9 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
     }
 
     // set out-of-water
-    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::LOW);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterMfgTestEn, SF_HAL::GpioState::LOW);
 
-    int dry_value = SF_HAL::gpio_read(WATER_MFG_TEST_EN);
+    int dry_value = SF_HAL::gpio_read(SF_HAL::PinId::WaterMfgTestEn);
 
     SF_OSAL_printf("value: %d " , dry_value);
 
@@ -135,7 +135,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::wet_dry_sensor_test(void)
         SF_OSAL_printf("Dry Sensor passed" __NL__);
     }
 
-    SF_HAL::gpio_write(WATER_MFG_TEST_EN, SF_HAL::GpioState::LOW);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterMfgTestEn, SF_HAL::GpioState::LOW);
 
     pSystemDesc->pWaterCheck->start();
 

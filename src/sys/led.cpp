@@ -13,7 +13,7 @@
 #include "platform/hal.hpp"
 SFLed* SFLed::firstLED = NULL;
 
-SFLed::SFLed(uint8_t pin, SFLed::SFLED_State_e state)
+SFLed::SFLed(SF_HAL::PinId pin, SFLed::SFLED_State_e state)
 {
     this->pin = pin;
     this->state = state;

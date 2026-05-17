@@ -10,6 +10,7 @@
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 
 #include "platform/hal.hpp"
+#include "platform/particle/pins.hpp"
 #include "Particle.h"
 
 namespace
@@ -72,10 +73,10 @@ void system_sleep(SleepMode mode, uint32_t duration_sec)
     }
 }
 
-void system_sleep_gpio_wake(int wake_pin)
+void system_sleep_gpio_wake(PinId wake_pin)
 {
     SystemSleepConfiguration config;
-    config.mode(SystemSleepMode::HIBERNATE).gpio(wake_pin, RISING);
+    config.mode(SystemSleepMode::HIBERNATE).gpio(pinToInt(wake_pin), RISING);
     System.sleep(config);
 }
 

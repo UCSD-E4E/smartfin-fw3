@@ -27,6 +27,28 @@
 namespace SF_HAL
 {
 
+// GPIO pin identifiers
+// Replaces board-specific #defines (e.g. A4, D9) in product.hpp.
+// Platform implementations map these to actual pin integers.
+
+/**
+ * @brief Logical GPIO pin identifiers.
+ *
+ * Each value names a physical net on the Smartfin board. Platform
+ * implementations in src/platform/<target>/pins.hpp translate these to
+ * the target-specific integer constants (e.g. Particle A4, D9).
+ */
+enum class PinId
+{
+    UsbPwrDetect,  ///< USB power-detect input (was SF_USB_PWR_DETECT_PIN)
+    StatLed,       ///< Battery status LED output (was STAT_LED_PIN)
+    WaterDetectEn, ///< Water-detect circuit enable output (was WATER_DETECT_EN_PIN)
+    WaterDetect,   ///< Water-detect sense input (was WATER_DETECT_PIN)
+    WaterStatusLed,///< Wet/dry status LED output (was WATER_STATUS_LED)
+    WaterMfgTestEn,///< Manufacturing water-detect enable output (was WATER_MFG_TEST_EN)
+    Wkp,           ///< Wake-from-sleep pin (was WKP_PIN)
+};
+
 // Timing
 // Replaces: millis(), delay(), delayMicroseconds()
 
@@ -69,25 +91,24 @@ void delay_us(uint32_t us);
  *
  * Must be called before the first @c gpio_write() or @c gpio_read() on a pin.
  *
- * @param pin  Platform-specific pin number (uses the same constants as the
- *             Particle build, e.g. @c WKP, @c WATER_DETECT_EN_PIN).
+ * @param pin  Logical pin identifier.
  * @param mode Desired @c GpioMode.
  */
-void gpio_set_mode(int pin, GpioMode mode);
+void gpio_set_mode(PinId pin, GpioMode mode);
 
 /**
  * @brief Drive a pin to a logic level.
- * @param pin   Platform-specific pin number.
+ * @param pin   Logical pin identifier.
  * @param state Desired @c GpioState (@c LOW or @c HIGH).
  */
-void gpio_write(int pin, GpioState state);
+void gpio_write(PinId pin, GpioState state);
 
 /**
  * @brief Sample the current logic level on a pin.
- * @param pin Platform-specific pin number.
+ * @param pin Logical pin identifier.
  * @return @c true if the pin reads @c HIGH, @c false if @c LOW.
  */
-bool gpio_read(int pin);
+bool gpio_read(PinId pin);
 
 /**
  * @brief Drive a pin to a logic level using the fastest available path.
@@ -96,10 +117,10 @@ bool gpio_read(int pin);
  * bypasses the GPIO abstraction layer for minimal latency.  Falls back to
  * @c gpio_write() on targets that do not have a dedicated fast path.
  *
- * @param pin   Platform-specific pin number.
+ * @param pin   Logical pin identifier.
  * @param state Desired @c GpioState.
  */
-void gpio_write_fast(int pin, GpioState state);
+void gpio_write_fast(PinId pin, GpioState state);
 
 /**
  * @brief Sample a pin using the fastest available path.
@@ -107,10 +128,10 @@ void gpio_write_fast(int pin, GpioState state);
  * Same trade-off as @c gpio_write_fast(); falls back to @c gpio_read() where
  * no fast variant exists.
  *
- * @param pin Platform-specific pin number.
+ * @param pin Logical pin identifier.
  * @return @c true if the pin reads @c HIGH, @c false if @c LOW.
  */
-bool gpio_read_fast(int pin);
+bool gpio_read_fast(PinId pin);
 
 // Serial / USART
 // Replaces: Serial.begin(), Serial.available(), Serial.read(),
@@ -465,9 +486,9 @@ void system_sleep(SleepMode mode, uint32_t duration_sec = 0);
  * @endcode
  * All RAM content except PLATFORM_RETAINED variables is lost.
  *
- * @param wake_pin Platform-specific pin number to monitor for the wake edge.
+ * @param wake_pin Logical pin identifier to monitor for the wake edge.
  */
-void system_sleep_gpio_wake(int wake_pin);
+void system_sleep_gpio_wake(PinId wake_pin);
 
 // Battery / fuel gauge
 // Replaces: FuelGauge::getVCell(), System.batteryState()
