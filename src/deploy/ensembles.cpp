@@ -7,6 +7,8 @@
  */
 #include "ensembles.hpp"
 
+#include "ble/ble_live_stream.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "deploy/ensemble_commit.hpp"
@@ -16,13 +18,8 @@
 #include "system.hpp"
 #include "util.hpp"
 #include "vers.hpp"
-#include "ble/high_rate_stream.hpp"
-#include "ble/ble_live_stream.hpp"
 
 #include <cmath>
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "Particle.h"
-#endif
 
 /**
  * @brief Ensemble 01 (Temperature)
@@ -185,7 +182,7 @@ void SS_ensemble08Init(DeploymentSchedule_t *pDeployment)
 
 void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
     float temp = NAN;
     uint8_t water = UINT8_MAX;
 #if SF_ENABLE_GPS
@@ -304,12 +301,11 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 
         memset(pData, 0, sizeof(Ensemble10_eventData_t));
     }
-#endif
 }
 
 void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
     float battVoltage;
     Ensemble07_eventData_t *pData = (Ensemble07_eventData_t *)pDeployment->state.pData;
 #pragma pack(push, 1)
@@ -337,12 +333,11 @@ void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
         sf::deploy::commitEnsemble(&ensData, sizeof(ensData));
         memset(pData, 0, sizeof(Ensemble07_eventData_t));
     }
-#endif
 }
 
 void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
     float temp;
     uint8_t water;
 
@@ -380,7 +375,6 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         sf::deploy::commitEnsemble(&ens, sizeof(ens));
         memset(pData, 0, sizeof(Ensemble08_eventData_t));
     }
-#endif
 }
 
 /**
@@ -462,7 +456,7 @@ void SS_Ensemble12_x0C_Init(DeploymentSchedule_t *pDeployment)
  */
 void SS_Ensemble12_x0C_Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
 #pragma pack(push, 1)
     struct
     {
@@ -492,8 +486,6 @@ void SS_Ensemble12_x0C_Func(DeploymentSchedule_t *pDeployment)
     record.header = ensData.header;
     record.data = ensData.data;
     TransportService::getInstance().enqueueImuRecord(record);
-
-#endif
 }
 /** @} */
 

@@ -10,11 +10,9 @@
  */
 #ifndef __NEW_IMU_HPP__
 #define __NEW_IMU_HPP__
-#include "product.hpp"
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "imu/ICM-20948/ICM_20948.h"
 #include "platform/hal.hpp"
-#endif
+#include "product.hpp"
 
 #include <cstdint>
 #include <cstdio>
@@ -24,7 +22,7 @@
  */
 class IMU
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
 private:
     /**
      * @brief FIFO Data structure
@@ -271,6 +269,5 @@ public:
      * @param printfn Printf function to use
      */
     void dumpRegs(int (*printfn)(const char *s, ...) = printf);
-#endif
 };
 #endif // __NEW_IMU_HPP__
