@@ -19,7 +19,7 @@ void ChargeTask::init(void)
     this->ledStatus.setPeriod(CHARGE_RGB_LED_PERIOD);
     this->ledStatus.setPriority(CHARGE_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
-    this->startTime = millis();
+    this->startTime = SF_HAL::millis();
 
     //referenced dataupload
     this->initSuccess = 1;
@@ -32,14 +32,14 @@ void ChargeTask::init(void)
     // else if(sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS) == 0){
     //     this->ledStatus.setColor(RGB_COLOR_BLUE);
     // }
-    Particle.syncTime();
+    SF_HAL::cloud_sync_time();
 }
 
 STATES_e ChargeTask::run(void)
 {
     while(1)
     {
-        Particle.process();
+        SF_HAL::cloud_process();
         if (SF_OSAL_kbhit())
         {
             this->inputBuffer[CLI_BUFFER_LEN - 1] = SF_OSAL_getch();

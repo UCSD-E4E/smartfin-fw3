@@ -18,12 +18,14 @@
 #include "fileCLI/fileCLI.hpp"
 #include "imu/newIMU.hpp"
 #include "mfgTest/mfgTest.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "states.hpp"
 #include "system.hpp"
 
 #include <dirent.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 static MfgTest mfgTask;
 
@@ -56,44 +58,44 @@ void CLI_testGetNumFiles(void)
 
 void CLI_createTestFile(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    int fd = open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
+    int fd = ::open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
     SF_OSAL_printf("Error: %d" __NL__, errno);
     SF_OSAL_printf("fd sucsess %d" __NL__, fd);
-    
-    if (fd != -1) {
-        for(int ii = 0; ii < 100; ii++) {
-            String msg = String::format("testing %d\n", ii);
-            SF_OSAL_printf("Creating file with msg %s" __NL__, msg.c_str());
 
-            int i = write(fd, msg.c_str(), msg.length());
+    if (fd != -1)
+    {
+        char msg[32];
+        for (int ii = 0; ii < 100; ii++)
+        {
+            int len = snprintf(msg, sizeof(msg), "testing %d\n", ii);
+            SF_OSAL_printf("Creating file with msg %s" __NL__, msg);
+            int i = (int)::write(fd, msg, (size_t)len);
             SF_OSAL_printf("Sucsess: %d" __NL__, i);
         }
-        close(fd);
+        ::close(fd);
     }
-#endif
 }
 
 void CLI_wipeFileSystem(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    DIR* directory = opendir("");
-    if (directory == 0)
+    DIR* directory = ::opendir("/");
+    if (directory == nullptr)
     {
-        closedir(directory);
-    } 
-
-    while (readdir(directory) != NULL)
-    {
-        unlink(readdir(directory)->d_name);
+        return;
     }
-#endif
+
+    struct dirent* entry;
+    while ((entry = ::readdir(directory)) != nullptr)
+    {
+        ::unlink(entry->d_name);
+    }
+    ::closedir(directory);
 }
 
 void CLI_checkCharging(void) 
 {
     SF_OSAL_printf("Charging? %d" __NL__, System.batteryState() == BATTERY_STATE_CHARGING);
-    SF_OSAL_printf("Powered? %d" __NL__, SF_HAL::gpio_read(SF_USB_PWR_DETECT_PIN));
+    SF_OSAL_printf("Powered? %d" __NL__, SF_HAL::gpio_read(SF_HAL::PinId::UsbPwrDetect));
 }
 
 void CLI_testPrintf(void)

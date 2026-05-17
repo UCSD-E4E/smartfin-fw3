@@ -12,7 +12,6 @@
 #define __NEW_IMU_HPP__
 #include "product.hpp"
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "Particle.h"
 #include "imu/ICM-20948/ICM_20948.h"
 #include "platform/hal.hpp"
 #endif

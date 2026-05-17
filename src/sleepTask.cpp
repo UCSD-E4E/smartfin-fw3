@@ -17,7 +17,7 @@ void SleepTask::init(void)
     this->ledStatus.setPriority(SLEEP_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
 
-    if (SF_HAL::gpio_read(SF_USB_PWR_DETECT_PIN))
+    if (SF_HAL::gpio_read(SF_HAL::PinId::UsbPwrDetect))
     {
         SF_OSAL_printf("USB detected, returning!" __NL__);
         return;
@@ -37,13 +37,13 @@ void SleepTask::init(void)
     SYS_deinitSys();
 
     // Turn off wet/dry LED before sleeping
-    SF_HAL::gpio_set_mode(WATER_STATUS_LED, SF_HAL::GpioMode::OUTPUT);
-    SF_HAL::gpio_write(WATER_STATUS_LED, SF_HAL::GpioState::LOW);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::WaterStatusLed, SF_HAL::GpioMode::OUTPUT);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterStatusLed, SF_HAL::GpioState::LOW);
 
     // Set WATER_EN LOW so that we can wake from it
-    SF_HAL::gpio_write(WATER_DETECT_EN_PIN, SF_HAL::GpioState::LOW);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterDetectEn, SF_HAL::GpioState::LOW);
 
-    FLOG_AddError(FLOG_SYS_SLEEP, millis());
+    FLOG_AddError(FLOG_SYS_SLEEP, SF_HAL::millis());
     FLOG_AddError(FLOG_SYS_SLEEP, behavior);
 
     switch(behavior)
@@ -51,7 +51,7 @@ void SleepTask::init(void)
         case BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
 
             SF_OSAL_printf("REUPLOAD" __NL__);
-            if (SF_HAL::gpio_read(WKP_PIN))
+            if (SF_HAL::gpio_read(SF_HAL::PinId::Wkp))
             {
                 SF_HAL::system_sleep(SF_HAL::SleepMode::SOFT_POWER_OFF);
                 break;
@@ -65,8 +65,8 @@ void SleepTask::init(void)
                 break;
             }
         default:
-            SF_HAL::gpio_write(WKP, SF_HAL::GpioState::LOW);
-            SF_HAL::system_sleep_gpio_wake(WKP);
+            SF_HAL::gpio_write(SF_HAL::PinId::Wkp, SF_HAL::GpioState::LOW);
+            SF_HAL::system_sleep_gpio_wake(SF_HAL::PinId::Wkp);
             break;
     }
 

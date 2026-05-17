@@ -11,13 +11,13 @@
 
 #include "deploy.hpp"
 
+#include "cli/conio.hpp"
 #include "consts.hpp"
-#include "system.hpp"
 
 #include <fcntl.h>
 #include <string.h>
-
-#include "Particle.h"
+#include <sys/stat.h>
+#include <unistd.h>
 
 #define DEP_DEBUG
 
@@ -30,7 +30,6 @@ Deployment& Deployment::getInstance(void)
 
 int Deployment::open(const char* const name, Deployment::State_e state)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (this->currentFile == 0)
     {
         ::close(this->currentFile);
@@ -58,28 +57,22 @@ int Deployment::open(const char* const name, Deployment::State_e state)
     }
     strncpy(this->filename, name, SF_NAME_MAX);
     this->currentState = state;
-#endif
     return 1;
 }
 
 int Deployment::write(void* pData, size_t nBytes)
 {
-    size_t bytesWritten = 0;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (currentFile == 0 || currentState != Deployment::WRITE)
     {
         return 0;
     }
-    bytesWritten = ::write(currentFile, (uint8_t*)pData, nBytes);
+    size_t bytesWritten = ::write(currentFile, pData, nBytes);
     ::fsync(currentFile);
-#endif
     return bytesWritten;
 }
 
 int Deployment::read(void* pData, size_t nBytes)
 {
-    size_t bytesRead = 0;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (currentFile == 0)
     {
         return 0;
@@ -89,14 +82,11 @@ int Deployment::read(void* pData, size_t nBytes)
     {
         return 0;
     }
-    bytesRead = ::read(this->currentFile, (char*)pData, nBytes);
-#endif
-    return bytesRead;
+    return ::read(this->currentFile, pData, nBytes);
 }
 
 int Deployment::close(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (currentFile == 0)
     {
         return 1;
@@ -107,25 +97,21 @@ int Deployment::close(void)
     }
     this->currentFile = 0;
     memset(this->filename, 0, SF_NAME_MAX);
-#endif
     return 1;
 }
 
 int Deployment::seek(size_t loc)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (this->currentFile == 0)
     {
         return 0;
     }
-    lseek(this->currentFile, loc, SEEK_SET);
-#endif
+    ::lseek(this->currentFile, (off_t)loc, SEEK_SET);
     return 1;
 }
 
 int Deployment::getLength(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (this->currentFile == 0)
     {
 #ifdef DEP_DEBUG
@@ -134,7 +120,7 @@ int Deployment::getLength(void)
         return 0;
     }
     struct stat sbuf = {};
-    if (fstat(currentFile, &sbuf) != 0)
+    if (::fstat(currentFile, &sbuf) != 0)
     {
 #ifdef DEP_DEBUG
         SF_OSAL_printf("DEP::getLength: fstat failed!" __NL__);
@@ -146,14 +132,10 @@ int Deployment::getLength(void)
 #endif
 
     return (int)sbuf.st_size;
-#else
-    return 0;
-#endif
 }
 
 int Deployment::remove(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (this->currentFile == 0)
     {
 #ifdef DEP_DEBUG
@@ -168,7 +150,7 @@ int Deployment::remove(void)
 #endif
         return 0;
     }
-    if (unlink(this->filename) != 0)
+    if (::unlink(this->filename) != 0)
     {
 #ifdef DEP_DEBUG
         SF_OSAL_printf("DEP::remove: Unlink failed!" __NL__);
@@ -177,13 +159,11 @@ int Deployment::remove(void)
     }
     memset(this->filename, 0, SF_NAME_MAX);
     this->currentFile = 0;
-#endif
     return 1;
 }
 
 int Deployment::truncate(size_t nBytes)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (this->currentFile == 0)
     {
 #ifdef DEP_DEBUG
@@ -191,13 +171,12 @@ int Deployment::truncate(size_t nBytes)
 #endif
         return 0;
     }
-    if (ftruncate(this->currentFile, nBytes) != 0)
+    if (::ftruncate(this->currentFile, (off_t)nBytes) != 0)
     {
 #ifdef DEP_DEBUG
         SF_OSAL_printf("DEP::truncate: ftruncate failed!" __NL__);
 #endif
         return 0;
     }
-#endif
     return 1;
 }
