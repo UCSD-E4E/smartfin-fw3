@@ -4,6 +4,7 @@
 #include "cli/conio.hpp"
 #include "consts.hpp"
 #include "imu/newIMU.hpp"
+#include "json_writer.hpp"
 #include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"
@@ -21,7 +22,7 @@ MfgTest::mfg_test_entry MfgTest::MFG_TEST_TABLE[] = {
     {nullptr, nullptr, MfgTest::PENDING}};
 
 char MfgTest::json_buffer[1024];
-spark::JSONBufferWriter MfgTest::json_writer(MfgTest::json_buffer, sizeof(MfgTest::json_buffer));
+sf::JSONBufferWriter MfgTest::json_writer(MfgTest::json_buffer, sizeof(MfgTest::json_buffer));
 
 void MfgTest::run(void)
 {
@@ -374,7 +375,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::cellular_test(void)
     #ifdef PARTICLE
         // put it as elapsed time and look into what the time measure
         json_writer.name("cellular").beginObject();
-            json_writer.name("time").value(millis());
+        json_writer.name("time").value(SF_HAL::millis());
         json_writer.endObject();
     #endif
 

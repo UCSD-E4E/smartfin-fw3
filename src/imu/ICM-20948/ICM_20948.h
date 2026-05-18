@@ -12,6 +12,10 @@ A C++ interface to the ICM-20948
 
 #include "Particle.h"
 
+#ifndef ARDUINO
+class __FlashStringHelper;
+#endif
+
 #define ICM_20948_ARD_UNUSED_PIN 0xFF
 
 // Base

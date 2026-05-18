@@ -10,9 +10,7 @@
  */
 #include "deploy/scheduler.hpp"
 
-#include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "consts.hpp"
 #include "platform/hal.hpp"
 
 #include <cstring>

@@ -12,7 +12,6 @@
 #define __NEW_IMU_HPP__
 #include "imu/ICM-20948/ICM_20948.h"
 #include "platform/hal.hpp"
-#include "product.hpp"
 
 #include <cstdint>
 #include <cstdio>
