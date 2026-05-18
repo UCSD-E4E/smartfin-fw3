@@ -7,6 +7,8 @@
  *
  */
 
+#include "platform/platform.hpp"
+
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "Particle.h"
 

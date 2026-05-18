@@ -5,7 +5,7 @@
  * @date 2026-05-17
  */
 
-
+#include "platform/platform.hpp"
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "product.hpp"

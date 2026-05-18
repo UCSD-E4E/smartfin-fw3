@@ -11,7 +11,7 @@
  * LedStatus members in the codebase (currently 5).
  */
 
-#include "product.hpp"
+#include "platform/platform.hpp"
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 
