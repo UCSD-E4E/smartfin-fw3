@@ -180,6 +180,24 @@ public:
     }
 
     /**
+     * @brief Write a JSON unsigned long value.
+     *
+     * Resolves ambiguity on ARM targets where @c uint32_t maps to
+     * @c unsigned long rather than @c unsigned int.
+     *
+     * @param v Unsigned long to serialize.
+     * @return Reference to @c *this for method chaining.
+     */
+    JSONBufferWriter& value(unsigned long v)
+    {
+        char tmp[24];
+        snprintf(tmp, sizeof(tmp), "%lu", v);
+        append(tmp);
+        needs_comma_[depth_] = true;
+        return *this;
+    }
+
+    /**
      * @brief Write a JSON floating-point value.
      *
      * Uses `%g` format, which suppresses trailing zeros and switches to

@@ -6,6 +6,7 @@
 #include "platform/hal.hpp"
 #include "product.hpp"
 #include "sys/NVRAM.hpp"
+#include "system.hpp"
 
 uint8_t water_detect_array[WATER_DETECT_ARRAY_SIZE];
 
