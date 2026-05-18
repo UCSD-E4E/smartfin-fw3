@@ -35,7 +35,10 @@
  */
 #ifndef PLATFORM_RETAINED
 #ifdef PARTICLE
-#define PLATFORM_RETAINED retained
+// On Particle Device OS (nRF52840), `retained` expands to this attribute.
+// Defined directly here so no Particle SDK header needs to be included in
+// this platform-agnostic file.
+#define PLATFORM_RETAINED __attribute__((section(".retained_user"), zero_init))
 #else
 #define PLATFORM_RETAINED
 #endif

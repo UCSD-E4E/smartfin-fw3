@@ -23,6 +23,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
+#include <vector>
 
 namespace SF_HAL
 {
@@ -621,6 +623,10 @@ private:
      */
     void *_handle;
 };
+
+int random(int min, int max);
+
+std::vector<std::string> board_version();
 
 } // namespace SF_HAL
 
