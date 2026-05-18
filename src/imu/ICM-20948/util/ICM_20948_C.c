@@ -217,7 +217,7 @@ ICM_20948_Status_e ICM_20948_i2c_controller_periph4_txn(ICM_20948_Device_t *pdev
       return retval;
     }
 
-    // long tsTimeout = millis() + 3000;  // Emergency timeout for txn (hard coded to 3 secs)
+    // long tsTimeout = SF_HAL::millis() + 3000;  // Emergency timeout for txn (hard coded to 3 secs)
     uint32_t max_cycles = 1000;
     uint32_t count = 0;
     bool peripheral4Done = false;
@@ -226,11 +226,11 @@ ICM_20948_Status_e ICM_20948_i2c_controller_periph4_txn(ICM_20948_Device_t *pdev
       retval = ICM_20948_set_bank(pdev, 0);
       retval = ICM_20948_execute_r(pdev, AGB0_REG_I2C_MST_STATUS, (uint8_t *)&i2c_mst_status, 1);
 
-      peripheral4Done = (i2c_mst_status.I2C_PERIPH4_DONE /*| (millis() > tsTimeout) */); //Avoid forever-loops
+      peripheral4Done = (i2c_mst_status.I2C_PERIPH4_DONE /*| (SF_HAL::millis() > tsTimeout) */); //Avoid forever-loops
       peripheral4Done |= (count >= max_cycles);
       count++;
     }
-    txn_failed = (i2c_mst_status.I2C_PERIPH4_NACK /*| (millis() > tsTimeout) */);
+    txn_failed = (i2c_mst_status.I2C_PERIPH4_NACK /*| (SF_HAL::millis() > tsTimeout) */);
     txn_failed |= (count >= max_cycles);
     if (txn_failed)
       break;

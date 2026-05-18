@@ -13,7 +13,10 @@
 
 namespace SF_HAL
 {
-int random(int min, int max) { return ::random(min, max); }
+    int random(int min, int max)
+    {
+        return ::random(min, max);
+    }
 
 std::vector<std::string> board_version()
 {
