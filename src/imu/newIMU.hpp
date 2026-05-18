@@ -7,6 +7,10 @@
  *
  * @copyright Copyright (c) 2025
  *
+ * TODO(290-hal-clean): ICM_20948_I2C _device and TwoWire &i2c_port are
+ * Particle/Arduino types that prevent this header from being fully
+ * board-agnostic. Abstracting the IMU driver requires either a HAL-level
+ * SPI/I2C device handle or a platform-specific IMU wrapper class.
  */
 #ifndef __NEW_IMU_HPP__
 #define __NEW_IMU_HPP__
