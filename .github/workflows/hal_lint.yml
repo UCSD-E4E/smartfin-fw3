@@ -1,0 +1,41 @@
+name: HAL Isolation Lint
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  particle-include-check:
+    name: No Particle.h outside src/platform/particle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for Particle.h outside the platform layer
+        run: |
+          # src/imu/ICM-20948/ is a vendor library with a tracked TODO to
+          # abstract TwoWire/ICM_20948_I2C behind a HAL interface; the
+          # Particle.h include there is already guarded with #ifdef PARTICLE.
+          violations=$(grep -rn '#include[[:space:]]*"Particle\.h"' src/ \
+            --include="*.h" \
+            --include="*.hpp" \
+            --include="*.cpp" \
+            --include="*.ino" \
+            | grep -v '^src/platform/particle/' \
+            | grep -v '^src/imu/ICM-20948/' \
+            || true)
+
+          if [ -n "$violations" ]; then
+            echo "ERROR: Particle.h included outside src/platform/particle/:"
+            echo ""
+            echo "$violations"
+            echo ""
+            echo "All Particle SDK usage must be confined to src/platform/particle/."
+            exit 1
+          fi
+
+          echo "OK: no Particle.h includes found outside src/platform/particle/"

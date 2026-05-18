@@ -9,7 +9,6 @@
 
 #include "systemCommands.hpp"
 
-#include "Particle.h"
 #include "cellular/sf_cloud.hpp"
 #include "platform/platform.hpp"
 #include "cli/cli.hpp"
