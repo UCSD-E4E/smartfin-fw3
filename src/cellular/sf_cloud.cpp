@@ -64,7 +64,7 @@ namespace sf::cloud
 
     int publish_blob(const char* title, const char* blob)
     {
-        system_tick_t time_since_last = millis() - last_publish_time;
+        system_tick_t time_since_last = SF_HAL::millis() - last_publish_time;
         // SF_OSAL_printf("%u ms since last publish" __NL__, time_since_last);
         if (time_since_last < SF_UPLOAD_MS_PER_TRANSMIT)
         {
@@ -83,7 +83,7 @@ namespace sf::cloud
         {
             return PUBLISH_FAIL;
         }
-        last_publish_time = millis();
+        last_publish_time = SF_HAL::millis();
         return SUCCESS;
     }
 

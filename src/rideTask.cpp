@@ -47,7 +47,7 @@ RideTask::RideTask() : scheduler(deploymentSchedule)
  */
 void RideTask::init()
 {
-    SF_OSAL_printf("Entering STATE_DEPLOYED at %" PRId32 __NL__, millis());
+    SF_OSAL_printf("Entering STATE_DEPLOYED at %" PRId32 __NL__, SF_HAL::millis());
     pSystemDesc->pChargerCheck->stop();
     this->ledStatus.setColor(RIDE_RGB_LED_COLOR);
 #if SF_ENABLE_GPS
@@ -60,7 +60,7 @@ void RideTask::init()
     this->ledStatus.setPriority(RIDE_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
 
-    this->startTime = millis();
+    this->startTime = SF_HAL::millis();
     this->sessionTimeSet = false;
 #if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().init();
@@ -101,7 +101,7 @@ STATES_e RideTask::run(void)
         Particle.process();
         delay(1000);
     }
-    this->deployTime = millis();
+    this->deployTime = SF_HAL::millis();
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, this->deployTime);
     this->scheduler.initializeScheduler();
     Ens_setStartTime();
@@ -128,8 +128,8 @@ STATES_e RideTask::run(void)
             }
 #endif
         }
-        SCH_error_e retval =
-            this->scheduler.getNextTask(&pNextEvent, (std::uint32_t *)&nextEventTime, millis());
+        SCH_error_e retval = this->scheduler.getNextTask(
+            &pNextEvent, (std::uint32_t *)&nextEventTime, SF_HAL::millis());
         // Check if scheduler failed to find nextEvent
         if (TASK_SEARCH_FAIL == retval)
         {
