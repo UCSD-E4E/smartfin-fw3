@@ -90,7 +90,7 @@ void CLI_wipeFileSystem(void)
 
 void CLI_checkCharging(void) 
 {
-    SF_OSAL_printf("Charging? %d" __NL__, System.batteryState() == BATTERY_STATE_CHARGING);
+    SF_OSAL_printf("Charging? %d" __NL__, SF_HAL::battery_state() == SF_HAL::BatteryState::CHARGING);
     SF_OSAL_printf("Powered? %d" __NL__, SF_HAL::gpio_read(SF_HAL::PinId::UsbPwrDetect));
 }
 

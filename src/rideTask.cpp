@@ -83,7 +83,7 @@ void RideTask::init()
 STATES_e RideTask::run(void)
 {
     DeploymentSchedule_t *pNextEvent = NULL;
-    system_tick_t nextEventTime;
+    SF_HAL::tick_t nextEventTime;
 
     unsigned long start, stop;
 
@@ -98,17 +98,17 @@ STATES_e RideTask::run(void)
         {
             return STATE_DEEP_SLEEP;
         }
-        Particle.process();
-        delay(1000);
+        SF_HAL::cloud_process();
+        SF_HAL::delay_ms(1000);
     }
     this->deployTime = SF_HAL::millis();
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, this->deployTime);
     this->scheduler.initializeScheduler();
     Ens_setStartTime();
 #if ENABLE_RECORD_SINK
-    if (pSystemDesc->pRecorder && Time.isValid())
+    if (pSystemDesc->pRecorder && SF_HAL::time_is_valid())
     {
-        pSystemDesc->pRecorder->setSessionTime(Time.now());
+        pSystemDesc->pRecorder->setSessionTime(SF_HAL::time_now());
         this->sessionTimeSet = true;
     }
 #endif
@@ -120,10 +120,10 @@ STATES_e RideTask::run(void)
         if (!this->sessionTimeSet)
         {
 #if ENABLE_RECORD_SINK
-            if (pSystemDesc->pRecorder && Time.isValid())
+            if (pSystemDesc->pRecorder && SF_HAL::time_is_valid())
             {
                 pSystemDesc->pRecorder->setSessionTime(
-                    Time.now() - (SF_HAL::millis() - this->deployTime) / 1000);
+                    SF_HAL::time_now() - (SF_HAL::millis() - this->deployTime) / 1000);
                 this->sessionTimeSet = true;
             }
 #endif
@@ -143,7 +143,7 @@ STATES_e RideTask::run(void)
         }
         while (SF_HAL::millis() < nextEventTime)
         {
-            Particle.process();
+            SF_HAL::cloud_process();
             if (!pSystemDesc->pWaterSensor->getLastStatus())
             {
                 SF_OSAL_printf("Out of water!" __NL__);
@@ -158,13 +158,13 @@ STATES_e RideTask::run(void)
                 SF_OSAL_printf("Low Battery!" __NL__);
                 return STATE_DEEP_SLEEP;
             }
-            delay(1);
+            SF_HAL::delay_ms(1);
 #if ENABLE_STREAM_SINK
 #endif
         }
-        start = micros();
+        start = SF_HAL::micros();
         pNextEvent->measure(pNextEvent);
-        stop = micros();
+        stop = SF_HAL::micros();
         pNextEvent->state.durationAccumulate += stop - start;
         // SF_OSAL_printf(
         //     "Started at %lu us, Ends at %lu us, elapsed %lu us" __NL__, start, stop, stop -
