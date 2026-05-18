@@ -16,7 +16,6 @@
 #include "product.hpp"
 #include "scheduler.hpp"
 #include "system.hpp"
-#include "util.hpp"
 #include "vers.hpp"
 
 #include <cmath>
@@ -370,7 +369,7 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         ens.ensData.scaled_temp = (temp * Q7_SCALAR);
         ens.ensData.water = water;
 
-        uint32_t unixEstimate = BleLiveStream::getInstance().estimateUnixTime(millis());
+        uint32_t unixEstimate = BleLiveStream::getInstance().estimateUnixTime(SF_HAL::millis());
         ens.ensData.timestamp = unixEstimate; // 0 indicates unsynced
         sf::deploy::commitEnsemble(&ens, sizeof(ens));
         memset(pData, 0, sizeof(Ensemble08_eventData_t));

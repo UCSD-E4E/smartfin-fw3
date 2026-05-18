@@ -4,7 +4,8 @@
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "platform/hal.hpp"
-#include "system.hpp"
+#include "product.hpp"
+#include "sys/NVRAM.hpp"
 
 uint8_t water_detect_array[WATER_DETECT_ARRAY_SIZE];
 

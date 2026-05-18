@@ -12,7 +12,6 @@
 #define __RIDE_TASK_HPP__
 #include "deploy/scheduler.hpp"
 #include "platform/hal_types.hpp"
-#include "product.hpp"
 #include "task.hpp"
 
 /**
