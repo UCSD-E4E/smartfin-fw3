@@ -3,7 +3,6 @@
 
 #include "platform/hal.hpp"
 #include "task.hpp"
-
 #define CLI_INTERRUPT_PHRASE  "#CLI"
 #define CLI_BUFFER_LEN  5
 

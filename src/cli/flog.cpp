@@ -13,8 +13,8 @@
 
 #include "conio.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "platform/hal_types.hpp"
-#include "product.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -149,7 +149,7 @@ void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
     }
 
     pEntry = &flogData.flogEntries[(flogData.numEntries) & (FLOG_NUM_ENTRIES - 1)];
-    pEntry->timestamp_ms = millis();
+    pEntry->timestamp_ms = SF_HAL::millis();
     pEntry->errorCode = errorCode;
     pEntry->param = parameter;
     flogData.numEntries++;

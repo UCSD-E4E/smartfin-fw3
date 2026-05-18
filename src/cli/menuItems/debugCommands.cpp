@@ -8,10 +8,8 @@
 */
 #include "debugCommands.hpp"
 
-#include "Particle.h"
 #include "cellular/recorder.hpp"
 #include "cellular/sf_cloud.hpp"
-#include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
@@ -19,8 +17,6 @@
 #include "imu/newIMU.hpp"
 #include "mfgTest/mfgTest.hpp"
 #include "platform/hal.hpp"
-#include "product.hpp"
-#include "states.hpp"
 #include "system.hpp"
 
 #include <dirent.h>
