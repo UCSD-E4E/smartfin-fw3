@@ -20,6 +20,8 @@ jobs:
           # src/imu/ICM-20948/ is a vendor library with a tracked TODO to
           # abstract TwoWire/ICM_20948_I2C behind a HAL interface; the
           # Particle.h include there is already guarded with #ifdef PARTICLE.
+          # smartfin-fw3.cpp is a Particle build artifact generated from
+          # the .ino; it is gitignored and never present in CI.
           violations=$(grep -rn '#include[[:space:]]*"Particle\.h"' src/ \
             --include="*.h" \
             --include="*.hpp" \
@@ -27,6 +29,7 @@ jobs:
             --include="*.ino" \
             | grep -v '^src/platform/particle/' \
             | grep -v '^src/imu/ICM-20948/' \
+            | grep -v '^src/smartfin-fw3\.cpp:' \
             || true)
 
           if [ -n "$violations" ]; then
