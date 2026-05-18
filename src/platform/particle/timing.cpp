@@ -30,6 +30,21 @@ void delay_us(uint32_t us)
     ::delayMicroseconds(us);
 }
 
+uint32_t micros()
+{
+    return ::micros();
+}
+
+uint32_t time_now()
+{
+    return (uint32_t)Time.now();
+}
+
+bool time_is_valid()
+{
+    return Time.isValid();
+}
+
 } // namespace SF_HAL
 
 #endif // SF_PLATFORM == SF_PLATFORM_PARTICLE

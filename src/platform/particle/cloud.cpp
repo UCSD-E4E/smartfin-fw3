@@ -15,40 +15,14 @@
 namespace SF_HAL
 {
 
-    int cloud_connect(uint32_t timeout_ms)
-    {
-        tick_t end = millis() + timeout_ms;
-        if (cloud_connected())
-        {
-            return 0;
-        }
+void cloud_start_connect()
+{
+    Particle.connect();
+}
 
-        Particle.connect();
-
-        while (!cloud_connected())
-        {
-            Particle.process();
-            if (millis() > end)
-            {
-                return -1;
-            }
-        }
-        return 0;
-    }
-
-int cloud_disconnect(uint32_t timeout_ms)
+void cloud_start_disconnect()
 {
     Particle.disconnect();
-    tick_t end = millis() + timeout_ms;
-    while (!Particle.disconnected())
-    {
-        Particle.process();
-        if (millis() > end)
-        {
-            return -1;
-        }
-    }
-    return 0;
 }
 
 bool cloud_connected()
