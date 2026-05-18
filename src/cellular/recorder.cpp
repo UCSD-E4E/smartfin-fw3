@@ -17,7 +17,6 @@
 #include "consts.hpp"
 #include "product.hpp"
 #include "system.hpp"
-#include "util.hpp"
 
 #include <cstring>
 #include <dirent.h>

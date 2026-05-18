@@ -10,11 +10,11 @@
  */
 #include "util.hpp"
 
-#include "Particle.h"
 #include "cli/conio.hpp"
 #include "consts.hpp"
 #include "product.hpp"
 
+#include <cstring>
 #include <random>
 
 /**
@@ -65,14 +65,3 @@ void hexDump(const void *memoryLocation, size_t buflen)
     SF_OSAL_printf("%08x" __NL__, buffer_idx);
 }
 
-int SF::utils::random(int min, int max)
-{
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    return ::random(min, max);
-#elif SF_PLATFORM == SF_PLATFORM_GLIBC
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(min, max + 1);
-    return distrib(gen);
-#endif
-}

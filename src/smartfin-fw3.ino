@@ -6,7 +6,6 @@
  */
 
 #include "cellular/dataUpload.hpp"
-#include "cellular/sf_cloud.hpp"
 #include "chargeTask.hpp"
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
@@ -78,7 +77,7 @@ Thread __sf_main_thread;
  *
  * This will reset on new firmware and successful boot
  */
-retained std::uint32_t panicCount[3];
+PLATFORM_RETAINED std::uint32_t panicCount[3];
 #endif
 
 // setup() runs once, when the device is first turned on.

@@ -5,7 +5,6 @@
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "platform/hal.hpp"
-#include "sleepTask.hpp"
 #include "system.hpp"
 
 static void byteshiftl(void* pData, size_t dataLen, size_t nPos, uint8_t fill);
