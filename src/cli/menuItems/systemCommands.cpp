@@ -11,6 +11,7 @@
 
 #include "Particle.h"
 #include "cellular/sf_cloud.hpp"
+#include "platform/platform.hpp"
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
@@ -56,7 +57,7 @@ void CLI_doUpload(void)
     strcat(other_string, integer_string);
 
     int success = sf::cloud::publish_blob(other_string, "Particle was here!");
-    SF_OSAL_printf("Particle publish: %d" __NL__, success);
+    SF_OSAL_printf("%s publish: %d" __NL__, SF_HAL::PLATFORM, success);
 }
 
 void CLI_self_identify(void)
