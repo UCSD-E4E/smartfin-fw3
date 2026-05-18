@@ -18,6 +18,10 @@
 namespace
 {
 
+// callbacks_ is written once by ble_set_callbacks() before ble_init() and
+// read-only from the BLE thread after that. The single-writer / read-after-
+// init pattern makes the struct copy safe without a lock; ble_set_callbacks()
+// asserts this invariant so misuse is caught at runtime.
 SF_HAL::ble::Callbacks callbacks_{nullptr, nullptr, nullptr};
 
 /**
@@ -26,6 +30,9 @@ SF_HAL::ble::Callbacks callbacks_{nullptr, nullptr, nullptr};
  *
  * Confined to this translation unit so no Particle BLE types leak outward.
  * Constructed lazily via getInstance() after BLE.on() is live.
+ *
+ * All Particle objects (BleUuid, BleCharacteristic) are stored by value so
+ * no heap allocation occurs after singleton construction.
  */
 class ParticleBleBackend
 {
@@ -33,17 +40,10 @@ public:
     /**
      * @brief Construct the backend shell with no characteristics registered yet.
      */
-    ParticleBleBackend()
-        : registered_(false), serviceUuid_(nullptr), telemetryUuid_(nullptr),
-          controlUuid_(nullptr), telemetryChar_(nullptr), controlChar_(nullptr)
-    {
-    }
+    ParticleBleBackend() : registered_(false) {}
 
     /**
      * @brief Return the singleton backend instance.
-     *
-     * The static-local pattern guarantees the instance is created only once
-     * and avoids duplicate GATT registrations.
      */
     static ParticleBleBackend& getInstance()
     {
@@ -60,7 +60,7 @@ public:
      * @param service_uuid        128-bit service UUID string.
      * @param telemetry_char_uuid 128-bit telemetry characteristic UUID string.
      * @param control_char_uuid   128-bit control characteristic UUID string.
-     * @return true on success, false if any argument is null or allocation fails.
+     * @return true on success, false if any argument is null.
      */
     bool init(const char* service_uuid,
               const char* telemetry_char_uuid,
@@ -71,33 +71,21 @@ public:
             return true;
         }
 
-        serviceUuid_   = new BleUuid(service_uuid);
-        telemetryUuid_ = new BleUuid(telemetry_char_uuid);
-        controlUuid_   = new BleUuid(control_char_uuid);
+        serviceUuid_   = BleUuid(service_uuid);
+        telemetryUuid_ = BleUuid(telemetry_char_uuid);
+        controlUuid_   = BleUuid(control_char_uuid);
 
-        if (!serviceUuid_ || !telemetryUuid_ || !controlUuid_)
-        {
-            return false;
-        }
+        telemetryChar_ = BleCharacteristic(
+            "tele", BleCharacteristicProperty::NOTIFY, telemetryUuid_, serviceUuid_);
+        controlChar_ = BleCharacteristic("ctrl",
+                                         BleCharacteristicProperty::WRITE_WO_RSP,
+                                         controlUuid_,
+                                         serviceUuid_,
+                                         ParticleBleBackend::onControlReceivedStatic,
+                                         this);
 
-        telemetryChar_ = new BleCharacteristic(
-            "tele", BleCharacteristicProperty::NOTIFY, *telemetryUuid_, *serviceUuid_);
-        controlChar_ = new BleCharacteristic("ctrl",
-                                             BleCharacteristicProperty::WRITE_WO_RSP,
-                                             *controlUuid_,
-                                             *serviceUuid_,
-                                             ParticleBleBackend::onControlReceivedStatic,
-                                             this);
-
-        if (!telemetryChar_ || !controlChar_)
-        {
-            return false;
-        }
-
-        // BleCharacteristic construction does not auto-register with the GATT
-        // server on Particle Device OS; explicit registration is required.
-        BLE.addCharacteristic(*telemetryChar_);
-        BLE.addCharacteristic(*controlChar_);
+        BLE.addCharacteristic(telemetryChar_);
+        BLE.addCharacteristic(controlChar_);
         BLE.onConnected(&ParticleBleBackend::onConnectedStatic, this);
         BLE.onDisconnected(&ParticleBleBackend::onDisconnectedStatic, this);
 
@@ -113,11 +101,11 @@ public:
      */
     bool notifyTelemetry(const uint8_t* data, std::size_t len)
     {
-        if (!telemetryChar_)
+        if (!registered_)
         {
             return false;
         }
-        return telemetryChar_->setValue(data, len);
+        return telemetryChar_.setValue(data, len);
     }
 
 private:
@@ -185,11 +173,11 @@ private:
     }
 
     bool registered_;
-    BleUuid* serviceUuid_;
-    BleUuid* telemetryUuid_;
-    BleUuid* controlUuid_;
-    BleCharacteristic* telemetryChar_;
-    BleCharacteristic* controlChar_;
+    BleUuid serviceUuid_;
+    BleUuid telemetryUuid_;
+    BleUuid controlUuid_;
+    BleCharacteristic telemetryChar_;
+    BleCharacteristic controlChar_;
 };
 
 ParticleBleBackend* backend_ = nullptr;
@@ -199,8 +187,16 @@ ParticleBleBackend* backend_ = nullptr;
 namespace SF_HAL
 {
 
+/**
+ * @brief Register BLE event callbacks.
+ *
+ * Must be called before @c ble_init(). BLE events cannot fire before the
+ * radio is on, so the write is safe without a lock. Calling after
+ * @c ble_init() is a programming error and triggers SPARK_ASSERT.
+ */
 void ble_set_callbacks(const ble::Callbacks& callbacks)
 {
+    SPARK_ASSERT(backend_ == nullptr);
     callbacks_ = callbacks;
 }
 
