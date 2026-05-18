@@ -419,12 +419,6 @@ bool ble_advertise(const char* service_uuid, const char* local_name);
 void ble_stop_advertising();
 
 /**
- * @brief Return whether a central is currently connected.
- * @return @c true if a peer connection is active, @c false otherwise.
- */
-bool ble_is_connected();
-
-/**
  * @brief Send a NOTIFY payload on the telemetry characteristic.
  *
  * No-op if not initialised, not connected, @p data is null, or @p len is 0.
