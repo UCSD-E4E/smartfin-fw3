@@ -98,7 +98,26 @@ void reset_info_enable()
 
 ResetReason reset_reason()
 {
-    return static_cast<ResetReason>(System.resetReason());
+    // Particle reset reasons are sparse multiples of 10; our enum is sequential.
+    // Explicit mapping avoids undefined behaviour from out-of-range static_cast.
+    switch (System.resetReason())
+    {
+    case RESET_REASON_NONE:            return ResetReason::NONE;
+    case RESET_REASON_PIN_RESET:       return ResetReason::PIN_RESET;
+    case RESET_REASON_POWER_MANAGEMENT:return ResetReason::POWER_MANAGEMENT;
+    case RESET_REASON_POWER_DOWN:      return ResetReason::POWER_DOWN;
+    case RESET_REASON_POWER_BROWNOUT:  return ResetReason::POWER_BROWNOUT;
+    case RESET_REASON_WATCHDOG:        return ResetReason::WATCHDOG;
+    case RESET_REASON_UPDATE:          return ResetReason::UPDATE;
+    case RESET_REASON_UPDATE_ERROR:    return ResetReason::UPDATE_TIMEOUT;
+    case RESET_REASON_UPDATE_TIMEOUT:  return ResetReason::UPDATE_TIMEOUT;
+    case RESET_REASON_FACTORY_RESET:   return ResetReason::FACTORY_RESET;
+    case RESET_REASON_SAFE_MODE:       return ResetReason::SAFE_MODE;
+    case RESET_REASON_DFU_MODE:        return ResetReason::DFU_MODE;
+    case RESET_REASON_PANIC:           return ResetReason::PANIC;
+    case RESET_REASON_USER:            return ResetReason::USER;
+    default:                           return ResetReason::UNKNOWN;
+    }
 }
 
 uint32_t reset_reason_data()

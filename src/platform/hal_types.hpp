@@ -497,7 +497,7 @@ enum class ThreadPriority : uint8_t
 };
 
 /// Default thread stack size in bytes. Replaces @c OS_THREAD_STACK_SIZE_DEFAULT.
-constexpr std::size_t THREAD_STACK_SIZE_DEFAULT = 1024;
+constexpr std::size_t THREAD_STACK_SIZE_DEFAULT = 3 * 1024;
 
 /// Larger stack for threads with deeper call graphs. Replaces @c OS_THREAD_STACK_SIZE_DEFAULT_HIGH.
 constexpr std::size_t THREAD_STACK_SIZE_DEFAULT_HIGH = 4 * 1024;
