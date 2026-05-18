@@ -1,6 +1,5 @@
 #include "vers.hpp"
 
-#include "Particle.h"
 #include "cli/conio.hpp"
 #include "consts.hpp"
 #include "platform/hal.hpp"
