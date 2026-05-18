@@ -14,7 +14,9 @@ with #ifdef PARTICLE once the IMU driver is wrapped behind a HAL interface.
 #include "util/ICM_20948_C.h" // The C backbone. ICM_20948_USE_DMP is defined in here.
 #include "util/AK09916_REGISTERS.h"
 
+#ifdef PARTICLE
 #include "Particle.h"
+#endif
 
 #ifndef ARDUINO
 class __FlashStringHelper;
