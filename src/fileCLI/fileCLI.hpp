@@ -1,6 +1,7 @@
 #ifndef __FILECLI_H__
 #define __FILECLI_H__
 
+#include <sys/types.h>
 #include <dirent.h>
 #include <limits.h>
 #include <stddef.h>
