@@ -9,7 +9,7 @@
 #include <stdint.h>
 namespace sf::cloud
 {
-    system_tick_t last_publish_time = 0;
+    SF_HAL::tick_t last_publish_time = 0;
     int wait_connect(int timeout_ms, bool bypass_attempts)
     {
         uint16_t n_attempts;
@@ -28,10 +28,16 @@ namespace sf::cloud
         n_attempts++;
         nvram.put(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
 
-        if (SF_HAL::cloud_connect(timeout_ms) != 0)
+        SF_HAL::cloud_start_connect();
+        SF_HAL::tick_t end = SF_HAL::millis() + (SF_HAL::tick_t)timeout_ms;
+        while (!SF_HAL::cloud_connected())
         {
-            FLOG_AddError(FLOG_CELL_CONNECT_FAIL_TIMEOUT, timeout_ms);
-            return TIMEOUT;
+            SF_HAL::cloud_process();
+            if (SF_HAL::millis() > end)
+            {
+                FLOG_AddError(FLOG_CELL_CONNECT_FAIL_TIMEOUT, timeout_ms);
+                return TIMEOUT;
+            }
         }
         n_attempts = 0;
         nvram.put(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
@@ -40,9 +46,16 @@ namespace sf::cloud
 
     int wait_disconnect(int timeout_ms)
     {
-
-        if (SF_HAL::cloud_disconnect(timeout_ms) != 0)
-            return TIMEOUT;
+        SF_HAL::cloud_start_disconnect();
+        SF_HAL::tick_t end = SF_HAL::millis() + (SF_HAL::tick_t)timeout_ms;
+        while (SF_HAL::cloud_connected())
+        {
+            SF_HAL::cloud_process();
+            if (SF_HAL::millis() > end)
+            {
+                return TIMEOUT;
+            }
+        }
         return SUCCESS;
     }
 
@@ -64,7 +77,7 @@ namespace sf::cloud
 
     int publish_blob(const char* title, const char* blob)
     {
-        system_tick_t time_since_last = SF_HAL::millis() - last_publish_time;
+        SF_HAL::tick_t time_since_last = SF_HAL::millis() - last_publish_time;
         // SF_OSAL_printf("%u ms since last publish" __NL__, time_since_last);
         if (time_since_last < SF_UPLOAD_MS_PER_TRANSMIT)
         {
