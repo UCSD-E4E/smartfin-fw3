@@ -32,9 +32,13 @@ namespace sf
  *  .endObject();
  * @endcode
  *
- * @note Output is always null-terminated. Content that would overflow the
- * buffer is silently dropped; the written portion remains valid JSON up to
- * the point where the buffer filled.
+ * @note Output is always null-terminated. On overflow, content is silently
+ * truncated and the result is NOT guaranteed to be valid JSON (truncation
+ * can occur mid-key, mid-string, mid-number, or before closing braces).
+ *
+ * @note String keys and values are JSON-escaped (backslash, double-quote,
+ * and C0 control characters). Inputs outside the Basic Multilingual Plane
+ * are passed through verbatim and must be valid UTF-8.
  *
  * @note Maximum object nesting depth is 16.
  */
@@ -126,7 +130,7 @@ public:
             append(',');
         }
         append('"');
-        append(key ? key : "");
+        appendEscaped(key ? key : "");
         append('"');
         append(':');
         needs_comma_[depth_] = false;
@@ -143,7 +147,7 @@ public:
     JSONBufferWriter& value(const char* s)
     {
         append('"');
-        append(s ? s : "");
+        appendEscaped(s ? s : "");
         append('"');
         needs_comma_[depth_] = true;
         return *this;
@@ -224,7 +228,7 @@ private:
      */
     void append(const char* s)
     {
-        if (!s || pos_ >= len_ - 1)
+        if (!s || len_ == 0 || pos_ >= len_ - 1)
         {
             return;
         }
@@ -241,12 +245,75 @@ private:
      */
     void append(char c)
     {
-        if (pos_ >= len_ - 1)
+        if (len_ == 0 || pos_ >= len_ - 1)
         {
             return;
         }
         buf_[pos_++] = c;
         buf_[pos_] = '\0';
+    }
+
+    /**
+     * @brief Append a JSON-escaped null-terminated string to the buffer.
+     *
+     * Escapes @c \\ , @c \" , and C0 control characters. Characters
+     * @c \\n , @c \\r , @c \\t , @c \\b , and @c \\f use their short-form
+     * escape sequences; all other control characters (U+0000–U+001F) are
+     * written as @c \\uXXXX. Characters outside the ASCII range are passed
+     * through verbatim and must be valid UTF-8.
+     *
+     * @param s Null-terminated string to escape and append.
+     */
+    void appendEscaped(const char* s)
+    {
+        if (!s)
+        {
+            return;
+        }
+        char esc[7]; // \uXXXX + NUL
+        for (; *s != '\0'; ++s)
+        {
+            unsigned char c = static_cast<unsigned char>(*s);
+            if (c == '"' || c == '\\')
+            {
+                append('\\');
+                append(static_cast<char>(c));
+            }
+            else if (c == '\n')
+            {
+                append('\\');
+                append('n');
+            }
+            else if (c == '\r')
+            {
+                append('\\');
+                append('r');
+            }
+            else if (c == '\t')
+            {
+                append('\\');
+                append('t');
+            }
+            else if (c == '\b')
+            {
+                append('\\');
+                append('b');
+            }
+            else if (c == '\f')
+            {
+                append('\\');
+                append('f');
+            }
+            else if (c < 0x20)
+            {
+                snprintf(esc, sizeof(esc), "\\u%04x", c);
+                append(esc);
+            }
+            else
+            {
+                append(static_cast<char>(c));
+            }
+        }
     }
 
     char* buf_;
