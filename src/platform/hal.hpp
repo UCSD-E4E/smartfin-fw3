@@ -84,6 +84,36 @@ void delay_ms(uint32_t ms);
  */
 void delay_us(uint32_t us);
 
+/**
+ * @brief Returns microseconds elapsed since boot.
+ *
+ * Wraps around after ~71 minutes on a 32-bit counter.  Use only for
+ * short elapsed-time measurements (e.g. profiling a single task execution).
+ *
+ * @return Microseconds since device boot as a @c uint32_t.
+ */
+uint32_t micros();
+
+/**
+ * @brief Return the current UTC wall-clock time as a Unix timestamp.
+ *
+ * Valid only after a successful time sync (check with @c time_is_valid()).
+ * On Particle this wraps @c Time.now().
+ *
+ * @return Seconds since the Unix epoch, or 0 if time has not been set.
+ */
+uint32_t time_now();
+
+/**
+ * @brief Return whether the real-time clock has been synchronised.
+ *
+ * On Particle this wraps @c Time.isValid().  Returns @c false until at
+ * least one successful cloud time sync has completed.
+ *
+ * @return @c true if the RTC holds a valid time, @c false otherwise.
+ */
+bool time_is_valid();
+
 // GPIO
 // Replaces: pinMode(), digitalWrite(), digitalRead(),
 //           digitalWriteFast(), pinReadFast()
@@ -289,19 +319,24 @@ void nvm_write(uint32_t addr, const void* in, std::size_t len);
 //           Particle.process(), Cellular.isOn(), Cellular.ready()
 
 /**
- * @brief Attempt to establish a cloud connection, blocking until success or timeout.
+ * @brief Initiate a cloud connection attempt without blocking.
  *
- * @param timeout_ms Maximum time to wait for connection in milliseconds.
- * @return 0 on success, -1 on timeout.
+ * Signals the platform network stack to begin connecting.  Returns
+ * immediately; callers must poll @c cloud_connected() and call
+ * @c cloud_process() until the session is established or a timeout expires.
+ * The timeout policy belongs in the calling layer (@c sf::cloud::wait_connect).
  */
-int cloud_connect(uint32_t timeout_ms);
+void cloud_start_connect();
 
 /**
- * @brief Disconnect from the cloud, blocking until disconnected or timeout.
- * @param timeout_ms Maximum time to wait for clean disconnect in milliseconds.
- * @return 0 on success, -1 on timeout.
+ * @brief Initiate a graceful cloud disconnect without blocking.
+ *
+ * Signals the platform network stack to begin disconnecting.  Returns
+ * immediately; callers must poll @c cloud_connected() and call
+ * @c cloud_process() until the session is torn down or a timeout expires.
+ * The timeout policy belongs in the calling layer (@c sf::cloud::wait_disconnect).
  */
-int cloud_disconnect(uint32_t timeout_ms);
+void cloud_start_disconnect();
 
 /**
  * @brief Return whether a cloud session is currently active.
