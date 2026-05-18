@@ -58,8 +58,6 @@ static WaterSensor waterSensor(SF_HAL::PinId::WaterDetectEn, SF_HAL::PinId::Wate
 static LocationServiceConfiguration create_location_service_config();
 #endif
 
-static FuelGauge battery_desc;
-
 static IMU icm_20948(SF_HAL::i2c_get_wire(), false);
 
 void SYS_initSys(void)
@@ -83,7 +81,6 @@ void SYS_initSys(void)
 
     SF_HAL::gpio_set_mode(SF_HAL::PinId::Wkp, SF_HAL::GpioMode::INPUT);
 
-    systemDesc.pBattery = &battery_desc;    
 }
 
 /**
@@ -455,7 +452,7 @@ void SYS_dumpSys(int indent)
         SF_OSAL_printf("%sSystem Theme: 0x%08x" __NL__, indent_str, pSystemDesc->systemTheme);
     }
     {
-        SF_OSAL_printf("%sBattery: 0x%08x" __NL__, indent_str, pSystemDesc->pBattery);
+        SF_OSAL_printf("%sBattery Voltage: %f V" __NL__, indent_str, SF_HAL::battery_voltage());
     }
     {
         SF_OSAL_printf("%sSystem Flags: 0x%08x" __NL__, indent_str, pSystemDesc->flags);

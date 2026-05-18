@@ -58,7 +58,7 @@ STATES_e DataUpload::can_upload(void)
         return STATE_DEPLOYED;
     }
 
-    if (pSystemDesc->pBattery->getVCell() < SF_BATTERY_UPLOAD_VOLTAGE)
+    if (SF_HAL::battery_voltage() < SF_BATTERY_UPLOAD_VOLTAGE)
     {
         return STATE_DEEP_SLEEP;
     }

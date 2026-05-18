@@ -316,7 +316,7 @@ void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
 #pragma pack(pop)
 
     // obtain measurements
-    battVoltage = pSystemDesc->pBattery->getVCell();
+    battVoltage = SF_HAL::battery_voltage();
 
     // accumulate measurements
     pData->battVoltage += battVoltage;
