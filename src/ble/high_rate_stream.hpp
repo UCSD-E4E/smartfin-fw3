@@ -1,5 +1,5 @@
-#ifndef __HIGH_RATE_STREAM_HPP__
-#define __HIGH_RATE_STREAM_HPP__
+#ifndef HIGH_RATE_STREAM_HPP
+#define HIGH_RATE_STREAM_HPP
 
 /**
  * @file high_rate_stream.hpp
@@ -11,13 +11,11 @@
 #include "ble/ble_packet_builder.hpp"
 #include "ble/high_rate_record.hpp"
 #include "ble/spsc_queue.hpp"
+#include "platform/hal.hpp"
 
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "Particle.h"
-#endif
 
 /**
  * @brief Singleton transport service handling all BLE TX and recorder writes.
@@ -106,10 +104,8 @@ private:
     std::atomic<bool> running_;
     /** @brief True when a stop has been requested (drain remaining work). */
     std::atomic<bool> stopRequested_;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     /** @brief Background thread handle for transportLoop(). */
-    Thread* transportThread_;
-#endif
+    void *transportThread_;
     /** @brief True while the transport thread is running. */
     std::atomic<bool> transportActive_;
     /** @brief True while producers are allowed to enqueue. */
@@ -173,4 +169,4 @@ private:
     uint32_t lastFlushMs_;
 };
 
-#endif // __HIGH_RATE_STREAM_HPP__
+#endif // HIGH_RATE_STREAM_HPP

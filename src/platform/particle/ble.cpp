@@ -1,261 +1,239 @@
 /**
  * @file ble.cpp
- * @brief Particle implementation of Smartfin BLE HAL functions.
- * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
- * @date 3-9-2026
+ * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
+ * @brief Particle implementation of SF_HAL BLE functions.
+ * @date 2026-05-17
  */
 
-#include "product.hpp"
+#include "platform/platform.hpp"
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 
 #include "Particle.h"
 #include "platform/hal.hpp"
 
-#include <atomic>
 #include <cstddef>
 #include <cstdint>
 
 namespace
 {
-    constexpr SF_HAL::ble::CharHandle CONTROL_HANDLE = 2;
 
-    std::atomic<bool> connected_{false};
-    std::atomic<bool> initialized_{false};
-    SF_HAL::ble::Callbacks callbacks_{nullptr, nullptr, nullptr};
+SF_HAL::ble::Callbacks callbacks_{nullptr, nullptr, nullptr};
 
-    class ParticleBleBackend
+/**
+ * @brief Particle BLE backend: owns the GATT characteristics and routes
+ *        radio events to the registered SF_HAL callbacks.
+ *
+ * Confined to this translation unit so no Particle BLE types leak outward.
+ * Constructed lazily via getInstance() after BLE.on() is live.
+ */
+class ParticleBleBackend
+{
+public:
+    /**
+     * @brief Construct the backend shell with no characteristics registered yet.
+     */
+    ParticleBleBackend()
+        : registered_(false), serviceUuid_(nullptr), telemetryUuid_(nullptr),
+          controlUuid_(nullptr), telemetryChar_(nullptr), controlChar_(nullptr)
     {
-    public:
-        ParticleBleBackend()
-            : registered_(false), serviceUuid_(nullptr), telemetryUuid_(nullptr),
-              controlUuid_(nullptr), telemetryCharacteristic_(nullptr),
-              controlCharacteristic_(nullptr)
+    }
+
+    /**
+     * @brief Return the singleton backend instance.
+     *
+     * The static-local pattern guarantees the instance is created only once
+     * and avoids duplicate GATT registrations.
+     */
+    static ParticleBleBackend& getInstance()
+    {
+        static ParticleBleBackend instance;
+        return instance;
+    }
+
+    /**
+     * @brief Register GATT characteristics and wire connect/disconnect callbacks.
+     *
+     * Idempotent: subsequent calls return true immediately without
+     * re-registering.
+     *
+     * @param service_uuid        128-bit service UUID string.
+     * @param telemetry_char_uuid 128-bit telemetry characteristic UUID string.
+     * @param control_char_uuid   128-bit control characteristic UUID string.
+     * @return true on success, false if any argument is null or allocation fails.
+     */
+    bool init(const char* service_uuid,
+              const char* telemetry_char_uuid,
+              const char* control_char_uuid)
+    {
+        if (registered_)
         {
-        }
-
-        /**
-         * @brief Access the singleton backend instance.
-         *
-         * A single instance is required because each @c BleCharacteristic
-         * object represents one physical GATT entry. Constructing a second
-         * instance would attempt to register duplicate characteristics and
-         * corrupt the GATT table. The static-local pattern also controls
-         * construction order: @c getInstance() creates only the backend shell;
-         * @c init() creates and registers the Particle GATT objects after
-         * @c BLE.on() has started the stack.
-         */
-        static ParticleBleBackend &getInstance()
-        {
-            static ParticleBleBackend instance;
-            return instance;
-        }
-
-        bool init(const char *service_uuid,
-                  const char *telemetry_char_uuid,
-                  const char *control_char_uuid)
-        {
-            if (registered_)
-            {
-                return true;
-            }
-
-            if (service_uuid == nullptr || telemetry_char_uuid == nullptr ||
-                control_char_uuid == nullptr)
-            {
-                return false;
-            }
-
-            serviceUuid_ = new BleUuid(service_uuid);
-            telemetryUuid_ = new BleUuid(telemetry_char_uuid);
-            controlUuid_ = new BleUuid(control_char_uuid);
-
-            if (serviceUuid_ == nullptr || telemetryUuid_ == nullptr || controlUuid_ == nullptr)
-            {
-                return false;
-            }
-
-            telemetryCharacteristic_ = new BleCharacteristic(
-                "tele", BleCharacteristicProperty::NOTIFY, *telemetryUuid_, *serviceUuid_);
-            controlCharacteristic_ =
-                new BleCharacteristic("ctrl",
-                                      BleCharacteristicProperty::WRITE_WO_RSP,
-                                      *controlUuid_,
-                                      *serviceUuid_,
-                                      ParticleBleBackend::onControlReceivedStatic,
-                                      this);
-
-            if (telemetryCharacteristic_ == nullptr || controlCharacteristic_ == nullptr)
-            {
-                return false;
-            }
-
-            // BleCharacteristic construction does not auto-register with the
-            // GATT server on Particle Device OS; explicit registration is
-            // required before advertising.
-            BLE.addCharacteristic(*telemetryCharacteristic_);
-            BLE.addCharacteristic(*controlCharacteristic_);
-
-            registered_ = true;
             return true;
         }
 
-        /**
-         * @brief Particle control-write callback shim.
-         * @param data Received payload.
-         * @param len Number of bytes in payload.
-         * @param peer Peer device (unused).
-         * @param context Pointer to backend instance.
-         */
-        // BLE callbacks run on the BLE thread (small stack, Serial can deadlock).
-        // No Serial calls inside any of these — state updates only.
-        static void onControlReceivedStatic(const uint8_t *data,
-                                            size_t len,
-                                            const BlePeerDevice &peer,
-                                            void *context)
+        serviceUuid_   = new BleUuid(service_uuid);
+        telemetryUuid_ = new BleUuid(telemetry_char_uuid);
+        controlUuid_   = new BleUuid(control_char_uuid);
+
+        if (!serviceUuid_ || !telemetryUuid_ || !controlUuid_)
         {
-            (void)peer;
-            if (!context || !data)
-                return;
-            static_cast<ParticleBleBackend *>(context)->onControlReceived(data, len);
+            return false;
         }
 
-        static void onConnectedStatic(const BlePeerDevice &peer, void *context)
+        telemetryChar_ = new BleCharacteristic(
+            "tele", BleCharacteristicProperty::NOTIFY, *telemetryUuid_, *serviceUuid_);
+        controlChar_ = new BleCharacteristic("ctrl",
+                                             BleCharacteristicProperty::WRITE_WO_RSP,
+                                             *controlUuid_,
+                                             *serviceUuid_,
+                                             ParticleBleBackend::onControlReceivedStatic,
+                                             this);
+
+        if (!telemetryChar_ || !controlChar_)
         {
-            (void)peer;
-            ParticleBleBackend *self = static_cast<ParticleBleBackend *>(context);
-            if (self != nullptr)
-            {
-                self->onConnected();
-            }
+            return false;
         }
 
-        static void onDisconnectedStatic(const BlePeerDevice &peer, void *context)
+        // BleCharacteristic construction does not auto-register with the GATT
+        // server on Particle Device OS; explicit registration is required.
+        BLE.addCharacteristic(*telemetryChar_);
+        BLE.addCharacteristic(*controlChar_);
+        BLE.onConnected(&ParticleBleBackend::onConnectedStatic, this);
+        BLE.onDisconnected(&ParticleBleBackend::onDisconnectedStatic, this);
+
+        registered_ = true;
+        return true;
+    }
+
+    /**
+     * @brief Send a NOTIFY payload on the telemetry characteristic.
+     * @param data Payload bytes.
+     * @param len  Number of bytes to send.
+     * @return true if the stack accepted the notification.
+     */
+    bool notifyTelemetry(const uint8_t* data, std::size_t len)
+    {
+        if (!telemetryChar_)
         {
-            (void)peer;
-            ParticleBleBackend *self = static_cast<ParticleBleBackend *>(context);
-            if (self != nullptr)
-            {
-                self->onDisconnected();
-            }
+            return false;
         }
+        return telemetryChar_->setValue(data, len);
+    }
 
-        bool notifyTelemetry(const uint8_t *data, std::size_t len)
+private:
+    // BLE callbacks run on the BLE thread (small stack; Serial can deadlock).
+    // State updates only — no Serial or BLE API calls inside these.
+
+    static void onConnectedStatic(const BlePeerDevice& peer, void* context)
+    {
+        (void)peer;
+        auto* self = static_cast<ParticleBleBackend*>(context);
+        if (self)
         {
-            if (!registered_ || telemetryCharacteristic_ == nullptr)
-            {
-                return false;
-            }
-
-            return telemetryCharacteristic_->setValue(data, len);
+            self->onConnected();
         }
+    }
 
-    private:
-        void onConnected()
+    static void onDisconnectedStatic(const BlePeerDevice& peer, void* context)
+    {
+        (void)peer;
+        auto* self = static_cast<ParticleBleBackend*>(context);
+        if (self)
         {
-            connected_.store(true, std::memory_order_release);
-
-            SF_HAL::ble::Callbacks callbacks = callbacks_;
-            if (callbacks.on_connection != nullptr)
-            {
-                callbacks.on_connection(true, callbacks.context);
-            }
+            self->onDisconnected();
         }
+    }
 
-        void onDisconnected()
+    static void onControlReceivedStatic(const uint8_t* data,
+                                        size_t len,
+                                        const BlePeerDevice& peer,
+                                        void* context)
+    {
+        (void)peer;
+        if (!context || !data)
         {
-            connected_.store(false, std::memory_order_release);
-
-            SF_HAL::ble::Callbacks callbacks = callbacks_;
-            if (callbacks.on_connection != nullptr)
-            {
-                callbacks.on_connection(false, callbacks.context);
-            }
+            return;
         }
+        static_cast<ParticleBleBackend*>(context)->onControlReceived(data, len);
+    }
 
-        void onControlReceived(const uint8_t *data, std::size_t len)
+    void onConnected()
+    {
+        SF_HAL::ble::Callbacks cbs = callbacks_;
+        if (cbs.on_connection)
         {
-            if (data == nullptr || len == 0)
-            {
-                return;
-            }
-
-            SF_HAL::ble::Callbacks callbacks = callbacks_;
-            if (callbacks.on_write != nullptr)
-            {
-                callbacks.on_write(CONTROL_HANDLE, data, len, callbacks.context);
-            }
+            cbs.on_connection(true, cbs.context);
         }
+    }
 
-        bool registered_;
-        BleUuid *serviceUuid_;
-        BleUuid *telemetryUuid_;
-        BleUuid *controlUuid_;
-        BleCharacteristic *telemetryCharacteristic_;
-        BleCharacteristic *controlCharacteristic_;
-    };
+    void onDisconnected()
+    {
+        SF_HAL::ble::Callbacks cbs = callbacks_;
+        if (cbs.on_connection)
+        {
+            cbs.on_connection(false, cbs.context);
+        }
+    }
 
-    ParticleBleBackend *backend_ = nullptr;
+    void onControlReceived(const uint8_t* data, std::size_t len)
+    {
+        SF_HAL::ble::Callbacks cbs = callbacks_;
+        if (cbs.on_write)
+        {
+            cbs.on_write(0, data, len, cbs.context);
+        }
+    }
+
+    bool registered_;
+    BleUuid* serviceUuid_;
+    BleUuid* telemetryUuid_;
+    BleUuid* controlUuid_;
+    BleCharacteristic* telemetryChar_;
+    BleCharacteristic* controlChar_;
+};
+
+ParticleBleBackend* backend_ = nullptr;
+
 } // namespace
 
 namespace SF_HAL
 {
 
-    bool ble_init(const char *device_name,
-                  const char *service_uuid,
-                  const char *telemetry_char_uuid,
-                  const char *control_char_uuid)
-    {
-        if (device_name == nullptr || service_uuid == nullptr || telemetry_char_uuid == nullptr ||
-            control_char_uuid == nullptr)
-        {
-            return false;
-        }
-
-        if (initialized_.load(std::memory_order_acquire))
-        {
-            return true;
-        }
-
-        BLE.on();
-        BLE.setDeviceName(device_name);
-
-        ParticleBleBackend &backend = ParticleBleBackend::getInstance();
-        if (!backend.init(service_uuid, telemetry_char_uuid, control_char_uuid))
-        {
-            return false;
-        }
-
-        backend_ = &backend;
-        BLE.onConnected(&ParticleBleBackend::onConnectedStatic, &backend);
-        BLE.onDisconnected(&ParticleBleBackend::onDisconnectedStatic, &backend);
-
-        initialized_.store(true, std::memory_order_release);
-        return true;
-    }
-
-void ble_set_callbacks(const ble::Callbacks &callbacks)
+void ble_set_callbacks(const ble::Callbacks& callbacks)
 {
     callbacks_ = callbacks;
 }
 
-bool ble_advertise(const char *service_uuid, const char *local_name)
+bool ble_init(const char* device_name,
+              const char* service_uuid,
+              const char* telemetry_char_uuid,
+              const char* control_char_uuid)
 {
-    if (!initialized_.load(std::memory_order_acquire) || service_uuid == nullptr)
+    if (!device_name || !service_uuid || !telemetry_char_uuid || !control_char_uuid)
     {
         return false;
     }
 
-    if (local_name != nullptr)
+    BLE.on();
+    BLE.setDeviceName(device_name);
+
+    ParticleBleBackend& backend = ParticleBleBackend::getInstance();
+    backend_ = &backend;
+    return backend.init(service_uuid, telemetry_char_uuid, control_char_uuid);
+}
+
+bool ble_advertise(const char* service_uuid, const char* local_name)
+{
+    if (!service_uuid)
     {
-        BLE.setDeviceName(local_name);
+        return false;
     }
 
     BleAdvertisingData advData;
     advData.appendServiceUUID(BleUuid(service_uuid));
 
     BleAdvertisingData scanResp;
-    if (local_name != nullptr)
+    if (local_name)
     {
         scanResp.appendLocalName(local_name);
         BLE.advertise(&advData, &scanResp);
@@ -270,28 +248,15 @@ bool ble_advertise(const char *service_uuid, const char *local_name)
 
 void ble_stop_advertising()
 {
-    if (!initialized_.load(std::memory_order_acquire))
-    {
-        return;
-    }
-
     BLE.stopAdvertising();
 }
 
-bool ble_is_connected()
+bool ble_notify(const uint8_t* data, std::size_t len)
 {
-    return connected_.load(std::memory_order_acquire);
-}
-
-bool ble_notify(const uint8_t *data, std::size_t len)
-{
-    if (!initialized_.load(std::memory_order_acquire) ||
-        !connected_.load(std::memory_order_acquire) ||
-        backend_ == nullptr || data == nullptr || len == 0)
+    if (!backend_)
     {
         return false;
     }
-
     return backend_->notifyTelemetry(data, len);
 }
 
