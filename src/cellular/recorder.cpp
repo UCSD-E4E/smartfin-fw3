@@ -19,14 +19,13 @@
 #include "system.hpp"
 #include "util.hpp"
 
+#include <cstring>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-
 
 #define REC_DEBUG
 

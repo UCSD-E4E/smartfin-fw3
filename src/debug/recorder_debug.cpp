@@ -11,15 +11,15 @@
 
 #include "recorder_debug.hpp"
 
+#include "cellular/recorder.hpp"
 #include "cli/conio.hpp"
 #include "cli/menu.hpp"
-#include "cellular/recorder.hpp"
-#include "system.hpp"
 #include "product.hpp"
+#include "system.hpp"
 #include "util.hpp"
 
+#include <cstdio>
 #include <stdint.h>
-#include <stdio.h>
 
 /**
  * @brief Function to test if recorder has data

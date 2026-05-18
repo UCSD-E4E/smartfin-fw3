@@ -9,11 +9,11 @@
 #include "system.hpp"
 #include "util.hpp"
 
+#include <cstring>
 #include <ctype.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
