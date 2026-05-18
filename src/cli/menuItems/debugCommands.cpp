@@ -187,7 +187,7 @@ void CLI_monitorWetDry(void)
 
         SF_OSAL_printf("%10d %6d\r", waterDetect, water_status);
 
-        delay(500);
+        SF_HAL::delay_ms(500);
     }
     SF_OSAL_printf(__NL__);
 }

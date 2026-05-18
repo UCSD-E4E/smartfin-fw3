@@ -71,7 +71,7 @@ bool IMU::begin(void)
                                readLoop,
                                this,
                                OS_THREAD_PRIORITY_DEFAULT,
-                               OS_THREAD_STACK_SIZE_DEFAULT_HIGH);
+                               OS_THREAD_STACK_SIZE_DEFAULT_HIGH); // NOLINT: void* stores Thread*; cast on use
     }
     return false;
 }
@@ -79,7 +79,7 @@ bool IMU::begin(void)
 bool IMU::end(void)
 {
     this->stop_flag = true;
-    _readLoop->join();
+    static_cast<Thread*>(_readLoop)->join();
     return false;
 }
 

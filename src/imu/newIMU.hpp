@@ -69,7 +69,7 @@ private:
      * @brief read loop
      *
      */
-    Thread *_readLoop = NULL;
+    void *_readLoop = NULL;
     /**
      * @brief FIFO data access mutex
      *
