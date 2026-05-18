@@ -95,11 +95,6 @@ typedef struct SystemDesc_
      */
     SF_HAL::LedSystemTheme* systemTheme;
     /**
-     * @brief Pointer to FuelGauge object that handles voltage readings
-     * 
-     */
-    FuelGauge* pBattery;
-    /**
      * @brief Pointer to IMU object
      *
      */
