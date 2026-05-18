@@ -103,12 +103,16 @@ enum class LedPattern : uint8_t
 /**
  * @brief LED display priority relative to other active statuses.
  *
- * Higher-priority statuses override lower-priority ones.  Mirrors Particle's
- * @c LEDPriority enum.
+ * Higher-priority statuses override lower-priority ones.  Values match
+ * Particle's @c LEDPriority enum exactly so that @c static_cast is safe
+ * in the Particle HAL implementation.
  */
 enum class LedPriority : uint8_t
 {
-    IMPORTANT = 0, ///< Overrides normal system LED signals.
+    BACKGROUND = 10, ///< Below all normal UI signals.
+    NORMAL     = 20, ///< Default application priority.
+    IMPORTANT  = 30, ///< Overrides normal system LED signals.
+    CRITICAL   = 40, ///< Overrides everything, including system signals.
 };
 
 /**
@@ -173,6 +177,11 @@ namespace color
 class LedStatus
 {
 public:
+    /**
+     * @brief Release the platform LED object back to the HAL pool.
+     */
+    ~LedStatus();
+
     /**
      * @brief Set the solid or base colour for this status.
      * @param color Packed RGB value (0x00RRGGBB).
@@ -247,6 +256,14 @@ public:
                    uint32_t color,
                    LedPattern pattern,
                    uint16_t period_ms);
+
+    /**
+     * @brief Activate this theme as the system-wide LED theme.
+     *
+     * Must be called once after all @c setSignal() calls are complete.
+     * On Particle this calls @c LEDSystemTheme::apply().
+     */
+    void apply();
 };
 
 // Battery
