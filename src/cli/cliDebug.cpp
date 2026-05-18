@@ -11,7 +11,6 @@
 
 #include "cliDebug.hpp"
 
-#include "Particle.h"
 #include "cli.hpp"
 #include "conio.hpp"
 #include "consts.hpp"
