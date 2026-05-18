@@ -1,9 +1,10 @@
 #include "menu.hpp"
-#include "product.hpp"
+
 #include "cli/conio.hpp"
 #include "consts.hpp"
+#include "product.hpp"
 
-#include <string.h>
+#include <cstring>
 
 char userInput[SF_CLI_MAX_CMD_LEN];
 

@@ -14,8 +14,8 @@
 #include "cli/conio.hpp"
 #include "consts.hpp"
 
+#include <cstring>
 #include <fcntl.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 

@@ -34,7 +34,11 @@
  * without modification.
  */
 #ifndef PLATFORM_RETAINED
+#ifdef PARTICLE
+#define PLATFORM_RETAINED retained
+#else
 #define PLATFORM_RETAINED
+#endif
 #endif
 
 namespace SF_HAL
