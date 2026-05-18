@@ -31,6 +31,9 @@ struct PoolEntry
 
 PoolEntry pool[POOL_SIZE];
 
+// Single shared Particle theme — all setSignal overloads write here.
+LEDSystemTheme particleTheme;
+
 LEDStatus& resolve(SF_HAL::LedStatus* self)
 {
     for (auto& e : pool)
@@ -48,8 +51,23 @@ LEDStatus& resolve(SF_HAL::LedStatus* self)
             return e.status;
         }
     }
-    // Pool exhausted — fall back to slot 0 rather than crashing.
-    return pool[0].status;
+    // Pool exhausted — this is a programming error; halt rather than
+    // silently aliasing two logical LED statuses to the same object.
+    SPARK_ASSERT(false);
+    return pool[0].status; // unreachable; satisfies compiler
+}
+
+void release(SF_HAL::LedStatus* self)
+{
+    for (auto& e : pool)
+    {
+        if (e.owner == self)
+        {
+            e.status.setActive(false);
+            e.owner = nullptr;
+            return;
+        }
+    }
 }
 
 } // namespace
@@ -57,9 +75,12 @@ LEDStatus& resolve(SF_HAL::LedStatus* self)
 namespace SF_HAL
 {
 
-// ---------------------------------------------------------------------------
 // LedStatus
-// ---------------------------------------------------------------------------
+
+LedStatus::~LedStatus()
+{
+    release(this);
+}
 
 void LedStatus::setColor(uint32_t color)
 {
@@ -86,36 +107,36 @@ void LedStatus::setActive(bool active)
     resolve(this).setActive(active);
 }
 
-// ---------------------------------------------------------------------------
 // LedSystemTheme
-// ---------------------------------------------------------------------------
 
 LedSystemTheme::LedSystemTheme() {}
 
 void LedSystemTheme::setSignal(LedSignal signal, uint32_t color)
 {
-    static LEDSystemTheme theme;
-    theme.setSignal(static_cast<LEDSignal>(signal), color);
+    particleTheme.setSignal(static_cast<LEDSignal>(signal), color);
 }
 
 void LedSystemTheme::setSignal(LedSignal signal, uint32_t color,
                                 LedPattern pattern, LedSpeed speed)
 {
-    static LEDSystemTheme theme;
-    theme.setSignal(static_cast<LEDSignal>(signal),
-                    color,
-                    static_cast<LEDPattern>(pattern),
-                    static_cast<LEDSpeed>(speed));
+    particleTheme.setSignal(static_cast<LEDSignal>(signal),
+                            color,
+                            static_cast<LEDPattern>(pattern),
+                            static_cast<LEDSpeed>(speed));
 }
 
 void LedSystemTheme::setSignal(LedSignal signal, uint32_t color,
                                 LedPattern pattern, uint16_t period_ms)
 {
-    static LEDSystemTheme theme;
-    theme.setSignal(static_cast<LEDSignal>(signal),
-                    color,
-                    static_cast<LEDPattern>(pattern),
-                    period_ms);
+    particleTheme.setSignal(static_cast<LEDSignal>(signal),
+                            color,
+                            static_cast<LEDPattern>(pattern),
+                            period_ms);
+}
+
+void LedSystemTheme::apply()
+{
+    particleTheme.apply();
 }
 
 } // namespace SF_HAL

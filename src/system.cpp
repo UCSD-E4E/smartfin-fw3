@@ -223,6 +223,8 @@ static int SYS_initLEDs(void)
                        SF_HAL::LedPattern::BLINK,
                        SF_DUP_RGB_LED_PERIOD);
 
+    ledTheme.apply();
+
     systemDesc.systemTheme = &ledTheme;
     return 1;
 }
