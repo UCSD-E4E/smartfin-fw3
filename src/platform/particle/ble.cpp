@@ -110,7 +110,7 @@ public:
 
 private:
     // BLE callbacks run on the BLE thread (small stack; Serial can deadlock).
-    // State updates only — no Serial or BLE API calls inside these.
+    // State updates only no Serial or BLE API calls inside these.
 
     static void onConnectedStatic(const BlePeerDevice& peer, void* context)
     {
