@@ -83,7 +83,9 @@ void CLI_wipeFileSystem(void)
     struct dirent* entry;
     while ((entry = ::readdir(directory)) != nullptr)
     {
-        ::unlink(entry->d_name);
+        char path[NAME_MAX + 2];
+        snprintf(path, sizeof(path), "/%s", entry->d_name);
+        ::unlink(path);
     }
     ::closedir(directory);
 }
