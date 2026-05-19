@@ -67,8 +67,8 @@ void system_sleep(SleepMode mode, uint32_t duration_sec)
             break;
 
         case SleepMode::HIBERNATE:
-            // HIBERNATE with no GPIO wake source callers that need a wake
-            // pin should use system_sleep_gpio_wake() instead.
+            // HIBERNATE requires a GPIO wake source; use system_sleep_gpio_wake().
+            SPARK_ASSERT(false);
             break;
     }
 }

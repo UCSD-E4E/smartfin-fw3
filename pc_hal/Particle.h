@@ -371,7 +371,7 @@ public:
 TimeClass &__fetch_global_time();
 
 inline uint32_t millis() { return __fetch_global_time().now(); }
-inline uint32_t micros() { return __fetch_global_time().now() * 1000; }
+inline uint32_t micros() { return __fetch_global_time().now() * 1000000; }
 #define delay Time.delay
 #define delayMicroseconds Time.delayMicroseconds
 

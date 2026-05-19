@@ -71,6 +71,12 @@ CellularClass &__fetch_global_cellular()
     return __global_cellular;
 }
 
+SPIClass __global_spi;
+SPIClass &__fetch_global_SPI()
+{
+    return __global_spi;
+}
+
 void pinMode(int pin, __PC_HAL_PIN_CONFIG mode)
 {
 }
