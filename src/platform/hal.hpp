@@ -16,8 +16,8 @@
  *      it shadows Particle.h for any files not yet migrated.
  *   4. Define PLATFORM_RETAINED appropriately before hal_types.hpp is parsed.
  */
-#ifndef __SF_HAL_HPP__
-#define __SF_HAL_HPP__
+#ifndef HAL_HPP
+#define HAL_HPP
 
 #include "hal_types.hpp"
 
@@ -659,4 +659,4 @@ std::vector<std::string> board_version();
 
 } // namespace SF_HAL
 
-#endif // __SF_HAL_HPP__
+#endif // HAL_HPP
