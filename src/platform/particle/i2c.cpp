@@ -28,12 +28,6 @@ bool i2c_is_enabled()
 
 int i2c_read(uint8_t address, char *data, int length, bool repeated)
 {
-    if (!SF_HAL::i2c_is_enabled())
-    {
-        SF_HAL::i2c_begin();
-        SF_HAL::delay_ms(1000);
-    }
-
     Wire.beginTransmission(address);
     uint8_t bytes = Wire.requestFrom((int)address, length);
     uint8_t idx;
@@ -48,18 +42,12 @@ int i2c_read(uint8_t address, char *data, int length, bool repeated)
 
 int i2c_write(uint8_t address, const char *data, int length, bool repeated)
 {
-    if (!SF_HAL::i2c_is_enabled())
-    {
-        SF_HAL::i2c_begin();
-        SF_HAL::delay_ms(1000);
-    }
-
     Wire.beginTransmission(address);
     for (int idx = 0; idx < length; idx++)
     {
         Wire.write(data[idx]);
     }
-    return Wire.endTransmission(!repeated) == 0 ? length : -1;
+    return Wire.endTransmission(!repeated) == 0 ? 0 : -1;
 }
 
 TwoWire& i2c_get_wire()

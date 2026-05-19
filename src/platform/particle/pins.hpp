@@ -1,7 +1,7 @@
 /**
  * @file pins.hpp
  * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
- * @brief Internal Particle pin mapping — translates SF_HAL::PinId to Particle pin integers.
+ * @brief Internal Particle pin mapping translates SF_HAL::PinId to Particle pin integers.
  * @date 2026-05-17
  */
 #pragma once

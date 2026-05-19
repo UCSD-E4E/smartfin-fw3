@@ -211,7 +211,7 @@ void serial_write(const uint8_t* buf, std::size_t len);
 //           Wire (direct reference)
 
 } // namespace SF_HAL
-// Forward declaration in global namespace — avoids including Particle.h / Wire.h.
+// Forward declaration in global namespace avoids including Particle.h / Wire.h.
 class TwoWire;
 namespace SF_HAL
 {
@@ -239,7 +239,7 @@ bool i2c_is_enabled();
  * @param data        Output buffer; must be at least @p length bytes.
  * @param length      Number of bytes to read.
  * @param repeated    If @c true, hold the bus (repeated start); release otherwise.
- * @return Number of bytes read, or a negative error code on failure.
+ * @return 0 on success, or a negative error code on failure.
  */
 int i2c_read(uint8_t address, char* data, int length, bool repeated);
 
@@ -252,7 +252,7 @@ int i2c_read(uint8_t address, char* data, int length, bool repeated);
  * @param data        Data to transmit; must be at least @p length bytes.
  * @param length      Number of bytes to write.
  * @param repeated    If @c true, hold the bus (repeated start); release otherwise.
- * @return Number of bytes written, or a negative error code on failure.
+ * @return 0 on success, or a negative error code on failure.
  */
 int i2c_write(uint8_t address, const char* data, int length, bool repeated);
 

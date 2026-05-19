@@ -31,7 +31,7 @@ struct PoolEntry
 
 PoolEntry pool[POOL_SIZE];
 
-// Single shared Particle theme — all setSignal overloads write here.
+// Single shared Particle theme all setSignal overloads write here.
 LEDSystemTheme particleTheme;
 
 LEDStatus& resolve(SF_HAL::LedStatus* self)
@@ -51,7 +51,7 @@ LEDStatus& resolve(SF_HAL::LedStatus* self)
             return e.status;
         }
     }
-    // Pool exhausted — this is a programming error; halt rather than
+    // Pool exhausted this is a programming error; halt rather than
     // silently aliasing two logical LED statuses to the same object.
     SPARK_ASSERT(false);
     return pool[0].status; // unreachable; satisfies compiler
