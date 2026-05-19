@@ -29,11 +29,11 @@ namespace sf::cloud
         nvram.put(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
 
         SF_HAL::cloud_start_connect();
-        SF_HAL::tick_t end = SF_HAL::millis() + (SF_HAL::tick_t)timeout_ms;
+        SF_HAL::tick_t start = SF_HAL::millis();
         while (!SF_HAL::cloud_connected())
         {
             SF_HAL::cloud_process();
-            if (SF_HAL::millis() > end)
+            if ((SF_HAL::millis() - start) >= (SF_HAL::tick_t)timeout_ms)
             {
                 FLOG_AddError(FLOG_CELL_CONNECT_FAIL_TIMEOUT, timeout_ms);
                 return TIMEOUT;
@@ -47,11 +47,11 @@ namespace sf::cloud
     int wait_disconnect(int timeout_ms)
     {
         SF_HAL::cloud_start_disconnect();
-        SF_HAL::tick_t end = SF_HAL::millis() + (SF_HAL::tick_t)timeout_ms;
+        SF_HAL::tick_t start = SF_HAL::millis();
         while (SF_HAL::cloud_connected())
         {
             SF_HAL::cloud_process();
-            if (SF_HAL::millis() > end)
+            if ((SF_HAL::millis() - start) >= (SF_HAL::tick_t)timeout_ms)
             {
                 return TIMEOUT;
             }
@@ -84,9 +84,13 @@ namespace sf::cloud
             SF_HAL::delay_ms(SF_UPLOAD_MS_PER_TRANSMIT - time_since_last);
         }
         if (strlen(blob) > SF_HAL::cloud::MAX_EVENT_DATA_LEN)
+        {
             return OVERSIZE_DATA;
+        }
         if (strlen(title) > SF_HAL::cloud::MAX_EVENT_NAME_LEN)
+        {
             return OVERSIZE_NAME;
+        }
 
         if (!SF_HAL::cloud_connected())
         {
