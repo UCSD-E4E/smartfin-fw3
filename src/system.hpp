@@ -3,6 +3,7 @@
 
 #include "cellular/recorder.hpp"
 #include "imu/newIMU.hpp"
+#include "platform/hal.hpp"
 #include "platform/hal_types.hpp"
 #include "product.hpp"
 #if SF_ENABLE_GPS
@@ -47,14 +48,14 @@ typedef struct SystemDesc_
     Recorder* pRecorder;
     /**
      * @brief Pointer to Timer object that regularly checks if device is charging
-     * 
+     *
      */
-    Timer* pChargerCheck;
+    SF_HAL::Timer *pChargerCheck;
     /**
      * @brief Pointer to Timer object that regularly checks if device is in water
-     * 
+     *
      */
-    Timer* pWaterCheck;
+    SF_HAL::Timer *pWaterCheck;
     /**
      * @brief Counts number of times device is checked for if it is in water
      */

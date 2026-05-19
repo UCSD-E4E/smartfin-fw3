@@ -48,9 +48,9 @@ tmpSensor tempSensor(max31725);
 static SFLed batteryLED(SF_HAL::PinId::StatLed, SFLed::SFLED_STATE_OFF);
 static SFLed waterLED(SF_HAL::PinId::WaterStatusLed, SFLed::SFLED_STATE_OFF);
 
-static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
-static Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
-static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
+static SF_HAL::Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
+static SF_HAL::Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
+static SF_HAL::Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 
 static WaterSensor waterSensor(SF_HAL::PinId::WaterDetectEn, SF_HAL::PinId::WaterDetect);
 
@@ -97,8 +97,8 @@ void SYS_delayedInitSys(void)
 void SYS_deinitSys(void)
 {
     systemDesc.pIMU->end();
-    systemDesc.pChargerCheck->stop(1000);
-    systemDesc.pWaterCheck->stop(1000);
+    systemDesc.pChargerCheck->stop();
+    systemDesc.pWaterCheck->stop();
 }
 
 /**
