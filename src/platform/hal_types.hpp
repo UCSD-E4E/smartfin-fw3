@@ -169,8 +169,13 @@ namespace color
  * interface contract only.
  *
  * @note Because @c LedStatus is held by value, all platforms must agree on
- * its memory layout.  Platform-specific state should use a fixed-size opaque
- * blob or the pImpl pattern when layouts would otherwise diverge.
+ * its memory layout.  The required implementation contract is the
+ * empty-class-plus-address-pool pattern: @c LedStatus carries no data
+ * members (@c sizeof == 1), and each platform implementation maps instance
+ * addresses to platform-specific LED objects using a fixed-size internal
+ * pool.  A future platform that cannot follow this pattern must switch to
+ * pImpl (add a @c void* handle member here) and update all existing
+ * implementations to match.
  *
  * Replaces Particle's @c LEDStatus class.
  */

@@ -9,6 +9,11 @@
  * SF_HAL::LedStatus instance address to its corresponding Particle LEDStatus
  * so no heap allocation is required. The pool size exceeds the number of
  * LedStatus members in the codebase (currently 5).
+ *
+ * Thread safety: the pool is not synchronised. This is safe in the current
+ * codebase because all LedStatus construction, destruction, and method calls
+ * occur on the main task thread. If LED state is ever manipulated from a
+ * second thread, a mutex must be added around every pool access.
  */
 
 #include "platform/platform.hpp"
