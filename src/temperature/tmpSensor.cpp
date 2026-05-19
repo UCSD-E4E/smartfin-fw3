@@ -47,10 +47,10 @@ float tmpSensor::getTemp()
 {
     float value = NAN;
 
-    SF_HAL::i2c_unlock();
+    SF_HAL::i2c_lock();
 
     value = m_sensor.read_reg_as_temperature(MAX31725_REG_TEMPERATURE);
-    SF_HAL::i2c_lock();
+    SF_HAL::i2c_unlock();
 
     return value;
 }
