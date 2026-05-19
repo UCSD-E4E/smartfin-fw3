@@ -653,6 +653,57 @@ private:
     void *_handle;
 };
 
+/**
+ * @brief Platform-agnostic periodic callback timer.
+ *
+ * Fires @p callback at a fixed interval until stopped.  The underlying OS
+ * handle is allocated in the constructor and released in the destructor; do
+ * not copy or move instances.
+ */
+class Timer
+{
+public:
+    /**
+     * @brief Construct the timer without starting it.
+     *
+     * @param period_ms  Fire interval in milliseconds.
+     * @param callback   Function invoked on each expiry; called from a
+     *                   platform-defined context (interrupt or system thread
+     *                   depending on target).
+     * @param one_shot   If @c true the timer fires once and stops automatically.
+     */
+    Timer(uint32_t period_ms, void (*callback)(void), bool one_shot = false);
+
+    /**
+     * @brief Stop and destroy the timer, releasing the underlying OS handle.
+     */
+    ~Timer();
+
+    /**
+     * @brief Start (or restart) the timer.
+     */
+    void start();
+
+    /**
+     * @brief Stop the timer without destroying it.
+     *
+     * Safe to call when the timer is already stopped.
+     */
+    void stop();
+
+    /**
+     * @brief Return whether the timer is currently running.
+     * @return @c true if the timer is active, @c false otherwise.
+     */
+    bool isActive();
+
+private:
+    /**
+     * @brief Opaque handle to the platform timer object.
+     */
+    void *_handle;
+};
+
 int random(int min, int max);
 
 std::vector<std::string> board_version();
