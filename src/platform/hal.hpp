@@ -405,8 +405,11 @@ void cloud_process();
 /**
  * @brief Register connection and write callbacks with the BLE backend.
  *
- * Must be called before @c ble_init() so that the backend can wire the
- * callbacks before any connection event can fire.
+ * Must be called exactly once, before @c ble_init().  The callbacks are
+ * stored in a plain struct with no synchronisation; calling this function
+ * a second time, or calling it after @c ble_init() has started the radio,
+ * is a programming error and will be caught by a runtime assertion on
+ * Particle.  Not safe to call while BLE events are being dispatched.
  *
  * @param callbacks Struct containing @c on_connection, @c on_write, and
  *                  @c context pointers.
