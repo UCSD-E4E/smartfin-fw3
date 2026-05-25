@@ -61,6 +61,7 @@ typedef struct Ensemble01_data_
      *
      */
     uint8_t water;
+    uint32_t tick;
 } Ensemble01_data_t;
 
 /**
@@ -74,6 +75,7 @@ typedef struct Ensemble07_data_
      * 
      */
     uint16_t batteryVoltage;
+    uint32_t tick;
 }Ensemble07_data_t;
 
 /**
@@ -101,6 +103,7 @@ typedef struct Ensemble08_data_
      *
      */
     uint32_t timestamp;
+    uint32_t tick;
 }Ensemble08_data_t;
 
 /**
@@ -151,6 +154,7 @@ typedef struct Ensemble10_data_
      *
      */
     int16_t rawMagField[3];
+    uint32_t tick;
 }Ensemble10_data_t;
 
 /**
@@ -207,6 +211,7 @@ typedef struct Ensemble11_data_
      * by 1e6, of the point at which data was collected
      */
     int32_t location[2];
+    uint32_t tick;
 }Ensemble11_data_t;
 
 /**
@@ -239,6 +244,7 @@ typedef struct Ensemble12_data_
      * magneticFieldIntensity = magIntensity_uT_q3 / 8
      */
     int16_t magIntensity_uT_q3[3];
+    uint32_t tick;
 } Ensemble12_data_t;
 #pragma pack(pop)
 

@@ -64,8 +64,8 @@ SFBLE& SFBLE::getInstance(void)
  * @brief Construct default wrapper state.
  */
 SFBLE::SFBLE()
-    : initialized(false), connected(false), advertising(false),
-      controlCallback(nullptr), controlContext(nullptr),
+    : initialized(false), connected(false), advertising(false), send_sync_on_next_ensemble(false),
+      connection_tick(0), connection_time(0), controlCallback(nullptr), controlContext(nullptr),
       connectionCallback(nullptr), connectionContext(nullptr)
 {
 }
@@ -81,6 +81,30 @@ void SFBLE::handleConnectionEvent(bool isConnected)
     if (isConnected)
     {
         this->advertising.store(false, std::memory_order_release);
+
+        // Record connection time and tick for ensemble synchronization
+#pragma pack(push, 1)
+        struct
+        {
+            sf::deploy::EnsembleHeader_t header;
+            sf::deploy::Ensemble08_data_t data;
+        } ens;
+#pragma pack(pop)
+
+        ens.header.ensembleType = ENS_TEMP_TIME;
+        ens.header.elapsedTime_ms = sf::deploy::Ens_getStartTime();
+        ens.data.scaled_temp = 0;
+        ens.data.water = 0;
+        ens.data.timestamp = SF_HAL::time_now();
+        ens.data.tick = SF_HAL::system_ticks();
+
+        // Save connection snapshot for later BLE transmission
+        this->connection_tick = ens.data.tick;
+        this->connection_time = ens.data.timestamp;
+        this->send_sync_on_next_ensemble.store(true, std::memory_order_release);
+
+        // Still commit to SD card immediately
+        sf::deploy::commitEnsemble(&ens, sizeof(ens));
     }
 
     auto cb  = this->connectionCallback.load(std::memory_order_acquire);
@@ -89,6 +113,21 @@ void SFBLE::handleConnectionEvent(bool isConnected)
     {
         cb(isConnected, ctx);
     }
+}
+
+uint32_t SFBLE::getConnectionTick() const
+{
+    return this->connection_tick;
+}
+
+uint32_t SFBLE::getConnectionTime() const
+{
+    return this->connection_time;
+}
+
+bool SFBLE::popSendSyncFlag()
+{
+    return this->send_sync_on_next_ensemble.exchange(false, std::memory_order_acquire);
 }
 
 /**

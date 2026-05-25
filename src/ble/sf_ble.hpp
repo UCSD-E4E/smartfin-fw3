@@ -128,6 +128,15 @@ public:
      */
     void handleControlEvent(const uint8_t *data, size_t len);
 
+    /** @brief Get the system ticks at the time of connection. */
+    uint32_t getConnectionTick() const;
+
+    /** @brief Get the Unix time at the time of connection. */
+    uint32_t getConnectionTime() const;
+
+    /** @brief Atomically pop the sync flag, returning true if it was set. */
+    bool popSendSyncFlag();
+
 private:
     /** @brief Private default constructor to enforce singleton. */
     SFBLE();
@@ -146,6 +155,15 @@ private:
 
     /** @brief True when BLE advertising is active. */
     std::atomic<bool> advertising;
+
+    /** @brief Flag to indicate a sync packet should be prepended to the stream. */
+    std::atomic<bool> send_sync_on_next_ensemble;
+
+    /** @brief The system ticks captured at the moment of connection. */
+    uint32_t connection_tick;
+
+    /** @brief The Unix timestamp captured at the moment of connection. */
+    uint32_t connection_time;
 
     /** @brief Registered control data callback. */
     std::atomic<control_rx_callback_t> controlCallback;

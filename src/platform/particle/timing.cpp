@@ -35,6 +35,11 @@ uint32_t micros()
     return ::micros();
 }
 
+uint32_t system_ticks()
+{
+    return (uint32_t)System.ticks();
+}
+
 uint32_t time_now()
 {
     return (uint32_t)Time.now();

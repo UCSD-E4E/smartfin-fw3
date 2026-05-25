@@ -95,6 +95,13 @@ void delay_us(uint32_t us);
 uint32_t micros();
 
 /**
+ * @brief Returns system ticks.
+ *
+ * @return Ticks as a uint32_t.
+ */
+uint32_t system_ticks();
+
+/**
  * @brief Return the current UTC wall-clock time as a Unix timestamp.
  *
  * Valid only after a successful time sync (check with @c time_is_valid()).

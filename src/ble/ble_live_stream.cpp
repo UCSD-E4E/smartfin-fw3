@@ -10,6 +10,8 @@
 #include "ble/high_rate_stream.hpp"
 #include "ble_config.hpp"
 #include "ble_transport.hpp"
+#include "deploy/ensembleTypes.hpp"
+#include "deploy/ensembles.hpp"
 #include "sf_ble.hpp"
 
 #include <cstring>
@@ -77,6 +79,30 @@ bool BleLiveStream::enqueueEnsemble(const void *pData, size_t len)
     {
         droppedPackets_.fetch_add(1, std::memory_order_relaxed);
         return false;
+    }
+
+    // Prepend connection time sync packet if it's the first enqueue after connection
+    if (SFBLE::getInstance().popSendSyncFlag())
+    {
+#pragma pack(push, 1)
+        struct
+        {
+            sf::deploy::EnsembleHeader_t header;
+            sf::deploy::Ensemble08_data_t data;
+        } sync_ens;
+#pragma pack(pop)
+
+        sync_ens.header.ensembleType = sf::deploy::ENS_TEMP_TIME;
+        sync_ens.header.elapsedTime_ms = sf::deploy::Ens_getStartTime();
+        sync_ens.data.scaled_temp = 0;
+        sync_ens.data.water = 0;
+        sync_ens.data.timestamp = SFBLE::getInstance().getConnectionTime();
+        sync_ens.data.tick = SFBLE::getInstance().getConnectionTick();
+
+        if (!TransportService::getInstance().enqueueLowRateEnsemble(&sync_ens, sizeof(sync_ens)))
+        {
+            droppedPackets_.fetch_add(1, std::memory_order_relaxed);
+        }
     }
 
     // Enqueue raw ensemble into transport-owned builder.

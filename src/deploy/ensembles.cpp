@@ -477,6 +477,7 @@ void SS_Ensemble12_x0C_Func(DeploymentSchedule_t *pDeployment)
     ensData.data.magIntensity_uT_q3[0] = ((int16_t)(values[6] * Q3_SCALAR));
     ensData.data.magIntensity_uT_q3[1] = ((int16_t)(values[7] * Q3_SCALAR));
     ensData.data.magIntensity_uT_q3[2] = ((int16_t)(values[8] * Q3_SCALAR));
+    ensData.data.tick = SF_HAL::system_ticks();
 
     ensData.header.ensembleType = ENS_TEMP_HIGH_DATA_RATE_IMU;
     ensData.header.elapsedTime_ms = Ens_getStartTime();
@@ -489,3 +490,5 @@ void SS_Ensemble12_x0C_Func(DeploymentSchedule_t *pDeployment)
 /** @} */
 
 /** @} */
+/
+
