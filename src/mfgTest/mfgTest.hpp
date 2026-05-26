@@ -2,6 +2,7 @@
 #define __MFGTEST_H__
 
 #include "task.hpp"
+#include "product.hpp"
 
 #ifdef PARTICLE
     #include <spark_wiring_json.h>
@@ -17,13 +18,6 @@
 class MfgTest
 {
 public:
-    /**
-     * @brief Run manufacturing tests
-     *
-     */
-    void run(void);
-
-private:
     /**
      * @brief Test result enumeration
      *
@@ -45,6 +39,14 @@ private:
          */
         PENDING = -1
     } MFG_TEST_RESULT_t;
+
+    /**
+     * @brief Run manufacturing tests
+     *
+     */
+    void run(void);
+
+private:
     /**
      * @brief Function signature for all manufacturing tests.
      *

@@ -219,15 +219,16 @@ extern "C"
         int userInput;
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-        while (i < buflen)
+        while (i < buflen - 1)
         {
             Particle.process();
             if (SF_OSAL_kbhit())
             {
                 userInput = SF_OSAL_getch();
-                switch (userInput)
+                
+                // Handle backspace
+                if (userInput == '\b' || userInput == 127)
                 {
-                case '\b':
                     if (i > 0)
                     {
                         i--;
@@ -235,17 +236,23 @@ extern "C"
                         SF_OSAL_putch(' ');
                         SF_OSAL_putch('\b');
                     }
-                    break;
-                default:
-                    buffer[i++] = userInput;
-                    SF_OSAL_putch(userInput);
-                    break;
-                case '\r':
-                    buffer[i + 1] = 0;
+                    continue;
+                }
+                
+                // Handle line terminators
+                if (userInput == '\r' || userInput == '\n')
+                {
+                    // If we just started and got a terminator, it might be a leftover \n from a \r\n
+                    // but we should probably just return an empty string to be safe and let the caller handle it.
+                    buffer[i] = 0;
                     SF_OSAL_putch('\r');
                     SF_OSAL_putch('\n');
                     return i;
                 }
+
+                // Normal character
+                buffer[i++] = userInput;
+                SF_OSAL_putch(userInput);
             }
 
             // If we get USB disconnect, abort
@@ -254,6 +261,7 @@ extern "C"
                 return -1;
             }
         }
+        buffer[i] = 0;
 #elif SF_PLATFORM == SF_PLATFORM_GLIBC
         conioHistory.set_display(true);
         file_buf = "";

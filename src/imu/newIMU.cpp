@@ -79,7 +79,12 @@ bool IMU::begin(void)
 bool IMU::end(void)
 {
     this->stop_flag = true;
-    _readLoop->join();
+    if (_readLoop)
+    {
+        _readLoop->join();
+        delete _readLoop;
+        _readLoop = NULL;
+    }
     return false;
 }
 
@@ -166,10 +171,12 @@ void IMU::readLoop(void *args)
             // All other fall through
         case ICM_20948_Stat_FIFONoDataAvail:
         case ICM_20948_Stat_FIFOIncompleteData:
+            delay(5);
             continue;
         }
         if (!has_data)
         {
+            delay(5);
             continue;
         }
 

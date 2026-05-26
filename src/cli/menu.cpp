@@ -4,6 +4,7 @@
 #include "consts.hpp"
 
 #include <string.h>
+#include <ctype.h>
 
 char userInput[SF_CLI_MAX_CMD_LEN];
 
@@ -52,18 +53,26 @@ int MNU_executeMenu(const Menu_t *pMenu)
             return -1;
         }
 
-        if (strlen(userInput) == 0)
+        // Trim leading and trailing whitespace
+        char *trimmedInput = userInput;
+        while(isspace((unsigned char)*trimmedInput)) trimmedInput++;
+        
+        char *end = trimmedInput + strlen(trimmedInput) - 1;
+        while(end > trimmedInput && isspace((unsigned char)*end)) end--;
+        *(end + 1) = 0;
+
+        if (strlen(trimmedInput) == 0)
         {
             continue;
         }
 
-        if (userInput[0] == 'q')
+        if (trimmedInput[0] == 'q' && strlen(trimmedInput) == 1)
         {
             // Escape
             SF_OSAL_printf(__NL__);
             break;
         }
-        if (userInput[0] == '?')
+        if (trimmedInput[0] == '?' && strlen(trimmedInput) == 1)
         {
             // Help
             MNU_displayMenu(pMenu);
@@ -71,7 +80,7 @@ int MNU_executeMenu(const Menu_t *pMenu)
             continue;
         }
 
-        cmd = MNU_findCommand(userInput, pMenu);
+        cmd = MNU_findCommand(trimmedInput, pMenu);
 
         if (!cmd)
         {
