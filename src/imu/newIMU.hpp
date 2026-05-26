@@ -15,15 +15,18 @@
 #ifndef __NEW_IMU_HPP__
 #define __NEW_IMU_HPP__
 #include "imu/ICM-20948/ICM_20948.h"
+#include "imu/imu_interface.hpp"
 #include "platform/hal.hpp"
 
 #include <cstdint>
 #include <cstdio>
 /**
- * @brief ICM 20948 Driver
+ * @brief ICM-20948 IMU driver for Particle/Arduino targets.
  *
+ * Implements IIMU using the SparkFun ICM-20948 library.  Not included in
+ * the PC/GLibC build; the PC build uses the no-op stub in pc_hal/imu_stub.hpp.
  */
-class IMU
+class IMU : public IIMU
 {
 
 private:
@@ -153,7 +156,7 @@ public:
      * @return true
      * @return false
      */
-    bool begin(void);
+    bool begin() override;
 
     /**
      * @brief Stops the IMU threads
@@ -161,7 +164,7 @@ public:
      * @return true Error occurred
      * @return false Successfully stopped the IMU
      */
-    bool end(void);
+    bool end() override;
 
     /**
      * @brief Retrieves the current IMU temperature in deg C
@@ -169,47 +172,43 @@ public:
      * @param temp Reference in which to store temperature
      * @return Failure flag - true if failure, otherwise false
      */
-    bool getTemp_C(float &temp);
+    bool getTemp_C(float &temp) override;
     /**
      * @brief Retrieves current rotational velocity in deg/s
      *
-     *
      * @param rot_x Reference to store x axis
      * @param rot_y Reference to store y axis
      * @param rot_z Reference to store z axis
      * @return Failure flag - true if failure, otherwise false
      */
-    bool getRotVel_dps(float &rot_x, float &rot_y, float &rot_z);
+    bool getRotVel_dps(float &rot_x, float &rot_y, float &rot_z) override;
     /**
      * @brief Retrieves current acceleration in m/s^2
      *
-     *
-     * @param rot_x Reference to store x axis
-     * @param rot_y Reference to store y axis
-     * @param rot_z Reference to store z axis
+     * @param acc_x Reference to store x axis
+     * @param acc_y Reference to store y axis
+     * @param acc_z Reference to store z axis
      * @return Failure flag - true if failure, otherwise false
      */
-    bool getAccel_ms2(float &acc_x, float &acc_y, float &acc_z);
+    bool getAccel_ms2(float &acc_x, float &acc_y, float &acc_z) override;
     /**
      * @brief Retrieves current magnetic field intensity in uT
      *
-     *
-     * @param rot_x Reference to store x axis
-     * @param rot_y Reference to store y axis
-     * @param rot_z Reference to store z axis
+     * @param mag_x Reference to store x axis
+     * @param mag_y Reference to store y axis
+     * @param mag_z Reference to store z axis
      * @return Failure flag - true if failure, otherwise false
      */
-    bool getMag_uT(float &mag_x, float &mag_y, float &mag_z);
+    bool getMag_uT(float &mag_x, float &mag_y, float &mag_z) override;
     /**
      * @brief Retrieves current acceleration in m/s^2 from DMP
      *
-     *
-     * @param rot_x Reference to store x axis
-     * @param rot_y Reference to store y axis
-     * @param rot_z Reference to store z axis
+     * @param acc_x Reference to store x axis
+     * @param acc_y Reference to store y axis
+     * @param acc_z Reference to store z axis
      * @return Failure flag - true if failure, otherwise false
      */
-    bool getDmpAccel_ms2(float &acc_x, float &acc_y, float &acc_z);
+    bool getDmpAccel_ms2(float &acc_x, float &acc_y, float &acc_z) override;
     /**
      * @brief Get the DMP orientation as a quaternion
      *
@@ -217,41 +216,47 @@ public:
      * @param q1 Reference to store q1
      * @param q2 Reference to store q2
      * @param q3 Reference to store q3
-     * @param acc Pointer to store accuracy in.  If NULL, does not store
+     * @param acc Pointer to store accuracy in; ignored if NULL
      * @return Failure flag - true if failure, otherwise false
      */
-    bool getDmpQuat(double &q0, double &q1, double &q2, double &q3, double *acc);
+    bool getDmpQuat(double &q0,
+                    double &q1,
+                    double &q2,
+                    double &q3,
+                    double *acc) override;
     /**
-     * @brief Get the DMP orientation as a quaternion (float)
+     * @brief Get the DMP orientation as a single-precision quaternion
      *
      * @param q0 Reference to store q0
      * @param q1 Reference to store q1
      * @param q2 Reference to store q2
      * @param q3 Reference to store q3
-     * @param acc Pointer to store accuracy in.  If NULL, does not store
+     * @param acc Pointer to store accuracy in; ignored if NULL
      * @return Failure flag - true if failure, otherwise false
      */
-    bool getDmpQuatf(float &q0, float &q1, float &q2, float &q3, float *acc);
+    bool getDmpQuatf(float &q0,
+                     float &q1,
+                     float &q2,
+                     float &q3,
+                     float *acc) override;
     /**
      * @brief Retrieves current rotational velocity in deg/s from DMP
      *
-     *
      * @param rot_x Reference to store x axis
      * @param rot_y Reference to store y axis
      * @param rot_z Reference to store z axis
      * @return Failure flag - true if failure, otherwise false
      */
-    bool getDmpRotVel_dps(float &rot_x, float &rot_y, float &rot_z);
+    bool getDmpRotVel_dps(float &rot_x, float &rot_y, float &rot_z) override;
     /**
      * @brief Retrieves current magnetic field intensity in uT from DMP
      *
-     *
-     * @param rot_x Reference to store x axis
-     * @param rot_y Reference to store y axis
-     * @param rot_z Reference to store z axis
+     * @param mag_x Reference to store x axis
+     * @param mag_y Reference to store y axis
+     * @param mag_z Reference to store z axis
      * @return Failure flag - true if failure, otherwise false
      */
-    bool getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z);
+    bool getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z) override;
     /**
      * @brief Retrieves raw Quat9 components and heading accuracy from the DMP
      *
@@ -271,6 +276,6 @@ public:
      *
      * @param printfn Printf function to use
      */
-    void dumpRegs(int (*printfn)(const char *s, ...) = printf);
+    void dumpRegs(int (*printfn)(const char *s, ...) = printf) override;
 };
 #endif // __NEW_IMU_HPP__

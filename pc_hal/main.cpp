@@ -9,6 +9,7 @@
  *
  */
 
+#include "Particle.h"
 #include "cli/conio.hpp"
 #include "product.hpp"
 #include "signal.h"

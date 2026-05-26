@@ -17,7 +17,6 @@
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "deploy/ensembles.hpp"
-#include "imu/newIMU.hpp"
 #include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"

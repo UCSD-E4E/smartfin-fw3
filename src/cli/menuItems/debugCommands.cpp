@@ -14,7 +14,6 @@
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "fileCLI/fileCLI.hpp"
-#include "imu/newIMU.hpp"
 #include "mfgTest/mfgTest.hpp"
 #include "platform/hal.hpp"
 #include "system.hpp"
@@ -27,7 +26,7 @@ static MfgTest mfgTask;
 
 void CLI_restart(void)
 {
-    System.reset();
+    SF_HAL::system_reset();
 }
 
 void CLI_displayFLOG(void)

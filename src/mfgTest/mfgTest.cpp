@@ -3,7 +3,6 @@
 #include "cellular/sf_cloud.hpp"
 #include "cli/conio.hpp"
 #include "consts.hpp"
-#include "imu/newIMU.hpp"
 #include "json_writer.hpp"
 #include "platform/hal.hpp"
 #include "product.hpp"
@@ -165,7 +164,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::temperature_sensor_test()
 
         temp_acc += temp;
         temp_acc2 += temp * temp;
-        delay(5);
+        SF_HAL::delay_ms(5);
     }
 
     float temp_mean = temp_acc / nIterations;
@@ -240,7 +239,7 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::imu_test(void)
         mag_acc2[0] += mag[0] * mag[0];
         mag_acc2[1] += mag[1] * mag[1];
         mag_acc2[2] += mag[2] * mag[2];
-        delay(5);
+        SF_HAL::delay_ms(5);
     }
     if (fail_flag)
     {

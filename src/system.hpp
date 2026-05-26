@@ -2,7 +2,7 @@
 #define __SYSTEM_HPP__
 
 #include "cellular/recorder.hpp"
-#include "imu/newIMU.hpp"
+#include "imu/imu_interface.hpp"
 #include "platform/hal.hpp"
 #include "platform/hal_types.hpp"
 #include "product.hpp"
@@ -99,7 +99,7 @@ typedef struct SystemDesc_
      * @brief Pointer to IMU object
      *
      */
-    IMU *pIMU;
+    IIMU *pIMU;
     /**
      * @brief Pointer to SystemFlags_t object that contains current system status flag
      *

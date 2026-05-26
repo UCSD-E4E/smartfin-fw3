@@ -1,5 +1,12 @@
 #include "system.hpp"
 
+#include "platform/platform.hpp"
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+#include "imu/newIMU.hpp"
+#else
+#include "imu_stub.hpp"
+#endif
+
 #include "product.hpp"
 
 #include "temperature/tmpSensor.h"
@@ -58,7 +65,11 @@ static WaterSensor waterSensor(SF_HAL::PinId::WaterDetectEn, SF_HAL::PinId::Wate
 static LocationServiceConfiguration create_location_service_config();
 #endif
 
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 static IMU icm_20948(SF_HAL::i2c_get_wire(), false);
+#else
+static IMUStub icm_20948;
+#endif
 
 void SYS_initSys(void)
 {
@@ -466,11 +477,9 @@ void SYS_dumpSys(int indent)
  */
 int SYS_initIMU(void)
 {
-    bool fail = false;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     pSystemDesc->pIMU = &icm_20948;
-
-    fail = icm_20948.begin();
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    bool fail = icm_20948.begin();
     if (fail)
     {
         SF_OSAL_printf("IMU init failed!" __NL__);

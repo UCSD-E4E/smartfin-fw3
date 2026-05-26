@@ -10,6 +10,7 @@
 #include "systemCommands.hpp"
 
 #include "cellular/sf_cloud.hpp"
+#include "platform/hal.hpp"
 #include "platform/platform.hpp"
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
@@ -48,7 +49,7 @@ void CLI_doSleep(void)
 void CLI_doUpload(void)
 {
     char integer_string[64];
-    int integer = Time.now();
+    int integer = static_cast<int>(SF_HAL::time_now());
 
     char other_string[64] = "Session: ";
     sprintf(integer_string, "%d", integer);

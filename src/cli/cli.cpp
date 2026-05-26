@@ -19,7 +19,6 @@
 #include "debug/recorder_debug.hpp"
 #include "debug/session_debug.hpp"
 #include "deploy/ensembleTypes.hpp"
-#include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
 #include "menuItems/systemCommands.hpp"
@@ -228,50 +227,50 @@ static void CLI_sleepGetSleepBehavior(void)
 
 void CLI_displayResetReason(void)
 {
-    uint16_t reset_reason = System.resetReason();
-    SF_OSAL_printf("Reset Reason: %hd", reset_reason);
+    SF_HAL::ResetReason reset_reason = SF_HAL::reset_reason();
+    SF_OSAL_printf("Reset Reason: %hd", static_cast<uint8_t>(reset_reason));
     switch (reset_reason)
     {
-    case RESET_REASON_PIN_RESET:
+    case SF_HAL::ResetReason::PIN_RESET:
         SF_OSAL_printf("nRESET Assertion");
         break;
-    case RESET_REASON_POWER_MANAGEMENT:
+    case SF_HAL::ResetReason::POWER_MANAGEMENT:
         SF_OSAL_printf("Low Power Management Reset");
         break;
-    case RESET_REASON_POWER_DOWN:
+    case SF_HAL::ResetReason::POWER_DOWN:
         SF_OSAL_printf("Power-down Reset");
         break;
-    case RESET_REASON_POWER_BROWNOUT:
+    case SF_HAL::ResetReason::POWER_BROWNOUT:
         SF_OSAL_printf("Brownout Reset");
         break;
-    case RESET_REASON_WATCHDOG:
+    case SF_HAL::ResetReason::WATCHDOG:
         SF_OSAL_printf("Watchdog Reset");
         break;
-    case RESET_REASON_UPDATE:
+    case SF_HAL::ResetReason::UPDATE:
         SF_OSAL_printf("FW Update Success");
         break;
-    case RESET_REASON_UPDATE_TIMEOUT:
+    case SF_HAL::ResetReason::UPDATE_TIMEOUT:
         SF_OSAL_printf("FW Update Timeout");
         break;
-    case RESET_REASON_FACTORY_RESET:
+    case SF_HAL::ResetReason::FACTORY_RESET:
         SF_OSAL_printf("Factory Reset");
         break;
-    case RESET_REASON_SAFE_MODE:
+    case SF_HAL::ResetReason::SAFE_MODE:
         SF_OSAL_printf("Safe Mode");
         break;
-    case RESET_REASON_DFU_MODE:
+    case SF_HAL::ResetReason::DFU_MODE:
         SF_OSAL_printf("DFU mode");
         break;
-    case RESET_REASON_PANIC:
+    case SF_HAL::ResetReason::PANIC:
         SF_OSAL_printf("System Panic");
         break;
-    case RESET_REASON_USER:
+    case SF_HAL::ResetReason::USER:
         SF_OSAL_printf("User Reset");
         break;
-    case RESET_REASON_NONE:
+    case SF_HAL::ResetReason::NONE:
         SF_OSAL_printf("No info available");
         break;
-    case RESET_REASON_UNKNOWN:
+    case SF_HAL::ResetReason::UNKNOWN:
     default:
         SF_OSAL_printf("Unknown Reset");
         break;
@@ -671,7 +670,7 @@ static void CLI_monitorSensors(void)
         }
         SF_OSAL_printf("|" __NL__);
         count++;
-        delay(delayTime);
+        SF_HAL::delay_ms(delayTime);
     }
     pSystemDesc->pTempSensor->stop();
     pSystemDesc->pChargerCheck->start();
@@ -817,7 +816,7 @@ static void CLI_doBleTest(void)
     const bool tempSensorReady = pSystemDesc->pTempSensor->init();
     SF_OSAL_printf("[BLE TEST] temp sensor init: %s" __NL__,
                    tempSensorReady ? "OK" : "FAILED");
-    delay(500);
+    SF_HAL::delay_ms(500);
 
     float tempProbe = pSystemDesc->pTempSensor->getTemp();
     if (std::isfinite(tempProbe))
@@ -901,7 +900,7 @@ static void CLI_doBleTest(void)
                     quit = true;
                 }
             }
-            delay(1);
+            SF_HAL::delay_ms(1);
         }
 
         if (quit)

@@ -12,7 +12,6 @@
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "deploy/ensemble_commit.hpp"
-#include "imu/newIMU.hpp"
 #include "product.hpp"
 #include "scheduler.hpp"
 #include "system.hpp"
