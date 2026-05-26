@@ -512,7 +512,7 @@ void SS_HighRateIMU_x0D_Init(DeploymentSchedule_t *pDeployment)
  */
 void SS_HighRateIMU_x0D_Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE && defined(SF_HIGH_DATA_RATE)
+
 #pragma pack(push, 1)
     struct
     {
@@ -550,8 +550,6 @@ void SS_HighRateIMU_x0D_Func(DeploymentSchedule_t *pDeployment)
     record.header = ensData.header;
     record.data = ensData.data;
     TransportService::getInstance().enqueueImuQuatRecord(record);
-
-#endif
 }
 /** @} */
 
