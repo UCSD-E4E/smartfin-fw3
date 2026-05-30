@@ -10,6 +10,9 @@
  */
 
 #include "session_debug.hpp"
+#include "product.hpp"
+
+#if SF_ENABLE_DEBUG_MENUS
 
 #include "cli/conio.hpp"
 #include "cli/menu.hpp"
@@ -242,3 +245,4 @@ void DEPD_testTruncate(void)
     retval = instance.truncate(n_bytes);
     SF_OSAL_printf("Returned: %d" __NL__, retval);
 }
+#endif // SF_ENABLE_DEBUG_MENUS

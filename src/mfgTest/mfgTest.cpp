@@ -1,5 +1,7 @@
 #include "mfgTest.hpp"
 
+#if SF_ENABLE_MFG_TEST
+
 #include "cellular/sf_cloud.hpp"
 #include "cli/conio.hpp"
 #include "consts.hpp"
@@ -407,3 +409,5 @@ MfgTest::MFG_TEST_RESULT_t MfgTest::gps_test(void)
     return MfgTest::PASS;
 }
 #endif // SF_ENABLE_GPS
+
+#endif // SF_ENABLE_MFG_TEST

@@ -8,6 +8,7 @@
     #include <spark_wiring_json.h>
 #endif
 
+#if SF_ENABLE_MFG_TEST
 #define MFG_MIN_VALID_TEMPERATURE 15
 #define MFG_MAX_VALID_TEMPERATURE   30
 
@@ -119,5 +120,6 @@ private:
     static MFG_TEST_RESULT_t gps_test(void);
 #endif
 };
+#endif // SF_ENABLE_MFG_TEST
 
 #endif

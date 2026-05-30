@@ -10,12 +10,14 @@
  */
 
 #include "recorder_debug.hpp"
+#include "product.hpp"
+
+#if SF_ENABLE_DEBUG_MENUS
 
 #include "cli/conio.hpp"
 #include "cli/menu.hpp"
 #include "cellular/recorder.hpp"
 #include "system.hpp"
-#include "product.hpp"
 #include "util.hpp"
 
 #include <stdint.h>
@@ -240,3 +242,4 @@ void REC_format(void)
     int retval = pRecorder->reformat();
     SF_OSAL_printf("Reformat: %d" __NL__, retval);
 }
+#endif // SF_ENABLE_DEBUG_MENUS

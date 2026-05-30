@@ -219,6 +219,7 @@ extern "C"
         int userInput;
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
         while (i < buflen - 1)
         {
             Particle.process();

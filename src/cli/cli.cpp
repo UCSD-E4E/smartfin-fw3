@@ -17,8 +17,10 @@
 #include "cliDebug.hpp"
 #include "conio.hpp"
 #include "consts.hpp"
+#if SF_ENABLE_DEBUG_MENUS
 #include "debug/recorder_debug.hpp"
 #include "debug/session_debug.hpp"
+#endif
 #include "deploy/ensembleTypes.hpp"
 #include "imu/newIMU.hpp"
 #include "menu.hpp"
@@ -35,10 +37,11 @@
 #include "util.hpp"
 #include "vers.hpp"
 
-#include <bits/stdc++.h>
 #include <atomic>
 #include <cstdlib>
-#include <fstream>
+#include <cmath>
+#include <cstring>
+#include <cstdint>
 
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
@@ -52,7 +55,9 @@ static void CLI_displayNVRAM(void);
 static void CLI_sleepSetSleepBehavior(void);
 static void CLI_sleepGetSleepBehavior(void);
 static void CLI_displayResetReason(void);
+#if SF_ENABLE_DEBUG_MENUS
 static void CLI_monitorSensors(void);
+#endif
 static void CLI_doEnsemble(void);
 static void CLI_setWaterSensorWindow(void);
 static void CLI_doBleTest(void);
@@ -75,11 +80,15 @@ const Menu_t CLI_menu[] = {
     {9, "sleep", &CLI_doSleep, MENU_CMD},
     {10, "Self Identify", &CLI_self_identify, MENU_CMD},
     {11, "check charge ports", &CLI_checkCharging, MENU_CMD},
+#if SF_ENABLE_MFG_TEST
     {12, "MFG Test", &CLI_doMfgTest, MENU_CMD},
+#endif
     {13, "upload", &CLI_doUpload, MENU_CMD},
+#if SF_ENABLE_DEBUG_MENUS
     {14, "Recorder Test Menu", {.pMenu = Recorder_debug_menu}, MENU_SUBMENU},
     {15, "Session Test Menu", {.pMenu = Session_debug_menu}, MENU_SUBMENU},
     {16, "Display all sensors", &CLI_monitorSensors, MENU_CMD},
+#endif
     {20, "Do Ensemble Function", &CLI_doEnsemble, MENU_CMD},
     {30, "Dump FLOG", &CLI_displayFLOG, MENU_CMD},
     {31, "Clear FLOG", &CLI_clearFLOG, MENU_CMD},
@@ -278,395 +287,13 @@ void CLI_displayResetReason(void)
     SF_OSAL_printf(__NL__);
 }
 
+#if SF_ENABLE_DEBUG_MENUS
 /**
  * @brief MonitorSensors header enum
  *
  */
 enum SensorHeader
-{
-    SensorHeader_Time,
-    SensorHeader_AccelX,
-    SensorHeader_AccelY,
-    SensorHeader_AccelZ,
-    SensorHeader_GyroX,
-    SensorHeader_GyroY,
-    SensorHeader_GyroZ,
-    SensorHeader_MagX,
-    SensorHeader_MagY,
-    SensorHeader_MagZ,
-    SensorHeader_Temp,
-    SensorHeader_WetDryReading,
-    SensorHeader_WetDryStatus,
-    SensorHeader_DMPAccelX,
-    SensorHeader_DMPAccelY,
-    SensorHeader_DMPAccelZ,
-    SensorHeader_DMPAccelAcc,
-    SensorHeader_DMPGyroX,
-    SensorHeader_DMPGyroY,
-    SensorHeader_DMPGyroZ,
-    SensorHeader_DMPQuat1,
-    SensorHeader_DMPQuat2,
-    SensorHeader_DMPQuat3,
-    SensorHeader_DMPQuat0,
-    SensorHeader_DMPQuatAcc,
-    SensorHeader_DMPMagX,
-    SensorHeader_DMPMagY,
-    SensorHeader_DMPMagZ,
-    SensorHeader_GpsLock,
-    SensorHeader_GpsNSats,
-    SensorHeader_GpsLat,
-    SensorHeader_GpsLon,
-    SensorHeader_GpsAlt,
-
-    SensorHeader_NUMHEADERS
-};
-
-/**
- * @brief Monitor sensor table row definition
- *
- */
-typedef struct
-{
-    /**
-     * @brief
-     * Header index
-     *
-     */
-    enum SensorHeader header_idx;
-    /**
-     * @brief Column header name
-     *
-     */
-    const char *header;
-    /**
-     * @brief Active flag
-     *
-     */
-    bool active;
-    /**
-     * @brief Recorded value to display
-     *
-     */
-    float value;
-} CLI_MON_SENSOR_data_t;
-
-/**
- * @brief Monitor sensor table definition
- *
- */
-CLI_MON_SENSOR_data_t sensor_headers[SensorHeader_NUMHEADERS + 1] = {
-    {SensorHeader_Time, "t", false, NAN},
-    {SensorHeader_AccelX, "ax", false, NAN},           // 0
-    {SensorHeader_AccelY, "ay", false, NAN},           // 1
-    {SensorHeader_AccelZ, "az", false, NAN},           // 2
-    {SensorHeader_GyroX, "gx", false, NAN},            // 3
-    {SensorHeader_GyroY, "gy", false, NAN},            // 4
-    {SensorHeader_GyroZ, "gz", false, NAN},            // 5
-    {SensorHeader_MagX, "mx", false, NAN},             // 6
-    {SensorHeader_MagX, "my", false, NAN},             // 7
-    {SensorHeader_MagX, "mz", false, NAN},             // 8
-    {SensorHeader_Temp, "temp", false, NAN},           // 9
-    {SensorHeader_WetDryReading, "wd cr", false, NAN}, // 10
-    {SensorHeader_WetDryStatus, "wd ls", false, NAN},  // 11
-    {SensorHeader_DMPAccelX, "dax", false, NAN},       // 12
-    {SensorHeader_DMPAccelY, "day", false, NAN},       // 13
-    {SensorHeader_DMPAccelZ, "daz", false, NAN},       // 14
-    {SensorHeader_DMPAccelAcc, "a acc", false, NAN},   // 15
-    {SensorHeader_DMPGyroX, "dgx", false, NAN},        // 16
-    {SensorHeader_DMPGyroY, "dgy", false, NAN},        // 17
-    {SensorHeader_DMPGyroZ, "dgz", false, NAN},        // 18
-    {SensorHeader_DMPQuat1, "dq1", false, NAN},        // 19
-    {SensorHeader_DMPQuat2, "dq2", false, NAN},        // 20
-    {SensorHeader_DMPQuat3, "dq3", false, NAN},        // 21
-    {SensorHeader_DMPQuat0, "dq0", false, NAN},        // 22
-    {SensorHeader_DMPQuatAcc, "dqacc", false, NAN},    // 23
-    {SensorHeader_DMPMagX, "dmx", false, NAN},         // 24
-    {SensorHeader_DMPMagY, "dmy", false, NAN},         // 25
-    {SensorHeader_DMPMagZ, "dmz", false, NAN},         // 26
-    {SensorHeader_GpsLock, "lock", false, NAN},        // 27
-    {SensorHeader_GpsNSats, "nSats", false, NAN},      // 28
-    {SensorHeader_GpsLat, "lat", false, NAN},          // 29
-    {SensorHeader_GpsLon, "lon", false, NAN},          // 30
-    {SensorHeader_GpsAlt, "alt", false, NAN},          // 31
-    {SensorHeader_NUMHEADERS, NULL, false, NAN}};
-
-/**
- * @brief CLI Monitor Sensors
- *
- * @todo This function needs to be refactored into a class for unit testing. Suspect bad data
- * acquisition
- *
- *
- */
-static void CLI_monitorSensors(void)
-{
-    char ch = ' ';
-    pSystemDesc->pChargerCheck->stop();
-    pSystemDesc->pWaterCheck->stop();
-    pSystemDesc->pTempSensor->init();
-    SF_OSAL_printf(__NL__);
-
-    typedef enum
-    {
-        TIME,
-        ACCEL,
-        GYRO,
-        MAG,
-        TEMP,
-        WET_DRY,
-        DMP,
-#if SF_ENABLE_GPS
-        GPS,
-#endif
-        NUM_SENSORS
-    } Sensor;
-    bool sensors[NUM_SENSORS] = {false};
-
-#if SF_ENABLE_GPS
-    LocationPoint point;
-#endif
-
-    memset(input_buffer, 0, SF_CLI_MAX_CMD_LEN);
-    SF_OSAL_printf("Enter delay time (ms): ");
-    SF_OSAL_getline(input_buffer, SF_CLI_MAX_CMD_LEN - 1);
-    int delayTime = atoi(input_buffer);
-    SF_OSAL_printf("Delay set to %d ms" __NL__, delayTime);
-    SF_OSAL_printf("a - acceleraction, g - gyroscope, m - magnetometer, t - temp, w - wet/dry, d - "
-                   "dmp, G - GPS" __NL__);
-    sensors[TIME] = true;
-    bool valid = false;
-    while (ch != 'x')
-    {
-        SF_OSAL_printf(
-            "Enter which sensors you want to look at (a, g, m, t, w, d, G), x to quit: ");
-        ch = SF_OSAL_getch();
-        SF_OSAL_printf("%c", ch);
-        SF_OSAL_printf(__NL__);
-        switch (ch)
-        {
-        case 'a':
-            sensors[ACCEL] = true;
-            valid = true;
-            break;
-        case 'g':
-            sensors[GYRO] = true;
-            valid = true;
-            break;
-        case 'm':
-            sensors[MAG] = true;
-            valid = true;
-            break;
-        case 't':
-            sensors[TEMP] = true;
-            valid = true;
-            break;
-        case 'w':
-            sensors[WET_DRY] = true;
-            valid = true;
-            break;
-        case 'd':
-            sensors[DMP] = true;
-            valid = true;
-            break;
-#if SF_ENABLE_GPS
-        case 'G':
-            sensors[GPS] = true;
-            valid = true;
-            break;
-#endif
-        case 'x':
-            break;
-        default:
-            SF_OSAL_printf("invalid input" __NL__);
-        }
-    }
-    SF_OSAL_printf(__NL__);
-    // if no headers, return now
-    if (!valid)
-    {
-        pSystemDesc->pChargerCheck->start();
-        pSystemDesc->pWaterCheck->start();
-        pSystemDesc->pTempSensor->stop();
-        return;
-    }
-
-    for (CLI_MON_SENSOR_data_t *pEntry = sensor_headers; pEntry->header; pEntry++)
-    {
-        pEntry->active = false;
-    }
-    sensor_headers[SensorHeader_Time].active = true;
-    if (sensors[ACCEL])
-    {
-        sensor_headers[SensorHeader_AccelX].active = true;
-        sensor_headers[SensorHeader_AccelY].active = true;
-        sensor_headers[SensorHeader_AccelZ].active = true;
-    }
-    if (sensors[GYRO])
-    {
-        sensor_headers[SensorHeader_GyroX].active = true;
-        sensor_headers[SensorHeader_GyroY].active = true;
-        sensor_headers[SensorHeader_GyroZ].active = true;
-    }
-    if (sensors[MAG])
-    {
-        sensor_headers[SensorHeader_MagX].active = true;
-        sensor_headers[SensorHeader_MagY].active = true;
-        sensor_headers[SensorHeader_MagZ].active = true;
-    }
-    if (sensors[TEMP])
-    {
-        sensor_headers[SensorHeader_Temp].active = true;
-    }
-    if (sensors[WET_DRY])
-    {
-        sensor_headers[SensorHeader_WetDryStatus].active = true;
-        sensor_headers[SensorHeader_WetDryReading].active = true;
-    }
-    if (sensors[DMP])
-    {
-        // acc
-        sensor_headers[SensorHeader_DMPAccelX].active = true;
-        sensor_headers[SensorHeader_DMPAccelY].active = true;
-        sensor_headers[SensorHeader_DMPAccelZ].active = true;
-        sensor_headers[SensorHeader_DMPAccelAcc].active = true;
-
-        // gyr
-        sensor_headers[SensorHeader_DMPGyroX].active = true;
-        sensor_headers[SensorHeader_DMPGyroY].active = true;
-        sensor_headers[SensorHeader_DMPGyroZ].active = true;
-
-        // quat
-        sensor_headers[SensorHeader_DMPQuat0].active = true;
-        sensor_headers[SensorHeader_DMPQuat1].active = true;
-        sensor_headers[SensorHeader_DMPQuat2].active = true;
-        sensor_headers[SensorHeader_DMPQuat3].active = true;
-        sensor_headers[SensorHeader_DMPQuatAcc].active = true;
-
-        // mag
-        sensor_headers[SensorHeader_DMPMagX].active = true;
-        sensor_headers[SensorHeader_DMPMagY].active = true;
-        sensor_headers[SensorHeader_DMPMagZ].active = true;
-    }
-#if SF_ENABLE_GPS
-    if (sensors[GPS])
-    {
-        sensor_headers[SensorHeader_GpsLock].active = true;
-        sensor_headers[SensorHeader_GpsNSats].active = true;
-        sensor_headers[SensorHeader_GpsLat].active = true;
-        sensor_headers[SensorHeader_GpsLon].active = true;
-        sensor_headers[SensorHeader_GpsAlt].active = true;
-    }
-#endif
-    int count = 0;
-
-    while (1)
-    {
-        if (SF_OSAL_kbhit())
-        {
-            ch = SF_OSAL_getch();
-
-            if ('q' == ch)
-            {
-                break;
-            }
-        }
-        sensor_headers[SensorHeader_Time].value = millis();
-        if (sensors[ACCEL])
-        {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-            pSystemDesc->pIMU->getAccel_ms2(sensor_headers[SensorHeader_AccelX].value,
-                                            sensor_headers[SensorHeader_AccelY].value,
-                                            sensor_headers[SensorHeader_AccelZ].value);
-#endif
-        }
-        if (sensors[GYRO])
-        {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-            pSystemDesc->pIMU->getRotVel_dps(sensor_headers[SensorHeader_GyroX].value,
-                                             sensor_headers[SensorHeader_GyroY].value,
-                                             sensor_headers[SensorHeader_GyroZ].value);
-#endif
-        }
-        if (sensors[MAG])
-        {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-            pSystemDesc->pIMU->getMag_uT(sensor_headers[SensorHeader_MagX].value,
-                                         sensor_headers[SensorHeader_MagY].value,
-                                         sensor_headers[SensorHeader_MagZ].value);
-#endif
-        }
-        if (sensors[DMP])
-        {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-            pSystemDesc->pIMU->getDmpAccel_ms2(sensor_headers[SensorHeader_DMPAccelX].value,
-                                               sensor_headers[SensorHeader_DMPAccelY].value,
-                                               sensor_headers[SensorHeader_DMPAccelZ].value);
-            pSystemDesc->pIMU->getDmpRotVel_dps(sensor_headers[SensorHeader_DMPGyroX].value,
-                                                sensor_headers[SensorHeader_DMPGyroY].value,
-                                                sensor_headers[SensorHeader_DMPGyroZ].value);
-            pSystemDesc->pIMU->getDmpQuatf(sensor_headers[SensorHeader_DMPQuat0].value,
-                                           sensor_headers[SensorHeader_DMPQuat1].value,
-                                           sensor_headers[SensorHeader_DMPQuat2].value,
-                                           sensor_headers[SensorHeader_DMPQuat3].value,
-                                           &sensor_headers[SensorHeader_DMPQuatAcc].value);
-            pSystemDesc->pIMU->getDmpMag_uT(sensor_headers[SensorHeader_DMPMagX].value,
-                                            sensor_headers[SensorHeader_DMPMagY].value,
-                                            sensor_headers[SensorHeader_DMPMagZ].value);
-#endif
-        }
-        if (sensors[TEMP])
-        {
-            sensor_headers[SensorHeader_Temp].value = pSystemDesc->pTempSensor->getTemp();
-        }
-        sensor_headers[SensorHeader_WetDryReading].value = NAN;
-        sensor_headers[SensorHeader_WetDryStatus].value = NAN;
-        if (sensors[WET_DRY])
-        {
-            pSystemDesc->pWaterSensor->update();
-            sensor_headers[SensorHeader_WetDryReading].value =
-                pSystemDesc->pWaterSensor->getLastReading();
-            sensor_headers[SensorHeader_WetDryStatus].value =
-                pSystemDesc->pWaterSensor->getLastStatus();
-        }
-#if SF_ENABLE_GPS
-        if (sensors[GPS])
-        {
-            pSystemDesc->pLocService->getLocation(point);
-            sensor_headers[SensorHeader_GpsLock].value = point.locked;
-            sensor_headers[SensorHeader_GpsNSats].value = point.satsInUse;
-            sensor_headers[SensorHeader_GpsLat].value = point.latitude;
-            sensor_headers[SensorHeader_GpsLon].value = point.longitude;
-            sensor_headers[SensorHeader_GpsAlt].value = point.altitude;
-        }
-#endif
-
-        if (count % 20 == 0)
-        {
-            for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
-            {
-                if (it->active)
-                {
-                    SF_OSAL_printf("|--------------");
-                }
-            }
-            SF_OSAL_printf("|" __NL__);
-            for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
-            {
-                if (it->active)
-                {
-                    SF_OSAL_printf("| %12s ", it->header);
-                }
-            }
-            SF_OSAL_printf("|" __NL__);
-            for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
-            {
-                if (it->active)
-                {
-                    SF_OSAL_printf("|--------------");
-                }
-            }
-            SF_OSAL_printf("|" __NL__);
-        }
+...
         for (CLI_MON_SENSOR_data_t *it = sensor_headers; it->header; it++)
         {
             if (it->active)
@@ -682,6 +309,7 @@ static void CLI_monitorSensors(void)
     pSystemDesc->pChargerCheck->start();
     pSystemDesc->pWaterCheck->start();
 }
+#endif // SF_ENABLE_DEBUG_MENUS
 
 static void CLI_doEnsemble(void)
 {
@@ -873,6 +501,10 @@ static void CLI_doBleTest(void)
             else if (ch == 'i') { CLI_startIMU(); }
             else if (ch == 'C') { CLI_stopCellular(); }
             else if (ch == 'c') { CLI_startCellular(); }
+            else if (ch == 'S' || ch == 's') {
+                SF_OSAL_printf("[CELL STATUS] On: %d | Ready: %d | Particle: %d" __NL__, 
+                               Cellular.isOn(), Cellular.ready(), Particle.connected());
+            }
         }
 
         uint32_t now = millis();
@@ -919,6 +551,10 @@ static void CLI_doBleTest(void)
                 else if (ch == 'i') { CLI_startIMU(); }
                 else if (ch == 'C') { CLI_stopCellular(); }
                 else if (ch == 'c') { CLI_startCellular(); }
+                else if (ch == 'S' || ch == 's') {
+                    SF_OSAL_printf("[CELL STATUS] On: %d | Ready: %d | Particle: %d" __NL__, 
+                                   Cellular.isOn(), Cellular.ready(), Particle.connected());
+                }
             }
             delay(1);
         }

@@ -49,10 +49,12 @@ void CLI_checkCharging(void);
  * @brief monitor wet/dry sensor
 */
 void CLI_monitorWetDry(void);
+#if SF_ENABLE_MFG_TEST
 /**
  * @brief run manufacturing test
 */
 void CLI_doMfgTest(void);
+#endif
 
 /**
  * @brief File CLI

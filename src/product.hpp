@@ -12,7 +12,13 @@
 #define __PRODUCT_HPP__
 
 /** @brief Set to 1 to compile GPS support; 0 to exclude (saves SRAM). */
-#define SF_ENABLE_GPS 0
+#define SF_ENABLE_GPS 1
+
+/** @brief Set to 1 to compile manufacturing test support; 0 to exclude (saves Flash). */
+#define SF_ENABLE_MFG_TEST 0
+
+/** @brief Set to 1 to compile debug CLI menus; 0 to exclude (saves Flash). */
+#define SF_ENABLE_DEBUG_MENUS 0
 
 /******************************************************************************
  * Pin Definitions

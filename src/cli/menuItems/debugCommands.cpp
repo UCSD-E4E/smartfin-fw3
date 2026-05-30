@@ -25,7 +25,9 @@
 #include <dirent.h>
 #include <fcntl.h>
 
+#if SF_ENABLE_MFG_TEST
 static MfgTest mfgTask;
+#endif
 
 void CLI_restart(void)
 {
@@ -159,10 +161,12 @@ void CLI_monitorTempSensor(void)
     pSystemDesc->pTempSensor->stop();
 }
 
+#if SF_ENABLE_MFG_TEST
 void CLI_doMfgTest(void)
 {
     mfgTask.run();
 }
+#endif
   
 
 void CLI_monitorWetDry(void)
@@ -269,7 +273,9 @@ void CLI_startCellular(void)
 {
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     Cellular.on();
-    SF_OSAL_printf("Cellular ON" __NL__);
+    Cellular.connect();
+    Particle.connect();
+    SF_OSAL_printf("Cellular ON and connecting..." __NL__);
 #endif
 }
 
