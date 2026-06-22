@@ -186,6 +186,11 @@ void mainFunc(void)
 
 static void initalizeTaskObjects(void)
 {
+#if SF_POWER_PROFILE_MODE
+    FLOG_AddError(FLOG_SYS_STARTSTATE_JUSTIFICATION, 0x00A0);
+    currentState = STATE_DEPLOYED;
+    return;
+#endif
 
     SleepTask::loadBootBehavior();
 
