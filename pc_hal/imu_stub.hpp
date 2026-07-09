@@ -9,6 +9,7 @@
 
 #include "imu/imu_interface.hpp"
 
+#include <cstdio>
 /**
  * @brief No-op IMU stub used in place of the ICM-20948 driver on PC builds.
  *
