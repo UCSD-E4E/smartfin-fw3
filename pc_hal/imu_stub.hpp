@@ -168,6 +168,22 @@ public:
     }
 
     /**
+     * @brief Returns false; leaves Quat9 references unchanged.
+     * @param q1 Unused.
+     * @param q2 Unused.
+     * @param q3 Unused.
+     * @param accuracy_q12 Unused.
+     * @return false.
+     */
+    bool getRawQuat9(int32_t & /*q1*/,
+                     int32_t & /*q2*/,
+                     int32_t & /*q3*/,
+                     int16_t & /*accuracy_q12*/) override
+    {
+        return false;
+    }
+
+    /**
      * @brief No-op register dump.
      * @param printfn Unused.
      */

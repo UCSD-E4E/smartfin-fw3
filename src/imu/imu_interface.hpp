@@ -7,6 +7,7 @@
 #ifndef IMU_INTERFACE_HPP
 #define IMU_INTERFACE_HPP
 
+#include <cstdint>
 #include <cstdio>
 
 /**
@@ -142,6 +143,23 @@ public:
      * @return true on failure, false on success.
      */
     virtual bool getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z) = 0;
+
+    /**
+     * @brief Retrieve raw Quat9 components and heading accuracy from the DMP.
+     *
+     * Components are Q30 integers; accuracy is a Q12 integer (radians).
+     * Recover q0 = sqrt(1 - q1^2 - q2^2 - q3^2) after scaling.
+     *
+     * @param q1 Reference to store Q1 (Q30).
+     * @param q2 Reference to store Q2 (Q30).
+     * @param q3 Reference to store Q3 (Q30).
+     * @param accuracy_q12 Reference to store heading accuracy (Q12, radians).
+     * @return true on failure, false on success.
+     */
+    virtual bool getRawQuat9(int32_t &q1,
+                             int32_t &q2,
+                             int32_t &q3,
+                             int16_t &accuracy_q12) = 0;
 
     /**
      * @brief Dump raw register contents for diagnostics.
