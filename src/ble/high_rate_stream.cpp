@@ -314,7 +314,7 @@ void TransportService::serviceOnce()
                         notifyFailures_.fetch_add(1, std::memory_order_relaxed);
                     }
                 }
-                lastFlushMs_ = millis();
+                lastFlushMs_ = SF_HAL::millis();
             }
         }
 
