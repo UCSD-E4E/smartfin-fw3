@@ -19,6 +19,9 @@
 /** @brief GoogleTest host target. */
 #define SF_PLATFORM_GOOGLETEST  3
 
+/** @brief Arduino Uno Q target. */
+#define SF_PLATFORM_UNOQ 4
+
 /**
  * @brief Active platform selector.
  *
