@@ -368,7 +368,15 @@ extern "C"
         conioHistory.set_display(false);
 #else
         nBytes = vsnprintf(SF_OSAL_printfBuffer, SF_OSAL_PRINTF_BUFLEN, fmt, vargs);
-        SF_HAL::serial_write(reinterpret_cast<const uint8_t *>(SF_OSAL_printfBuffer), nBytes);
+        if (nBytes > 0)
+        {
+            int writeBytes = nBytes;
+            if (writeBytes >= SF_OSAL_PRINTF_BUFLEN)
+            {
+                writeBytes = SF_OSAL_PRINTF_BUFLEN - 1;
+            }
+            SF_HAL::serial_write(reinterpret_cast<const uint8_t *>(SF_OSAL_printfBuffer), writeBytes);
+        }
 #endif
         va_end(vargs);
         return nBytes;
