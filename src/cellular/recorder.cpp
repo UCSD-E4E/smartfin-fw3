@@ -28,7 +28,6 @@
 
 #define REC_DEBUG
 
-#define DATA_ROOT "/data"
 #define METADATA_FILE DATA_ROOT "/.metadata"
 static int REC_create_data_root(void);
 /**

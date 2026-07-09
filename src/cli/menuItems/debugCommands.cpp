@@ -71,9 +71,16 @@ void CLI_createTestFile(void)
     }
 }
 
+/**
+ * @brief Deletes every file under the recorder data root.
+ *
+ * Scoped to @c DATA_ROOT rather than the filesystem root so this cannot
+ * delete unrelated files (e.g. the host filesystem's root directory when
+ * running under the PC/GLibC build, where DATA_ROOT is a real POSIX path).
+ */
 void CLI_wipeFileSystem(void)
 {
-    DIR* directory = ::opendir("/");
+    DIR* directory = ::opendir(DATA_ROOT);
     if (directory == nullptr)
     {
         return;
@@ -82,8 +89,8 @@ void CLI_wipeFileSystem(void)
     struct dirent* entry;
     while ((entry = ::readdir(directory)) != nullptr)
     {
-        char path[NAME_MAX + 2];
-        snprintf(path, sizeof(path), "/%s", entry->d_name);
+        char path[NAME_MAX + sizeof(DATA_ROOT) + 1];
+        snprintf(path, sizeof(path), DATA_ROOT "/%s", entry->d_name);
         ::unlink(path);
     }
     ::closedir(directory);
