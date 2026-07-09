@@ -318,7 +318,7 @@ extern "C"
                     }
                     break;
                 case '\r':
-                    buffer[i + 1] = 0;
+                    buffer[i] = 0;
                     SF_OSAL_putch('\r');
                     SF_OSAL_putch('\n');
                     return i;
