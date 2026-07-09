@@ -270,7 +270,7 @@ public:
      * @return Failure flag - true if failure, otherwise false
      */
     bool getRawQuat9(int32_t &q1, int32_t &q2, int32_t &q3,
-                     int16_t &accuracy_q12);
+                     int16_t &accuracy_q12) override;
     /**
      * @brief Dumps the registers
      *
