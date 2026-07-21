@@ -1,9 +1,9 @@
 #ifndef __DATAUPLOAD_HPP__
 #define __DATAUPLOAD_HPP__
 
-#include "task.hpp"
-#include "Particle.h"
+#include "platform/hal_types.hpp"
 #include "product.hpp"
+#include "task.hpp"
 
 
 /**
@@ -63,7 +63,7 @@ public:
      */
     void exit(void);
 
-    LEDStatus status;
+    SF_HAL::LedStatus status;
 
 private:
     /**
@@ -73,7 +73,7 @@ private:
      */
     int initSuccess;
     //! Tracks the last connection attempt time.
-    system_tick_t lastConnectTime;
+    SF_HAL::tick_t lastConnectTime;
     /**
      * @brief Identifies if data upload is possible.
      *

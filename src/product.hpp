@@ -11,56 +11,16 @@
 #ifndef __PRODUCT_HPP__
 #define __PRODUCT_HPP__
 
+#include "platform/hal_types.hpp"
+
 /** @brief Set to 1 to compile GPS support; 0 to exclude (saves SRAM). */
 #define SF_ENABLE_GPS 0
 
-/******************************************************************************
- * Pin Definitions
- *****************************************************************************/
-/**
- * USB Power Detection Pin TODO
- */
-
-#define SF_USB_PWR_DETECT_PIN   A4
-
-/**
- * Pin for the Battery Status LED
- */
-#define STAT_LED_PIN          A5
-
-/**
- * Water Detect Enable Pin
- */
-#define WATER_DETECT_EN_PIN   A2
-/**
- * Water Detect Pin
- */
-#define WATER_DETECT_PIN      A6
-
-/**
- * @brief Water Detection Status LED
- *
- */
-#define WATER_STATUS_LED D9
-/**
- * @brief Manufacturing Water Detect Pin
- *
- */
-#define WATER_MFG_TEST_EN     A3
-
-
 /**
  * @brief ICM20648 Address
- * 
+ *
  */
 #define SF_ICM20648_ADDR    (0x68 << 1)
-
-/**
- * @brief Wakeup pin 
- * 
- */
-#define WKP_PIN               A7
-
 
 /*******************************************************************************
  * Peripheral Configurations
@@ -129,34 +89,34 @@
 /**
  * The CLI RGB LED Color
  */
-#define SF_CLI_RGB_LED_COLOR        RGB_COLOR_RED
-#define SF_CLI_RGB_LED_PATTERN      LED_PATTERN_SOLID
+#define SF_CLI_RGB_LED_COLOR        0x00FF0000u
+#define SF_CLI_RGB_LED_PATTERN SF_HAL::LedPattern::SOLID
 #define SF_CLI_RGB_LED_PERIOD       3000
-#define SF_CLI_RGB_LED_PRIORITY     LED_PRIORITY_IMPORTANT
+#define SF_CLI_RGB_LED_PRIORITY     SF_HAL::LedPriority::IMPORTANT
 
 /**
  * The Ride RGB LED Color
  */
-#define RIDE_RGB_LED_COLOR RGB_COLOR_WHITE
-#define RIDE_RGB_LED_PATTERN_GPS LED_PATTERN_BLINK
+#define RIDE_RGB_LED_COLOR 0x00FFFFFFu
+#define RIDE_RGB_LED_PATTERN_GPS SF_HAL::LedPattern::BLINK
 #define RIDE_RGB_LED_PERIOD_GPS 500
-#define RIDE_RGB_LED_PATTERN_NOGPS LED_PATTERN_SOLID
+#define RIDE_RGB_LED_PATTERN_NOGPS SF_HAL::LedPattern::SOLID
 #define RIDE_RGB_LED_PERIOD_NOGPS 0
-#define RIDE_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
+#define RIDE_RGB_LED_PRIORITY SF_HAL::LedPriority::IMPORTANT
 
 /**
  * The Data Upload RGB LED Color
  */
-#define SF_DUP_RGB_LED_COLOR        RGB_COLOR_BLUE
+#define SF_DUP_RGB_LED_COLOR        0x000000FFu
 #define SF_DUP_RGB_LED_PERIOD       500
-#define SF_DUP_RGB_LED_PRIORITY LED_PRIORITY_IMPORTANT
-#define SF_DUP_RGB_LED_PATTERN LED_PATTERN_BLINK
-#define SF_DUP_CONNECT_RGB_LED_PATTERN LED_PATTERN_FADE
+#define SF_DUP_RGB_LED_PRIORITY SF_HAL::LedPriority::IMPORTANT
+#define SF_DUP_RGB_LED_PATTERN SF_HAL::LedPattern::BLINK
+#define SF_DUP_CONNECT_RGB_LED_PATTERN SF_HAL::LedPattern::FADE
 
-#define SF_TCAL_RGB_LED_COLOR       RGB_COLOR_ORANGE
-#define SF_TCAL_RGB_LED_PATTERN     LED_PATTERN_FADE
+#define SF_TCAL_RGB_LED_COLOR       0x00FFA500u
+#define SF_TCAL_RGB_LED_PATTERN SF_HAL::LedPattern::FADE
 #define SF_TCAL_RGB_LED_PERIOD      3000
-#define SF_TCAL_RGB_LED_PRIORITY    LED_PRIORITY_IMPORTANT
+#define SF_TCAL_RGB_LED_PRIORITY    SF_HAL::LedPriority::IMPORTANT
 
 /**
  * Minimum battery voltage to start an upload
@@ -301,32 +261,7 @@
  */
 #define SF_CLOUD_CONNECT_MAX_ATTEMPTS   5
 
-/**
- * @brief Particle Platform Selector
- *
- */
-#define SF_PLATFORM_PARTICLE 1
-/**
- * @brief GCC Platform Selector
- *
- */
-#define SF_PLATFORM_GLIBC 2
-
-/**
- * @brief GoogleTest Platform Selector
- *
- */
-#define SF_PLATFORM_GOOGLETEST 3
-
-/**
- * @brief Smartfin Platform Designator
- *
- */
-#ifdef PARTICLE
-#define SF_PLATFORM SF_PLATFORM_PARTICLE
-#else
-#define SF_PLATFORM SF_PLATFORM_GLIBC
-#endif
+#include "platform/platform.hpp"
 
 // Transition period policy switches.
 // Later, when recorder is removed, set ENABLE_RECORD_SINK to 0.

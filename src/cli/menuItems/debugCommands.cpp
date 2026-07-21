@@ -8,28 +8,25 @@
 */
 #include "debugCommands.hpp"
 
-#include "Particle.h"
 #include "cellular/recorder.hpp"
 #include "cellular/sf_cloud.hpp"
-#include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "fileCLI/fileCLI.hpp"
-#include "imu/newIMU.hpp"
 #include "mfgTest/mfgTest.hpp"
-#include "product.hpp"
-#include "states.hpp"
+#include "platform/hal.hpp"
 #include "system.hpp"
 
 #include <dirent.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 static MfgTest mfgTask;
 
 void CLI_restart(void)
 {
-    System.reset();
+    SF_HAL::system_reset();
 }
 
 void CLI_displayFLOG(void)
@@ -56,44 +53,53 @@ void CLI_testGetNumFiles(void)
 
 void CLI_createTestFile(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    int fd = open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
+    int fd = ::open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
     SF_OSAL_printf("Error: %d" __NL__, errno);
     SF_OSAL_printf("fd sucsess %d" __NL__, fd);
-    
-    if (fd != -1) {
-        for(int ii = 0; ii < 100; ii++) {
-            String msg = String::format("testing %d\n", ii);
-            SF_OSAL_printf("Creating file with msg %s" __NL__, msg.c_str());
 
-            int i = write(fd, msg.c_str(), msg.length());
+    if (fd != -1)
+    {
+        char msg[32];
+        for (int ii = 0; ii < 100; ii++)
+        {
+            int len = snprintf(msg, sizeof(msg), "testing %d\n", ii);
+            SF_OSAL_printf("Creating file with msg %s" __NL__, msg);
+            int i = (int)::write(fd, msg, (size_t)len);
             SF_OSAL_printf("Sucsess: %d" __NL__, i);
         }
-        close(fd);
+        ::close(fd);
     }
-#endif
 }
 
+/**
+ * @brief Deletes every file under the recorder data root.
+ *
+ * Scoped to @c DATA_ROOT rather than the filesystem root so this cannot
+ * delete unrelated files (e.g. the host filesystem's root directory when
+ * running under the PC/GLibC build, where DATA_ROOT is a real POSIX path).
+ */
 void CLI_wipeFileSystem(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    DIR* directory = opendir("");
-    if (directory == 0)
+    DIR* directory = ::opendir(DATA_ROOT);
+    if (directory == nullptr)
     {
-        closedir(directory);
-    } 
-
-    while (readdir(directory) != NULL)
-    {
-        unlink(readdir(directory)->d_name);
+        return;
     }
-#endif
+
+    struct dirent* entry;
+    while ((entry = ::readdir(directory)) != nullptr)
+    {
+        char path[NAME_MAX + sizeof(DATA_ROOT) + 1];
+        snprintf(path, sizeof(path), DATA_ROOT "/%s", entry->d_name);
+        ::unlink(path);
+    }
+    ::closedir(directory);
 }
 
 void CLI_checkCharging(void) 
 {
-    SF_OSAL_printf("Charging? %d" __NL__, System.batteryState() == BATTERY_STATE_CHARGING);
-    SF_OSAL_printf("Powered? %d" __NL__, digitalRead(SF_USB_PWR_DETECT_PIN));
+    SF_OSAL_printf("Charging? %d" __NL__, SF_HAL::battery_state() == SF_HAL::BatteryState::CHARGING);
+    SF_OSAL_printf("Powered? %d" __NL__, SF_HAL::gpio_read(SF_HAL::PinId::UsbPwrDetect));
 }
 
 void CLI_testPrintf(void)
@@ -189,7 +195,7 @@ void CLI_monitorWetDry(void)
 
         SF_OSAL_printf("%10d %6d\r", waterDetect, water_status);
 
-        delay(500);
+        SF_HAL::delay_ms(500);
     }
     SF_OSAL_printf(__NL__);
 }
@@ -208,7 +214,6 @@ void CLI_initCloudCounters(void)
 
 void CLI_dumpIMURegs(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
     pSystemDesc->pIMU->dumpRegs(SF_OSAL_printf);
-#endif
 }

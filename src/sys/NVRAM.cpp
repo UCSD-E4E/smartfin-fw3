@@ -16,8 +16,6 @@
 
 #include <cstddef>
 
-#include "Particle.h"
-
 NVRAM& NVRAM::getInstance(void)
 {
     static NVRAM NVRAM_instance;

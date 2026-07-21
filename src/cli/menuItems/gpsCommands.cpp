@@ -3,7 +3,6 @@
 
 #if SF_ENABLE_GPS
 
-#include "Particle.h"
 #include "cli/conio.hpp"
 #include "consts.hpp"
 #include "location_service.h"

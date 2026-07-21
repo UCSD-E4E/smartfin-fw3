@@ -1,9 +1,9 @@
 #include "sleepTask.hpp"
 
-#include "Particle.h"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"
 
@@ -17,7 +17,7 @@ void SleepTask::init(void)
     this->ledStatus.setPriority(SLEEP_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
 
-    if(digitalRead(SF_USB_PWR_DETECT_PIN))
+    if (SF_HAL::gpio_read(SF_HAL::PinId::UsbPwrDetect))
     {
         SF_OSAL_printf("USB detected, returning!" __NL__);
         return;
@@ -37,42 +37,42 @@ void SleepTask::init(void)
     SYS_deinitSys();
 
     // Turn off wet/dry LED before sleeping
-    pinMode(WATER_STATUS_LED, OUTPUT);
-    digitalWrite(WATER_STATUS_LED, LOW);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::WaterStatusLed, SF_HAL::GpioMode::OUTPUT);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterStatusLed, SF_HAL::GpioState::LOW);
 
     // Set WATER_EN LOW so that we can wake from it
-    digitalWrite(WATER_DETECT_EN_PIN, LOW);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterDetectEn, SF_HAL::GpioState::LOW);
 
-    FLOG_AddError(FLOG_SYS_SLEEP, millis());
+    FLOG_AddError(FLOG_SYS_SLEEP, SF_HAL::millis());
     FLOG_AddError(FLOG_SYS_SLEEP, behavior);
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
     switch(behavior)
     {
         case BOOT_BEHAVIOR_UPLOAD_REATTEMPT:
 
             SF_OSAL_printf("REUPLOAD" __NL__);
-            if (digitalRead(WKP_PIN) == HIGH)
+            if (SF_HAL::gpio_read(SF_HAL::PinId::Wkp))
             {
-                System.sleep(SLEEP_MODE_SOFTPOWEROFF);
+                SF_HAL::system_sleep(SF_HAL::SleepMode::SOFT_POWER_OFF);
                 break;
             }
             else
             {
-                SF_OSAL_printf("Waking up in %ld seconds...ZZZzzzzz" __NL__, SF_UPLOAD_REATTEMPT_DELAY_SEC);
-                System.sleep(SLEEP_MODE_SOFTPOWEROFF, SF_UPLOAD_REATTEMPT_DELAY_SEC);
+                SF_OSAL_printf("Waking up in %ld seconds...ZZZzzzzz" __NL__,
+                               SF_UPLOAD_REATTEMPT_DELAY_SEC);
+                SF_HAL::system_sleep(SF_HAL::SleepMode::SOFT_POWER_OFF,
+                                     SF_UPLOAD_REATTEMPT_DELAY_SEC);
                 break;
             }
         default:
-            digitalWrite(WKP, LOW);
-            SystemSleepConfiguration config;
-            config.mode(SystemSleepMode::HIBERNATE).gpio(WKP, RISING);
-            System.sleep(config);
+            SF_HAL::gpio_write(SF_HAL::PinId::Wkp, SF_HAL::GpioState::LOW);
+            SF_HAL::system_sleep_gpio_wake(SF_HAL::PinId::Wkp);
             break;
     }
-#endif
+
     //safety
     SF_OSAL_printf("System going down!" __NL__);
-    System.reset();
+    SF_HAL::system_reset();
 }
 
 STATES_e SleepTask::run(void)

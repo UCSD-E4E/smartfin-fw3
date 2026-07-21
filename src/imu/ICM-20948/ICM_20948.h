@@ -2,6 +2,10 @@
 
 A C++ interface to the ICM-20948
 
+TODO(290-hal-clean): This vendor header includes Particle.h unconditionally,
+transitively coupling any file that includes it to the Particle SDK. Guard
+with #ifdef PARTICLE once the IMU driver is wrapped behind a HAL interface.
+
 */
 
 #ifndef _ICM_20948_H_
@@ -10,7 +14,13 @@ A C++ interface to the ICM-20948
 #include "util/ICM_20948_C.h" // The C backbone. ICM_20948_USE_DMP is defined in here.
 #include "util/AK09916_REGISTERS.h"
 
+#ifdef PARTICLE
 #include "Particle.h"
+#endif
+
+#ifndef ARDUINO
+class __FlashStringHelper;
+#endif
 
 #define ICM_20948_ARD_UNUSED_PIN 0xFF
 

@@ -3,12 +3,14 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
-#include "product.hpp" // Added by PJB. Is it conventional to do this? Not sure but we need USB_PWR_DETECT_PIN
+#include "platform/hal.hpp"
+#include "product.hpp"
+#include "sys/NVRAM.hpp"
 #include "system.hpp"
 
 uint8_t water_detect_array[WATER_DETECT_ARRAY_SIZE];
 
-WaterSensor::WaterSensor(uint8_t water_detect_en_pin_to_set, uint8_t water_detect_pin_to_set)
+WaterSensor::WaterSensor(SF_HAL::PinId water_detect_en_pin_to_set, SF_HAL::PinId water_detect_pin_to_set)
     : water_detect_en_pin(water_detect_en_pin_to_set), water_detect_pin(water_detect_pin_to_set),
       moving_window_size(0)
 {
@@ -198,10 +200,10 @@ uint8_t WaterSensor::getCurrentReading()
 {
     uint8_t temp_8;
 
-    digitalWrite(water_detect_en_pin, HIGH);
-    delayMicroseconds(WATER_DETECT_EN_TIME_US);
-    temp_8 = digitalRead(water_detect_pin); // comment out if using above logic block
-    digitalWrite(water_detect_en_pin, LOW);
+    SF_HAL::gpio_write(water_detect_en_pin, SF_HAL::GpioState::HIGH);
+    SF_HAL::delay_us(WATER_DETECT_EN_TIME_US);
+    temp_8 = SF_HAL::gpio_read(water_detect_pin); // comment out if using above logic block
+    SF_HAL::gpio_write(water_detect_en_pin, SF_HAL::GpioState::LOW);
 
     return temp_8; // comment out if using above logic block
 }

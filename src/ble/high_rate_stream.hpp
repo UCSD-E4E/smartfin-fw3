@@ -1,5 +1,5 @@
-#ifndef __HIGH_RATE_STREAM_HPP__
-#define __HIGH_RATE_STREAM_HPP__
+#ifndef HIGH_RATE_STREAM_HPP
+#define HIGH_RATE_STREAM_HPP
 
 /**
  * @file high_rate_stream.hpp
@@ -11,13 +11,11 @@
 #include "ble/ble_packet_builder.hpp"
 #include "ble/high_rate_record.hpp"
 #include "ble/spsc_queue.hpp"
+#include "platform/hal.hpp"
 
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "Particle.h"
-#endif
 
 /**
  * @brief Singleton transport service handling all BLE TX and recorder writes.
@@ -50,6 +48,7 @@ public:
      * @return false if the queue is full or stream not running.
      */
     bool enqueueImuRecord(const HighRateImuRecord& record);
+    bool enqueueImuQuatRecord(const HighRateImuQuatRecord& record);
 
     /**
      * @brief Transport-side service loop; called only by the transport thread.
@@ -106,10 +105,8 @@ private:
     std::atomic<bool> running_;
     /** @brief True when a stop has been requested (drain remaining work). */
     std::atomic<bool> stopRequested_;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     /** @brief Background thread handle for transportLoop(). */
-    Thread* transportThread_;
-#endif
+    void *transportThread_;
     /** @brief True while the transport thread is running. */
     std::atomic<bool> transportActive_;
     /** @brief True while producers are allowed to enqueue. */
@@ -124,8 +121,10 @@ private:
     /** @brief Count of BLE notify failures. */
     std::atomic<uint32_t> notifyFailures_;
 
-    /** @brief Lock-free queue holding pending IMU records. */
+    /** @brief Lock-free queue holding pending Ensemble12 IMU records (0x0C). */
     sf::util::SpscQueue<HighRateImuRecord, 512> recordQueue_;
+    /** @brief Lock-free queue holding pending Ensemble13 IMU+Quat records (0x0D). */
+    sf::util::SpscQueue<HighRateImuQuatRecord, 512> quatRecordQueue_;
     /** @brief Builder used to batch IMU records into BLE packets. */
     sf::ble::transport::PacketBuilder packetBuilder_;
 
@@ -173,4 +172,4 @@ private:
     uint32_t lastFlushMs_;
 };
 
-#endif // __HIGH_RATE_STREAM_HPP__
+#endif // HIGH_RATE_STREAM_HPP

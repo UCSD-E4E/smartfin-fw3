@@ -2,7 +2,9 @@
 #define __SYSTEM_HPP__
 
 #include "cellular/recorder.hpp"
-#include "imu/newIMU.hpp"
+#include "imu/imu_interface.hpp"
+#include "platform/hal.hpp"
+#include "platform/hal_types.hpp"
 #include "product.hpp"
 #if SF_ENABLE_GPS
 #include "location_service.h"
@@ -46,14 +48,14 @@ typedef struct SystemDesc_
     Recorder* pRecorder;
     /**
      * @brief Pointer to Timer object that regularly checks if device is charging
-     * 
+     *
      */
-    Timer* pChargerCheck;
+    SF_HAL::Timer *pChargerCheck;
     /**
      * @brief Pointer to Timer object that regularly checks if device is in water
-     * 
+     *
      */
-    Timer* pWaterCheck;
+    SF_HAL::Timer *pWaterCheck;
     /**
      * @brief Counts number of times device is checked for if it is in water
      */
@@ -92,17 +94,12 @@ typedef struct SystemDesc_
      * @brief Pointer to LEDSystemTheme object that handles LED color and pattern settings
      * 
      */
-    LEDSystemTheme* systemTheme;
-    /**
-     * @brief Pointer to FuelGauge object that handles voltage readings
-     * 
-     */
-    FuelGauge* pBattery;
+    SF_HAL::LedSystemTheme* systemTheme;
     /**
      * @brief Pointer to IMU object
      *
      */
-    IMU *pIMU;
+    IIMU *pIMU;
     /**
      * @brief Pointer to SystemFlags_t object that contains current system status flag
      *

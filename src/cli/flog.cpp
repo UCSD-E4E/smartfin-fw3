@@ -13,9 +13,11 @@
 
 #include "conio.hpp"
 #include "consts.hpp"
-#include "product.hpp"
+#include "platform/hal.hpp"
+#include "platform/hal_types.hpp"
 
-#include <Particle.h>
+#include <cstdio>
+#include <cstring>
 
 typedef struct FLOG_Entry_
 {
@@ -37,7 +39,7 @@ typedef struct FLOG_Message_
     const char* message;
 }FLOG_Message_t;
 
-retained FLOG_Data_t flogData;
+PLATFORM_RETAINED FLOG_Data_t flogData;
 static char FLOG_unknownMessage[256];
 
 static const char* FLOG_FindMessage(FLOG_CODE_e code);
@@ -147,7 +149,7 @@ void FLOG_AddError(FLOG_CODE_e errorCode, FLOG_VALUE_TYPE parameter)
     }
 
     pEntry = &flogData.flogEntries[(flogData.numEntries) & (FLOG_NUM_ENTRIES - 1)];
-    pEntry->timestamp_ms = millis();
+    pEntry->timestamp_ms = SF_HAL::millis();
     pEntry->errorCode = errorCode;
     pEntry->param = parameter;
     flogData.numEntries++;
@@ -197,7 +199,7 @@ static const char* FLOG_FindMessage(FLOG_CODE_e code)
             return pEntry->message;
         }
     }
-    sprintf(FLOG_unknownMessage, "Unknown FLOG Code: 0x%04X", code);
+    snprintf(FLOG_unknownMessage, sizeof(FLOG_unknownMessage), "Unknown FLOG Code: 0x%04X", code);
     return FLOG_unknownMessage;
 }
 

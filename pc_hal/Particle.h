@@ -98,6 +98,8 @@ USARTSerial &__get_default_serial();
 class SPIClass
 {
 };
+#define SPI __fetch_global_SPI()
+SPIClass& __fetch_global_SPI();
 
 class String
 {
@@ -137,6 +139,7 @@ typedef struct
 {
 
 } __SPISettings;
+typedef __SPISettings SPISettings;
 
 class os_queue_t
 {
@@ -367,9 +370,8 @@ public:
 #define Time __fetch_global_time()
 TimeClass &__fetch_global_time();
 
-#define millis Time.now
-// TODO Fixme
-#define micros Time.now
+inline uint32_t millis() { return __fetch_global_time().now(); }
+inline uint32_t micros() { return __fetch_global_time().now() * 1000000; }
 #define delay Time.delay
 #define delayMicroseconds Time.delayMicroseconds
 

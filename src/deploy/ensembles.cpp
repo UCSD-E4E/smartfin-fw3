@@ -7,22 +7,17 @@
  */
 #include "ensembles.hpp"
 
+#include "ble/ble_live_stream.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "deploy/ensemble_commit.hpp"
-#include "imu/newIMU.hpp"
 #include "product.hpp"
 #include "scheduler.hpp"
 #include "system.hpp"
-#include "util.hpp"
 #include "vers.hpp"
-#include "ble/high_rate_stream.hpp"
-#include "ble/ble_live_stream.hpp"
 
 #include <cmath>
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "Particle.h"
-#endif
 
 /**
  * @brief Ensemble 01 (Temperature)
@@ -185,7 +180,7 @@ void SS_ensemble08Init(DeploymentSchedule_t *pDeployment)
 
 void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
     float temp = NAN;
     uint8_t water = UINT8_MAX;
 #if SF_ENABLE_GPS
@@ -304,12 +299,11 @@ void SS_ensemble10Func(DeploymentSchedule_t *pDeployment)
 
         memset(pData, 0, sizeof(Ensemble10_eventData_t));
     }
-#endif
 }
 
 void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
     float battVoltage;
     Ensemble07_eventData_t *pData = (Ensemble07_eventData_t *)pDeployment->state.pData;
 #pragma pack(push, 1)
@@ -321,7 +315,7 @@ void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
 #pragma pack(pop)
 
     // obtain measurements
-    battVoltage = pSystemDesc->pBattery->getVCell();
+    battVoltage = SF_HAL::battery_voltage();
 
     // accumulate measurements
     pData->battVoltage += battVoltage;
@@ -337,12 +331,11 @@ void SS_ensemble07Func(DeploymentSchedule_t *pDeployment)
         sf::deploy::commitEnsemble(&ensData, sizeof(ensData));
         memset(pData, 0, sizeof(Ensemble07_eventData_t));
     }
-#endif
 }
 
 void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
     float temp;
     uint8_t water;
 
@@ -375,12 +368,11 @@ void SS_ensemble08Func(DeploymentSchedule_t *pDeployment)
         ens.ensData.scaled_temp = (temp * Q7_SCALAR);
         ens.ensData.water = water;
 
-        uint32_t unixEstimate = BleLiveStream::getInstance().estimateUnixTime(millis());
+        uint32_t unixEstimate = BleLiveStream::getInstance().estimateUnixTime(SF_HAL::millis());
         ens.ensData.timestamp = unixEstimate; // 0 indicates unsynced
         sf::deploy::commitEnsemble(&ens, sizeof(ens));
         memset(pData, 0, sizeof(Ensemble08_eventData_t));
     }
-#endif
 }
 
 /**
@@ -462,7 +454,7 @@ void SS_Ensemble12_x0C_Init(DeploymentSchedule_t *pDeployment)
  */
 void SS_Ensemble12_x0C_Func(DeploymentSchedule_t *pDeployment)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
 #pragma pack(push, 1)
     struct
     {
@@ -492,8 +484,72 @@ void SS_Ensemble12_x0C_Func(DeploymentSchedule_t *pDeployment)
     record.header = ensData.header;
     record.data = ensData.data;
     TransportService::getInstance().enqueueImuRecord(record);
+}
+/** @} */
 
-#endif
+/**
+ * \defgroup hdr_imu_quat_ens High Data Rate IMU + Quat9 Ensemble
+ * @{
+ */
+
+/**
+ * @brief Initialization function for high data rate IMU with Quat9
+ *
+ * @param pDeployment Deployment event
+ */
+void SS_HighRateIMU_x0D_Init(DeploymentSchedule_t *pDeployment)
+{
+    (void)pDeployment;
+}
+
+/**
+ * @brief Measurement function for high data rate IMU with Quat9
+ *
+ * Packs accelerometer (Q9), gyroscope (Q7), magnetometer (Q3), and the
+ * DMP Quat9 orientation quaternion (Q30) + heading accuracy (Q12).
+ *
+ * @param pDeployment Deployment event
+ */
+void SS_HighRateIMU_x0D_Func(DeploymentSchedule_t *pDeployment)
+{
+
+#pragma pack(push, 1)
+    struct
+    {
+        EnsembleHeader_t header;
+        Ensemble13_data_t data;
+    } ensData;
+#pragma pack(pop)
+    float accel[3], gyro[3], mag[3];
+    int32_t q1, q2, q3;
+    int16_t acc_q12;
+
+    pSystemDesc->pIMU->getDmpAccel_ms2(accel[0], accel[1], accel[2]);
+    pSystemDesc->pIMU->getDmpRotVel_dps(gyro[0], gyro[1], gyro[2]);
+    pSystemDesc->pIMU->getDmpMag_uT(mag[0], mag[1], mag[2]);
+    pSystemDesc->pIMU->getRawQuat9(q1, q2, q3, acc_q12);
+
+    ensData.data.acceleration_ms2_q9[0] = static_cast<int16_t>(accel[0] * Q9_SCALAR);
+    ensData.data.acceleration_ms2_q9[1] = static_cast<int16_t>(accel[1] * Q9_SCALAR);
+    ensData.data.acceleration_ms2_q9[2] = static_cast<int16_t>(accel[2] * Q9_SCALAR);
+    ensData.data.angularVel_dps_q7[0] = static_cast<int16_t>(gyro[0] * Q7_SCALAR);
+    ensData.data.angularVel_dps_q7[1] = static_cast<int16_t>(gyro[1] * Q7_SCALAR);
+    ensData.data.angularVel_dps_q7[2] = static_cast<int16_t>(gyro[2] * Q7_SCALAR);
+    ensData.data.magIntensity_uT_q3[0] = static_cast<int16_t>(mag[0] * Q3_SCALAR);
+    ensData.data.magIntensity_uT_q3[1] = static_cast<int16_t>(mag[1] * Q3_SCALAR);
+    ensData.data.magIntensity_uT_q3[2] = static_cast<int16_t>(mag[2] * Q3_SCALAR);
+    ensData.data.quat9_q30[0] = q1;
+    ensData.data.quat9_q30[1] = q2;
+    ensData.data.quat9_q30[2] = q3;
+    ensData.data.quat9_accuracy_q12 = acc_q12;
+
+    ensData.header.ensembleType = ENS_HIGH_DATA_RATE_IMU_QUAT;
+    ensData.header.elapsedTime_ms = Ens_getStartTime();
+
+    HighRateImuQuatRecord record;
+    record.header = ensData.header;
+    record.data = ensData.data;
+    TransportService::getInstance().enqueueImuQuatRecord(record);
 }
 /** @} */
 

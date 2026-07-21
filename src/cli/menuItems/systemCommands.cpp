@@ -9,8 +9,9 @@
 
 #include "systemCommands.hpp"
 
-#include "Particle.h"
 #include "cellular/sf_cloud.hpp"
+#include "platform/hal.hpp"
+#include "platform/platform.hpp"
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
@@ -22,7 +23,7 @@
 void CLI_connect(void)
 {
     int retval = sf::cloud::wait_connect(30000, true);
-    Particle.syncTime();
+    SF_HAL::cloud_sync_time();
     if (0 == retval)
     {
         SF_OSAL_printf("Connected" __NL__);
@@ -48,7 +49,7 @@ void CLI_doSleep(void)
 void CLI_doUpload(void)
 {
     char integer_string[64];
-    int integer = Time.now();
+    int integer = static_cast<int>(SF_HAL::time_now());
 
     char other_string[64] = "Session: ";
     sprintf(integer_string, "%d", integer);
@@ -56,7 +57,7 @@ void CLI_doUpload(void)
     strcat(other_string, integer_string);
 
     int success = sf::cloud::publish_blob(other_string, "Particle was here!");
-    SF_OSAL_printf("Particle publish: %d" __NL__, success);
+    SF_OSAL_printf("%s publish: %d" __NL__, SF_HAL::PLATFORM, success);
 }
 
 void CLI_self_identify(void)

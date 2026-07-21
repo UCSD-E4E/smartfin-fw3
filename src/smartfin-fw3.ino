@@ -4,14 +4,14 @@
  * Author:
  * Date:
  */
-#include "Particle.h"
+
 #include "cellular/dataUpload.hpp"
-#include "cellular/sf_cloud.hpp"
 #include "chargeTask.hpp"
 #include "cli/cli.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "rideTask.hpp"
 #include "sleepTask.hpp"
@@ -61,12 +61,6 @@ void mainFunc(void);
 void mainLoop(void *args);
 static void printState(STATES_e state);
 
-/**
- * @brief Main thread object
- *
- */
-Thread __sf_main_thread;
-
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 /**
  * @brief System panic counter
@@ -77,13 +71,13 @@ Thread __sf_main_thread;
  *
  * This will reset on new firmware and successful boot
  */
-retained std::uint32_t panicCount[3];
+PLATFORM_RETAINED std::uint32_t panicCount[3];
 #endif
 
 // setup() runs once, when the device is first turned on.
 void setup()
 {
-    System.enableFeature(FEATURE_RESET_INFO);
+    SF_HAL::reset_info_enable();
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     if (panicCount[0] != ~panicCount[1] && panicCount[2] != ~module_info_crc.crc32)
     {
@@ -95,15 +89,15 @@ void setup()
     SF_OSAL_init_conio();
 
     FLOG_Initialize();
-    time32_t bootTime = Time.now();
+    uint32_t bootTime = SF_HAL::time_now();
     FLOG_AddError(FLOG_SYS_START, bootTime);
     SF_OSAL_printf("Boot time: %" PRId32 __NL__, bootTime);
 
-    FLOG_AddError(FLOG_RESET_REASON, System.resetReason());
-    FLOG_AddError(FLOG_RESET_REASON_DATA, System.resetReasonData());
+    FLOG_AddError(FLOG_RESET_REASON, static_cast<uint32_t>(SF_HAL::reset_reason()));
+    FLOG_AddError(FLOG_RESET_REASON_DATA, SF_HAL::reset_reason_data());
 
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    if (System.resetReason() == RESET_REASON_PANIC)
+    if (SF_HAL::reset_reason() == SF_HAL::ResetReason::PANIC)
     {
         panicCount[0]++;
     }
@@ -120,8 +114,8 @@ void setup()
             SF_OSAL_printf("Boot loop!" __NL__);
             VERS_printBanner();
             FLOG_DisplayLog();
-            Particle.process();
-            delay(1000);
+            SF_HAL::cloud_process();
+            SF_HAL::delay_ms(1000);
         }
     }
 #endif
@@ -129,15 +123,18 @@ void setup()
     SYS_initSys();
 
     initalizeTaskObjects();
-    __sf_main_thread = Thread(
-        "SF_main", mainLoop, NULL, OS_THREAD_PRIORITY_DEFAULT, OS_THREAD_STACK_SIZE_DEFAULT_HIGH);
+    SF_HAL::thread_create("SF_main",
+                          mainLoop,
+                          nullptr,
+                          SF_HAL::ThreadPriority::NORMAL,
+                          SF_HAL::THREAD_STACK_SIZE_DEFAULT_HIGH);
 }
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop()
 {
     // mainThread(NULL);
-    delay(1);
+    SF_HAL::delay_ms(1);
 }
 
 /**

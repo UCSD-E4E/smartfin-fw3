@@ -8,14 +8,12 @@
  * 
  */
 
-
 #include "led.hpp"
 
-#include "Particle.h"
-
+#include "platform/hal.hpp"
 SFLed* SFLed::firstLED = NULL;
 
-SFLed::SFLed(uint8_t pin, SFLed::SFLED_State_e state)
+SFLed::SFLed(SF_HAL::PinId pin, SFLed::SFLED_State_e state)
 {
     this->pin = pin;
     this->state = state;
@@ -23,16 +21,17 @@ SFLed::SFLed(uint8_t pin, SFLed::SFLED_State_e state)
 
 void SFLed::init(void)
 {
-    pinMode(this->pin, OUTPUT);
+    SF_HAL::gpio_set_mode(this->pin, SF_HAL::GpioMode::OUTPUT);
+
     switch(this->state)
     {
         case SFLed::SFLED_STATE_BLINK:
         case SFLed::SFLED_STATE_ON:
-            digitalWrite(this->pin, SF_LED_ON_VALUE);
+            SF_HAL::gpio_write(this->pin, SF_LED_ON_VALUE);
             break;
         default:
         case SFLed::SFLED_STATE_OFF:
-            digitalWrite(this->pin, SF_LED_OFF_VALUE);
+            SF_HAL::gpio_write(this->pin, SF_LED_OFF_VALUE);
             break;
     }
 
@@ -44,8 +43,8 @@ void SFLed::init(void)
 SFLed::~SFLed(void)
 {
     SFLed* node = SFLed::firstLED;
-    pinMode(this->pin, INPUT);
-    
+    SF_HAL::gpio_set_mode(this->pin, SF_HAL::GpioMode::INPUT);
+
     // remove self from linkedlist
     while(node != this)
     {
@@ -92,16 +91,20 @@ void SFLed::doLEDs(void)
         switch(node->state)
         {
             case SFLed::SFLED_STATE_OFF:
-                digitalWriteFast(node->pin, SF_LED_OFF_VALUE);
+                SF_HAL::gpio_write_fast(node->pin, SF_LED_OFF_VALUE);
                 break;
             
             case SFLed::SFLED_STATE_ON:
-                digitalWriteFast(node->pin, SF_LED_ON_VALUE);
+                SF_HAL::gpio_write_fast(node->pin, SF_LED_ON_VALUE);
                 break;
 
             case SFLed::SFLED_STATE_BLINK:
-                digitalWriteFast(node->pin, !pinReadFast(node->pin));
+            {
+                SF_HAL::GpioState next = SF_HAL::gpio_read_fast(node->pin)
+                    ? SF_HAL::GpioState::LOW : SF_HAL::GpioState::HIGH;
+                SF_HAL::gpio_write_fast(node->pin, next);
                 break;
+            }
         }
     }
 }

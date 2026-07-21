@@ -11,7 +11,6 @@
 #include "product.hpp"
 #include "sleepTask.hpp"
 
-#include "Particle.h"
 
 void DataUpload::init(void)
 {
@@ -27,7 +26,7 @@ void DataUpload::init(void)
     {
         this->initSuccess = 0;
     }
-    Particle.syncTime();
+    SF_HAL::cloud_sync_time();
 }
 
 STATES_e DataUpload::can_upload(void)
@@ -59,7 +58,7 @@ STATES_e DataUpload::can_upload(void)
         return STATE_DEPLOYED;
     }
 
-    if (pSystemDesc->pBattery->getVCell() < SF_BATTERY_UPLOAD_VOLTAGE)
+    if (SF_HAL::battery_voltage() < SF_BATTERY_UPLOAD_VOLTAGE)
     {
         return STATE_DEEP_SLEEP;
     }
@@ -167,7 +166,7 @@ STATES_e DataUpload::run(void)
 
         SF_OSAL_printf("Uploaded record" __NL__);
 
-        Particle.process();
+        SF_HAL::cloud_process();
 
         switch (pSystemDesc->pRecorder->popLastPacket(nBytesToEncode))
         {

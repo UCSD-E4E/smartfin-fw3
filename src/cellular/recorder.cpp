@@ -17,23 +17,22 @@
 #include "consts.hpp"
 #include "product.hpp"
 #include "system.hpp"
-#include "util.hpp"
 
+#include <cstring>
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
-#include <stddef.h>
-#include <string.h>
 #include <sys/stat.h>
-
+#include <time.h>
+#include <unistd.h>
 
 #define REC_DEBUG
 
-#define DATA_ROOT "/data"
 #define METADATA_FILE DATA_ROOT "/.metadata"
 static int REC_create_data_root(void);
 /**
  * @brief Builds the data filename
- * 
+ *
  * @param session_idx Session index
  * @param p_filename_buf Pointer to filename buffer
  * @param filename_buf_len Length of filename buffer
@@ -47,9 +46,8 @@ static inline void REC_build_data_filename(uint32_t session_idx,
 
 int Recorder::create_metadata_file(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     struct stat stat_result;
-    int result = stat(METADATA_FILE, &stat_result);
+    int result = ::stat(METADATA_FILE, &stat_result);
     int fp;
 
     memset(&this->metadata_header, 0, sizeof(metadata_header_t));
@@ -83,8 +81,8 @@ int Recorder::create_metadata_file(void)
         }
 #ifdef REC_DEBUG
         SF_OSAL_printf("REC::create_metadata_file: dir in the way!" __NL__);
-    #endif
-        unlink(METADATA_FILE);
+#endif
+        ::unlink(METADATA_FILE);
     }
     else
     {
@@ -93,7 +91,7 @@ int Recorder::create_metadata_file(void)
 #ifdef REC_DEBUG
             SF_OSAL_printf("REC::create_metadata_file: Failed to stat: %d" __NL__,
                            errno);
-        #endif
+#endif
             FLOG_AddError(FLOG_FS_STAT_FAIL, errno);
             return 0;
         }
@@ -119,41 +117,39 @@ int Recorder::create_metadata_file(void)
         return 0;
     }
     this->metadata_header_valid = true;
-#endif
     return 1;
 }
 
 int REC_create_data_root(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     struct stat stat_result;
 
-    int result = stat(DATA_ROOT, &stat_result);
+    int result = ::stat(DATA_ROOT, &stat_result);
     if (0 == result)
     {
         if ((stat_result.st_mode & S_IFDIR) != 0)
         {
             return 1;
         }
-    #ifdef REC_DEBUG
+#ifdef REC_DEBUG
         SF_OSAL_printf("REC::create_data_root: file in the way!" __NL__);
-    #endif
-        unlink(DATA_ROOT);
+#endif
+        ::unlink(DATA_ROOT);
     }
     else
     {
         if (ENOENT != errno)
         {
-        #ifdef REC_DEBUG
+#ifdef REC_DEBUG
             SF_OSAL_printf("REC::create_data_root: Failed to stat: %d" __NL__,
                            errno);
-        #endif
-        FLOG_AddError(FLOG_FS_STAT_FAIL, errno);
-        return 0;
+#endif
+            FLOG_AddError(FLOG_FS_STAT_FAIL, errno);
+            return 0;
         }
     }
 
-    result = mkdir(DATA_ROOT, 0777);
+    result = ::mkdir(DATA_ROOT, 0777);
     if (0 == result)
     {
         return 1;
@@ -162,7 +158,6 @@ int REC_create_data_root(void)
     SF_OSAL_printf("REC::create_data_root: Failed to create: %d" __NL__, errno);
 #endif
     FLOG_AddError(FLOG_FS_MKDIR_FAIL, errno);
-#endif
     return 0;
 }
 
@@ -185,7 +180,7 @@ int Recorder::init(void)
 
 /**
  * @brief Opens the last Session with data and stores the name
- * 
+ *
  * @param session Session object to populate
  * @param p_name_buf Session Name buffer, must be at least NAME_MAX long
  * @return 0 on success, otherwise error code
@@ -267,8 +262,10 @@ int Recorder::openLastSession(Deployment& session, char* p_name_buf)
         */
         if (0 != entry.timestamp)
         {
-            String fmt_time = Time.format(entry.timestamp, "%y%m%d-%H%M%S");
-            snprintf(p_name_buf, NAME_MAX, "%s", fmt_time.c_str());
+            time_t ts = (time_t)entry.timestamp;
+            struct tm tm_info;
+            gmtime_r(&ts, &tm_info);
+            strftime(p_name_buf, NAME_MAX, "%y%m%d-%H%M%S", &tm_info);
         }
         else
         {
@@ -416,7 +413,7 @@ int Recorder::setSessionTime(uint32_t session_time)
         return 0;
     }
 
-    this->time_set = true;    
+    this->time_set = true;
     if (0 != set_metadata_entry_time(this->current_session_index, session_time))
     {
         return 3;
@@ -518,7 +515,6 @@ int Recorder::putBytes(const void* pData, size_t nBytes)
  */
 int Recorder::pop_metadata_entry(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     off_t final_length;
 
@@ -538,7 +534,7 @@ int Recorder::pop_metadata_entry(void)
         return 1;
     }
 
-    final_length = sizeof(metadata_header_t) + 
+    final_length = sizeof(metadata_header_t) +
         this->metadata_header.n_entries * sizeof(timestamp_entry_t);
     if (0 != ::ftruncate(fp, final_length))
     {
@@ -546,19 +542,17 @@ int Recorder::pop_metadata_entry(void)
         ::close(fp);
         return 1;
     }
-    
+
     if (0 != ::close(fp))
     {
         FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
         return 1;
     }
-#endif
     return 0;
 }
 
 int Recorder::push_metadata_entry(uint32_t session_idx)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     timestamp_entry_t entry;
 
@@ -595,13 +589,11 @@ int Recorder::push_metadata_entry(uint32_t session_idx)
         FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
         return 1;
     }
-#endif
     return 0;
-
 }
+
 int Recorder::set_metadata_entry_time(uint32_t session_idx, uint32_t timestamp)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     timestamp_entry_t entry;
     int bytes_read;
@@ -622,7 +614,7 @@ int Recorder::set_metadata_entry_time(uint32_t session_idx, uint32_t timestamp)
             ::close(fp);
             return 2;
         }
-        if (sizeof(timestamp_entry_t) != bytes_read)
+        if (sizeof(timestamp_entry_t) != (size_t)bytes_read)
         {
             FLOG_AddError(FLOG_REC_METADATA_BAD, 0);
             ::close(fp);
@@ -633,7 +625,7 @@ int Recorder::set_metadata_entry_time(uint32_t session_idx, uint32_t timestamp)
             continue;
         }
         entry.timestamp = timestamp;
-        ::lseek(fp, -sizeof(timestamp_entry_t), SEEK_CUR);
+        ::lseek(fp, -(off_t)sizeof(timestamp_entry_t), SEEK_CUR);
         if (sizeof(timestamp_entry_t) != ::write(fp,
                                                  &entry,
                                                  sizeof(timestamp_entry_t)))
@@ -649,16 +641,14 @@ int Recorder::set_metadata_entry_time(uint32_t session_idx, uint32_t timestamp)
         FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
         return 5;
     }
-#endif
     return 0;
 }
 
 int Recorder::peek_last_metadata_entry(timestamp_entry_t& entry)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fp;
     off_t entry_pos;
-    entry_pos = sizeof(metadata_header_t) + 
+    entry_pos = sizeof(metadata_header_t) +
                 (this->metadata_header.n_entries - 1) * sizeof(timestamp_entry_t);
     fp = ::open(METADATA_FILE, O_RDONLY);
     if (-1 == fp)
@@ -680,7 +670,6 @@ int Recorder::peek_last_metadata_entry(timestamp_entry_t& entry)
         FLOG_AddError(FLOG_FS_CLOSE_FAIL, errno);
         return 3;
     }
-#endif
     return 0;
 }
 
@@ -695,19 +684,20 @@ char path_buf[PATH_MAX + 1];
  */
 int rmtree(DIR *const dir_to_remove, char *const prefix)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     const struct dirent *dir_entry;
     int retval;
     char *const next_path_element = prefix + strlen(prefix);
     errno = 0;
-    for (dir_entry = readdir(dir_to_remove); dir_entry; dir_entry = readdir(dir_to_remove))
+    for (dir_entry = ::readdir(dir_to_remove);
+         dir_entry;
+         dir_entry = ::readdir(dir_to_remove))
     {
         if (dir_entry->d_type & DT_REG)
         {
             // This is a regular file.  Make full path, then unlink
             strncpy(next_path_element, dir_entry->d_name, NAME_MAX);
             errno = 0;
-            retval = unlink(prefix);
+            retval = ::unlink(prefix);
             *next_path_element = 0;
             if (-1 == retval)
             {
@@ -727,7 +717,7 @@ int rmtree(DIR *const dir_to_remove, char *const prefix)
             strncpy(next_path_element, dir_entry->d_name, NAME_MAX);
             strcat(next_path_element, PATH_SEP);
             errno = 0;
-            DIR *next_dir = opendir(prefix);
+            DIR *next_dir = ::opendir(prefix);
             if (!next_dir)
             {
                 FLOG_AddError(FLOG_REC_RMTREE_OPENDIR, errno);
@@ -735,14 +725,14 @@ int rmtree(DIR *const dir_to_remove, char *const prefix)
             }
             SF_OSAL_printf("rmtree %s", prefix);
             retval = rmtree(next_dir, prefix);
-            closedir(next_dir);
+            ::closedir(next_dir);
             if (retval)
             {
                 *next_path_element = 0;
                 return 1;
             }
             errno = 0;
-            retval = rmdir(prefix);
+            retval = ::rmdir(prefix);
             *next_path_element = 0;
             if (retval)
             {
@@ -758,14 +748,10 @@ int rmtree(DIR *const dir_to_remove, char *const prefix)
         return 1;
     }
     return 0;
-#else
-    return 1;
-#endif
 }
 
 int Recorder::reformat(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int retval;
     // Check that nothing is open
     if (this->pSession)
@@ -775,14 +761,14 @@ int Recorder::reformat(void)
 
     // stat DATA_ROOT
     struct stat data_root_stat;
-    if (0 == stat(DATA_ROOT, &data_root_stat))
+    if (0 == ::stat(DATA_ROOT, &data_root_stat))
     {
         // This path exists!  is it a file or a dir?
         if (data_root_stat.st_mode & S_IFREG)
         {
             // This is a file!
             // Remove it
-            if (-1 == unlink(DATA_ROOT))
+            if (-1 == ::unlink(DATA_ROOT))
             {
                 // failed to remove
                 FLOG_AddError(FLOG_REC_FORMAT_RM_FILE, errno);
@@ -796,9 +782,9 @@ int Recorder::reformat(void)
             memset(path_buf, 0, NAME_MAX + 1);
             strncpy(path_buf, DATA_ROOT, PATH_MAX);
             strcat(path_buf, PATH_SEP);
-            DIR *data_dir = opendir(DATA_ROOT);
+            DIR *data_dir = ::opendir(DATA_ROOT);
             retval = rmtree(data_dir, path_buf);
-            closedir(data_dir);
+            ::closedir(data_dir);
             if (retval)
             {
                 FLOG_AddError(FLOG_REC_FORMAT_RMTREE, 0);
@@ -814,7 +800,4 @@ int Recorder::reformat(void)
         return 1;
     }
     return 0;
-#else
-    return 1;
-#endif
 }

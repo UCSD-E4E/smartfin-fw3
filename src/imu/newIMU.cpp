@@ -12,13 +12,13 @@
 
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 
 #include <cmath>
 #include <cstring>
 #include <functional>
 
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
 /**
  * @brief Quaterinion Scale Factor
  *
@@ -34,7 +34,7 @@ bool IMU::begin(void)
 
     if (NULL == _data_mtx)
     {
-        _data_mtx = new Mutex();
+        _data_mtx = new SF_HAL::Mutex();
     }
     _data_mtx->lock();
     memset(&fifo_data, 0, sizeof(struct FiFoData));
@@ -42,7 +42,7 @@ bool IMU::begin(void)
 
     if (NULL == _device_mtx)
     {
-        _device_mtx = new Mutex();
+        _device_mtx = new SF_HAL::Mutex();
     }
     _device_mtx->lock();
 
@@ -71,7 +71,7 @@ bool IMU::begin(void)
                                readLoop,
                                this,
                                OS_THREAD_PRIORITY_DEFAULT,
-                               OS_THREAD_STACK_SIZE_DEFAULT_HIGH);
+                               OS_THREAD_STACK_SIZE_DEFAULT_HIGH); // NOLINT: void* stores Thread*; cast on use
     }
     return false;
 }
@@ -79,7 +79,7 @@ bool IMU::begin(void)
 bool IMU::end(void)
 {
     this->stop_flag = true;
-    _readLoop->join();
+    static_cast<Thread*>(_readLoop)->join();
     return false;
 }
 
@@ -434,6 +434,24 @@ bool IMU::getDmpMag_uT(float &mag_x, float &mag_y, float &mag_z)
     }
     this->_data_mtx->unlock();
     return fail;
+}
+
+bool IMU::getRawQuat9(int32_t &q1, int32_t &q2, int32_t &q3,
+                      int16_t &accuracy_q12)
+{
+    if (this->error_flag)
+    {
+        return true;
+    }
+    this->_data_mtx->lock();
+    {
+        q1 = this->fifo_data.Quat9_1;
+        q2 = this->fifo_data.Quat9_2;
+        q3 = this->fifo_data.Quat9_3;
+        accuracy_q12 = static_cast<int16_t>(this->fifo_data.Quat9_Acc);
+    }
+    this->_data_mtx->unlock();
+    return false;
 }
 
 void IMU::dumpRegs(int (*printfn)(const char *s, ...))
@@ -1009,4 +1027,3 @@ IMU::IMU(TwoWire &port, const bool ad0_val) : i2c_port(port), AD0_VAL(ad0_val)
 {
 }
 
-#endif // SF_PLATFORM

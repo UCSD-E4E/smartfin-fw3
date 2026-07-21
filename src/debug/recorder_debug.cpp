@@ -11,15 +11,16 @@
 
 #include "recorder_debug.hpp"
 
+#include "cellular/recorder.hpp"
 #include "cli/conio.hpp"
 #include "cli/menu.hpp"
-#include "cellular/recorder.hpp"
-#include "system.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
+#include "system.hpp"
 #include "util.hpp"
 
+#include <cstdio>
 #include <stdint.h>
-#include <stdio.h>
 
 /**
  * @brief Function to test if recorder has data
@@ -189,7 +190,7 @@ void REC_testCreateBigSession(void)
     input_length = atoi(user_input);
     for (hex_idx = 0; hex_idx < input_length; hex_idx++)
     {
-        rand_byte = SF::utils::random(0, 256);
+        rand_byte = SF_HAL::random(0, 256);
         switch (pRecorder->putBytes(&rand_byte, 1))
         {
         case 0:

@@ -1,11 +1,7 @@
 #ifndef __MFGTEST_H__
 #define __MFGTEST_H__
 
-#include "task.hpp"
-
-#ifdef PARTICLE
-    #include <spark_wiring_json.h>
-#endif
+#include "json_writer.hpp"
 
 #define MFG_MIN_VALID_TEMPERATURE 15
 #define MFG_MAX_VALID_TEMPERATURE   30
@@ -70,49 +66,46 @@ private:
      */
     static mfg_test_entry MFG_TEST_TABLE[];
 
-    // particle specific json writer object, so defined
-    #ifdef PARTICLE
         static char json_buffer[1024];
-        static spark::JSONBufferWriter json_writer;
-    #endif
+        static sf::JSONBufferWriter json_writer;
 
-    /**
-     * @brief Test the wet/dry sensor
-     *
-     * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
-     * MfgTest::MFG_TEST_RESULT_t::FAIL
-     */
-    static MFG_TEST_RESULT_t wet_dry_sensor_test(void);
-    /**
-     * @brief Test the temperature sensor
-     *
-     * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
-     * MfgTest::MFG_TEST_RESULT_t::FAIL
-     */
-    static MFG_TEST_RESULT_t temperature_sensor_test(void);
+        /**
+         * @brief Test the wet/dry sensor
+         *
+         * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
+         * MfgTest::MFG_TEST_RESULT_t::FAIL
+         */
+        static MFG_TEST_RESULT_t wet_dry_sensor_test(void);
+        /**
+         * @brief Test the temperature sensor
+         *
+         * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
+         * MfgTest::MFG_TEST_RESULT_t::FAIL
+         */
+        static MFG_TEST_RESULT_t temperature_sensor_test(void);
 
-    /**
-     * @brief Tests the IMU
-     *
-     * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
-     * MfgTest::MFG_TEST_RESULT_t::FAIL
-     */
-    static MFG_TEST_RESULT_t imu_test(void);
+        /**
+         * @brief Tests the IMU
+         *
+         * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
+         * MfgTest::MFG_TEST_RESULT_t::FAIL
+         */
+        static MFG_TEST_RESULT_t imu_test(void);
 
-    /**
-     * @brief Tests the cellular connection
-     *
-     * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
-     * MfgTest::MFG_TEST_RESULT_t::FAIL
-     */
-    static MFG_TEST_RESULT_t cellular_test(void);
+        /**
+         * @brief Tests the cellular connection
+         *
+         * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
+         * MfgTest::MFG_TEST_RESULT_t::FAIL
+         */
+        static MFG_TEST_RESULT_t cellular_test(void);
 
-    /**
-     * @brief Tests the GPS unit
-     *
-     * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
-     * MfgTest::MFG_TEST_RESULT_t::FAIL
-     */
+        /**
+         * @brief Tests the GPS unit
+         *
+         * @return MfgTest::MFG_TEST_RESULT_t::PASS if passed, otherwise
+         * MfgTest::MFG_TEST_RESULT_t::FAIL
+         */
 #if SF_ENABLE_GPS
     static MFG_TEST_RESULT_t gps_test(void);
 #endif

@@ -1,13 +1,12 @@
-#ifndef __LED_HPP__
-#define __LED_HPP__
+#ifndef LED_HPP
+#define LED_HPP
 
-#include <cstdint>
-#include "Particle.h"
+#include "platform/hal.hpp"
 
 #define SF_LED_NUM_LEDS 2
 
-#define SF_LED_ON_VALUE LOW
-#define SF_LED_OFF_VALUE    HIGH
+#define SF_LED_ON_VALUE SF_HAL::GpioState::LOW
+#define SF_LED_OFF_VALUE SF_HAL::GpioState::HIGH
 #define SF_LED_BLINK_MS 1000
 
 class SFLed
@@ -19,7 +18,7 @@ class SFLed
         SFLED_STATE_ON,
         SFLED_STATE_BLINK
     }SFLED_State_e;
-    SFLed(uint8_t pin, SFLED_State_e state);
+    SFLed(SF_HAL::PinId pin, SFLED_State_e state);
     ~SFLed(void);
 
     void setState(SFLED_State_e state);
@@ -30,12 +29,10 @@ class SFLed
     static void doLEDs(void);
 
     private:
-    uint8_t pin;
+    SF_HAL::PinId pin;
     SFLED_State_e state;
     SFLed* nextLED;
 
-    static SFLed* firstLED;
-    static Timer ledTimer;
-
+    static SFLed *firstLED;
 };
-#endif
+#endif // LED_HPP

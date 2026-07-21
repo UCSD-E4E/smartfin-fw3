@@ -8,34 +8,21 @@
 #include "high_rate_stream.hpp"
 
 #include "ble/sf_ble.hpp"
-#include "cli/flog.hpp"
+#include "platform/hal_types.hpp"
 #include "product.hpp"
 #include "system.hpp"
+
 #include <cstring>
 #include <thread>
 
 /**
  * @brief Construct the TransportService singleton (clears counters/queues).
  */
-TransportService::TransportService() :
-    initialized_(false),
-    running_(false),
-    stopRequested_(false),
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    transportThread_(nullptr),
-#endif
-    transportActive_(false),
-    lowRateFlusher_(nullptr),
-    idle_(true),
-    droppedProducerRecords_(0),
-    droppedTransportPackets_(0),
-    notifyFailures_(0),
-    recordQueue_(),
-    packetBuilder_(),
-    recorderQueue_(),
-    txQueue_(),
-    lowRateQueue_(),
-    lastFlushMs_(0)
+TransportService::TransportService()
+    : initialized_(false), running_(false), stopRequested_(false), transportThread_(nullptr),
+      transportActive_(false), idle_(true), droppedProducerRecords_(0), droppedTransportPackets_(0),
+      notifyFailures_(0), recordQueue_(), packetBuilder_(), recorderQueue_(), txQueue_(),
+      lowRateQueue_(), lowRateFlusher_(nullptr), lastFlushMs_(0)
 {
 }
 
@@ -57,18 +44,18 @@ bool TransportService::init()
     }
 
     // Lazily create persistent transport thread once.
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
     if (transportThread_ == nullptr)
     {
-        transportThread_ = new Thread("transport_worker",
-                                      TransportService::transportLoopThunk,
-                                      this,
-                                      OS_THREAD_PRIORITY_DEFAULT);
+
+        transportThread_ = SF_HAL::thread_create("transport_worker",
+                                                 TransportService::transportLoopThunk,
+                                                 this,
+                                                 SF_HAL::ThreadPriority::NORMAL);
     }
-#endif
 
     packetBuilder_.reset();
-    lastFlushMs_ = millis();
+    lastFlushMs_ = SF_HAL::millis();
     stopRequested_.store(false, std::memory_order_release);
     transportActive_.store(false, std::memory_order_release);
     idle_.store(true, std::memory_order_release);
@@ -119,11 +106,7 @@ void TransportService::stop()
     // Wait for queues to drain; thread remains alive.
     while (!idle_.load(std::memory_order_acquire))
     {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-        delay(1);
-#else
-        std::this_thread::yield();
-#endif
+        SF_HAL::delay_ms(1);
     }
     stopRequested_.store(false, std::memory_order_release);
     accepting_.store(false, std::memory_order_release);
@@ -209,6 +192,28 @@ bool TransportService::enqueueImuRecord(const HighRateImuRecord& record)
 }
 
 /**
+ * @brief Enqueue a single Ensemble13 IMU+Quat record from producer context.
+ * @return false if uninitialized, stopped, or queue full.
+ */
+bool TransportService::enqueueImuQuatRecord(const HighRateImuQuatRecord& record)
+{
+    if (!initialized_.load(std::memory_order_acquire) ||
+        !running_.load(std::memory_order_acquire) ||
+        !accepting_.load(std::memory_order_acquire))
+    {
+        return false;
+    }
+
+    if (!quatRecordQueue_.push(record))
+    {
+        droppedProducerRecords_.fetch_add(1, std::memory_order_relaxed);
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * @brief Thread entry thunk to call the instance transport loop.
  */
 void TransportService::transportLoopThunk(void* param)
@@ -230,16 +235,13 @@ void TransportService::transportLoop()
     {
         if (running_.load(std::memory_order_acquire) ||
             stopRequested_.load(std::memory_order_acquire) ||
-            !recordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty() ||
+            !recordQueue_.empty() || !quatRecordQueue_.empty() || !recorderQueue_.empty() || !txQueue_.empty() ||
             !lowRateQueue_.empty())
         {
             serviceOnce();
         }
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-        delay(1);
-#else
-        std::this_thread::yield();
-#endif
+
+        SF_HAL::delay_ms(1);
     }
     // Persistent thread; never exits under normal conditions.
 }
@@ -261,7 +263,62 @@ void TransportService::serviceOnce()
     {
         progress = false;
 
-        // Drain a bounded batch of high-rate records to avoid starving other queues.
+        // Drain a bounded batch of Ensemble13 quat records (active high-rate path).
+        HighRateImuQuatRecord quatRecord;
+        for (std::size_t i = 0; i < MAX_RECORD_BATCH && quatRecordQueue_.pop(quatRecord); ++i)
+        {
+            progress = true;
+#if ENABLE_RECORD_SINK
+            if (pSystemDesc && pSystemDesc->pRecorder)
+            {
+                if (pSystemDesc->pRecorder->putBytes(&quatRecord, sizeof(quatRecord)) != 0)
+                {
+                    droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                }
+            }
+#endif
+            if (!packetBuilder_.canAppend(sizeof(quatRecord)))
+            {
+                sf::ble::transport::TxPacket packet;
+                if (packetBuilder_.finalize(packet))
+                {
+                    const bool connected = SFBLE::getInstance().isConnected();
+                    if (!connected)
+                    {
+                        droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                    {
+                        notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                }
+            }
+
+            if (!packetBuilder_.appendEnsemble(&quatRecord, sizeof(quatRecord)))
+            {
+                droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+            }
+
+            if (packetBuilder_.remainingPayload() == 0)
+            {
+                sf::ble::transport::TxPacket packet;
+                if (packetBuilder_.finalize(packet))
+                {
+                    const bool connected = SFBLE::getInstance().isConnected();
+                    if (!connected)
+                    {
+                        droppedTransportPackets_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                    else if (!SFBLE::getInstance().notifyTelemetry(packet.bytes, packet.len))
+                    {
+                        notifyFailures_.fetch_add(1, std::memory_order_relaxed);
+                    }
+                }
+                lastFlushMs_ = SF_HAL::millis();
+            }
+        }
+
+        // Drain a bounded batch of legacy Ensemble12 records.
         HighRateImuRecord record;
         for (std::size_t i = 0; i < MAX_RECORD_BATCH && recordQueue_.pop(record); ++i)
         {
@@ -312,7 +369,7 @@ void TransportService::serviceOnce()
                         notifyFailures_.fetch_add(1, std::memory_order_relaxed);
                     }
                 }
-                lastFlushMs_ = millis();
+                lastFlushMs_ = SF_HAL::millis();
             }
         }
 
@@ -337,7 +394,7 @@ void TransportService::serviceOnce()
                     }
                     else
                     {
-                        lastFlushMs_ = millis();
+                        lastFlushMs_ = SF_HAL::millis();
                     }
                 }
             }
@@ -362,7 +419,7 @@ void TransportService::serviceOnce()
                     }
                     else
                     {
-                        lastFlushMs_ = millis();
+                        lastFlushMs_ = SF_HAL::millis();
                     }
                 }
             }
@@ -402,7 +459,7 @@ void TransportService::serviceOnce()
                           !recorderQueue_.empty() || !txQueue_.empty()));
 
     // Periodic flush for partial payloads to keep low-rate data live.
-    if (packetBuilder_.hasData() && (millis() - lastFlushMs_ >= LOW_RATE_FLUSH_INTERVAL_MS))
+    if (packetBuilder_.hasData() && (SF_HAL::millis() - lastFlushMs_ >= LOW_RATE_FLUSH_INTERVAL_MS))
     {
         sf::ble::transport::TxPacket flushPacket;
         if (packetBuilder_.finalize(flushPacket))
@@ -418,14 +475,14 @@ void TransportService::serviceOnce()
             }
             else
             {
-                lastFlushMs_ = millis();
+                lastFlushMs_ = SF_HAL::millis();
             }
         }
     }
 
     // After draining all queues, if we were asked to stop and nothing remains, flush builder.
     if (stopRequested_.load(std::memory_order_acquire) &&
-        recordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() && lowRateQueue_.empty() &&
+        recordQueue_.empty() && quatRecordQueue_.empty() && recorderQueue_.empty() && txQueue_.empty() && lowRateQueue_.empty() &&
         packetBuilder_.hasData())
     {
         sf::ble::transport::TxPacket finalPacket;

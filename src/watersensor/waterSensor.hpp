@@ -12,10 +12,12 @@
  */
 #ifndef __WATERSENSOR_H__
 #define __WATERSENSOR_H__
-#include "Particle.h"
+
 #include <cstdlib>
 #include <cstdint>
 #include <cstring>
+
+#include "platform/hal.hpp"
 
 // manages a moving window/fifo of water detect samples
 //  e.g. if a 0 represents being out of the water and a 1 is in
@@ -46,11 +48,11 @@ private:
     /**
      * @brief Pin that enables the water detection sensor
      */
-    uint8_t water_detect_en_pin;
+    SF_HAL::PinId water_detect_en_pin;
     /**
      * @brief Pin that reads the water detection status
      */
-    uint8_t water_detect_pin;
+    SF_HAL::PinId water_detect_pin;
     /**
      * @brief Size of the moving sample window used for water detection
      */
@@ -87,7 +89,7 @@ public:
      * @param water_detect_en_pin Pin that enables the water sensor
      * @param water_detect_pin_to_set Pin that reads the sensor value
      */
-    WaterSensor(uint8_t water_detect_en_pin, uint8_t water_detect_pin_to_set);
+    WaterSensor(SF_HAL::PinId water_detect_en_pin, SF_HAL::PinId water_detect_pin_to_set);
     /**
      * @brief Destroys the WaterSensor instance
      */

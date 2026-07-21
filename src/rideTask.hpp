@@ -10,9 +10,8 @@
  */
 #ifndef __RIDE_TASK_HPP__
 #define __RIDE_TASK_HPP__
-#include "Particle.h"
 #include "deploy/scheduler.hpp"
-#include "product.hpp"
+#include "platform/hal_types.hpp"
 #include "task.hpp"
 
 /**
@@ -46,18 +45,18 @@ private:
      * This class manages the LED behavior for the ride task.
      * It handles the initialization and updates of the LEDs based on the task state.
      */
-    LEDStatus ledStatus;
+    SF_HAL::LedStatus ledStatus;
 
     /**
      * @brief Start time at initialization
      *
      */
-    system_tick_t startTime;
+    SF_HAL::tick_t startTime;
     /**
      * @brief Deploy Time in ms since boot
      *
      */
-    system_tick_t deployTime;
+    SF_HAL::tick_t deployTime;
 
     /**
      * @brief Flag if session time has been set to UTC time

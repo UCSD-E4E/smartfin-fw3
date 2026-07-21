@@ -1,10 +1,9 @@
 #include "vers.hpp"
-#include "product.hpp"
+
 #include "cli/conio.hpp"
 #include "consts.hpp"
-#include "util.hpp"
-
-#include "Particle.h"
+#include "platform/hal.hpp"
+#include "product.hpp"
 
 const char* BUILD_DATE = __DATE__;
 const char* BUILD_TIME = __TIME__;
@@ -51,19 +50,10 @@ void VERS_printBanner(void)
                    FW_BUILD_NUM,
                    FW_BRANCH);
     SF_OSAL_printf("FW Build: %s %s" __NL__, BUILD_DATE, BUILD_TIME);
-    SF_OSAL_printf("Device OS: %s" __NL__, System.version().c_str());
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-
-    SF_OSAL_printf("CRC32=%lx" __NL__, module_info_crc.crc32);
-
-    const uint8_t *sha = module_info_suffix.sha;
-    SF_OSAL_printf("SHA256=");
-    for (size_t byte_idx = 0; byte_idx < 32; byte_idx++)
+    for (const auto str : SF_HAL::board_version())
     {
-        SF_OSAL_printf("%02x", sha[byte_idx]);
+        SF_OSAL_printf("%s" __NL__, str.c_str());
     }
-    SF_OSAL_printf(__NL__);
-#endif
 }
 
 const char* VERS_getBuildDate(void)

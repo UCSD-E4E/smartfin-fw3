@@ -1,148 +1,60 @@
 /**
  * @file sf_ble.cpp
- * @brief Particle-backed implementation of the platform-adaptable BLE wrapper.
- * @author Charlie Kushelevsky (ckushelevsky@ucsd.edu)
- * @date 3-9-2026
+ * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
+ * @brief Platform-agnostic BLE wrapper implementation.
+ * @date 2026-05-17
  */
 
 #include "sf_ble.hpp"
 
-#include <atomic>
-
-#include "product.hpp"
+#include "platform/hal.hpp"
 #include "sf_ble_defs.hpp"
 
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-#include "Particle.h"
-#endif
-
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+#include <atomic>
 
 namespace
 {
-    /** @brief Particle-specific UUID objects. */
-    BleUuid g_serviceUuid(sf::bledefs::SERVICE_UUID);
-    BleUuid g_telemetryUuid(sf::bledefs::TELEMETRY_CHAR_UUID);
-    BleUuid g_controlUuid(sf::bledefs::CONTROL_CHAR_UUID);
 
-    /**
-     * @brief Particle BLE backend that wires characteristics and event hooks.
-     *
-     * This class is intentionally confined to this translation unit so the rest
-     * of the codebase does not depend on Particle BLE types.
-     */
-    class ParticleBleBackend
+/**
+ * @brief Thunk from HAL connection callback into SFBLE::handleConnectionEvent.
+ * @param isConnected true on connect, false on disconnect.
+ * @param ctx Pointer to the SFBLE singleton.
+ */
+void onConnectionThunk(bool isConnected, void* ctx)
+{
+    auto* ble = static_cast<SFBLE*>(ctx);
+    if (ble)
     {
-    public:
-        /**
-         * @brief Construct and register both GATT characteristics.
-         *
-         * Particle registers a @c BleCharacteristic into the GATT server at
-         * construction time, so both characteristics must be fully described
-         * here rather than in @c init().
-         *
-         * @c telemetryCharacteristic — short name @c "tele", property NOTIFY,
-         * carries fin->watch data. No write callback; the central subscribes and
-         * receives notifications pushed by @c notifyTelemetry().
-         *
-         * @c controlCharacteristic — short name @c "ctrl", property
-         * WRITE_WO_RSP, carries watch->fin commands. Registers
-         * @c onControlReceivedStatic as the write callback with @c this as
-         * context so Particle can invoke it as a plain C function pointer.
-         */
-        ParticleBleBackend()
-            : telemetryCharacteristic("tele",
-                                      BleCharacteristicProperty::NOTIFY,
-                                      g_telemetryUuid,
-                                      g_serviceUuid),
-              controlCharacteristic("ctrl",
-                                    BleCharacteristicProperty::WRITE_WO_RSP,
-                                    g_controlUuid,
-                                    g_serviceUuid,
-                                    ParticleBleBackend::onControlReceivedStatic,
-                                    this)
-        {
-        }
+        ble->handleConnectionEvent(isConnected);
+    }
+}
 
-        /** @brief Telemetry characteristic for fin -> watch data. */
-        BleCharacteristic telemetryCharacteristic;
+/**
+ * @brief Thunk from HAL write callback into SFBLE::handleControlEvent.
+ * @param characteristic Unused — only one control characteristic exists.
+ * @param data Received payload.
+ * @param len Payload length in bytes.
+ * @param ctx Pointer to the SFBLE singleton.
+ */
+void onWriteThunk(SF_HAL::ble::CharHandle /*characteristic*/,
+                  const uint8_t* data,
+                  std::size_t len,
+                  void* ctx)
+{
+    auto* ble = static_cast<SFBLE*>(ctx);
+    if (ble)
+    {
+        ble->handleControlEvent(data, len);
+    }
+}
 
-        /** @brief Control characteristic for watch -> fin commands. */
-        BleCharacteristic controlCharacteristic;
-
-        /**
-         * @brief Access the singleton backend instance.
-         *
-         * A single instance is required because each @c BleCharacteristic
-         * object represents one physical GATT entry. Constructing a second
-         * instance would attempt to register duplicate characteristics and
-         * corrupt the GATT table. The static-local pattern also controls
-         * construction order: the instance is created on the first call to
-         * @c getInstance(), which happens inside @c SFBLE::init() after
-         * @c BLE.on(), guaranteeing the GATT server is live before any
-         * characteristic tries to register.
-         */
-        static ParticleBleBackend &getInstance()
-        {
-            static ParticleBleBackend instance;
-            return instance;
-        }
-
-        /**
-         * @brief Particle control-write callback shim.
-         * @param data Received payload.
-         * @param len Number of bytes in payload.
-         * @param peer Peer device (unused).
-         * @param context Pointer to backend instance.
-         */
-        // BLE callbacks run on the BLE thread (small stack, Serial can deadlock).
-        // No Serial calls inside any of these — state updates only.
-        static void onControlReceivedStatic(const uint8_t *data,
-                                            size_t len,
-                                            const BlePeerDevice &peer,
-                                            void *context)
-        {
-            (void)peer;
-            if (!context || !data) return;
-            static_cast<ParticleBleBackend *>(context)->onControlReceived(data, len);
-        }
-
-        void onConnected(const BlePeerDevice & /*peer*/)
-        {
-            bleConnectionThunk(true, &SFBLE::getInstance());
-        }
-
-        void onDisconnected(const BlePeerDevice & /*peer*/)
-        {
-            bleConnectionThunk(false, &SFBLE::getInstance());
-        }
-
-        void onControlReceived(const uint8_t *data, size_t len)
-        {
-            bleControlThunk(data, len, &SFBLE::getInstance());
-        }
-
-        static void bleConnectionThunk(bool isConnected, void *context)
-        {
-            SFBLE *ble = static_cast<SFBLE *>(context);
-            if (ble) ble->handleConnectionEvent(isConnected);
-        }
-
-        static void bleControlThunk(const uint8_t *data, size_t len, void *context)
-        {
-            SFBLE *ble = static_cast<SFBLE *>(context);
-            if (ble) ble->handleControlEvent(data, len);
-        }
-    };
 } // namespace
-
-#endif // SF_PLATFORM == SF_PLATFORM_PARTICLE
 
 /**
  * @brief Get singleton SFBLE instance.
  * @return Reference to SFBLE.
  */
-SFBLE &SFBLE::getInstance(void)
+SFBLE& SFBLE::getInstance(void)
 {
     static SFBLE instance;
     return instance;
@@ -160,7 +72,7 @@ SFBLE::SFBLE()
 
 /**
  * @brief Internal connection-event handler.
- * @param isConnected true if connected, false otherwise.
+ * @param isConnected true if connected, false if disconnected.
  */
 void SFBLE::handleConnectionEvent(bool isConnected)
 {
@@ -184,10 +96,13 @@ void SFBLE::handleConnectionEvent(bool isConnected)
  * @param data Pointer to received payload.
  * @param len Payload length.
  */
-void SFBLE::handleControlEvent(const uint8_t *data, size_t len)
+void SFBLE::handleControlEvent(const uint8_t* data, size_t len)
 {
     // Called from the BLE thread — no Serial/BLE API here.
-    if (!data || len == 0) return;
+    if (!data || len == 0)
+    {
+        return;
+    }
 
     auto cb  = this->controlCallback.load(std::memory_order_acquire);
     auto ctx = this->controlContext;
@@ -208,24 +123,21 @@ bool SFBLE::init(void)
         return true;
     }
 
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    BLE.on();
-    BLE.setDeviceName(sf::bledefs::DEVICE_NAME);
+    SF_HAL::ble::Callbacks cbs;
+    cbs.on_connection = onConnectionThunk;
+    cbs.on_write      = onWriteThunk;
+    cbs.context       = this;
+    SF_HAL::ble_set_callbacks(cbs);
 
-    ParticleBleBackend &backend = ParticleBleBackend::getInstance();
-    BLE.onConnected(&ParticleBleBackend::onConnected, &backend);
-    BLE.onDisconnected(&ParticleBleBackend::onDisconnected, &backend);
-
-    // BleCharacteristic construction does not auto-register with the GATT
-    // server on Particle Device OS — addCharacteristic is required.
-    BLE.addCharacteristic(backend.telemetryCharacteristic);
-    BLE.addCharacteristic(backend.controlCharacteristic);
-
-    this->initialized.store(true, std::memory_order_release);
-    return true;
-#else
-    return false;
-#endif
+    bool ok = SF_HAL::ble_init(sf::bledefs::DEVICE_NAME,
+                                sf::bledefs::SERVICE_UUID,
+                                sf::bledefs::TELEMETRY_CHAR_UUID,
+                                sf::bledefs::CONTROL_CHAR_UUID);
+    if (ok)
+    {
+        this->initialized.store(true, std::memory_order_release);
+    }
+    return ok;
 }
 
 /**
@@ -239,20 +151,12 @@ bool SFBLE::startAdvertising(void)
         return false;
     }
 
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    BleAdvertisingData advData;
-    advData.appendServiceUUID(BleUuid(sf::bledefs::SERVICE_UUID));
-
-    // Local name goes in the scan response so it appears alongside the UUID.
-    BleAdvertisingData scanResp;
-    scanResp.appendLocalName(sf::bledefs::DEVICE_NAME);
-
-    BLE.advertise(&advData, &scanResp);
-    this->advertising.store(true, std::memory_order_release);
-    return true;
-#else
-    return false;
-#endif
+    bool ok = SF_HAL::ble_advertise(sf::bledefs::SERVICE_UUID, sf::bledefs::DEVICE_NAME);
+    if (ok)
+    {
+        this->advertising.store(true, std::memory_order_release);
+    }
+    return ok;
 }
 
 /**
@@ -266,13 +170,9 @@ bool SFBLE::stopAdvertising(void)
         return false;
     }
 
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    BLE.stopAdvertising();
+    SF_HAL::ble_stop_advertising();
     this->advertising.store(false, std::memory_order_release);
     return true;
-#else
-    return false;
-#endif
 }
 
 /**
@@ -308,7 +208,7 @@ bool SFBLE::isConnected(void) const
  * @param len Payload length in bytes.
  * @return true on success, false on failure.
  */
-bool SFBLE::notifyTelemetry(const void *pData, size_t len)
+bool SFBLE::notifyTelemetry(const void* pData, size_t len)
 {
     if (!this->initialized.load(std::memory_order_acquire) ||
         !this->connected.load(std::memory_order_acquire) || !pData)
@@ -321,12 +221,7 @@ bool SFBLE::notifyTelemetry(const void *pData, size_t len)
         return false;
     }
 
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
-    ParticleBleBackend &backend = ParticleBleBackend::getInstance();
-    return backend.telemetryCharacteristic.setValue(static_cast<const uint8_t *>(pData), len);
-#else
-    return false;
-#endif
+    return SF_HAL::ble_notify(static_cast<const uint8_t*>(pData), len);
 }
 
 /**
@@ -334,7 +229,7 @@ bool SFBLE::notifyTelemetry(const void *pData, size_t len)
  * @param cb Callback function pointer.
  * @param context User context passed to callback.
  */
-void SFBLE::setControlCallback(control_rx_callback_t cb, void *context)
+void SFBLE::setControlCallback(control_rx_callback_t cb, void* context)
 {
     this->controlContext = context;
     this->controlCallback.store(cb, std::memory_order_release);
@@ -345,7 +240,7 @@ void SFBLE::setControlCallback(control_rx_callback_t cb, void *context)
  * @param cb Callback function pointer.
  * @param context User context passed to callback.
  */
-void SFBLE::setConnectionCallback(connection_callback_t cb, void *context)
+void SFBLE::setConnectionCallback(connection_callback_t cb, void* context)
 {
     this->connectionContext = context;
     this->connectionCallback.store(cb, std::memory_order_release);

@@ -15,6 +15,15 @@
  */
 #define REC_SESSION_NAME_MAX_LEN 64
 
+/**
+ * @brief Root directory for recorded session data on the device filesystem.
+ *
+ * This is intentionally not the filesystem root ("/"); code that needs to
+ * clear recorded data must scope its operation to this directory rather
+ * than the whole filesystem.
+ */
+#define DATA_ROOT "/data"
+
 #define REC_MEMORY_BUFFER_SIZE  1024
 #if REC_MEMORY_BUFFER_SIZE < SF_PACKET_SIZE
 #error REC_MEMORY_BUFFER_SIZE < SF_PACKET_SIZE

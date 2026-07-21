@@ -1,5 +1,12 @@
 #include "system.hpp"
 
+#include "platform/platform.hpp"
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+#include "imu/newIMU.hpp"
+#else
+#include "imu_stub.hpp"
+#endif
+
 #include "product.hpp"
 
 #include "temperature/tmpSensor.h"
@@ -10,26 +17,19 @@
 
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
-#include "SPI.h"
-#include <fcntl.h>
-
 #include "consts.hpp"
-#include "states.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
-
 #include "sys/led.hpp"
 
-
-#include "Particle.h"
-
-
+#include <fcntl.h>
 
 char SYS_deviceID[32];
 
 SystemDesc_t systemDesc = {0}, *pSystemDesc = &systemDesc;
 SystemFlags_t systemFlags;
 
-static LEDSystemTheme ledTheme;
+static SF_HAL::LedSystemTheme ledTheme;
 
 Recorder dataRecorder;
 
@@ -52,23 +52,23 @@ I2C i2cBus;
 MAX31725 max31725(i2cBus, MAX31725_I2C_SLAVE_ADR_00);
 tmpSensor tempSensor(max31725);
 
-static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
-static SFLed waterLED(WATER_STATUS_LED, SFLed::SFLED_STATE_OFF);
+static SFLed batteryLED(SF_HAL::PinId::StatLed, SFLed::SFLED_STATE_OFF);
+static SFLed waterLED(SF_HAL::PinId::WaterStatusLed, SFLed::SFLED_STATE_OFF);
 
-static Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
-static Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
-static Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
+static SF_HAL::Timer chargerTimer(SYS_CHARGER_REFRESH_MS, SYS_chargerTask, false);
+static SF_HAL::Timer waterTimer(SYS_WATER_REFRESH_MS, SYS_waterTask, false);
+static SF_HAL::Timer ledTimer(SF_LED_BLINK_MS, SFLed::doLEDs, false);
 
-static WaterSensor waterSensor(WATER_DETECT_EN_PIN, WATER_DETECT_PIN);
+static WaterSensor waterSensor(SF_HAL::PinId::WaterDetectEn, SF_HAL::PinId::WaterDetect);
 
 #if SF_ENABLE_GPS
 static LocationServiceConfiguration create_location_service_config();
 #endif
 
-static FuelGauge battery_desc;
-
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
-static IMU icm_20948(Wire, false);
+static IMU icm_20948(SF_HAL::i2c_get_wire(), false);
+#else
+static IMUStub icm_20948;
 #endif
 
 void SYS_initSys(void)
@@ -78,7 +78,7 @@ void SYS_initSys(void)
     systemDesc.flags = &systemFlags;
 
     memset(SYS_deviceID, 0, 32);
-    strncpy(SYS_deviceID, System.deviceID().c_str(), 31);
+    strncpy(SYS_deviceID, SF_HAL::system_device_id(), 31);
 
     SYS_initTasks();
 #if SF_ENABLE_GPS
@@ -90,9 +90,8 @@ void SYS_initSys(void)
     SYS_initWaterSensor();
     SYS_initLEDs();
 
-    pinMode(WKP, INPUT);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::Wkp, SF_HAL::GpioMode::INPUT);
 
-    systemDesc.pBattery = &battery_desc;    
 }
 
 /**
@@ -108,11 +107,9 @@ void SYS_delayedInitSys(void)
 
 void SYS_deinitSys(void)
 {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     systemDesc.pIMU->end();
-    systemDesc.pChargerCheck->stop(1000);
-    systemDesc.pWaterCheck->stop(1000);
-#endif
+    systemDesc.pChargerCheck->stop();
+    systemDesc.pWaterCheck->stop();
 }
 
 /**
@@ -142,7 +139,7 @@ static int SYS_initFS(void)
  */
 static int SYS_initTasks(void)
 {
-    pinMode(SF_USB_PWR_DETECT_PIN, INPUT_PULLDOWN);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::UsbPwrDetect, SF_HAL::GpioMode::INPUT_PULLDOWN);
     systemFlags.hasCharger = true;
     systemFlags.batteryLow = false;
 
@@ -156,7 +153,7 @@ static int SYS_initTasks(void)
 
 static int SYS_initTempSensor(void)
 {
-    Wire.begin();
+    SF_HAL::i2c_begin();
     systemDesc.pTempSensor = &tempSensor;
 
     return 1;
@@ -166,11 +163,11 @@ static int SYS_initTempSensor(void)
 static int SYS_initWaterSensor(void)
 {
     uint8_t water_sensor_window = WATER_DETECT_SURF_SESSION_INIT_WINDOW;
-    pinMode(WATER_DETECT_EN_PIN, OUTPUT);
-    digitalWrite(WATER_DETECT_EN_PIN, HIGH);
-    pinMode(WATER_DETECT_PIN, INPUT);
-    pinMode(WATER_MFG_TEST_EN, OUTPUT);
-    digitalWrite(WATER_MFG_TEST_EN, LOW);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::WaterDetectEn, SF_HAL::GpioMode::OUTPUT);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterDetectEn, SF_HAL::GpioState::HIGH);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::WaterDetect, SF_HAL::GpioMode::INPUT);
+    SF_HAL::gpio_set_mode(SF_HAL::PinId::WaterMfgTestEn, SF_HAL::GpioMode::OUTPUT);
+    SF_HAL::gpio_write(SF_HAL::PinId::WaterMfgTestEn, SF_HAL::GpioState::LOW);
     systemDesc.pWaterSensor = &waterSensor;
     waterSensor.begin();
     ledTimer.start();
@@ -201,14 +198,40 @@ static int SYS_initLEDs(void)
     waterLED.init();
     systemDesc.pWaterLED = &waterLED;
 
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_OFF, 0x000000, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_ON, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_CONNECTING, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_DHCP, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_NETWORK_CONNECTED, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTING, SF_DUP_RGB_LED_COLOR, LED_PATTERN_SOLID);
-    ledTheme.setSignal(LED_SIGNAL_CLOUD_CONNECTED, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
-    ledTheme.setSignal(LED_SIGNAL_CLOUD_HANDSHAKE, SF_DUP_RGB_LED_COLOR, LED_PATTERN_BLINK, SF_DUP_RGB_LED_PERIOD);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_OFF,
+                       0x000000,
+                       SF_HAL::LedPattern::SOLID,
+                       SF_HAL::LedSpeed::NORMAL);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_ON,
+                       SF_DUP_RGB_LED_COLOR,
+                       SF_HAL::LedPattern::SOLID,
+                       SF_HAL::LedSpeed::NORMAL);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_CONNECTING,
+                       SF_DUP_RGB_LED_COLOR,
+                       SF_HAL::LedPattern::SOLID,
+                       SF_HAL::LedSpeed::NORMAL);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_DHCP,
+                       SF_DUP_RGB_LED_COLOR,
+                       SF_HAL::LedPattern::SOLID,
+                       SF_HAL::LedSpeed::NORMAL);
+    ledTheme.setSignal(SF_HAL::LedSignal::NETWORK_CONNECTED,
+                       SF_DUP_RGB_LED_COLOR,
+                       SF_HAL::LedPattern::SOLID,
+                       SF_HAL::LedSpeed::NORMAL);
+    ledTheme.setSignal(SF_HAL::LedSignal::CLOUD_CONNECTING,
+                       SF_DUP_RGB_LED_COLOR,
+                       SF_HAL::LedPattern::SOLID,
+                       SF_HAL::LedSpeed::NORMAL);
+    ledTheme.setSignal(SF_HAL::LedSignal::CLOUD_CONNECTED,
+                       SF_DUP_RGB_LED_COLOR,
+                       SF_HAL::LedPattern::BLINK,
+                       SF_DUP_RGB_LED_PERIOD);
+    ledTheme.setSignal(SF_HAL::LedSignal::CLOUD_HANDSHAKE,
+                       SF_DUP_RGB_LED_COLOR,
+                       SF_HAL::LedPattern::BLINK,
+                       SF_DUP_RGB_LED_PERIOD);
+
+    ledTheme.apply();
 
     systemDesc.systemTheme = &ledTheme;
     return 1;
@@ -222,8 +245,8 @@ static int SYS_initLEDs(void)
 void SYS_chargerTask(void)
 {
     bool previous_state = systemFlags.hasCharger;
-    bool isCharging = System.batteryState() == BATTERY_STATE_CHARGING;
-    systemFlags.hasCharger = digitalRead(SF_USB_PWR_DETECT_PIN);
+    bool isCharging = SF_HAL::battery_state() == SF_HAL::BatteryState::CHARGING;
+    systemFlags.hasCharger = SF_HAL::gpio_read(SF_HAL::PinId::UsbPwrDetect);
     static int chargedTimestamp;
     static int chargingTimestamp;
 
@@ -371,9 +394,9 @@ void SYS_displaySys(void)
     SF_OSAL_printf("Has Charger Flag: %d" __NL__, pSystemDesc->flags->hasCharger);
 
     SF_OSAL_printf(__NL__);
-    SF_OSAL_printf("Particle Connected: %d" __NL__, Particle.connected());
-    SF_OSAL_printf("Cellular On: %d" __NL__, Cellular.isOn());
-    SF_OSAL_printf("Cellular Ready: %d" __NL__, Cellular.ready());
+    SF_OSAL_printf("Cloud Connected: %d" __NL__, SF_HAL::cloud_connected());
+    SF_OSAL_printf("Cellular On: %d" __NL__, SF_HAL::cellular_is_on());
+    SF_OSAL_printf("Cellular Ready: %d" __NL__, SF_HAL::cellular_is_ready());
 }
 
 void SYS_dumpSys(int indent)
@@ -440,7 +463,7 @@ void SYS_dumpSys(int indent)
         SF_OSAL_printf("%sSystem Theme: 0x%08x" __NL__, indent_str, pSystemDesc->systemTheme);
     }
     {
-        SF_OSAL_printf("%sBattery: 0x%08x" __NL__, indent_str, pSystemDesc->pBattery);
+        SF_OSAL_printf("%sBattery Voltage: %f V" __NL__, indent_str, SF_HAL::battery_voltage());
     }
     {
         SF_OSAL_printf("%sSystem Flags: 0x%08x" __NL__, indent_str, pSystemDesc->flags);
@@ -454,11 +477,9 @@ void SYS_dumpSys(int indent)
  */
 int SYS_initIMU(void)
 {
-    bool fail = false;
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
     pSystemDesc->pIMU = &icm_20948;
-
-    fail = icm_20948.begin();
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+    bool fail = icm_20948.begin();
     if (fail)
     {
         SF_OSAL_printf("IMU init failed!" __NL__);

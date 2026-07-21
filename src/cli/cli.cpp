@@ -8,7 +8,6 @@
 
 #include "cli.hpp"
 
-#include "Particle.h"
 #include "ble/ble_live_stream.hpp"
 #include "ble/high_rate_stream.hpp"
 #include "ble/sf_ble.hpp"
@@ -20,13 +19,11 @@
 #include "debug/recorder_debug.hpp"
 #include "debug/session_debug.hpp"
 #include "deploy/ensembleTypes.hpp"
-#include "imu/newIMU.hpp"
 #include "menu.hpp"
 #include "menuItems/debugCommands.hpp"
-#if SF_ENABLE_GPS
-#include "menuItems/gpsCommands.hpp"
-#endif
 #include "menuItems/systemCommands.hpp"
+#include "platform/hal.hpp"
+#include "platform/hal_types.hpp"
 #include "product.hpp"
 #include "rideTask.hpp"
 #include "sleepTask.hpp"
@@ -35,15 +32,18 @@
 #include "util.hpp"
 #include "vers.hpp"
 
-#include <bits/stdc++.h>
 #include <atomic>
+#include <cmath>
 #include <cstdlib>
-#include <fstream>
+
+#if SF_ENABLE_GPS
+#include "menuItems/gpsCommands.hpp"
+#endif
 
 void CLI_displayMenu(void);
 void CLI_hexdump(void);
 
-static LEDStatus CLI_ledStatus;
+static SF_HAL::LedStatus CLI_ledStatus;
 
 static void CLI_setState(void);
 static void CLI_displaySystemState(void);
@@ -59,7 +59,7 @@ static void CLI_doBleTest(void);
 
 static std::uint8_t packet_buffer[SF_PACKET_SIZE];
 static char input_buffer[SF_CLI_MAX_CMD_LEN];
-static char packet_name_buffer[particle::protocol::MAX_EVENT_NAME_LENGTH + 1];
+static char packet_name_buffer[SF_HAL::cloud::MAX_EVENT_NAME_LEN + 1];
 
 const Menu_t CLI_menu[] = {
     {1, "display Menu", &CLI_displayMenu, MENU_CMD},
@@ -120,8 +120,8 @@ void CLI::init(void)
     }
     // else if (sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS) == 0) {
     //     CLI_ledStatus.setColor(RGB_COLOR_BLUE);
-    // } 
-    Particle.syncTime();
+    // }
+    SF_HAL::cloud_sync_time();
 
     // While there is an avaliable character typed, get it
     while (SF_OSAL_kbhit())
@@ -227,50 +227,50 @@ static void CLI_sleepGetSleepBehavior(void)
 
 void CLI_displayResetReason(void)
 {
-    uint16_t reset_reason = System.resetReason();
-    SF_OSAL_printf("Reset Reason: %hd", reset_reason);
+    SF_HAL::ResetReason reset_reason = SF_HAL::reset_reason();
+    SF_OSAL_printf("Reset Reason: %hd", static_cast<uint8_t>(reset_reason));
     switch (reset_reason)
     {
-    case RESET_REASON_PIN_RESET:
+    case SF_HAL::ResetReason::PIN_RESET:
         SF_OSAL_printf("nRESET Assertion");
         break;
-    case RESET_REASON_POWER_MANAGEMENT:
+    case SF_HAL::ResetReason::POWER_MANAGEMENT:
         SF_OSAL_printf("Low Power Management Reset");
         break;
-    case RESET_REASON_POWER_DOWN:
+    case SF_HAL::ResetReason::POWER_DOWN:
         SF_OSAL_printf("Power-down Reset");
         break;
-    case RESET_REASON_POWER_BROWNOUT:
+    case SF_HAL::ResetReason::POWER_BROWNOUT:
         SF_OSAL_printf("Brownout Reset");
         break;
-    case RESET_REASON_WATCHDOG:
+    case SF_HAL::ResetReason::WATCHDOG:
         SF_OSAL_printf("Watchdog Reset");
         break;
-    case RESET_REASON_UPDATE:
+    case SF_HAL::ResetReason::UPDATE:
         SF_OSAL_printf("FW Update Success");
         break;
-    case RESET_REASON_UPDATE_TIMEOUT:
+    case SF_HAL::ResetReason::UPDATE_TIMEOUT:
         SF_OSAL_printf("FW Update Timeout");
         break;
-    case RESET_REASON_FACTORY_RESET:
+    case SF_HAL::ResetReason::FACTORY_RESET:
         SF_OSAL_printf("Factory Reset");
         break;
-    case RESET_REASON_SAFE_MODE:
+    case SF_HAL::ResetReason::SAFE_MODE:
         SF_OSAL_printf("Safe Mode");
         break;
-    case RESET_REASON_DFU_MODE:
+    case SF_HAL::ResetReason::DFU_MODE:
         SF_OSAL_printf("DFU mode");
         break;
-    case RESET_REASON_PANIC:
+    case SF_HAL::ResetReason::PANIC:
         SF_OSAL_printf("System Panic");
         break;
-    case RESET_REASON_USER:
+    case SF_HAL::ResetReason::USER:
         SF_OSAL_printf("User Reset");
         break;
-    case RESET_REASON_NONE:
+    case SF_HAL::ResetReason::NONE:
         SF_OSAL_printf("No info available");
         break;
-    case RESET_REASON_UNKNOWN:
+    case SF_HAL::ResetReason::UNKNOWN:
     default:
         SF_OSAL_printf("Unknown Reset");
         break;
@@ -570,34 +570,31 @@ static void CLI_monitorSensors(void)
                 break;
             }
         }
-        sensor_headers[SensorHeader_Time].value = millis();
+        sensor_headers[SensorHeader_Time].value = SF_HAL::millis();
         if (sensors[ACCEL])
         {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
             pSystemDesc->pIMU->getAccel_ms2(sensor_headers[SensorHeader_AccelX].value,
                                             sensor_headers[SensorHeader_AccelY].value,
                                             sensor_headers[SensorHeader_AccelZ].value);
-#endif
         }
         if (sensors[GYRO])
         {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
             pSystemDesc->pIMU->getRotVel_dps(sensor_headers[SensorHeader_GyroX].value,
                                              sensor_headers[SensorHeader_GyroY].value,
                                              sensor_headers[SensorHeader_GyroZ].value);
-#endif
         }
         if (sensors[MAG])
         {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
             pSystemDesc->pIMU->getMag_uT(sensor_headers[SensorHeader_MagX].value,
                                          sensor_headers[SensorHeader_MagY].value,
                                          sensor_headers[SensorHeader_MagZ].value);
-#endif
         }
         if (sensors[DMP])
         {
-#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
             pSystemDesc->pIMU->getDmpAccel_ms2(sensor_headers[SensorHeader_DMPAccelX].value,
                                                sensor_headers[SensorHeader_DMPAccelY].value,
                                                sensor_headers[SensorHeader_DMPAccelZ].value);
@@ -612,7 +609,6 @@ static void CLI_monitorSensors(void)
             pSystemDesc->pIMU->getDmpMag_uT(sensor_headers[SensorHeader_DMPMagX].value,
                                             sensor_headers[SensorHeader_DMPMagY].value,
                                             sensor_headers[SensorHeader_DMPMagZ].value);
-#endif
         }
         if (sensors[TEMP])
         {
@@ -628,16 +624,14 @@ static void CLI_monitorSensors(void)
             sensor_headers[SensorHeader_WetDryStatus].value =
                 pSystemDesc->pWaterSensor->getLastStatus();
         }
+
 #if SF_ENABLE_GPS
-        if (sensors[GPS])
-        {
-            pSystemDesc->pLocService->getLocation(point);
-            sensor_headers[SensorHeader_GpsLock].value = point.locked;
-            sensor_headers[SensorHeader_GpsNSats].value = point.satsInUse;
-            sensor_headers[SensorHeader_GpsLat].value = point.latitude;
-            sensor_headers[SensorHeader_GpsLon].value = point.longitude;
-            sensor_headers[SensorHeader_GpsAlt].value = point.altitude;
-        }
+        pSystemDesc->pLocService->getLocation(point);
+        sensor_headers[SensorHeader_GpsLock].value = point.locked;
+        sensor_headers[SensorHeader_GpsNSats].value = point.satsInUse;
+        sensor_headers[SensorHeader_GpsLat].value = point.latitude;
+        sensor_headers[SensorHeader_GpsLon].value = point.longitude;
+        sensor_headers[SensorHeader_GpsAlt].value = point.altitude;
 #endif
 
         if (count % 20 == 0)
@@ -676,7 +670,7 @@ static void CLI_monitorSensors(void)
         }
         SF_OSAL_printf("|" __NL__);
         count++;
-        delay(delayTime);
+        SF_HAL::delay_ms(delayTime);
     }
     pSystemDesc->pTempSensor->stop();
     pSystemDesc->pChargerCheck->start();
@@ -716,7 +710,7 @@ static void CLI_doEnsemble(void)
     int nBytes = pSystemDesc->pRecorder->getLastPacket(packet_buffer,
                                                        SF_PACKET_SIZE,
                                                        packet_name_buffer,
-                                                       particle::protocol::MAX_EVENT_NAME_LENGTH);
+                                                       SF_NAME_MAX);
     if (nBytes < 0)
     {
         SF_OSAL_printf("Failed to get last packet: %d" __NL__, nBytes);
@@ -822,7 +816,7 @@ static void CLI_doBleTest(void)
     const bool tempSensorReady = pSystemDesc->pTempSensor->init();
     SF_OSAL_printf("[BLE TEST] temp sensor init: %s" __NL__,
                    tempSensorReady ? "OK" : "FAILED");
-    delay(500);
+    SF_HAL::delay_ms(500);
 
     float tempProbe = pSystemDesc->pTempSensor->getTemp();
     if (std::isfinite(tempProbe))
@@ -848,7 +842,7 @@ static void CLI_doBleTest(void)
     DeploymentSchedule_t *pNextEvent = nullptr;
     uint32_t nextEventTime = 0;
     uint32_t ensCount = 0;
-    uint32_t lastStatusMs = millis();
+    uint32_t lastStatusMs = SF_HAL::millis();
     bool quit = false;
 
     while (!quit)
@@ -868,7 +862,7 @@ static void CLI_doBleTest(void)
             }
         }
 
-        uint32_t now = millis();
+        uint32_t now = SF_HAL::millis();
         if (now - lastStatusMs >= 2000)
         {
             tempProbe = pSystemDesc->pTempSensor->getTemp();
@@ -888,16 +882,16 @@ static void CLI_doBleTest(void)
             lastStatusMs = now;
         }
 
-        SCH_error_e ret = bleScheduler.getNextTask(&pNextEvent, &nextEventTime, millis());
+        SCH_error_e ret = bleScheduler.getNextTask(&pNextEvent, &nextEventTime, SF_HAL::millis());
         if (ret == TASK_SEARCH_FAIL)
         {
             SF_OSAL_printf("Scheduler error — aborting BLE test" __NL__);
             break;
         }
 
-        while (millis() < nextEventTime && !quit)
+        while (SF_HAL::millis() < nextEventTime && !quit)
         {
-            Particle.process();
+            SF_HAL::cloud_process();
             if (SF_OSAL_kbhit())
             {
                 char ch = SF_OSAL_getch();
@@ -906,7 +900,7 @@ static void CLI_doBleTest(void)
                     quit = true;
                 }
             }
-            delay(1);
+            SF_HAL::delay_ms(1);
         }
 
         if (quit)

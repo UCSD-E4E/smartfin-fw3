@@ -11,13 +11,13 @@
 #include "rideTask.hpp"
 
 #include "ble/ble_live_stream.hpp"
+#include "ble/high_rate_stream.hpp"
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
 #include "deploy/ensembleTypes.hpp"
 #include "deploy/ensembles.hpp"
-#include "ble/high_rate_stream.hpp"
-#include "imu/newIMU.hpp"
+#include "platform/hal.hpp"
 #include "product.hpp"
 #include "system.hpp"
 
@@ -28,10 +28,10 @@
 DeploymentSchedule_t deploymentSchedule[] = {
     // measure,                 init,                       accumulate, interval,   duration,   delay,  name, state
     {SS_fwVerFunc,              SS_fwVerInit,               1,          UINT32_MAX, 1,          0,      "FW VER", {0}},
-    // high rate IMU ensemble
-    {SS_Ensemble12_x0C_Func,        SS_Ensemble12_x0C_Init,         1,          18,        1,          0,      "HDR IMU", {0}},
-    // temp + wet/dry
-    {SS_Ensemble01_Func,        SS_Ensemble01_Init,         1,          100,        2,         0,      "Temp",   {0}},
+#if defined(SF_HIGH_DATA_RATE)
+    {SS_HighRateIMU_x0D_Func,   SS_HighRateIMU_x0D_Init,    1,          50,         1,          0,      "HDR IMU+Q", {0}},
+#endif
+    {SS_Ensemble01_Func,        SS_Ensemble01_Init,         1,          1000,       20,         0,      "Temp",   {0}},
     // {SS_ensemble10Func, SS_ensemble10Init, 1, 1000, 50, 0, "Temp + IMU + GPS", {0}},
     {nullptr, nullptr, 0, 0, 0, 0, nullptr, {0}}};
 // clang-format on
@@ -46,7 +46,7 @@ RideTask::RideTask() : scheduler(deploymentSchedule)
  */
 void RideTask::init()
 {
-    SF_OSAL_printf("Entering STATE_DEPLOYED at %" PRId32 __NL__, millis());
+    SF_OSAL_printf("Entering STATE_DEPLOYED at %" PRId32 __NL__, SF_HAL::millis());
     pSystemDesc->pChargerCheck->stop();
     this->ledStatus.setColor(RIDE_RGB_LED_COLOR);
 #if SF_ENABLE_GPS
@@ -59,7 +59,7 @@ void RideTask::init()
     this->ledStatus.setPriority(RIDE_RGB_LED_PRIORITY);
     this->ledStatus.setActive();
 
-    this->startTime = millis();
+    this->startTime = SF_HAL::millis();
     this->sessionTimeSet = false;
 #if ENABLE_STREAM_SINK
     BleLiveStream::getInstance().init();
@@ -82,7 +82,7 @@ void RideTask::init()
 STATES_e RideTask::run(void)
 {
     DeploymentSchedule_t *pNextEvent = NULL;
-    system_tick_t nextEventTime;
+    SF_HAL::tick_t nextEventTime;
 
     unsigned long start, stop;
 
@@ -93,42 +93,42 @@ STATES_e RideTask::run(void)
         {
             break;
         }
-        else if (millis() - this->startTime > SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS)
+        else if (SF_HAL::millis() - this->startTime > SURF_SESSION_GET_INTO_WATER_TIMEOUT_MS)
         {
             return STATE_DEEP_SLEEP;
         }
-        Particle.process();
-        delay(1000);
+        SF_HAL::cloud_process();
+        SF_HAL::delay_ms(1000);
     }
-    this->deployTime = millis();
+    this->deployTime = SF_HAL::millis();
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, this->deployTime);
     this->scheduler.initializeScheduler();
     Ens_setStartTime();
 #if ENABLE_RECORD_SINK
-    if (pSystemDesc->pRecorder && Time.isValid())
+    if (pSystemDesc->pRecorder && SF_HAL::time_is_valid())
     {
-        pSystemDesc->pRecorder->setSessionTime(Time.now());
+        pSystemDesc->pRecorder->setSessionTime(SF_HAL::time_now());
         this->sessionTimeSet = true;
     }
 #endif
     FLOG_AddError(FLOG_RIDE_DEPLOY, this->deployTime);
-    this->ledStatus.setPattern(LED_PATTERN_FADE);
+    this->ledStatus.setPattern(SF_HAL::LedPattern::FADE);
 
     while (1)
     {
         if (!this->sessionTimeSet)
         {
 #if ENABLE_RECORD_SINK
-            if (pSystemDesc->pRecorder && Time.isValid())
+            if (pSystemDesc->pRecorder && SF_HAL::time_is_valid())
             {
-                pSystemDesc->pRecorder->setSessionTime(Time.now() -
-                                                       (millis() - this->deployTime) / 1000);
+                pSystemDesc->pRecorder->setSessionTime(
+                    SF_HAL::time_now() - (SF_HAL::millis() - this->deployTime) / 1000);
                 this->sessionTimeSet = true;
             }
 #endif
         }
-        SCH_error_e retval =
-            this->scheduler.getNextTask(&pNextEvent, (std::uint32_t *)&nextEventTime, millis());
+        SCH_error_e retval = this->scheduler.getNextTask(
+            &pNextEvent, (std::uint32_t *)&nextEventTime, SF_HAL::millis());
         // Check if scheduler failed to find nextEvent
         if (TASK_SEARCH_FAIL == retval)
         {
@@ -140,9 +140,9 @@ STATES_e RideTask::run(void)
         {
             // SF_OSAL_printf("Next task is %s at %d" __NL__, pNextEvent->taskName, nextEventTime);
         }
-        while (millis() < nextEventTime)
+        while (SF_HAL::millis() < nextEventTime)
         {
-            Particle.process();
+            SF_HAL::cloud_process();
             if (!pSystemDesc->pWaterSensor->getLastStatus())
             {
                 SF_OSAL_printf("Out of water!" __NL__);
@@ -157,13 +157,13 @@ STATES_e RideTask::run(void)
                 SF_OSAL_printf("Low Battery!" __NL__);
                 return STATE_DEEP_SLEEP;
             }
-            delay(1);
+            SF_HAL::delay_ms(1);
 #if ENABLE_STREAM_SINK
 #endif
         }
-        start = micros();
+        start = SF_HAL::micros();
         pNextEvent->measure(pNextEvent);
-        stop = micros();
+        stop = SF_HAL::micros();
         pNextEvent->state.durationAccumulate += stop - start;
         // SF_OSAL_printf(
         //     "Started at %lu us, Ends at %lu us, elapsed %lu us" __NL__, start, stop, stop -
