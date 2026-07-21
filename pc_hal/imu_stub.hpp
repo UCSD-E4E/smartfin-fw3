@@ -63,16 +63,17 @@ public:
     }
 
     /**
-     * @brief Returns false; leaves acceleration references unchanged.
-     * @param acc_x Unused.
-     * @param acc_y Unused.
-     * @param acc_z Unused.
+     * @brief Returns false; zeroes the acceleration references.
+     * @param acc_x Set to 0.0f.
+     * @param acc_y Set to 0.0f.
+     * @param acc_z Set to 0.0f.
      * @return false.
      */
-    bool getAccel_ms2(float & /*acc_x*/,
-                      float & /*acc_y*/,
-                      float & /*acc_z*/) override
+    bool getAccel_ms2(float &acc_x, float &acc_y, float &acc_z) override
     {
+        acc_x = 0.0f;
+        acc_y = 0.0f;
+        acc_z = 0.0f;
         return false;
     }
 
