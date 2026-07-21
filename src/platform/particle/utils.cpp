@@ -12,6 +12,10 @@
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
 #include "Particle.h"
 
+#include <cstdint>
+#include <cstdio>
+#include <string>
+#include <vector>
 
 namespace SF_HAL
 {
