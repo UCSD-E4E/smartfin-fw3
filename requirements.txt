@@ -6,7 +6,7 @@ kiwisolver==1.5.0
 matplotlib==3.10.8
 numpy==2.4.4
 packaging==26.0
-pillow==12.2.0
+pillow==12.3.0
 pyobjc-core==12.1; sys_platform == "darwin"
 pyobjc-framework-Cocoa==12.1; sys_platform == "darwin"
 pyobjc-framework-CoreBluetooth==12.1; sys_platform == "darwin"
