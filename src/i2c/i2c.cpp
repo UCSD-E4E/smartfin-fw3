@@ -6,8 +6,6 @@
 
 #include <stdint.h>
 
-// Map MBED I2C class to the Particle IO Device OS I2C class.
-
 int I2C::read(uint8_t address, char *data, int length, bool repeated)
 {
 
