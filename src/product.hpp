@@ -11,6 +11,8 @@
 #ifndef __PRODUCT_HPP__
 #define __PRODUCT_HPP__
 
+#include "platform/hal_types.hpp"
+
 /** @brief Set to 1 to compile GPS support; 0 to exclude (saves SRAM). */
 #define SF_ENABLE_GPS 0
 
