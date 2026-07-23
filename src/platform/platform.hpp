@@ -19,7 +19,7 @@
 /** @brief GoogleTest host target. */
 #define SF_PLATFORM_GOOGLETEST  3
 
-/** @brief Arduino Uno Q target. */
+/** @brief Arduino Uno Q target (QRB2210 Debian Linux side). */
 #define SF_PLATFORM_UNOQ 4
 
 /**
@@ -52,6 +52,8 @@ constexpr const char* PLATFORM = "Particle";
 constexpr const char* PLATFORM = "GLibC";
 #elif SF_PLATFORM == SF_PLATFORM_GOOGLETEST
 constexpr const char* PLATFORM = "GoogleTest";
+#elif SF_PLATFORM == SF_PLATFORM_UNOQ
+    constexpr const char *PLATFORM = "UnoQ";
 #else
 constexpr const char* PLATFORM = "Unknown";
 #endif
