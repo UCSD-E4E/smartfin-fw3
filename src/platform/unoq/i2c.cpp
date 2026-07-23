@@ -18,21 +18,24 @@
 
 #include "ipc/hal_rpc_protocol.h"
 
-namespace
-{
-
 /**
  * @brief Placeholder TwoWire satisfying i2c_get_wire()'s return type.
  *
- * Exists only because the IMU driver (src/imu/newIMU.hpp) has not yet been
- * decoupled from Particle's TwoWire type (see the TODO in that file).
- * Never used for real I2C traffic on this platform; i2c_read()/i2c_write()
- * are the real path. Remove alongside hal.hpp's i2c_get_wire() and
- * class TwoWire; forward declaration once the IMU rework lands.
+ * Must be defined at global scope to complete hal.hpp's
+ * @c class @c TwoWire; forward declaration; an anonymous-namespace
+ * definition would be a distinct, incompatible type. Exists only because
+ * the IMU driver (src/imu/newIMU.hpp) has not yet been decoupled from
+ * Particle's TwoWire type (see the TODO in that file). Never used for
+ * real I2C traffic on this platform; i2c_read()/i2c_write() are the real
+ * path. Remove alongside hal.hpp's i2c_get_wire() and this forward
+ * declaration once the IMU rework lands.
  */
 class TwoWire
 {
 };
+
+namespace
+{
 
 TwoWire g_dummy_wire;
 
