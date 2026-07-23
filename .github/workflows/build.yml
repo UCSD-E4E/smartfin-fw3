@@ -17,7 +17,11 @@ jobs:
     
     - name: Set up environment
       run: |
-        sudo apt-get update && sudo apt-get install -y cmake build-essential        
+        sudo apt-get update && sudo apt-get install -y cmake build-essential gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+
+    - name: Verify ARM cross-toolchain
+      run: |
+        arm-none-eabi-gcc --version
 
     - name: Build and run tests
       run: |
