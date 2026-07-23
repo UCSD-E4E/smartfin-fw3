@@ -6,6 +6,10 @@
  */
 #pragma once
 
+#include "platform/platform.hpp"
+
+#if SF_PLATFORM == SF_PLATFORM_PARTICLE
+
 #include "Particle.h"
 #include "platform/hal.hpp"
 
@@ -37,3 +41,5 @@ inline int pinToInt(PinId id)
 }
 
 } // namespace SF_HAL
+
+#endif // SF_PLATFORM == SF_PLATFORM_PARTICLE

@@ -7,7 +7,10 @@
  */
 #pragma once
 
-#include "ipc/hal_rpc_protocol.h"
+#include "platform/platform.hpp"
+
+#if SF_PLATFORM == SF_PLATFORM_UNOQ
+
 #include "platform/hal.hpp"
 
 #include <cstdint>
@@ -32,3 +35,5 @@ inline uint8_t pinToWireId(PinId id)
 }
 
 } // namespace SF_HAL
+
+#endif // SF_PLATFORM == SF_PLATFORM_UNOQ
