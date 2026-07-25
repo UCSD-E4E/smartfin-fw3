@@ -12,27 +12,30 @@
 
 #include "platform/hal.hpp"
 
+#include <pthread.h>
+
 namespace SF_HAL
 {
 
 Mutex::Mutex()
 {
-    // TODO(unoq): allocate and initialise a pthread_mutex_t into _handle.
+    pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+    _handle = &mut;
 }
 
 Mutex::~Mutex()
 {
-    // TODO(unoq): destroy and release the pthread_mutex_t.
+    pthread_mutex_destroy(static_cast<pthread_mutex_t *>(_handle));
 }
 
 void Mutex::lock()
 {
-    // TODO(unoq): pthread_mutex_lock() on the underlying handle.
+    pthread_mutex_lock(static_cast<pthread_mutex_t *>(_handle));
 }
 
 void Mutex::unlock()
 {
-    // TODO(unoq): pthread_mutex_unlock() on the underlying handle.
+    pthread_mutex_unlock(static_cast<pthread_mutex_t *>(_handle));
 }
 
 } // namespace SF_HAL
