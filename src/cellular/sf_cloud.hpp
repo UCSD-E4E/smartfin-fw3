@@ -13,6 +13,7 @@ namespace sf
             OVERSIZE_DATA,
             OVERSIZE_NAME,
             PUBLISH_FAIL,
+            INTERRUPTED,
         }error_e;
 
         /**

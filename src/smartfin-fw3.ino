@@ -53,7 +53,7 @@ static StateMachine_t stateMachine[] = {{STATE_CLI, &cliTask},
                                         {STATE_DEPLOYED, &rideTask},
                                         {STATE_NULL, NULL}};
 
-static STATES_e currentState;
+STATES_e currentState = STATE_CLI;
 
 static StateMachine_t *findState(STATES_e state);
 static void initalizeTaskObjects(void);

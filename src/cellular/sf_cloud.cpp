@@ -1,5 +1,6 @@
 #include "sf_cloud.hpp"
 
+#include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "product.hpp"
 #include "sys/NVRAM.hpp"
@@ -31,9 +32,27 @@ namespace sf::cloud
         n_attempts++;
         nvram.put(NVRAM::CLOUD_CONNECT_COUNTER, n_attempts);
         Particle.connect();
+        static char cliBuf[6] = {0};
+        memset(cliBuf, 0, 6);
         while (!Particle.connected())
         {
             Particle.process();
+            if (SF_OSAL_kbhit())
+            {
+                int ch = SF_OSAL_getch();
+                for (int idx = 0; idx < 4; idx++)
+                {
+                    cliBuf[idx] = cliBuf[idx + 1];
+                }
+                cliBuf[4] = (char)ch;
+                cliBuf[5] = '\0';
+                if (strstr(cliBuf, "#CLI") != NULL || ch == 'q')
+                {
+                    SF_OSAL_printf(__NL__ "CLI interrupt received, aborting cloud connect!" __NL__);
+                    Particle.disconnect();
+                    return INTERRUPTED;
+                }
+            }
             if (millis() > end_time)
             {
                 FLOG_AddError(FLOG_CELL_CONNECT_FAIL_TIMEOUT, timeout_ms);

@@ -236,15 +236,25 @@ extern "C"
                         SF_OSAL_putch('\b');
                     }
                     break;
+                case '\r':
+                    buffer[i] = 0;
+                    SF_OSAL_putch('\r');
+                    SF_OSAL_putch('\n');
+                    return i;
+                case '\n':
+                    if (i == 0)
+                    {
+                        // Ignore leading newline from prior \r\n line ending
+                        break;
+                    }
+                    buffer[i] = 0;
+                    SF_OSAL_putch('\r');
+                    SF_OSAL_putch('\n');
+                    return i;
                 default:
                     buffer[i++] = userInput;
                     SF_OSAL_putch(userInput);
                     break;
-                case '\r':
-                    buffer[i + 1] = 0;
-                    SF_OSAL_putch('\r');
-                    SF_OSAL_putch('\n');
-                    return i;
                 }
             }
 

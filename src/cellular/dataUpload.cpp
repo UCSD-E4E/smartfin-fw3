@@ -22,10 +22,19 @@ void DataUpload::init(void)
     status.setActive();
     SF_OSAL_printf("Entering SYSTEM_STATE_DATA_UPLOAD" __NL__);
 
-    this->initSuccess = 1;
-    if (sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS))
+    sf::cloud::initialize_counter();
+    int res = sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS, true);
+    if (res == sf::cloud::INTERRUPTED)
+    {
+        this->initSuccess = -1;
+    }
+    else if (res != sf::cloud::SUCCESS)
     {
         this->initSuccess = 0;
+    }
+    else
+    {
+        this->initSuccess = 1;
     }
     Particle.syncTime();
 }
@@ -46,7 +55,12 @@ STATES_e DataUpload::can_upload(void)
 
     if (!sf::cloud::is_connected())
     {
-        if (sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS))
+        int res = sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS, true);
+        if (res == sf::cloud::INTERRUPTED)
+        {
+            return STATE_CLI;
+        }
+        else if (res != sf::cloud::SUCCESS)
         {
             // Lost connection and failed to reconnect
             return STATE_DEEP_SLEEP;
@@ -82,6 +96,12 @@ STATES_e DataUpload::run(void)
     STATES_e next_state;
     int retval;
     size_t recordsUploaded = 0;
+
+    if (this->initSuccess == -1)
+    {
+        SF_OSAL_printf("CLI interrupt during DataUpload init" __NL__);
+        return STATE_CLI;
+    }
 
     if (!this->initSuccess)
     {

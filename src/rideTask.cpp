@@ -86,8 +86,27 @@ STATES_e RideTask::run(void)
 
     unsigned long start, stop;
 
+    static char cliBuf[6] = {0};
+    memset(cliBuf, 0, 6);
+
     while (1)
     {
+        if (SF_OSAL_kbhit())
+        {
+            int ch = SF_OSAL_getch();
+            for (int idx = 0; idx < 4; idx++)
+            {
+                cliBuf[idx] = cliBuf[idx + 1];
+            }
+            cliBuf[4] = (char)ch;
+            cliBuf[5] = '\0';
+            if (strstr(cliBuf, "#CLI") != NULL || ch == 'q')
+            {
+                SF_OSAL_printf(__NL__ "CLI interrupt in RideTask!" __NL__);
+                return STATE_CLI;
+            }
+        }
+
         // Wait for positive in-water signal.  This is run by waterCheck
         if (pSystemDesc->pWaterSensor->getLastStatus())
         {
@@ -143,6 +162,21 @@ STATES_e RideTask::run(void)
         while (millis() < nextEventTime)
         {
             Particle.process();
+            if (SF_OSAL_kbhit())
+            {
+                int ch = SF_OSAL_getch();
+                for (int idx = 0; idx < 4; idx++)
+                {
+                    cliBuf[idx] = cliBuf[idx + 1];
+                }
+                cliBuf[4] = (char)ch;
+                cliBuf[5] = '\0';
+                if (strstr(cliBuf, "#CLI") != NULL || ch == 'q')
+                {
+                    SF_OSAL_printf(__NL__ "CLI interrupt in RideTask!" __NL__);
+                    return STATE_CLI;
+                }
+            }
             if (!pSystemDesc->pWaterSensor->getLastStatus())
             {
                 SF_OSAL_printf("Out of water!" __NL__);

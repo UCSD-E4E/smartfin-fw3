@@ -15,6 +15,7 @@
 
 #include "consts.hpp"
 #include "states.hpp"
+#include "cli/cli.hpp"
 #include "product.hpp"
 
 #include "sys/led.hpp"
@@ -361,6 +362,12 @@ static LocationServiceConfiguration create_location_service_config() {
 void SYS_displaySys(void)
 {
     SF_OSAL_printf("Device ID: %s" __NL__, pSystemDesc->deviceID);
+    SF_OSAL_printf("Current State: %s (%d)" __NL__,
+                   (currentState < STATE_N_STATES && currentState >= 0) ? STATES_NAME_TAB[currentState] : "UNKNOWN",
+                   currentState);
+    SF_OSAL_printf("CLI Target Next State: %s (%d)" __NL__,
+                   (CLI_nextState < STATE_N_STATES && CLI_nextState >= 0) ? STATES_NAME_TAB[CLI_nextState] : "UNKNOWN",
+                   CLI_nextState);
 #if SF_ENABLE_GPS
     SF_OSAL_printf("Location Service: 0x%08x" __NL__, pSystemDesc->pLocService);
 #endif
