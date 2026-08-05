@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Threads REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SDBUS REQUIRED libsystemd)
+pkg_check_modules(MSGPACK REQUIRED msgpack-c)
+
 include_directories(
     .
     ../
@@ -58,6 +62,7 @@ set(SMARTFIN_SOURCE_FILES
     ../src/ble/ble_packet_builder.cpp
     ../src/ble/sf_ble.cpp
     ../src/ble/high_rate_stream.cpp
+    ../src/platform/unoq/rpc_client.cpp
     ../src/platform/unoq/gpio.cpp
     ../src/platform/unoq/i2c.cpp
     ../src/platform/unoq/timing.cpp
@@ -73,6 +78,10 @@ set(SMARTFIN_SOURCE_FILES
     ../src/platform/unoq/utils.cpp
 )
 add_executable(smartfin_unoq ${SMARTFIN_SOURCE_FILES})
+target_include_directories(smartfin_unoq PRIVATE ${MSGPACK_INCLUDE_DIRS} ${SDBUS_INCLUDE_DIRS})
+target_compile_options(smartfin_unoq PRIVATE ${MSGPACK_CFLAGS_OTHER} ${SDBUS_CFLAGS_OTHER})
 target_link_libraries(smartfin_unoq
     Threads::Threads
+    ${MSGPACK_LIBRARIES}
+    ${SDBUS_LIBRARIES}
 )
