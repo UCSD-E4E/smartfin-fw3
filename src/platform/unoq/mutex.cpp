@@ -17,26 +17,29 @@
 namespace SF_HAL
 {
 
-Mutex::Mutex()
-{
-    pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
-    _handle = &mut;
-}
+    Mutex::Mutex()
+    {
+        auto *mut = new pthread_mutex_t;
+        pthread_mutex_init(mut, nullptr);
+        _handle = mut;
+    }
 
-Mutex::~Mutex()
-{
-    pthread_mutex_destroy(static_cast<pthread_mutex_t *>(_handle));
-}
+    Mutex::~Mutex()
+    {
+        auto *mut = static_cast<pthread_mutex_t *>(_handle);
+        pthread_mutex_destroy(mut);
+        delete mut;
+    }
 
-void Mutex::lock()
-{
-    pthread_mutex_lock(static_cast<pthread_mutex_t *>(_handle));
-}
+    void Mutex::lock()
+    {
+        pthread_mutex_lock(static_cast<pthread_mutex_t *>(_handle));
+    }
 
-void Mutex::unlock()
-{
-    pthread_mutex_unlock(static_cast<pthread_mutex_t *>(_handle));
-}
+    void Mutex::unlock()
+    {
+        pthread_mutex_unlock(static_cast<pthread_mutex_t *>(_handle));
+    }
 
 } // namespace SF_HAL
 
