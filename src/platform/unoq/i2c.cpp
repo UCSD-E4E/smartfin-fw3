@@ -14,9 +14,8 @@
 
 #if SF_PLATFORM == SF_PLATFORM_UNOQ
 
-#include "platform/hal.hpp"
-
 #include "ipc/hal_rpc_protocol.h"
+#include "platform/hal.hpp"
 
 /**
  * @brief Placeholder TwoWire satisfying i2c_get_wire()'s return type.
