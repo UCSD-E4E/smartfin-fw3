@@ -48,6 +48,25 @@
             "cppStandard": "c++11",
             "configurationProvider": "ms-vscode.cmake-tools",
             "mergeConfigurations": true
+        },
+        {
+            "name": "UnoQ",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/pc_hal",
+                "${workspaceFolder}/lib/tracker-edge/src",
+                "${workspaceFolder}/lib/gps-ublox/src",
+                "${workspaceFolder}/lib/gps-nmea-parser/src",
+                "${workspaceFolder}/lib/gps-quectel/src"
+            ],
+            "defines": [
+                "SF_PLATFORM=SF_PLATFORM_UNOQ"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
         }
     ],
     "version": 4
