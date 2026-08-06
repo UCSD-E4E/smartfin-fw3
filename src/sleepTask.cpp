@@ -77,14 +77,66 @@ void SleepTask::init(void)
 
 STATES_e SleepTask::run(void)
 {
+    SF_OSAL_printf(__NL__ "USB connected while entering Deep Sleep." __NL__);
+    SF_OSAL_printf("Choose USB sleep behavior:" __NL__);
+    SF_OSAL_printf("  1: Remain in Deep Sleep (Black LED test mode)" __NL__);
+    SF_OSAL_printf("  2: Go to Charge Mode (Solid Yellow LED)" __NL__);
+    SF_OSAL_printf("  q / #CLI: Return to CLI Menu" __NL__);
+    SF_OSAL_printf("Select option (defaulting to 1 - Deep Sleep): " __NL__);
 
-    SF_OSAL_printf("We're supposed to be asleep! Resetting state machine..." __NL__);
-    // Check if water level's have been updateds
-    if (pSystemDesc->pWaterSensor->getLastStatus() && !pSystemDesc->flags->batteryLow)
+    static char cliBuf[6] = {0};
+    memset(cliBuf, 0, 6);
+
+    bool userChosenCharge = false;
+
+    while (digitalRead(SF_USB_PWR_DETECT_PIN))
     {
-        SF_OSAL_printf("In water!" __NL__);
-        return STATE_DEPLOYED;
+        Particle.process();
+        if (SF_OSAL_kbhit())
+        {
+            int ch = SF_OSAL_getch();
+            for (int idx = 0; idx < 4; idx++)
+            {
+                cliBuf[idx] = cliBuf[idx + 1];
+            }
+            cliBuf[4] = (char)ch;
+            cliBuf[5] = '\0';
+
+            if (ch == '1')
+            {
+                SF_OSAL_printf(__NL__ "Remaining in Deep Sleep test mode (Black LED active)." __NL__);
+                SF_OSAL_printf("Type '#CLI' or 'q' at any time to return to CLI menu." __NL__);
+            }
+            else if (ch == '2' || ch == 'c')
+            {
+                SF_OSAL_printf(__NL__ "Switching to Charge Mode..." __NL__);
+                userChosenCharge = true;
+                break;
+            }
+            else if (strstr(cliBuf, "#CLI") != NULL || ch == 'q')
+            {
+                SF_OSAL_printf(__NL__ "CLI interrupt in SleepTask!" __NL__);
+                return STATE_CLI;
+            }
+        }
+        if (pSystemDesc->pWaterSensor->getLastStatus() && !pSystemDesc->flags->batteryLow)
+        {
+            SF_OSAL_printf(__NL__ "In water!" __NL__);
+            return STATE_DEPLOYED;
+        }
+        delay(10);
     }
+
+    if (userChosenCharge)
+    {
+        return STATE_CHARGE;
+    }
+
+    if (!digitalRead(SF_USB_PWR_DETECT_PIN))
+    {
+        SF_OSAL_printf(__NL__ "USB disconnected! Resetting state machine..." __NL__);
+    }
+
     return SF_DEFAULT_STATE;
 }
 
