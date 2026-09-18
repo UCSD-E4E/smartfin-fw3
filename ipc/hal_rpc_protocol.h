@@ -6,10 +6,14 @@
  *        firmware.
  * @date 2026-07-23
  *
- * Uno Q's own inter-processor link (Arduino's "Bridge") is MessagePack-RPC
- * over SPI. This header adopts that same wire-level scheme rather than a
- * bespoke frame format, so both sides speak a documented protocol instead
- * of one invented for this project. It fixes only the method names and
+ * MessagePack-RPC was adopted rather than a bespoke frame format so that
+ * both sides speak a documented protocol instead of one invented for this
+ * project. Note this is our own choice, not compatibility with anything on
+ * the board: Arduino's "Bridge" link runs over LPUART1 on the Uno Q and we
+ * replace the stock MCU firmware entirely, so both ends of this link are
+ * ours. (An earlier version of this comment asserted Bridge itself is
+ * MessagePack-RPC over SPI. That is unverified and, either way, nothing
+ * here depends on it.) It fixes only the method names and
  * message shape both sides must agree on; encoding/decoding is left to
  * whichever MessagePack library each side links (e.g. CMP on the bare-metal
  * MCU, msgpack-cxx on Linux), so this header contains no MessagePack
@@ -26,6 +30,48 @@
  * no dynamic allocation.
  */
 #define SF_RPC_MAX_MESSAGE_LEN 128
+
+/**
+ * @brief Size in bytes of one SPI frame on the wire.
+ *
+ * Every SPI transaction exchanges exactly this many bytes in each
+ * direction. Messages shorter than a frame are padded; see
+ * @c SF_RPC_FRAME_EMPTY.
+ */
+#define SF_RPC_FRAME_LEN SF_RPC_MAX_MESSAGE_LEN
+
+/**
+ * @brief First byte of a frame carrying no message.
+ *
+ * This is MessagePack @c nil. Every real message is an array, whose first
+ * byte is a fixarray header (0x93 or 0x94), so @c nil is unambiguous as an
+ * "empty frame" marker and needs no out-of-band signalling. Used to pad
+ * the master's poll frames and the MCU's frames when no response is ready.
+ */
+#define SF_RPC_FRAME_EMPTY 0xC0
+
+/**
+ * @brief Responses are deferred by one transaction.
+ *
+ * SPI slaves cannot initiate: the QRB2210 master clocks every bit, so the
+ * MCU has no way to signal "my answer is ready". Rather than spend a GPIO
+ * on a ready line (which on this board would mean routing an MCU pin out
+ * to JMISC and level-shifting 3.3 V down to the MPU's 1.8 V, so a carrier
+ * respin), the link uses split transactions:
+ *
+ *   transaction N:   master sends a request frame, MCU returns whatever
+ *                    response it had ready, or @c SF_RPC_FRAME_EMPTY.
+ *   transaction N+1: master sends the next request (or an empty poll
+ *                    frame), MCU returns the response to request N.
+ *
+ * Every exchange is therefore exactly two transactions, and responses ride
+ * along on traffic the master was sending anyway, such as the regular
+ * sample-buffer drain. Notifications (@c SF_RPC_MSG_NOTIFICATION) produce
+ * no response and so occupy only one transaction.
+ *
+ * A ready GPIO remains a possible later optimisation for latency; it would
+ * not change the message shapes defined here.
+ */
 
 /**
  * @brief msgpack-rpc message type, the first element of every message array.
@@ -102,6 +148,31 @@ enum SF_RPC_MessageType
 #define SF_RPC_METHOD_GET_FW_VERSION "get_fw_version"
 
 /**
+ * @brief Method name to drain buffered sensor samples from the MCU.
+ *
+ * The MCU samples on its own hardware-timer schedule into a ring buffer
+ * and never pushes; Linux drains the buffer by calling this. That keeps
+ * capture timing off Linux's scheduler, which is the whole point of the
+ * buffered/polled design.
+ *
+ * Params: [max_samples]. Result: [status, count, data (bin)], where
+ * @c count samples are packed contiguously in @c data, oldest first, and
+ * @c count may be less than @c max_samples (including zero) when fewer are
+ * buffered. Draining is destructive: returned samples are dropped from the
+ * ring.
+ *
+ * @c status is @c SF_RPC_STATUS_ERR_OVERRUN if the ring overflowed since
+ * the previous drain, meaning samples were lost; the samples returned are
+ * still valid.
+ *
+ * @note The per-sample byte layout is deliberately not fixed here yet. It
+ *       depends on whether the IMU hangs off the STM32 or the QRB2210,
+ *       which is still open, and that decides whether IMU data belongs in
+ *       this buffer at all.
+ */
+#define SF_RPC_METHOD_READ_SAMPLES "read_samples"
+
+/**
  * @brief Application-level result status, distinct from the msgpack-rpc
  *        protocol-level error slot.
  *
@@ -119,6 +190,7 @@ enum SF_RPC_Status
     SF_RPC_STATUS_OK = 0,           ///< Request completed successfully.
     SF_RPC_STATUS_ERR_GENERIC = -1, ///< Unspecified failure.
     SF_RPC_STATUS_ERR_TIMEOUT = -2, ///< Peripheral did not respond in time.
+    SF_RPC_STATUS_ERR_OVERRUN = -3, ///< Sample ring overflowed; samples were lost.
 };
 
 #endif // SF_HAL_RPC_PROTOCOL_H
