@@ -17,11 +17,18 @@ jobs:
     
     - name: Set up environment
       run: |
-        sudo apt-get update && sudo apt-get install -y cmake build-essential gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+        sudo apt-get update && sudo apt-get install -y cmake ninja-build build-essential gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
 
     - name: Verify ARM cross-toolchain
       run: |
         arm-none-eabi-gcc --version
+
+    - name: Cross-compile Uno Q peripheral MCU firmware
+      working-directory: unoq_mcu
+      run: |
+        cmake --preset Debug
+        cmake --build --preset Debug
+        arm-none-eabi-size build/Debug/unoq_mcu.elf
 
     - name: Build and run tests
       run: |
@@ -38,6 +45,7 @@ jobs:
         path: |
           build/googletests
           googletest.log
+          unoq_mcu/build/Debug/unoq_mcu.elf
 
   compile:
     runs-on: ubuntu-latest
