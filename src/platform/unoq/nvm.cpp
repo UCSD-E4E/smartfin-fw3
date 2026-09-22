@@ -1,9 +1,10 @@
 /**
  * @file nvm.cpp
  * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
+ * @author Updated by Brent Brewster
  * @brief Uno Q (QRB2210 Linux) implementation of SF_HAL non-volatile memory
  *        functions.
- * @date 2026-07-23
+ * @date 2026-09-22
  *
  * Backed by a plain file on the Linux side, not the STM32U585: the MCU is a
  * dumb GPIO/I2C peripheral server with no NVM RPC verb, and NVM contents
@@ -26,7 +27,8 @@
 namespace SF_HAL
 {
 
-#define NVM_FILE_PATH "/data/.nvm"
+// Updated to a local relative path to avoid WSL root permission errors
+#define NVM_FILE_PATH ".nvm"
 
 /**
  * @brief Open (creating if necessary) the NVM backing file.

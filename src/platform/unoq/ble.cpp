@@ -1,8 +1,9 @@
 /**
  * @file ble.cpp
  * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
+ * @author Updated (Reviewed) by Brent Brewster
  * @brief Uno Q (QRB2210 Linux) implementation of SF_HAL BLE functions.
- * @date 2026-07-23
+ * @date 2026-09-22
  *
  * The BLE radio (WCBN3536A) is handled entirely by Linux via BlueZ; the
  * STM32U585 is not involved. Concrete BlueZ types (D-Bus proxies, GATT

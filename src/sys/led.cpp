@@ -1,22 +1,24 @@
 /**
  * @file led.cpp
+ * @author Brent Brewster
  * @brief Manages onboard LED
  * @version 0.1
- * @date 2023-08-03
+ * @date 2026-09-22
  * 
  * @copyright Copyright (c) 2023
  * 
  */
 
 #include "led.hpp"
-
 #include "platform/hal.hpp"
-SFLed* SFLed::firstLED = NULL;
+
+SFLed* SFLed::firstLED = nullptr;
 
 SFLed::SFLed(SF_HAL::PinId pin, SFLed::SFLED_State_e state)
 {
     this->pin = pin;
     this->state = state;
+    this->nextLED = nullptr;
 }
 
 void SFLed::init(void)
@@ -42,17 +44,30 @@ void SFLed::init(void)
 
 SFLed::~SFLed(void)
 {
-    SFLed* node = SFLed::firstLED;
     SF_HAL::gpio_set_mode(this->pin, SF_HAL::GpioMode::INPUT);
 
-    // remove self from linkedlist
-    while(node != this)
+    SFLed* current = SFLed::firstLED;
+    SFLed* prev = nullptr;
+
+    // Safely remove self from linked list without dereferencing NULL
+    while(current != nullptr)
     {
-        node = node->nextLED;
-    }
-    if(node == this)
-    {
-        SFLed::firstLED = this->nextLED;
+        if(current == this)
+        {
+            if(prev == nullptr)
+            {
+                // We are the head of the list
+                SFLed::firstLED = this->nextLED;
+            }
+            else
+            {
+                // We are in the middle or end of the list
+                prev->nextLED = this->nextLED;
+            }
+            break; // Successfully found and removed
+        }
+        prev = current;
+        current = current->nextLED;
     }
 }
 
@@ -86,7 +101,7 @@ void SFLed::toggle(void)
 void SFLed::doLEDs(void)
 {
     const SFLed* node = SFLed::firstLED;
-    for(; node; node = node->nextLED)
+    for(; node != nullptr; node = node->nextLED)
     {
         switch(node->state)
         {

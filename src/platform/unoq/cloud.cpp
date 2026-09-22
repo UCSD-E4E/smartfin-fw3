@@ -1,9 +1,10 @@
 /**
  * @file cloud.cpp
  * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
+ * @author Updated (Reviewed) by Brent Brewster
  * @brief Uno Q (QRB2210 Linux) implementation of SF_HAL cloud/cellular
  *        functions.
- * @date 2026-07-23
+ * @date 2026-09-22
  *
  * cellular_is_on()/cellular_is_ready() are permanent dummies, not deferred
  * work: neither Uno Q nor its peripheral board carries a cellular modem.
