@@ -282,14 +282,30 @@ are the seven `SF_HAL::PinId` members that `unoq_mcu/pins.hpp`
 dependent, the same blocker as SPI. Peripheral pins (I2C, SPI) are
 assigned by CubeMX itself and are not configured as GPIO by hand.
 
-**Deployment: SWD-flashed, so `STM32U585xx_FLASH.ld` is correct.**
-Resolved against Arduino's and Zephyr's documentation: the STM32 is
-programmed over SWD (STM32CubeProgrammer, OpenOCD or JLink runners, and
-`arduino-cli burn-bootloader` to restore the stock image). The
+**Deployment: SWD-flashed, so `STM32U585xx_FLASH.ld` is correct.** The
 RAM-loaded, remoteproc-style option we had been holding open is not how
 this board works, so the `STM32U585xx_RAM.ld` CubeMX also generated goes
-unused. Local flashing tools are therefore a real need for whoever does
-hardware bring-up, though still not for compiling.
+unused.
+
+**The SWD pins are not brought out, and the QRB2210 is the debug
+adapter.** No external ST-Link can reach the STM32 on this board. The
+QRB2210 bit-bangs SWD over its own Linux GPIO (libgpiod) and exposes an
+OpenOCD server on the board via `arduino-debug`, reached from a host with
+`adb forward tcp:3333 tcp:3333`. Consequences worth knowing:
+
+- Nobody needs to buy a probe, which is convenient, but the flash path
+  runs entirely through the Linux side. A Debian image without Arduino's
+  `arduino-debug`/OpenOCD tooling leaves the MCU unflashable until that
+  tooling is restored.
+- The path is independent of what runs on the MCU, since the adapter is
+  all MPU-side. Replacing Arduino's MCU firmware cannot brick the ability
+  to reflash.
+- Recovery to the stock image is
+  `arduino-cli burn-bootloader -b arduino:zephyr:unoq -P jlink`, run on
+  the board or over `adb shell`.
+- Zephyr's board docs list `stm32cubeprogrammer`, `openocd` and `jlink`
+  runners, but those describe its own `west` integration. We do not use
+  `west`; our route is GDB against the forwarded OpenOCD port.
 
 ## 9. Open questions — needs team discussion
 
