@@ -1,15 +1,13 @@
 /**
  * @file gpio.cpp
  * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
+ * @author Updated by Brent
  * @brief Uno Q (QRB2210 Linux) implementation of SF_HAL GPIO functions.
  * @date 2026-07-23
  *
  * All physical GPIO lives on the STM32U585, so every function here is an
  * SF_RPC client call over the SPI link (via sf_unoq::rpc_call(), see
  * rpc_client.hpp) rather than a direct register access.
- * gpio_write_fast()/gpio_read_fast() fall back to the same RPC path as
- * gpio_write()/gpio_read(), per hal.hpp's documented fallback for
- * platforms without a dedicated fast path.
  */
 #include "platform/platform.hpp"
 
@@ -18,9 +16,7 @@
 #include "platform/hal.hpp"
 #include "platform/unoq/pins.hpp"
 #include "platform/unoq/rpc_client.hpp"
-
 #include "ipc/hal_rpc_protocol.h"
-
 #include <msgpack.h>
 
 namespace SF_HAL
@@ -28,6 +24,11 @@ namespace SF_HAL
 
 void gpio_set_mode(PinId pin, GpioMode mode)
 {
+    // Guard against global teardown passing invalid pin IDs during exit
+    if (static_cast<int>(pin) < 0 || static_cast<int>(pin) >= 64) {
+        return;
+    }
+
     msgpack_sbuffer sbuf;
     msgpack_sbuffer_init(&sbuf);
     msgpack_packer pk;
@@ -51,6 +52,11 @@ void gpio_set_mode(PinId pin, GpioMode mode)
 
 void gpio_write(PinId pin, GpioState state)
 {
+    // Guard against global teardown passing invalid pin IDs during exit
+    if (static_cast<int>(pin) < 0 || static_cast<int>(pin) >= 64) {
+        return;
+    }
+
     msgpack_sbuffer sbuf;
     msgpack_sbuffer_init(&sbuf);
     msgpack_packer pk;
@@ -74,6 +80,10 @@ void gpio_write(PinId pin, GpioState state)
 
 bool gpio_read(PinId pin)
 {
+    if (static_cast<int>(pin) < 0 || static_cast<int>(pin) >= 64) {
+        return false;
+    }
+
     msgpack_sbuffer sbuf;
     msgpack_sbuffer_init(&sbuf);
     msgpack_packer pk;

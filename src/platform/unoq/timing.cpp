@@ -1,8 +1,9 @@
 /**
  * @file timing.cpp
  * @author Charlie Kushelevsky (charliekushelevsky@gmail.com)
+ * @author Updated by Brent Brewster (brentbrewster11@gmail.com)
  * @brief Uno Q (QRB2210 Linux) implementation of SF_HAL timing functions.
- * @date 2026-07-23
+ * @date 2026-09-22
  *
  * Timing is native to Linux (clock_gettime()/usleep()); none of it needs
  * the SPI link to the STM32U585.
@@ -12,43 +13,46 @@
 #if SF_PLATFORM == SF_PLATFORM_UNOQ
 
 #include "platform/hal.hpp"
+#include <time.h>
+#include <unistd.h>
 
 namespace SF_HAL
 {
 
 tick_t millis()
 {
-    // TODO(unoq): return milliseconds since boot via clock_gettime(CLOCK_MONOTONIC).
-    return 0;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
 }
 
 void delay_ms(uint32_t ms)
 {
-    // TODO(unoq): block for ms milliseconds (e.g. usleep()).
+    usleep(ms * 1000);
 }
 
 void delay_us(uint32_t us)
 {
-    // TODO(unoq): block for us microseconds (e.g. usleep()).
+    usleep(us);
 }
 
 uint32_t micros()
 {
-    // TODO(unoq): return microseconds since boot via clock_gettime(CLOCK_MONOTONIC).
-    return 0;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (ts.tv_sec * 1000000) + (ts.tv_nsec / 1000);
 }
 
 uint32_t time_now()
 {
-    // TODO(unoq): return the current UTC Unix timestamp (e.g. time()).
-    return 0;
+    return (uint32_t)time(NULL);
 }
 
 bool time_is_valid()
 {
-    // TODO(unoq): report whether the system clock has been synchronised
-    // (e.g. via NTP/chrony status).
-    return false;
+    // Simple heuristic: if the system clock is past Jan 1, 2024, 
+    // we assume it has been synced via NTP.
+    return time_now() > 1704067200;
 }
 
 } // namespace SF_HAL

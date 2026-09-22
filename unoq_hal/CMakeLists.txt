@@ -1,31 +1,29 @@
 cmake_minimum_required(VERSION 3.14)
-project(smartfin_unoq)
+project(unoq_hal)
+add_compile_definitions(SF_PLATFORM=SF_PLATFORM_UNOQ)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Threads REQUIRED)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDBUS REQUIRED libsystemd)
-pkg_check_modules(MSGPACK REQUIRED msgpack-c)
-
 include_directories(
     .
-    ../
     ../src/
-    ../pc_hal/
+    ../ipc/
     ../lib/tracker-edge/src
     ../lib/gps-ublox/src
     ../lib/gps-nmea-parser/src
     ../lib/gps-quectel/src
+    ../pc_hal/
+    ../
 )
-
-add_definitions(-DSF_PLATFORM=SF_PLATFORM_UNOQ)
 
 set(SMARTFIN_SOURCE_FILES
     main.cpp
+    
+    # 1. CORE SOURCES
     ../src/cli/flog.cpp
-    ../src/cli/conio.cpp
     ../src/system.cpp
     ../src/cellular/sf_cloud.cpp
     ../src/sleepTask.cpp
@@ -62,26 +60,28 @@ set(SMARTFIN_SOURCE_FILES
     ../src/ble/ble_packet_builder.cpp
     ../src/ble/sf_ble.cpp
     ../src/ble/high_rate_stream.cpp
-    ../src/platform/unoq/rpc_client.cpp
+
+    # 2. UNOQ MPU BACKEND SOURCES
+    ../src/platform/unoq/ble.cpp
+    ../src/platform/unoq/cloud.cpp
     ../src/platform/unoq/gpio.cpp
     ../src/platform/unoq/i2c.cpp
-    ../src/platform/unoq/timing.cpp
-    ../src/platform/unoq/serial.cpp
+    ../src/platform/unoq/led.cpp
+    ../src/platform/unoq/mutex.cpp
     ../src/platform/unoq/nvm.cpp
-    ../src/platform/unoq/cloud.cpp
-    ../src/platform/unoq/ble.cpp
+    ../src/platform/unoq/rpc_client.cpp
+    ../src/platform/unoq/serial.cpp
     ../src/platform/unoq/system.cpp
     ../src/platform/unoq/thread.cpp
     ../src/platform/unoq/timer.cpp
-    ../src/platform/unoq/mutex.cpp
-    ../src/platform/unoq/led.cpp
+    ../src/platform/unoq/timing.cpp
     ../src/platform/unoq/utils.cpp
 )
-add_executable(smartfin_unoq ${SMARTFIN_SOURCE_FILES})
-target_include_directories(smartfin_unoq PRIVATE ${MSGPACK_INCLUDE_DIRS} ${SDBUS_INCLUDE_DIRS})
-target_compile_options(smartfin_unoq PRIVATE ${MSGPACK_CFLAGS_OTHER} ${SDBUS_CFLAGS_OTHER})
-target_link_libraries(smartfin_unoq
+
+add_executable(unoq_hal ${SMARTFIN_SOURCE_FILES})
+
+target_link_libraries(unoq_hal
     Threads::Threads
-    ${MSGPACK_LIBRARIES}
-    ${SDBUS_LIBRARIES}
 )
+
+target_link_libraries(unoq_hal systemd msgpack-c)
