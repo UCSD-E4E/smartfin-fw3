@@ -54,6 +54,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/transport.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/peripheral_server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pins.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imu.cpp
 )
 
 # Add include paths

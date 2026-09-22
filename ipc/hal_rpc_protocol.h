@@ -22,6 +22,8 @@
 #ifndef SF_HAL_RPC_PROTOCOL_H
 #define SF_HAL_RPC_PROTOCOL_H
 
+#include <stdint.h>
+
 /**
  * @brief Suggested maximum size in bytes of a single encoded msgpack-rpc
  *        message.
@@ -165,12 +167,28 @@ enum SF_RPC_MessageType
  * the previous drain, meaning samples were lost; the samples returned are
  * still valid.
  *
- * @note The per-sample byte layout is deliberately not fixed here yet. It
- *       depends on whether the IMU hangs off the STM32 or the QRB2210,
- *       which is still open, and that decides whether IMU data belongs in
- *       this buffer at all.
+ * @note Reflects the decision to place the IMU on the STM32 MCU.
+ *       The per-sample byte layout is fixed by @c SF_RPC_IMUSampleRecord below.
  */
 #define SF_RPC_METHOD_READ_SAMPLES "read_samples"
+
+/**
+ * @brief Binary layout of one high-rate IMU sample record packed inside
+ *        @c SF_RPC_METHOD_READ_SAMPLES responses.
+ *
+ * Packed format (36 bytes) matching Smartfin Ensemble13 (High-Rate IMU + Quat9).
+ */
+#pragma pack(push, 1)
+struct SF_RPC_IMUSampleRecord
+{
+    uint32_t timestamp_ms;              ///< HAL tick at the instant of capture (ms).
+    int16_t  accel_x, accel_y, accel_z; ///< Raw Accelerometer (x, y, z).
+    int16_t  gyro_x,  gyro_y,  gyro_z;  ///< Raw Gyroscope (x, y, z).
+    int16_t  mag_x,   mag_y,   mag_z;   ///< Raw Magnetometer (x, y, z).
+    int32_t  quat9_1, quat9_2, quat9_3; ///< 9-axis DMP Quaternion (Q30).
+    int16_t  quat9_accuracy;            ///< DMP accuracy estimate (Q12 rad).
+};
+#pragma pack(pop)
 
 /**
  * @brief Application-level result status, distinct from the msgpack-rpc
