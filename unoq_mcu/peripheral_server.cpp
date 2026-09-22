@@ -16,9 +16,11 @@
 #include "pins.hpp"
 #include "stm32u5xx_hal.h"
 #include "transport.hpp"
+#include "imu.hpp"
 
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 
 namespace sf_mcu
 {
@@ -29,17 +31,10 @@ namespace sf_mcu
         /**
          * @brief One buffered sensor sample.
          *
-         * @note The sensor fields are deliberately absent. Which readings belong
-         *       here depends on whether the IMU hangs off the STM32 or the
-         *       QRB2210, which is still an open question, so only the timestamp
-         *       (which every layout needs) is fixed. The ring machinery below does
-         *       not care about the payload and will not need revisiting when the
-         *       fields are added.
+         * Aliased to the shared SF_RPC_IMUSampleRecord wire format defined in
+         * ipc/hal_rpc_protocol.h.
          */
-        struct Sample
-        {
-            uint32_t timestamp_ms; ///< HAL tick at the instant of capture.
-        };
+        using Sample = SF_RPC_IMUSampleRecord;
 
         /**
          * @brief Depth of the sample ring in samples.
@@ -262,14 +257,78 @@ namespace sf_mcu
                                    std::size_t result_capacity,
                                    std::size_t &result_len)
         {
-            // TODO(unoq_mcu): decode [max_samples], then drain that many entries
-            // from the ring (advancing g_sample_tail) and encode [status, count,
-            // data]. Blocked on the MCU-side MessagePack library choice, same as
-            // every other handler here, and on the per-sample layout, which is
-            // blocked on the IMU placement question.
-            (void)sample_ring_count();
-            result_len = 0;
-            return SF_RPC_STATUS_ERR_GENERIC;
+            // Drains buffered SF_RPC_IMUSampleRecord entries from g_sample_ring
+            // up to max_samples, encodes the [status, count, bin_data] MessagePack
+            // response, and advances g_sample_tail.
+            int8_t status = SF_RPC_STATUS_OK;
+            if (g_sample_overrun)
+            {
+                status = SF_RPC_STATUS_ERR_OVERRUN;
+                g_sample_overrun = false; // Reported once
+            }
+
+            // Decode [max_samples] parameter
+            uint32_t max_samples = 1;
+            if (params_bytes != nullptr && params_len > 0)
+            {
+                if (params_len >= 2 && (params_bytes[0] & 0xF0) == 0x90)
+                {
+                    max_samples = params_bytes[1] & 0x7F;
+                }
+                else if ((params_bytes[0] & 0x80) == 0x00)
+                {
+                    max_samples = params_bytes[0];
+                }
+            }
+            if (max_samples == 0)
+            {
+                max_samples = 1;
+            }
+
+            const std::size_t available = sample_ring_count();
+            const std::size_t count = (available < max_samples) ? available : max_samples;
+            const std::size_t data_bytes = count * sizeof(Sample);
+
+            // Ensure destination has enough space for MsgPack array header + data
+            if (data_bytes + 10 > result_capacity)
+            {
+                result_len = 0;
+                return SF_RPC_STATUS_ERR_GENERIC;
+            }
+
+            uint8_t *dest = result_bytes;
+
+            // MsgPack fixarray of 3 elements: [status, count, bin_data]
+            *dest++ = 0x93;
+
+            // 1. Status (int8)
+            if (status >= 0)
+            {
+                *dest++ = static_cast<uint8_t>(status);
+            }
+            else
+            {
+                *dest++ = 0xD0; // int8 type tag
+                *dest++ = static_cast<uint8_t>(status);
+            }
+
+            // 2. Count (positive fixint or uint8)
+            *dest++ = static_cast<uint8_t>(count);
+
+            // 3. Binary blob of samples: bin8 format (0xC4, length, bytes...)
+            *dest++ = 0xC4;
+            *dest++ = static_cast<uint8_t>(data_bytes);
+
+            for (std::size_t i = 0; i < count; ++i)
+            {
+                const Sample &s = g_sample_ring[g_sample_tail];
+                std::memcpy(dest, &s, sizeof(Sample));
+                dest += sizeof(Sample);
+                g_sample_tail = (g_sample_tail + 1) % kSampleRingCapacity;
+            }
+
+            result_len = dest - result_bytes;
+            return status;
         }
 
     } // namespace
@@ -281,8 +340,9 @@ namespace sf_mcu
         g_sample_overrun = false;
 
         // TODO(unoq_mcu): put GPIO and I2C peripherals into a known idle state.
-        // The sampling timer itself is armed in main() once CubeMX generates
-        // TIM2, via HAL_TIM_Base_Start_IT(&htim2).
+        // The sampling timer itself is armed in main() via HAL_TIM_Base_Start_IT(&htim2).
+        // Initialize the ICM-20948 IMU over I2C4
+        imu_init();
     }
 
     void peripheral_server_run()
@@ -320,12 +380,11 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
 
     sf_mcu::Sample sample;
-    sample.timestamp_ms = HAL_GetTick();
-
-    // TODO(unoq_mcu): read temp and water sensors (and the IMU, if it ends
-    // up on this processor) into the sample before storing it.
-
-    sf_mcu::sample_ring_push(sample);
+    // TODO(unoq_mcu): read temp and water sensors into the sample if needed.
+    if (sf_mcu::imu_read_sample(sample))
+    {
+        sf_mcu::sample_ring_push(sample);
+    }
 }
 
 #endif // HAL_TIM_MODULE_ENABLED

@@ -7,8 +7,6 @@ cmake_minimum_required(VERSION 3.22)
 # User is free to modify the file as much as necessary
 #
 
-target_include_directories(unoq_mcu PRIVATE ../ipc)
-
 # Setup compiler settings
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -56,6 +54,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/transport.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/peripheral_server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pins.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imu.cpp
 )
 
 # Add include paths
