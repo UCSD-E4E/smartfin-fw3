@@ -2,13 +2,6 @@
 
 #include "product.hpp"
 
-// ===== Temperature Sensor Configuration =====
-// Define which temperature sensor to use:
-// 1 = MAX31725 (default)
-// 2 = TMP117
-#define TEMP_SENSOR_TYPE 2
-// ============================================
-
 #if SF_ENABLE_GPS
     #include "location_service.h"
 #endif
