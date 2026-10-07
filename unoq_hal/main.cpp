@@ -2,6 +2,8 @@
 #include <unistd.h>
 
 // Smartfin Core Headers
+#include "cli/cli.hpp"
+#include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "platform/hal.hpp"
 #include "platform/unoq/rpc_client.hpp"
@@ -23,23 +25,20 @@ int main()
     std::cout << "Executing SYS_delayedInitSys()..." << std::endl;
     SYS_delayedInitSys();
 
-    std::cout << "Initialization complete. Entering main OS loop..." << std::endl;
-
-    // 4. Keep the Linux process alive indefinitely so background threads execute
-    std::cout << "Executing SYS_delayedInitSys()..." << std::endl;
-    SYS_delayedInitSys();
-
-    // Add these two lines to request live hardware data from the STM32
+    // Request live hardware data from the STM32
     std::cout << "\n--- FETCHING STM32 HARDWARE STATE OVER SPI ---" << std::endl;
     SYS_displaySys();
     SYS_dumpSys(0);
     std::cout << "----------------------------------------------\n" << std::endl;
 
-    std::cout << "Initialization complete. Entering main OS loop..." << std::endl;
+    // 4. Run the interactive CLI
+    std::cout << "Initialization complete. Starting Smartfin CLI..." << std::endl;
+
+    static CLI cliTask;
 
     while (true)
     {
-        sleep(1);
+        cliTask.run();
     }
 
     return 0;
