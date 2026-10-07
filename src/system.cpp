@@ -29,9 +29,9 @@
     #include "temperature/max31725_cpp.h"
     #include "temperature/tmpSensor.h"
 #elif TEMP_SENSOR_TYPE == 2
-    #include "temperature/tmp117.h"
+    #include "temperature/tmp117Reg.h"
     #include "temperature/tmp117Sensor.h"
-    #include "temperature/tmp117_cpp.h"
+    #include "temperature/tmp117.h"
 #else
     #error "Invalid TEMP_SENSOR_TYPE. Must be 1 (MAX31725) or 2 (TMP117)"
 #endif

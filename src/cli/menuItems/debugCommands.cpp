@@ -131,7 +131,7 @@ void CLI_monitorTempSensor(void)
 
     SF_OSAL_printf("starting temp sensor");
 
-    if(pSystemDesc->pTempSensor->init() != 0)
+    if (!pSystemDesc->pTempSensor->init())
     {
         SF_OSAL_printf("Temp Fail" __NL__);
         pSystemDesc->pTempSensor->stop();

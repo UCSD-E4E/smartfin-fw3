@@ -1,7 +1,7 @@
 #ifndef TMP117SENSOR_H
 #define TMP117SENSOR_H
 #include "temperatureSensorInterface.h"
-#include "tmp117_cpp.h"
+#include "tmp117.h"
 
 #include <stdint.h>
 

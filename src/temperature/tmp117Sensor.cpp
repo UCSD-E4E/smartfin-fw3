@@ -3,8 +3,8 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
+#include "tmp117Reg.h"
 #include "tmp117.h"
-#include "tmp117_cpp.h"
 #include "product.hpp"
 
 #include <math.h>

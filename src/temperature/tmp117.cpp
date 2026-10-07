@@ -1,8 +1,8 @@
 #include "cli/conio.hpp"
 #include "consts.hpp"
 #include "i2c/mbed.h"
+#include "tmp117Reg.h"
 #include "tmp117.h"
-#include "tmp117_cpp.h"
 
 #include <cmath>
 
@@ -128,10 +128,16 @@ float TMP117::read_reg_as_temperature(uint8_t reg)
     float temperature;
     if (reg == TMP117_TEMP_DATA || 
         reg == TMP117_T_LOW_LIMIT || reg == TMP117_T_HIGH_LIMIT) {
-        read_reg16(&tmp.swrd, reg);
-        temperature = (float)tmp.swrd;  /* values are 2's complement */
-        temperature *= TMP117_RESOLUTION;
-        return temperature;
+        int status = read_reg16(&tmp.swrd, reg);
+        if (status == 0){
+            temperature = (float)tmp.swrd;  /* values are 2's complement */
+            temperature *= TMP117_RESOLUTION;
+            return temperature;
+        }
+        else{
+            SF_OSAL_printf("%s: could not read register, %d r" __NL__, __func__, reg);
+            return NAN;
+        }
     } else {
         SF_OSAL_printf("%s: register is invalid, %d r" __NL__, __func__, reg);
         return NAN;
@@ -145,7 +151,7 @@ int TMP117::write_reg16(int16_t value, char reg)
     char cmd[3];
     tmp117_raw_data tmp;
 
-    if (reg >= TMP117_T_LOW_LIMIT && reg <= TMP117_T_HIGH_LIMIT) {
+    if (reg <= TMP117_T_LOW_LIMIT && reg >= TMP117_T_HIGH_LIMIT) {
         cmd[0] = reg;
         tmp.swrd = value;
         cmd[1] = tmp.msb;

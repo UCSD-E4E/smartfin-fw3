@@ -1,134 +1,141 @@
+/*******************************************************************************
+* TI TMP117 Temperature Sensor Driver
+*
+* @file tmp117.h
+* @brief C++ interface for TMP117 digital thermometer
+*******************************************************************************
+*/
 #ifndef TMP117_H
 #define TMP117_H
-
 #include "i2c/mbed.h"
 
-#define TMP117_NO_ERROR   0
-#define TMP117_ERROR      -1
-
-#define TMP117_I2CADDR_DEFAULT 0x48 ///< TMP117 default i2c address
-#define TMP117_CHIP_ID 0x0117       ///< TMP117 default device id from WHOAMI
-
-#define TMP117_WHOAMI 0x0F  ///< Chip ID register
-#define _CONFIGURATION 0x01 ///< Configuration register
-
-#define TMP117_TEMP_DATA 0x00     ///< Temperature data register
-#define TMP117_CONFIGURATION 0x01 ///< Configuration register
-#define TMP117_T_HIGH_LIMIT 0x02  ///< High limit set point register
-#define TMP117_T_LOW_LIMIT 0x03   ///<  Low limit set point register
-#define TMP117_TEMP_OFFSET 0x07   ///< Temp offset register
-#define TMP117_DEVICE_ID 0x0F     ///< Device ID register
-#define WHOAMI_ANSWER 0x0117      ///< Correct 2-byte ID register value response
-
-#define HIGH_ALRT_FLAG 0b100 ///< mask to check high threshold alert
-#define LOW_ALRT_FLAG 0b010  ///< mask to check low threshold alert
-#define DRDY_ALRT_FLAG 0b001 ///< mask to check data ready flag
-
-#define TMP117_RESOLUTION 0.0078125f ///< Scalar to convert from LSB value to degrees C
-
-#define TMP117_CFG_HIGH_ALERT_MASK  (0x01 << 15)
-#define TMP117_CFG_LOW_ALERT_MASK   (0x01 << 14)
-#define TMP117_CFG_DATA_READY_MASK  (0x01 << 13)
-#define TMP117_CFG_MODE_MASK        (0x03 << 10)
-
-#define TMP117_CFG_MODE_CONT        (0x00 << 10)
-#define TMP117_CFG_MODE_SHUTDOWN    (0x01 << 10)
-#define TMP117_CFG_MODE_OS          (0x03 << 10)
-#define TMP117_CFG_RESET            0x0220
-
-///////////////////////////////////////////////////////////////
-
 /**
- * @brief
+ * @brief Digital thermometer and thermostat temperature sensor.
+ * @version 1.0000.0001
  *
- * Allowed values for `setDataRate`.
+ * @details The TMP117 is a digital temperature sensor with high accuracy
+ * and low power consumption.
+ * Accuracy is ±0.1°C from -20°C to +50°C.
+ * Operating temperature: -55°C to +150°C.
+ * VDD: 1.62V to 5.5V.
+ *
+ * @code 
+ * #include "i2c/mbed.h"
+ * #include "tmp117.h"
+ * I2C i2cBus(SDA, SCL);
+ * int main()
+ * {
+ * float temperature;
+ * TMP117 temp_sensor(i2cBus, TMP117_I2CADDR_DEFAULT);
+ * i2cBus.frequency(400000);
+ * temperature = temp_sensor.read_reg_as_temperature(TMP117_TEMP_DATA);
+ * printf("Temperature = %3.4f Celsius, %3.4f Fahrenheit\r\n", 
+ * temperature, temp_sensor.celsius_to_fahrenheit(temperature));
+ * }
+ * @endcode
  */
-typedef enum {
-  TMP117_RATE_ONE_SHOT,
-} tmp117_rate_t;
 
-/**
- * @brief A struct to hold alert state information.
- *
- * The alert state register is auto-clearing and so must be read together
- *
- */
-typedef struct {
-  bool high;       ///< Status of the high temperature alert
-  bool low;        ///< Status of the low temperature alert
-  bool data_ready; ///< Status of the data_ready alert
-} tmp117_alerts_t;
+class TMP117
+{
+    public:
 
-/**
- * @brief Options for setAveragedSampleCount
- *
- */
-typedef enum {
-  TMP117_AVERAGE_1X,
-  TMP117_AVERAGE_8X,
-  TMP117_AVERAGE_32X,
-  TMP117_AVERAGE_64X,
-} tmp117_average_count_t;
+    /**********************************************************//**
+     * @brief Constructor for TMP117 Class.  
+     * * @details Allows user to use existing I2C object
+     *
+     * On Entry:
+     * @param[in] i2c_bus - reference to existing I2C object
+     * @param[in] slave_address - 7-bit slave address of TMP117
+     *
+     * On Exit:
+     *
+     * @return None
+     **************************************************************/
+    TMP117(I2C &i2c_bus, uint8_t slave_address);
+ 
+    /**********************************************************//**
+     * @brief Default destructor for TMP117 Class.  
+     *
+     * @details Destroys I2C object if owner 
+     *
+     * On Entry:
+     *
+     * On Exit:
+     *
+     * @return None
+     **************************************************************/
+    ~TMP117();
 
-/**
- * @brief Options to specify the minimum delay between new measurements.
- *
- */
-typedef enum {
-  TMP117_DELAY_0_MS,
-  TMP117_DELAY_125_MS,
-  TMP117_DELAY_250_MS,
-  TMP117_DELAY_500_MS,
-  TMP117_DELAY_1000_MS,
-  TMP117_DELAY_4000_MS,
-  TMP117_DELAY_8000_MS,
-  TMP117_DELAY_16000_MS,
-} tmp117_delay_t;
+    /**
+     * @brief  Read configuration register
+     * @param[out] value - Read data on success
+     * @return 0 on success, negative number on failure
+     */
+    int read_cfg_reg(uint16_t *value);
 
-/**
- * @brief Options to set the measurement mode of the sensor
- *
- * In `TMP117_MODE_CONTINUOUS`, new measurements are read and available
- * according to the interval determined by the number of averaged samples and
- * the delay between reads.
- *
- * When the mode is `TMP117_MODE_SHUTDOWN` the sensor is placed in a low power
- * state and new measurements are not taken until a different mode is set. In
- * this mode, active circuitry within this sensor is deactivated, lowering the
- * power consumption dramatically.
- *
- * When the mode is set to `TMP117_MODE_ONE_SHOT`, a single new measurement is
- * calculated from the configured number of samples to be averaged and available
- * as soon as the measurements are Complete.
- *
- * Once the new measurement is calculated and available, the sensor switches to
- * `TMP117_MODE_SHUTDOWN` until `TMP117_MODE_ONE_SHOT` is set again to calculate
- * a new measurement or the mode is switched to `TMP117_MODE_CONTINUOUS`.
- *
- * **NOTE:** This setting ignores the configured minimum delay between
- * measurements.
- *
- */
-typedef enum {
-  TMP117_MODE_CONTINUOUS,
-  TMP117_MODE_SHUTDOWN,
-  TMP117_MODE_ONE_SHOT = 3, // skipping 0x2 which is a duplicate CONTINUOUS
-} tmp117_mode_t;
+    /**
+     * @brief  Read the 16-bit device ID register.
+     * @param[out] value - Read device ID on success
+     * @return 0 on success, negative number on failure
+     */
+    int read_device_id(uint16_t *value);
 
-/** @union tmp117_raw_data
- * @brief union data structure for byte word manipulations
- */
-union tmp117_raw_data {
-  struct {
-      uint8_t lsb;
-      uint8_t msb;
-  };
-  struct {
-      uint16_t magnitude_bits:15;
-      uint16_t sign_bit:1;
-  };
-  uint16_t uwrd;
-  int16_t swrd;
+    /**
+     * @brief  Read 16-bit register of device at slave address
+     * @param[out] value - Read data on success
+     * @param reg - Register address
+     * @return 0 on success, negative number on failure
+     */
+    int read_reg16(int16_t *value, char reg);
+
+    /**
+     * @brief Reads the temperature registers
+     * @param reg - the address of the temperature register
+     * @return temperature in degrees Celsius, or NAN if error
+     */
+    float read_reg_as_temperature(uint8_t reg);
+
+    /** * @brief Writes to the configuration register
+     * @param cfg - configuration word
+     * @return 0 on success, negative number on failure
+     */
+    int write_cfg_reg(uint16_t cfg);
+
+    /** * @brief Writes to the low threshold register
+     * @param temperature - the temperature in Celsius degrees
+     * @return 0 on success, negative number on failure
+     */
+    int write_low_threshold(float temperature);
+
+    /** * @brief Writes to the high threshold register
+     * @param temperature - the temperature in Celsius degrees
+     * @return 0 on success, negative number on failure
+     */
+    int write_high_threshold(float temperature);
+
+    /** * @brief Converts Celsius degrees to Fahrenheit
+     * @param temp_c - the temperature in Celsius degrees
+     * @return temperature in Fahrenheit degrees
+     */
+    float celsius_to_fahrenheit(float temp_c);
+
+protected: 
+    /** * @brief Write a value to a register
+     * @param value - value to write to the register
+     * @param reg - register address
+     * @return 0 on success, negative number on failure
+     */
+    int write_reg16(int16_t value, char reg);
+
+private:
+    /** @var m_i2c
+     * @brief I2C object reference
+     */
+    I2C &m_i2c;
+    /** @var m_write_address, m_read_address
+     * @brief I2C address (write bit and read bit variants)
+     */
+    uint8_t m_write_address, m_read_address;
 };
 
-#endif
+#endif /* TMP117_H */
