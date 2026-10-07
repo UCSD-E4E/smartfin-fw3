@@ -1,5 +1,5 @@
 {
-  "extensions.ignoreRecommendations": true,
+  "extensions.ignoreRecommendations": false,
   "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
   "files.associations": {
     "*.ino": "cpp",
