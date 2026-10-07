@@ -68,6 +68,18 @@ public:
     bool stopAdvertising(void);
 
     /**
+     * @brief Returns true after a successful init().
+     * @return true when initialized, otherwise false.
+     */
+    bool isInitialized(void) const;
+
+    /**
+     * @brief Returns true when advertising is active.
+     * @return true when advertising, otherwise false.
+     */
+    bool isAdvertising(void) const;
+
+    /**
      * @brief Returns true if a central is connected.
      * @return true when a peer is connected, otherwise false.
      */
@@ -131,6 +143,9 @@ private:
 
     /** @brief True when a central is currently connected. */
     std::atomic<bool> connected;
+
+    /** @brief True when BLE advertising is active. */
+    std::atomic<bool> advertising;
 
     /** @brief Registered control data callback. */
     std::atomic<control_rx_callback_t> controlCallback;

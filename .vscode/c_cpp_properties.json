@@ -4,7 +4,7 @@
             "name": "Particle",
             "includePath": [
                 "${workspaceFolder}/src",
-                "~/.particle/toolchains/deviceOS/5.3.0/user/inc",
+                "~/.particle/toolchains/deviceOS/5.4.1/user/inc",
                 "${workspaceFolder}/lib/tracker-edge/src",
                 "${workspaceFolder}/lib/gps-ublox/src",
                 "${workspaceFolder}/lib/gps-nmea-parser/src",
@@ -26,15 +26,15 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
                     "${default}",
-                    "~/.particle/toolchains/deviceOS/5.3.0/user/inc",
-                    "~/.particle/toolchains/deviceOS/5.3.0/hal/inc",
-                    "~/.particle/toolchains/deviceOS/5.3.0/hal/shared",
-                    "~/.particle/toolchains/deviceOS/5.3.0/hal/src/gcc",
-                    "~/.particle/toolchains/deviceOS/5.3.0/hal/src/nRF52840/posix",
-                    "~/.particle/toolchains/deviceOS/5.3.0/services/inc",
-                    "~/.particle/toolchains/deviceOS/5.3.0/system",
-                    "~/.particle/toolchains/deviceOS/5.3.0/wiring",
-                    "~/.particle/toolchains/deviceOS/5.3.0/third_party/nrf5_sdk/nrf5_sdk/modules/nrfx/mdk",
+                    "~/.particle/toolchains/deviceOS/5.4.1/user/inc",
+                    "~/.particle/toolchains/deviceOS/5.4.1/hal/inc",
+                    "~/.particle/toolchains/deviceOS/5.4.1/hal/shared",
+                    "~/.particle/toolchains/deviceOS/5.4.1/hal/src/gcc",
+                    "~/.particle/toolchains/deviceOS/5.4.1/hal/src/nRF52840/posix",
+                    "~/.particle/toolchains/deviceOS/5.4.1/services/inc",
+                    "~/.particle/toolchains/deviceOS/5.4.1/system",
+                    "~/.particle/toolchains/deviceOS/5.4.1/wiring",
+                    "~/.particle/toolchains/deviceOS/5.4.1/third_party/nrf5_sdk/nrf5_sdk/modules/nrfx/mdk",
                     "${workspaceFolder}/src"
                 ]
             }

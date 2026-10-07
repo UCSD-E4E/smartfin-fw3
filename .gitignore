@@ -298,3 +298,5 @@ target/
 nul
 out/docs/*
 *.fw_sha256
+tests/**/*.txt
+tests/ble/logs/*
