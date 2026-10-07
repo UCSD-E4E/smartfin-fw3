@@ -32,7 +32,7 @@ bool WaterSensor::begin(void)
  * @brief reset the array, load it all up w/ 0s and clear the sum & location
  * 
  *
- * @return sucsess
+ * @return success
  */
 bool WaterSensor::resetArray()
 {
@@ -210,7 +210,7 @@ uint8_t WaterSensor::getCurrentReading()
  * @brief set the low detection percentage of the moving window for hystersis
  * 
  * @param low_percentage 
- * @return bool sucsess
+ * @return bool success
  */
 bool WaterSensor::setLowDetectPercentage(uint8_t low_percentage)
 {
@@ -229,7 +229,7 @@ bool WaterSensor::setLowDetectPercentage(uint8_t low_percentage)
  * @brief set the high detection percentage of the moving window for hystersis
  * 
  * @param high_percentage 
- * @return bool sucsess
+ * @return bool success
  */
 bool WaterSensor::setHighDetectPercentage(uint8_t high_percentage)
 {

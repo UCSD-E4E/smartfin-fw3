@@ -366,7 +366,7 @@ static int SYS_initGPS(void)
 /**
  * @brief Initializes NVRAM 
  * 
- * @return int sucsess
+ * @return int success
  */
 static int SYS_initNVRAM(void)
 {

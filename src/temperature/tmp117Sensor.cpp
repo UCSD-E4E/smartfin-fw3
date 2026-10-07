@@ -17,7 +17,7 @@ m_sensor(sensor)
 
 bool tmp117Sensor::init()
 {
-    int init_success_err = m_sensor.write_cfg_reg(TMP117_CFG_RESET/*TMP117_MODE_CONTINUOUS*/);
+    int init_success_err = m_sensor.write_cfg_reg(TMP117_CFG_RESET);
     if (init_success_err)
     {
         FLOG_AddError(FLOG_TEMP_FAIL, 0);
@@ -48,7 +48,7 @@ bool tmp117Sensor::init()
 
 bool tmp117Sensor::stop()
 {
-    m_sensor.write_cfg_reg(TMP117_CFG_MODE_SHUTDOWN/*TMP117_MODE_SHUTDOWN*/);
+    m_sensor.write_cfg_reg(TMP117_CFG_MODE_SHUTDOWN);
     return true;
 }
 

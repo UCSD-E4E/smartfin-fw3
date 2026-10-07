@@ -59,7 +59,7 @@ void CLI_createTestFile(void)
 #if SF_PLATFORM == SF_PLATFORM_PARTICLE
     int fd = open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
     SF_OSAL_printf("Error: %d" __NL__, errno);
-    SF_OSAL_printf("fd sucsess %d" __NL__, fd);
+    SF_OSAL_printf("fd success %d" __NL__, fd);
     
     if (fd != -1) {
         for(int ii = 0; ii < 100; ii++) {
@@ -67,7 +67,7 @@ void CLI_createTestFile(void)
             SF_OSAL_printf("Creating file with msg %s" __NL__, msg.c_str());
 
             int i = write(fd, msg.c_str(), msg.length());
-            SF_OSAL_printf("Sucsess: %d" __NL__, i);
+            SF_OSAL_printf("Success: %d" __NL__, i);
         }
         close(fd);
     }
