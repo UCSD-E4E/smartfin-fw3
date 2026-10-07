@@ -68,9 +68,6 @@ I2C i2cBus;
     #error "Invalid TEMP_SENSOR_TYPE. Must be 1 (MAX31725) or 2 (TMP117)"
 #endif
 
-// Temperature sensor interface pointer - will be assigned based on TEMP_SENSOR_TYPE
-ITemperatureSensor *pActiveTempSensor = nullptr;
-
 static SFLed batteryLED(STAT_LED_PIN, SFLed::SFLED_STATE_OFF);
 static SFLed waterLED(WATER_STATUS_LED, SFLed::SFLED_STATE_OFF);
 
@@ -179,20 +176,17 @@ static int SYS_initTempSensor(void)
 
     // Select temperature sensor based on TEMP_SENSOR_TYPE define
 #if TEMP_SENSOR_TYPE == 1
-    pActiveTempSensor = &tempSensorMAX31725;
+    systemDesc.pTempSensor = &tempSensorMAX31725;
     SF_OSAL_printf("Using MAX31725 temperature sensor" __NL__);
 #elif TEMP_SENSOR_TYPE == 2
-    pActiveTempSensor = &tempSensorTMP117;
+    systemDesc.pTempSensor = &tempSensorTMP117;
     SF_OSAL_printf("Using TMP117 temperature sensor" __NL__);
 #else
     #error "Invalid TEMP_SENSOR_TYPE. Must be 1 (MAX31725) or 2 (TMP117)"
 #endif
 
-    systemDesc.pTempSensor = pActiveTempSensor;
-
-    if (pActiveTempSensor && !pActiveTempSensor->init())
+    if (!systemDesc.pTempSensor->init())
     {
-        FLOG_AddError(FLOG_TEMP_FAIL, 0);
         return 0;
     }
 
