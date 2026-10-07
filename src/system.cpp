@@ -11,7 +11,6 @@
 #include "cli/conio.hpp"
 #include "cli/flog.hpp"
 #include "consts.hpp"
-#include "location_service.h"
 #include "product.hpp"
 #include "states.hpp"
 #include "sys/led.hpp"
