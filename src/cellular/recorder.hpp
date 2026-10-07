@@ -99,7 +99,7 @@ public:
      * @param pData data to put
      * @param nBytes number of bytes to put
      *
-     * @return 0 on sucsess, otherwise error code
+     * @return 0 on success, otherwise error code
      */
     int putBytes(const void* pData, size_t nBytes);
 

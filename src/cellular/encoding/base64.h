@@ -51,7 +51,7 @@ int b64_decode(const char *in, size_t ilen, uint8_t *out, size_t *olen);
 * @param out  Output buffer
 * @param olen Size of output buffer, actual written on return
 *
- * @return sucsess
+ * @return success
 */
 int urlsafe_b64_encode(const uint8_t *in, size_t ilen, char *out, size_t *olen);
 /**
@@ -61,7 +61,7 @@ int urlsafe_b64_encode(const uint8_t *in, size_t ilen, char *out, size_t *olen);
 * @param out  Output buffer
 * @param olen Size of output buffer, actual written on return
 *
- * @return sucsess
+ * @return success
 */
 int urlsafe_b64_decode(const char *in, size_t ilen, uint8_t *out, size_t *olen);
 
