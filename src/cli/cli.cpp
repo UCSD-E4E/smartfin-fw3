@@ -100,7 +100,7 @@ void CLI::init(void)
 {
     VERS_printBanner();
 
-    CLI_nextState = STATE_CHARGE;
+    CLI_nextState = STATE_CLI; // Changed from STATE_CHARGE to stay in the menu
 
     pSystemDesc->pChargerCheck->start();
 
@@ -112,16 +112,18 @@ void CLI::init(void)
 
     //referenced dataupload
     this->initSuccess = 1;
-    //RGB connection test
-    if (sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS))
-    {
-        this->initSuccess = 0;
-        //CLI_ledStatus.setColor(RGB_COLOR_YELLOW);
-    }
-    // else if (sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS) == 0) {
-    //     CLI_ledStatus.setColor(RGB_COLOR_BLUE);
+
+    // Commented out blocking cellular connection attempts
+    // RGB connection test
+    // if (sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS))
+    // {
+    //     this->initSuccess = 0;
+    //     //CLI_ledStatus.setColor(RGB_COLOR_YELLOW);
     // }
-    SF_HAL::cloud_sync_time();
+    // // else if (sf::cloud::wait_connect(SF_CELL_SIGNAL_TIMEOUT_MS) == 0) {
+    // //     CLI_ledStatus.setColor(RGB_COLOR_BLUE);
+    // // }
+    // SF_HAL::cloud_sync_time();
 
     // While there is an avaliable character typed, get it
     while (SF_OSAL_kbhit())

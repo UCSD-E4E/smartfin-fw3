@@ -64,15 +64,16 @@ int main()
     SYS_delayedInitSys();
 
     // Request live hardware data from the STM32
-    std::cout << "\n--- FETCHING STM32 HARDWARE STATE OVER SPI ---" << std::endl;
-    SYS_displaySys();
-    SYS_dumpSys(0);
-    std::cout << "----------------------------------------------\n" << std::endl;
+    // std::cout << "\n--- FETCHING STM32 HARDWARE STATE OVER SPI ---" << std::endl;
+    // SYS_displaySys();
+    // SYS_dumpSys(0);
+    // std::cout << "----------------------------------------------\n" << std::endl;
 
     // 4. Run the Smartfin State Machine
     std::cout << "Initialization complete. Starting Smartfin State Machine..." << std::endl;
 
-    currentState = STATE_CLI;
+    // UPDATED BY BRENT BREWSTER 10/12/2026
+    STATES_e currentState = STATE_CLI;
     CLI_nextState = STATE_CHARGE;
 
     while (true)
