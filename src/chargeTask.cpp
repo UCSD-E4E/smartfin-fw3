@@ -41,9 +41,10 @@ STATES_e ChargeTask::run(void)
         SF_HAL::cloud_process();
         if (SF_OSAL_kbhit())
         {
-            this->inputBuffer[CLI_BUFFER_LEN - 1] = SF_OSAL_getch();
+            int ch = SF_OSAL_getch();
+            this->inputBuffer[CLI_BUFFER_LEN - 1] = (char)ch;
             byteshiftl(this->inputBuffer, CLI_BUFFER_LEN, 1, 0);
-            if(strcmp(this->inputBuffer, CLI_INTERRUPT_PHRASE) == 0)
+            if(strcmp(this->inputBuffer, CLI_INTERRUPT_PHRASE) == 0 || ch == 'q')
             {
                 return STATE_CLI;
             }

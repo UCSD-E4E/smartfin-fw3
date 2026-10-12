@@ -15,6 +15,7 @@
 
 #include "platform/hal.hpp"
 #include <stdio.h>
+#include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include <termios.h>
@@ -82,15 +83,16 @@ void SF_OSAL_printf(const char *format, ...) {
     fflush(stdout);
 }
 
-void SF_OSAL_getline(char *buffer, int max_length) {
-    if (fgets(buffer, max_length, stdin) != NULL) {
-        for (int i = 0; i < max_length; i++) {
-            if (buffer[i] == '\n') {
-                buffer[i] = '\0';
-                break;
-            }
-        }
+int SF_OSAL_getline(char *buffer, int max_length) {
+    if (fgets(buffer, max_length, stdin) == NULL) {
+        return -1;
     }
+    size_t len = strlen(buffer);
+    while (len > 0 && (buffer[len - 1] == '\r' || buffer[len - 1] == '\n')) {
+        buffer[len - 1] = '\0';
+        len--;
+    }
+    return static_cast<int>(len);
 }
 
 bool SF_OSAL_kbhit() {

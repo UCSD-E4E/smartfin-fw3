@@ -23,4 +23,5 @@ typedef enum STATES_
 }STATES_e;
 
 extern const char* const STATES_NAME_TAB[];
+extern STATES_e currentState;
 #endif

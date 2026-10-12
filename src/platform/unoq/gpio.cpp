@@ -17,6 +17,8 @@
 #include "platform/unoq/pins.hpp"
 #include "platform/unoq/rpc_client.hpp"
 #include "ipc/hal_rpc_protocol.h"
+#include <cstdio>
+#include <cstring>
 #include <msgpack.h>
 
 namespace SF_HAL
@@ -82,6 +84,30 @@ bool gpio_read(PinId pin)
 {
     if (static_cast<int>(pin) < 0 || static_cast<int>(pin) >= 64) {
         return false;
+    }
+
+    if (pin == PinId::UsbPwrDetect)
+    {
+        // On Uno Q, the USB-C port is wired directly to the Qualcomm Linux MPU.
+        // Check if the USB gadget controller is connected (any state other than "not attached").
+        FILE *f = fopen("/sys/class/udc/4e00000.usb/state", "r");
+        if (f)
+        {
+            char state_buf[32] = {0};
+            if (fgets(state_buf, sizeof(state_buf), f))
+            {
+                fclose(f);
+                if (strncmp(state_buf, "not attached", 12) != 0 && strlen(state_buf) > 1)
+                {
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+                fclose(f);
+            }
+        }
     }
 
     msgpack_sbuffer sbuf;

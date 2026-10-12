@@ -4,9 +4,9 @@
 #include "platform/hal_types.hpp"
 #include "task.hpp"
 
-#define SLEEP_RGB_LED_COLOR 0x4A192C
-#define SLEEP_RGB_LED_PATTERN SF_HAL::LedPattern::BLINK
-#define SLEEP_RGB_LED_PERIOD 20
+#define SLEEP_RGB_LED_COLOR 0x000000
+#define SLEEP_RGB_LED_PATTERN SF_HAL::LedPattern::SOLID
+#define SLEEP_RGB_LED_PERIOD 0
 #define SLEEP_RGB_LED_PRIORITY SF_HAL::LedPriority::IMPORTANT
 
 class SleepTask : public Task {

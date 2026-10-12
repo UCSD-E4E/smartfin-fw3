@@ -11,3 +11,5 @@ const char* const STATES_NAME_TAB[] = {
     "TMP_CAL",
     "CHARGE",
 };
+
+STATES_e currentState = STATE_CLI;

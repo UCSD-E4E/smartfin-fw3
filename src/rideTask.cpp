@@ -86,8 +86,27 @@ STATES_e RideTask::run(void)
 
     unsigned long start, stop;
 
+    static char cliBuf[6] = {0};
+    memset(cliBuf, 0, 6);
+
     while (1)
     {
+        if (SF_OSAL_kbhit())
+        {
+            int ch = SF_OSAL_getch();
+            for (int idx = 0; idx < 4; idx++)
+            {
+                cliBuf[idx] = cliBuf[idx + 1];
+            }
+            cliBuf[4] = (char)ch;
+            cliBuf[5] = '\0';
+            if (strstr(cliBuf, "#CLI") != NULL || ch == 'q')
+            {
+                SF_OSAL_printf(__NL__ "CLI interrupt in RideTask!" __NL__);
+                return STATE_CLI;
+            }
+        }
+
         // Wait for positive in-water signal.  This is run by waterCheck
         if (pSystemDesc->pWaterSensor->getLastStatus())
         {
@@ -98,7 +117,14 @@ STATES_e RideTask::run(void)
             return STATE_DEEP_SLEEP;
         }
         SF_HAL::cloud_process();
-        SF_HAL::delay_ms(1000);
+        for (int i = 0; i < 20; i++)
+        {
+            if (SF_OSAL_kbhit())
+            {
+                break;
+            }
+            SF_HAL::delay_ms(50);
+        }
     }
     this->deployTime = SF_HAL::millis();
     SF_OSAL_printf(__NL__ "Deployment started at %" PRId32 __NL__, this->deployTime);
@@ -143,6 +169,21 @@ STATES_e RideTask::run(void)
         while (SF_HAL::millis() < nextEventTime)
         {
             SF_HAL::cloud_process();
+            if (SF_OSAL_kbhit())
+            {
+                int ch = SF_OSAL_getch();
+                for (int idx = 0; idx < 4; idx++)
+                {
+                    cliBuf[idx] = cliBuf[idx + 1];
+                }
+                cliBuf[4] = (char)ch;
+                cliBuf[5] = '\0';
+                if (strstr(cliBuf, "#CLI") != NULL || ch == 'q')
+                {
+                    SF_OSAL_printf(__NL__ "CLI interrupt in RideTask!" __NL__);
+                    return STATE_CLI;
+                }
+            }
             if (!pSystemDesc->pWaterSensor->getLastStatus())
             {
                 SF_OSAL_printf("Out of water!" __NL__);
@@ -231,4 +272,6 @@ void RideTask::exit(void)
     // pSystemDesc->pIMU->close();
     // pSystemDesc->pGPS->gpsModuleStop();
 
+    // Deactivate ride LED pattern so subsequent states take precedence cleanly
+    this->ledStatus.setActive(false);
 }
