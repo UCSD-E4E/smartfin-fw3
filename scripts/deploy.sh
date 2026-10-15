@@ -55,8 +55,13 @@ cd "${SF_ROOT}"
 
 # Build & Run smartfin daemon remotely
 echo "[2/2] Building and launching unoq_hal on board..."
+
+# temporarily disable 'exit on error' so SIGINT does not abort the script
+set +e
+
 "$ADB" -s "$DEVICE_ID" shell -t "bash -c '
 set -e
+
 BUILD_DIR=\"${REMOTE_DIR}/unoq_hal/build\"
 
 cmake -S ${REMOTE_DIR}/unoq_hal -B \"\$BUILD_DIR\" -DCMAKE_BUILD_TYPE=Release
@@ -71,3 +76,17 @@ sudo systemctl restart arduino-router 2>/dev/null || true
 echo \"==> Starting daemon (Press Ctrl+C to stop)...\"
 sudo \"\$BUILD_DIR/unoq_hal\"
 '"
+
+EXIT_CODE=$?
+
+# reenable standard error handling
+set -e
+
+# check if exiting normally
+if [ "$EXIT_CODE" -eq 130 ] || [ "$EXIT_CODE" -eq 0 ]; then
+    echo -e "\nStopped unoq_hal daemon."
+    exit 0
+else
+    echo -e "\nunoq_hal exited with error code: $EXIT_CODE"
+    exit "$EXIT_CODE"
+fi
