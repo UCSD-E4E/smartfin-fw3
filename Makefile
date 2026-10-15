@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := build
-.PHONY: help setup wifi flash deploy clean
+.PHONY: help setup build wifi flash deploy fdeploy clean
 
 ## help message to show available commands
 help:
