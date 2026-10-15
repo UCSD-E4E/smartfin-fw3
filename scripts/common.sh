@@ -45,6 +45,7 @@ if [ -z "$connected_devices" ]; then
 	echo "Troubleshooting:" >&2
 	echo " - double check the connection to make sure the board is connected to this device."
 	echo " - if 'offline' or empty, may need to wait for the board to boot or power cycle the board"
+	return 1
 fi
 
 # Returns the first active device
