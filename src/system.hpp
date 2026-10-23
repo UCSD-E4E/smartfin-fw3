@@ -11,7 +11,7 @@
 #endif
 #include "sys/NVRAM.hpp"
 #include "sys/led.hpp"
-#include "temperature/tmpSensor.h"
+#include "temperature/temperatureSensorInterface.h"
 #include "watersensor/waterSensor.hpp"
 
 #define SYS_CHARGER_MIN_CHARGING_MS 5000
@@ -86,10 +86,11 @@ typedef struct SystemDesc_
      */
     SFLed* pWaterLED;
     /**
-     * @brief  Pointer to tmpSensor object that handles temperature readings and sensor initalization
-     * 
+     * @brief  Pointer to ITemperatureSensor interface that handles temperature readings and sensor
+     * initalization
+     *
      */
-    tmpSensor* pTempSensor;
+    ITemperatureSensor *pTempSensor;
     /**
      * @brief Pointer to LEDSystemTheme object that handles LED color and pattern settings
      * 

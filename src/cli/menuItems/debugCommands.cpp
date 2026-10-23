@@ -55,7 +55,7 @@ void CLI_createTestFile(void)
 {
     int fd = ::open("/testfile.txt", O_RDWR | O_CREAT | O_TRUNC);
     SF_OSAL_printf("Error: %d" __NL__, errno);
-    SF_OSAL_printf("fd sucsess %d" __NL__, fd);
+    SF_OSAL_printf("fd success %d" __NL__, fd);
 
     if (fd != -1)
     {
@@ -65,7 +65,7 @@ void CLI_createTestFile(void)
             int len = snprintf(msg, sizeof(msg), "testing %d\n", ii);
             SF_OSAL_printf("Creating file with msg %s" __NL__, msg);
             int i = (int)::write(fd, msg, (size_t)len);
-            SF_OSAL_printf("Sucsess: %d" __NL__, i);
+            SF_OSAL_printf("Success: %d" __NL__, i);
         }
         ::close(fd);
     }
@@ -137,7 +137,7 @@ void CLI_monitorTempSensor(void)
 
     SF_OSAL_printf("starting temp sensor");
 
-    if(pSystemDesc->pTempSensor->init() != 0)
+    if (!pSystemDesc->pTempSensor->init())
     {
         SF_OSAL_printf("Temp Fail" __NL__);
         pSystemDesc->pTempSensor->stop();

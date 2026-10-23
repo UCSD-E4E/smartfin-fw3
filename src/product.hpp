@@ -17,6 +17,15 @@
 #define SF_ENABLE_GPS 0
 
 /**
+ * @brief Temperature sensor to compile: 1 = MAX31725, 2 = TMP117.
+ *
+ * Can be overridden from the build (e.g. -DTEMP_SENSOR_TYPE=1).
+ */
+#ifndef TEMP_SENSOR_TYPE
+#define TEMP_SENSOR_TYPE 2
+#endif
+
+/**
  * @brief ICM20648 Address
  *
  */
