@@ -56,6 +56,7 @@ static void CLI_monitorSensors(void);
 static void CLI_doEnsemble(void);
 static void CLI_setWaterSensorWindow(void);
 static void CLI_doBleTest(void);
+static void CLI_doBleCounterTest(void);
 
 static std::uint8_t packet_buffer[SF_PACKET_SIZE];
 static char input_buffer[SF_CLI_MAX_CMD_LEN];
@@ -92,6 +93,7 @@ const Menu_t CLI_menu[] = {
     {300, "Display Reset Reason", &CLI_displayResetReason, MENU_CMD},
     {400, "Set Water Sensor Window", &CLI_setWaterSensorWindow, MENU_CMD},
     {500, "BLE Stream Test", &CLI_doBleTest, MENU_CMD},
+    {501, "BLE Counter Test", &CLI_doBleCounterTest, MENU_CMD},
     {0, nullptr, nullptr, MENU_NULL}};
 
 STATES_e CLI_nextState;
@@ -925,4 +927,80 @@ static void CLI_doBleTest(void)
     pSystemDesc->pWaterCheck->start();
 
     SF_OSAL_printf("BLE stream test complete. %" PRIu32 " ensembles run." __NL__, ensCount);
+}
+
+/**
+ * @brief BLE counter test
+ *
+ * Sends a 4-byte little-endian counter on the telemetry characteristic once
+ * per second while a central is subscribed, until the user presses 'q'.
+ * Bypasses the scheduler, sensors and TransportService so only the BLE path
+ * is exercised.
+ */
+static void CLI_doBleCounterTest(void)
+{
+    SFBLE &ble = SFBLE::getInstance();
+    SF_OSAL_printf("=== Starting BLE Counter Test ===" __NL__);
+    if (!ble.init())
+    {
+        SF_OSAL_printf("BLE init failed!" __NL__);
+        return;
+    }
+    if (!ble.startAdvertising())
+    {
+        SF_OSAL_printf("Warning: startAdvertising failed" __NL__);
+    }
+    SF_OSAL_printf("Advertising. Subscribe to telemetry, then press 'q' to stop." __NL__ __NL__);
+
+    uint32_t counter = 0;
+    uint32_t sent = 0;
+    uint32_t failed = 0;
+    uint32_t lastSendMs = SF_HAL::millis();
+    bool wasConnected = false;
+
+    while (true)
+    {
+        if (SF_OSAL_kbhit())
+        {
+            char ch = SF_OSAL_getch();
+            if (ch == 'q' || ch == 'Q')
+            {
+                break;
+            }
+        }
+
+        const bool connected = ble.isConnected();
+        if (connected != wasConnected)
+        {
+            SF_OSAL_printf("[BLE EVT] %s" __NL__, connected ? "CONNECTED" : "DISCONNECTED");
+            wasConnected = connected;
+        }
+
+        uint32_t now = SF_HAL::millis();
+        if (connected && now - lastSendMs >= 1000)
+        {
+            uint8_t payload[4] = {static_cast<uint8_t>(counter),
+                                  static_cast<uint8_t>(counter >> 8),
+                                  static_cast<uint8_t>(counter >> 16),
+                                  static_cast<uint8_t>(counter >> 24)};
+            bool ok = ble.notifyTelemetry(payload, sizeof(payload));
+            if (ok)
+            {
+                sent++;
+            }
+            else
+            {
+                failed++;
+            }
+            SF_OSAL_printf("[BLE TX] counter=%" PRIu32 " -> %s" __NL__, counter, ok ? "ok" : "FAIL");
+            counter++;
+            lastSendMs = now;
+        }
+
+        SF_HAL::delay_ms(10);
+    }
+
+    SF_OSAL_printf("BLE counter test complete. sent=%" PRIu32 " failed=%" PRIu32 __NL__,
+                   sent,
+                   failed);
 }
