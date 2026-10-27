@@ -31,6 +31,11 @@ elif command -v adb >/dev/null 2>&1; then
 	ADB="adb"
 else
 	echo "Error: 'adb' not found." >&2
+	echo "Ensure 'adb' is installed and in your PATH:" >&2
+	echo " - MacOS: brew install --cask android-platform-tools" >&2
+	echo " - Debian/Ubuntu Linux/WSL: sudo apt install android-sdk-platform-tools" >&2
+	echo " - Windows: winget install Google.PlatformTools" >&2
+	echo "If it still does not work, you may need to add the path to 'adb' to your PATH environment variable." >&2
 	return 1
 fi
 export ADB
