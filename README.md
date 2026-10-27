@@ -19,7 +19,7 @@ Smartfin FW v3
 ## Setup & Configuration
 ### Installing Prerequisite Software
 #### MacOS
-[Homebrew](https://brew.sh/) is the recommended package manager for installaing and managing dependencies, you can install everything you need with the commands below:
+[Homebrew](https://brew.sh/) is the recommended package manager for installing and managing dependencies, you can install everything you need with the commands below:
 ```shell
 brew install cmake open-ocd
 brew install --cask android-platform-tools gcc-arm-embedded
@@ -50,7 +50,7 @@ First, it is important to make sure `adb` is added to your PATH, otherwise the p
 
 If it says command not found and you don't know how to add it to your path, then look up how to add it to your path for your respective system. It can be helpful to restart your system/session if it is not showing up when it should be.
 
-On MacOS and Linux you can typically add something like this to end of your `rc` (ie. `~/.zshrc` or `~/.bashrc` for most users) file:
+On MacOS and Linux you can typically add something like this to the end of your `rc` (ie. `~/.zshrc` or `~/.bashrc` for most users) file:
 ```shell
 export PATH=$PATH:/absolute/path/to/android/platform-tools/
 ```
