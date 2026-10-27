@@ -44,7 +44,7 @@ int main()
 
     MX_GPIO_Init();
     MX_ICACHE_Init();
-    MX_I2C4_Init();
+    MX_I2C3_Init();
     MX_TIM2_Init();
 
     // CubeMX generates the timer's configuration but never starts it. TIM2

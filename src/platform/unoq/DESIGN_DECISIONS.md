@@ -72,6 +72,17 @@ pins are SCK PG9, MISO PG10, MOSI PB5, NSS PG12. Treat these as strong
 but unconfirmed until checked against Arduino's official schematic;
 nothing is wired to them in CubeMX yet.
 
+**Update (2026-10-27): CubeMX now uses the board pins.** The generated
+project had put SPI3 on CubeMX's default pins (MISO PC11, MOSI PD6, NSS
+PA15), which the board does not wire to the QRB2210. `unoq_mcu.ioc` and
+`Core/Src/spi.c` now use SCK PG9, MISO PG10, MOSI PB5, NSS PG12, all AF6.
+Arduino's own MCU firmware agrees: its Uno Q variant
+(`arduino_uno_q_stm32u585xx.overlay`) runs SPI3 as an SPI slave on these
+pins, with an "internal SPI RDY" line on PG13 that this link does not use
+yet. Rule for every pin here: take it from the board files or schematic,
+never from a CubeMX default. Still to confirm on hardware: the Linux-side
+spidev node.
+
 **We replace Arduino's MCU firmware entirely.** The STM32 ships running
 Arduino Core on Zephyr with Bridge on top. Our bare-metal peripheral
 server takes the whole chip, so App Lab, the Arduino sketch flow and
@@ -275,6 +286,13 @@ PD13 SDA), I2C3 to the A4/A5 header pins (PC0/PC1), and I2C2 to
 PB10/PB11. For four external sensors the Qwiic bus is the right one, so
 I2C4 it is. PB9 is an active hazard besides: the board's pin map uses it
 as SPI2 NSS. This needs fixing in CubeMX and regenerating.
+
+**Update (2026-10-23): I2C3 on A4/A5 for now.** The TMP117 bring-up
+hardware is wired to the header pins, PC0 (A5, SCL) and PC1 (A4, SDA),
+so the project uses I2C3 instead of I2C4. I2C3 is clocked from PCLK3 at
+160 MHz, the same rate I2C4 had from PCLK1, so the timing value carries
+over unchanged. Moving back to the Qwiic bus means swapping the instance
+back in CubeMX; the firmware only refers to `hi2c3`/`MX_I2C3_Init()`.
 
 Standalone GPIO is not configured in CubeMX yet. The pins that need it
 are the seven `SF_HAL::PinId` members that `unoq_mcu/pins.hpp`

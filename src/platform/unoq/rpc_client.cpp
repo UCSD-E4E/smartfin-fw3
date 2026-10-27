@@ -180,13 +180,18 @@ bool rpc_call(const char *method,
     msgpack_object response;
     std::size_t offset = 0;
     
-    // Unpack will automatically ignore trailing zero-bytes clocked in during the SPI read
+    // The read clocks a fixed SF_RPC_MAX_MESSAGE_LEN bytes, so the response is
+    // followed by 0x00 padding. msgpack_unpack() decodes the first object and
+    // reports the padding as MSGPACK_UNPACK_EXTRA_BYTES, which is still a
+    // complete response.
     const msgpack_unpack_return unpack_status = msgpack_unpack(
         reinterpret_cast<const char *>(response_buf), response_len, &offset, &zone, &response);
+    const bool unpacked = MSGPACK_UNPACK_SUCCESS == unpack_status ||
+                          MSGPACK_UNPACK_EXTRA_BYTES == unpack_status;
 
     bool success = false;
 
-    if (MSGPACK_UNPACK_SUCCESS == unpack_status && MSGPACK_OBJECT_ARRAY == response.type &&
+    if (unpacked && MSGPACK_OBJECT_ARRAY == response.type &&
         4 == response.via.array.size)
     {
         const msgpack_object &type_obj = response.via.array.ptr[0];

@@ -18,6 +18,7 @@
 #include "platform/hal.hpp"
 #include "system.hpp"
 
+#include <cmath>
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -132,10 +133,17 @@ void CLI_testPrintf(void)
 
 void CLI_monitorTempSensor(void) 
 {
+    // The TMP117 converts once per second in its default continuous mode, so
+    // reading faster only repeats the same value. Poll the keyboard in short
+    // steps so 'q' still responds promptly.
+    const uint32_t kReadPeriodMs = 1000;
+    const uint32_t kKeyPollMs = 50;
+
     float temp;
     char ch;
+    bool quit = false;
 
-    SF_OSAL_printf("starting temp sensor");
+    SF_OSAL_printf("starting temp sensor" __NL__);
 
     if(pSystemDesc->pTempSensor->init() != 0)
     {
@@ -144,21 +152,38 @@ void CLI_monitorTempSensor(void)
         return;
     }
 
-    SF_OSAL_printf("Started" __NL__);
+    SF_OSAL_printf("Started. Press 'q' to stop." __NL__);
 
-    while(1) 
+    while (!quit)
     {
-        if (SF_OSAL_kbhit())
+        // Waiting before the first read also lets the first conversion after
+        // init() finish, so the first value printed is a fresh one.
+        for (uint32_t waited = 0; waited < kReadPeriodMs && !quit; waited += kKeyPollMs)
         {
-            ch = SF_OSAL_getch();
-            if('q' == ch) 
+            SF_HAL::delay_ms(kKeyPollMs);
+            if (SF_OSAL_kbhit())
             {
-                break;
+                ch = SF_OSAL_getch();
+                if ('q' == ch)
+                {
+                    quit = true;
+                }
             }
         }
-        
+        if (quit)
+        {
+            break;
+        }
+
         temp = pSystemDesc->pTempSensor->getTemp();
-        SF_OSAL_printf("Temperature Reading: %f" __NL__, temp);
+        if (std::isnan(temp))
+        {
+            SF_OSAL_printf("Temperature Reading: read failed" __NL__);
+        }
+        else
+        {
+            SF_OSAL_printf("Temperature Reading: %.4f C" __NL__, temp);
+        }
     }
 
     SF_OSAL_printf(__NL__);
