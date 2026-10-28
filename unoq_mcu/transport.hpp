@@ -31,7 +31,10 @@ void transport_init();
 /**
  * @brief Transmit raw bytes over the SPI link.
  *
- * Blocks until all bytes have been handed to the peripheral.
+ * As SPI slave the MCU can only send while Linux clocks a frame, so this
+ * queues the bytes, then blocks until Linux has clocked out its response
+ * frame (NSS asserted, then released) or a timeout elapses. Bytes Linux
+ * clocks beyond @p len read as 0x00.
  *
  * @param data Pointer to the bytes to send.
  * @param len  Number of bytes to send.
@@ -41,12 +44,12 @@ void transport_send(const uint8_t *data, std::size_t len);
 /**
  * @brief Read raw bytes from the SPI link.
  *
- * Blocks until @p len bytes have been received or an implementation-defined
- * timeout elapses.
+ * Waits briefly for Linux to start a frame (assert NSS), then reads until
+ * Linux releases NSS. One call returns one whole message.
  *
  * @param out Destination buffer; must be at least @p len bytes.
- * @param len Number of bytes to read.
- * @return Number of bytes actually read; less than @p len on timeout.
+ * @param len Capacity of @p out. Bytes beyond it are read and dropped.
+ * @return Number of bytes received; 0 if no frame started before the timeout.
  */
 std::size_t transport_recv(uint8_t *out, std::size_t len);
 

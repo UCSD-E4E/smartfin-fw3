@@ -100,13 +100,20 @@ int i2c_read(uint8_t address, char* data, int length, bool repeated)
         {
             status = static_cast<int>(obj.via.array.ptr[0].via.i64);
             
-            // If success (0) and there is a payload attached, copy it out
-            if (status == 0 && obj.via.array.size >= 2)
+            // On success the payload must be exactly the requested length;
+            // anything else would leave stale bytes in data.
+            if (status == 0)
             {
-                msgpack_object& data_obj = obj.via.array.ptr[1];
-                if (data_obj.type == MSGPACK_OBJECT_BIN && data_obj.via.bin.size <= static_cast<uint32_t>(length))
+                status = -1;
+                if (obj.via.array.size >= 2)
                 {
-                    std::memcpy(data, data_obj.via.bin.ptr, data_obj.via.bin.size);
+                    msgpack_object& data_obj = obj.via.array.ptr[1];
+                    if (data_obj.type == MSGPACK_OBJECT_BIN &&
+                        data_obj.via.bin.size == static_cast<uint32_t>(length))
+                    {
+                        std::memcpy(data, data_obj.via.bin.ptr, data_obj.via.bin.size);
+                        status = 0;
+                    }
                 }
             }
         }
