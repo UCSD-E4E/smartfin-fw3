@@ -25,8 +25,10 @@
 
 #include "platform/hal.hpp"
 
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <mutex>
 #include <string>
 #include <systemd/sd-bus.h>
@@ -105,27 +107,39 @@ namespace
                 return false;
             }
 
-            std::lock_guard<std::mutex> lock(busMutex_);
+            {
+                std::lock_guard<std::mutex> lock(busMutex_);
 
-            if (!registerObjects() || !registerApplication())
+                if (!registerObjects())
+                {
+                    return false;
+                }
+
+                sd_bus_error error = SD_BUS_ERROR_NULL;
+                sd_bus_set_property(bus_,
+                                    kBluezService,
+                                    kAdapterPath,
+                                    "org.bluez.Adapter1",
+                                    "Alias",
+                                    &error,
+                                    "s",
+                                    device_name);
+                sd_bus_error_free(&error);
+            }
+
+            // The pump thread must be running before RegisterApplication:
+            // BlueZ calls GetManagedObjects() back on us before it replies.
+            pumpThread_ =
+                SF_HAL::thread_create("ble_dbus", &BlueZBleBackend::pumpThreadEntry, this);
+            if (!pumpThread_)
             {
                 return false;
             }
 
-            sd_bus_error error = SD_BUS_ERROR_NULL;
-            sd_bus_set_property(bus_,
-                                kBluezService,
-                                kAdapterPath,
-                                "org.bluez.Adapter1",
-                                "Alias",
-                                &error,
-                                "s",
-                                device_name);
-            sd_bus_error_free(&error);
-
-            pumpThread_ =
-                SF_HAL::thread_create("ble_dbus", &BlueZBleBackend::pumpThreadEntry, this);
-            if (!pumpThread_)
+            if (!callRegister("org.bluez.GattManager1",
+                              "RegisterApplication",
+                              kAppRootPath,
+                              appRegResult_))
             {
                 return false;
             }
@@ -152,36 +166,29 @@ namespace
             advertisedServiceUuid_ = service_uuid;
             localName_ = local_name ? local_name : "";
 
-            std::lock_guard<std::mutex> lock(busMutex_);
-
-            if (!advSlot_)
             {
-                sd_bus_slot *slot = nullptr;
-                if (sd_bus_add_object_vtable(bus_,
-                                             &slot,
-                                             kAdvertisementPath,
-                                             "org.bluez.LEAdvertisement1",
-                                             advertisementVtable_,
-                                             this) < 0)
+                std::lock_guard<std::mutex> lock(busMutex_);
+
+                if (!advSlot_)
                 {
-                    return false;
+                    sd_bus_slot *slot = nullptr;
+                    if (sd_bus_add_object_vtable(bus_,
+                                                 &slot,
+                                                 kAdvertisementPath,
+                                                 "org.bluez.LEAdvertisement1",
+                                                 advertisementVtable_,
+                                                 this) < 0)
+                    {
+                        return false;
+                    }
+                    advSlot_ = slot;
                 }
-                advSlot_ = slot;
             }
 
-            sd_bus_error error = SD_BUS_ERROR_NULL;
-            int r = sd_bus_call_method(bus_,
-                                       kBluezService,
-                                       kAdapterPath,
-                                       "org.bluez.LEAdvertisingManager1",
-                                       "RegisterAdvertisement",
-                                       &error,
-                                       nullptr,
-                                       "oa{sv}",
-                                       kAdvertisementPath,
-                                       0);
-            sd_bus_error_free(&error);
-            return r >= 0;
+            return callRegister("org.bluez.LEAdvertisingManager1",
+                                "RegisterAdvertisement",
+                                kAdvertisementPath,
+                                advRegResult_);
         }
 
         /**
@@ -283,24 +290,69 @@ namespace
         }
 
         /**
-         * @brief Register the GATT application at kAppRootPath with BlueZ.
-         * @return true if BlueZ accepted the application.
+         * @brief Reply handler for callRegister(); runs on the pump thread
+         *        inside sd_bus_process().
+         * @param m Method return or error reply from BlueZ.
+         * @param userdata Raw @c std::atomic<int> result pointer.
+         * @return 0 (reply consumed).
          */
-        bool registerApplication()
+        static int onRegisterReply(sd_bus_message *m, void *userdata, sd_bus_error *)
         {
-            sd_bus_error error = SD_BUS_ERROR_NULL;
-            int r = sd_bus_call_method(bus_,
-                                       kBluezService,
-                                       kAdapterPath,
-                                       "org.bluez.GattManager1",
-                                       "RegisterApplication",
-                                       &error,
-                                       nullptr,
-                                       "oa{sv}",
-                                       kAppRootPath,
-                                       0);
-            sd_bus_error_free(&error);
-            return r >= 0;
+            auto *result = static_cast<std::atomic<int> *>(userdata);
+            const sd_bus_error *e = sd_bus_message_get_error(m);
+            if (e)
+            {
+                std::fprintf(stderr, "BlueZ register failed: %s: %s\n", e->name, e->message);
+            }
+            result->store(e ? -1 : 1);
+            return 0;
+        }
+
+        /**
+         * @brief Send @p method(@p path, {}) to the BlueZ adapter
+         *        asynchronously and wait for the pump thread to deliver the
+         *        reply.
+         *
+         * BlueZ calls back into our exported objects before replying to
+         * RegisterApplication/RegisterAdvertisement, so a blocking
+         * sd_bus_call_method() here would deadlock until the D-Bus timeout.
+         * busMutex_ is held only while sending, never while waiting.
+         *
+         * @param iface  BlueZ manager interface name.
+         * @param method Method to call on @p iface.
+         * @param path   Object path argument to pass.
+         * @param result Result slot: 0 pending, 1 accepted, -1 rejected.
+         * @return true if BlueZ accepted the registration within 5 s.
+         */
+        bool callRegister(const char *iface,
+                          const char *method,
+                          const char *path,
+                          std::atomic<int> &result)
+        {
+            result.store(0);
+            {
+                std::lock_guard<std::mutex> lock(busMutex_);
+                if (sd_bus_call_method_async(bus_,
+                                             nullptr,
+                                             kBluezService,
+                                             kAdapterPath,
+                                             iface,
+                                             method,
+                                             &BlueZBleBackend::onRegisterReply,
+                                             &result,
+                                             "oa{sv}",
+                                             path,
+                                             0) < 0)
+                {
+                    return false;
+                }
+            }
+
+            for (int i = 0; i < 100 && result.load() == 0; ++i)
+            {
+                SF_HAL::delay_ms(50);
+            }
+            return result.load() == 1;
         }
 
         /**
@@ -628,6 +680,9 @@ namespace
         std::string controlUuid_;
         std::string advertisedServiceUuid_;
         std::string localName_;
+
+        std::atomic<int> appRegResult_{0};
+        std::atomic<int> advRegResult_{0};
 
         std::mutex busMutex_;
         std::mutex valueMutex_;
