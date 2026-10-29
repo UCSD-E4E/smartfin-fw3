@@ -3,7 +3,7 @@ import struct
 import logging
 from .config import (
     TRANSPORT_HEADER_SIZE, ENSEMBLE_HEADER_SIZE,
-    ENS_TEMP, ENS_TEMP_HIGH_DATA_RATE_IMU, ENS_TEXT, SensorType,
+    ENS_TEMP, ENS_TEMP_HIGH_DATA_RATE_IMU, ENS_HIGH_DATA_RATE_IMU_QUAT, ENS_TEXT, SensorType,
 )
 from .state import BLEState
 
@@ -43,6 +43,8 @@ def count_ensembles(data: bytes | bytearray) -> int:
             record_size = ENSEMBLE_HEADER_SIZE + 3
         elif ensemble_type == ENS_TEMP_HIGH_DATA_RATE_IMU:
             record_size = ENSEMBLE_HEADER_SIZE + 18
+        elif ensemble_type == ENS_HIGH_DATA_RATE_IMU_QUAT:
+            record_size = ENSEMBLE_HEADER_SIZE + 32
         elif ensemble_type == ENS_TEXT:
             if offset + ENSEMBLE_HEADER_SIZE + 1 > payload_end:
                 break
@@ -114,6 +116,40 @@ def decode_sensor_ensembles(data: bytes | bytearray, state: BLEState, log: loggi
                 [t, SensorType.ACCEL_X, e, ax / 16384.0],
                 [t, SensorType.ACCEL_Y, e, ay / 16384.0],
                 [t, SensorType.ACCEL_Z, e, az / 16384.0],
+                [t, SensorType.GYRO_X,  e, gx / 128.0],
+                [t, SensorType.GYRO_Y,  e, gy / 128.0],
+                [t, SensorType.GYRO_Z,  e, gz / 128.0],
+                [t, SensorType.MAG_X,   e, mx / 8.0],
+                [t, SensorType.MAG_Y,   e, my / 8.0],
+                [t, SensorType.MAG_Z,   e, mz / 8.0],
+            ])
+            offset += record_size
+            continue
+
+        if ensemble_type == ENS_HIGH_DATA_RATE_IMU_QUAT:
+            # Ensemble13_data_t: 9 × int16 + 3 × int32 + 1 × int16 = 32 bytes.
+            record_size = ENSEMBLE_HEADER_SIZE + 32
+            if offset + record_size > payload_end:
+                break
+            ax, ay, az, gx, gy, gz, mx, my, mz, _q1, _q2, _q3, _acc = struct.unpack_from(
+                "<9h3ih", data, offset + ENSEMBLE_HEADER_SIZE
+            )
+            state.imu_time_ms.append(elapsed_time_ms)
+            state.accel_x.append(ax / 512.0)
+            state.accel_y.append(ay / 512.0)
+            state.accel_z.append(az / 512.0)
+            state.gyro_x.append(gx / 128.0)
+            state.gyro_y.append(gy / 128.0)
+            state.gyro_z.append(gz / 128.0)
+            state.mag_x.append(mx / 8.0)
+            state.mag_y.append(my / 8.0)
+            state.mag_z.append(mz / 8.0)
+            t = elapsed_time_ms
+            e = ensemble_type
+            state.records.extend([
+                [t, SensorType.ACCEL_X, e, ax / 512.0],
+                [t, SensorType.ACCEL_Y, e, ay / 512.0],
+                [t, SensorType.ACCEL_Z, e, az / 512.0],
                 [t, SensorType.GYRO_X,  e, gx / 128.0],
                 [t, SensorType.GYRO_Y,  e, gy / 128.0],
                 [t, SensorType.GYRO_Z,  e, gz / 128.0],
