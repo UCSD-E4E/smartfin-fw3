@@ -238,11 +238,16 @@ namespace
             }
 
             std::lock_guard<std::mutex> lock(busMutex_);
-            return sd_bus_emit_properties_changed(bus_,
-                                                  kTelemetryCharPath,
-                                                  "org.bluez.GattCharacteristic1",
-                                                  "Value",
-                                                  nullptr) >= 0;
+            if (sd_bus_emit_properties_changed(
+                    bus_, kTelemetryCharPath, "org.bluez.GattCharacteristic1", "Value", nullptr) <
+                0)
+            {
+                return false;
+            }
+
+            // The pump thread may be blocked in sd_bus_wait(); send this queued
+            // PropertiesChanged signal before releasing the bus to it.
+            return sd_bus_flush(bus_) >= 0;
         }
 
     private:
