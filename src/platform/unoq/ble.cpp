@@ -238,16 +238,11 @@ namespace
             }
 
             std::lock_guard<std::mutex> lock(busMutex_);
-            if (sd_bus_emit_properties_changed(
-                    bus_, kTelemetryCharPath, "org.bluez.GattCharacteristic1", "Value", nullptr) <
-                0)
-            {
-                return false;
-            }
-
-            // The pump thread may be blocked in sd_bus_wait(); send this queued
-            // PropertiesChanged signal before releasing the bus to it.
-            return sd_bus_flush(bus_) >= 0;
+            return sd_bus_emit_properties_changed(bus_,
+                                                  kTelemetryCharPath,
+                                                  "org.bluez.GattCharacteristic1",
+                                                  "Value",
+                                                  nullptr) >= 0;
         }
 
     private:
@@ -730,7 +725,11 @@ namespace
                         &BlueZBleBackend::getTelemetryFlags,
                         0,
                         SD_BUS_VTABLE_PROPERTY_CONST),
-        SD_BUS_PROPERTY("Value", "ay", &BlueZBleBackend::getTelemetryValue, 0, 0),
+        SD_BUS_PROPERTY("Value",
+                        "ay",
+                        &BlueZBleBackend::getTelemetryValue,
+                        0,
+                        SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_METHOD("StartNotify",
                       "",
                       "",
