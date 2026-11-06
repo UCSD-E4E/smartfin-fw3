@@ -27,7 +27,7 @@ brew install --cask android-platform-tools gcc-arm-embedded
 #### Windows
 For now development on [WSL](https://learn.microsoft.com/en-us/windows/wsl/) is the primary recommended/supported way to develop and deploy this project. Natively on Windows, you only need the following:
  - **WSL**: follow installation and setup instructions [here](https://learn.microsoft.com/en-us/windows/wsl/install) if not already installed
- -**ADB**: you may install from their [website](https://developer.android.com/tools/adb) or if you use a package manager like [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) you can install it from Powershell with `winget install Google.PlatformTools`
+ - **ADB**: you may install from their [website](https://developer.android.com/tools/adb) or if you use a package manager like [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) you can install it from Powershell with `winget install Google.PlatformTools`
 
 From WSL, make sure Windows `ADB` is executable on you PATH by running `adb.exe`. Unlike from MacOS and Linux, we will be invoking Windows' ADB executable directly from WSL to access port connections since they are not natively exposed to WSL. If you wish to use an alternative method you can look into bridging USB connections with [usbipd](https://github.com/dorssel/usbipd-win).
 
