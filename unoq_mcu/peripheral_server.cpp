@@ -423,6 +423,13 @@ namespace sf_mcu
                 max_samples = 1;
             }
 
+            // bin8 length is one byte, so cap at 255 / 36 = 7 samples per call
+            constexpr uint32_t kMaxSamplesPerCall = 255 / sizeof(Sample);
+            if (max_samples > kMaxSamplesPerCall)
+            {
+                max_samples = kMaxSamplesPerCall;
+            }
+
             const std::size_t available = sample_ring_count();
             const std::size_t count = (available < max_samples) ? available : max_samples;
             const std::size_t data_bytes = count * sizeof(Sample);
@@ -439,7 +446,7 @@ namespace sf_mcu
             // MsgPack fixarray of 3 elements: [status, count, bin_data]
             *dest++ = 0x93;
 
-            // 1. Status (int8)
+            // status: positive fixint, or 0xD0 + int8 if negative
             if (status >= 0)
             {
                 *dest++ = static_cast<uint8_t>(status);
@@ -450,10 +457,10 @@ namespace sf_mcu
                 *dest++ = static_cast<uint8_t>(status);
             }
 
-            // 2. Count (positive fixint or uint8)
+            // count: positive fixint (capped at 7 above)
             *dest++ = static_cast<uint8_t>(count);
 
-            // 3. Binary blob of samples: bin8 format (0xC4, length, bytes...)
+            // samples as bin8 (0xC4, len, bytes)
             *dest++ = 0xC4;
             *dest++ = static_cast<uint8_t>(data_bytes);
 
@@ -550,7 +557,7 @@ namespace sf_mcu
 
         // TODO(unoq_mcu): put GPIO and I2C peripherals into a known idle state.
         // The sampling timer itself is armed in main() via HAL_TIM_Base_Start_IT(&htim2).
-        // Initialize the ICM-20948 IMU over I2C4
+        // Init ICM-20948 (SPI2)
         imu_init();
     }
 

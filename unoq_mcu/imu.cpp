@@ -248,13 +248,13 @@ bool dmp_read_mems(uint16_t reg, uint8_t *data, uint16_t length)
  */
 bool dmp_load_firmware()
 {
-    // 1. Write the 14,290 bytes starting at kDmpLoadStart (0x0090)
+    // Write firmware at kDmpLoadStart
     if (!dmp_write_mems(kDmpLoadStart, kDmpFirmwareImage, kDmpFirmwareSize))
     {
         return false;
     }
 
-    // 2. Verify: read back in chunks and compare with firmware image
+    // Read it back and verify
     constexpr uint16_t kVerifyChunk = 16;
     uint8_t verify_buf[kVerifyChunk];
     uint16_t verified = 0;
@@ -280,7 +280,7 @@ bool dmp_load_firmware()
         verified += chunk;
     }
 
-    // 3. Set the Program Start Address (0x1000) in Bank 2 registers
+    // Set DMP start address (0x1000), bank 2
     if (!select_bank(2))
     {
         return false;
@@ -309,7 +309,7 @@ bool init_spi_master()
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
-    // 1. Configure CS GPIO pin as Output Push-Pull, initial state HIGH (deselected)
+    // CS pin, idle high
     GPIO_InitTypeDef gpio_cs = {0};
     gpio_cs.Pin = s_cs_pin;
     gpio_cs.Mode = GPIO_MODE_OUTPUT_PP;
@@ -318,7 +318,7 @@ bool init_spi_master()
     HAL_GPIO_Init(s_cs_port, &gpio_cs);
     HAL_GPIO_WritePin(s_cs_port, s_cs_pin, GPIO_PIN_SET);
 
-    // 2. Configure SPI2 Master pins (JSPI header: MISO PC2, MOSI PC3, SCK PD1)
+    // SPI2 pins on JSPI header: MISO PC2, MOSI PC3, SCK PD1
     GPIO_InitTypeDef gpio_spi = {0};
 
     // SCK (PD1 - AF5_SPI2)
@@ -334,7 +334,7 @@ bool init_spi_master()
     gpio_spi.Alternate = GPIO_AF5_SPI2;
     HAL_GPIO_Init(GPIOC, &gpio_spi);
 
-    // 3. Configure SPI2 Master instance (Mode 0: CPOL Low, CPHA 1Edge, up to ~7 MHz)
+    // SPI2 master, mode 0
     s_hspi2.Instance               = SPI2;
     s_hspi2.Init.Mode              = SPI_MODE_MASTER;
     s_hspi2.Init.Direction         = SPI_DIRECTION_2LINES;
@@ -375,12 +375,8 @@ constexpr uint8_t kRegFifoRW        = 0x72;
  */
 bool dmp_configure_quat9()
 {
-    // 1. Accel scaling for 4g FSR:
-    // FSR stands for Full Scale Range (the maximum measurement limit before clipping).
-    // Available ranges are ±2g, ±4g, ±8g, or ±16g. We configure ±4g (±39.2 m/s²) because
-    // surfing dynamics typically experience peak accelerations between 1g and 3g; ±4g provides
-    // fine resolution for ocean waves without saturating during wave turns or paddling strokes.
-    // The DMP fusion engine expects raw counts scaled such that 2^25 = 1g in ±4g mode.
+    // Accel scale for ±4g. Surfing peaks around 1-3g, so this avoids clipping
+    // without losing resolution. DMP expects 2^25 = 1g in this mode.
     const uint8_t acc_scale[4]  = {0x04, 0x00, 0x00, 0x00};
     const uint8_t acc_scale2[4] = {0x00, 0x04, 0x00, 0x00};
     if (!dmp_write_mems(kDmpAccScale, acc_scale, 4) ||
@@ -389,7 +385,7 @@ bool dmp_configure_quat9()
         return false;
     }
 
-    // 2. Set 55 Hz Output Data Rate (ODR) dividers: 1125 / (1 + 19) = 56.25 Hz ≈ 55 Hz
+    // ODR divider: 1125 / (1 + 19) ≈ 55 Hz
     const uint8_t odr_val[2]  = {0x00, 19};
     const uint8_t odr_zero[2] = {0x00, 0x00};
 
@@ -403,7 +399,6 @@ bool dmp_configure_quat9()
     dmp_write_mems(kDmpOdrGyro, odr_val, 2);
     dmp_write_mems(kDmpOdrCntrGyro, odr_zero, 2);
 
-    // 3. Configure DATA_OUT_CTL1 and DATA_OUT_CTL2
     // DATA_OUT_CTL1: Accel (0x8000) | Gyro (0x4000) | Quat9 (0x0400) = 0xC400
     const uint8_t data_out_ctl1[2] = {0xC4, 0x00};
     if (!dmp_write_mems(kDmpDataOutCtl1, data_out_ctl1, 2))
@@ -425,7 +420,7 @@ bool dmp_configure_quat9()
         return false;
     }
 
-    // 4. Return to Bank 0 and enable FIFO streaming for DMP
+    // Back to bank 0, enable DMP FIFO
     if (!select_bank(0))
     {
         return false;
@@ -463,7 +458,7 @@ bool imu_init()
         return false;
     }
 
-    // 1. Verify WHO_AM_I (0x00) -> expected 0xEA
+    // WHO_AM_I should be 0xEA
     uint8_t who_am_i = 0;
     if (!spi_read_regs(kRegWhoAmI, &who_am_i, 1))
     {
@@ -475,7 +470,7 @@ bool imu_init()
         return false; // Wrong chip or SPI connection issue
     }
 
-    // 2. Wake up chip from sleep: write 0x01 to PWR_MGMT_1 (Auto-select clock source)
+    // Wake chip, auto clock select
     if (!spi_write_reg(kRegPwrMgmt1, 0x01))
     {
         return false;
@@ -483,19 +478,19 @@ bool imu_init()
 
     HAL_Delay(10); // Wait for internal clocks to stabilize
 
-    // 3. Enable accelerometer and gyroscope: write 0x00 to PWR_MGMT_2 (all axes enabled)
+    // Enable all accel/gyro axes
     if (!spi_write_reg(kRegPwrMgmt2, 0x00))
     {
         return false;
     }
 
-    // 4. Load and verify DMP firmware image into ICM-20948 SRAM
+    // Load DMP firmware
     if (!dmp_load_firmware())
     {
         return false;
     }
 
-    // 5. Configure 55 Hz Quat9 DMP engine and start FIFO
+    // Start 55 Hz Quat9 output
     if (!dmp_configure_quat9())
     {
         return false;
@@ -511,7 +506,7 @@ bool imu_read_sample(SF_RPC_IMUSampleRecord &sample)
         return false;
     }
 
-    // 1. Attempt to read from DMP FIFO
+    // Try the DMP FIFO first
     uint8_t count_buf[2];
     if (spi_read_regs(kRegFifoCountH, count_buf, 2))
     {
@@ -542,14 +537,8 @@ bool imu_read_sample(SF_RPC_IMUSampleRecord &sample)
                 sample.gyro_y  = static_cast<int16_t>((packet[12] << 8) | packet[13]);
                 sample.gyro_z  = static_cast<int16_t>((packet[14] << 8) | packet[15]);
 
-                // Quat9 3D orientation (Q30 fixed-point 32-bit big-endian).
-                // Note on q0 (scalar component) and Gimbal Lock:
-                // Quaternions completely prevent Gimbal Lock (the loss of a rotational degree of
-                // freedom that occurs in Euler angles when pitch reaches 90 degrees). A 3D rotation
-                // quaternion is a unit vector: q0^2 + q1^2 + q2^2 + q3^2 = 1.0.
-                // Because of this identity, q0 is algebraically redundant: q0 = sqrt(1 - q1^2 - q2^2 - q3^2).
-                // The DMP omits q0 to save 4 bytes per sample across the SPI bus and FIFO.
-                // Host software or cloud pipelines reconstruct q0 using this formula (see Ensemble13_data_t).
+                // Quat9, Q30 big-endian. DMP only sends q1-q3. q0 gets rebuilt downstream
+                // as sqrt(1 - q1² - q2² - q3²) (see Ensemble13_data_t).
                 sample.quat9_1 = static_cast<int32_t>((static_cast<uint32_t>(packet[22]) << 24) |
                                                       (static_cast<uint32_t>(packet[23]) << 16) |
                                                       (static_cast<uint32_t>(packet[24]) << 8)  |
@@ -568,13 +557,8 @@ bool imu_read_sample(SF_RPC_IMUSampleRecord &sample)
                 // Heading Accuracy (Q12 radians 16-bit big-endian)
                 sample.quat9_accuracy = static_cast<int16_t>((packet[34] << 8) | packet[35]);
 
-                // Note on magnetometer (mag_x, mag_y, mag_z):
-                // The on-package AK09916 3-axis magnetometer is interfaced via the ICM-20948's internal
-                // auxiliary I2C bus. The DMP engine directly samples the magnetometer to perform 9-axis
-                // sensor fusion, computing true heading for quat9_1..3 and quat9_accuracy.
-                // Passing through raw microtesla (µT) readings into sample.mag_x/y/z requires configuring
-                // auxiliary I2C slave channels (I2C_SLV0/I2C_SLV1), which is deferred to keep the Quat9 FIFO
-                // bring-up clean and efficient.
+                // TODO: raw mag. The DMP already uses the AK09916 for fusion, but getting raw
+                // readings out needs I2C_SLV0/1 set up. Left at 0 for now.
                 sample.mag_x = 0;
                 sample.mag_y = 0;
                 sample.mag_z = 0;
@@ -583,13 +567,8 @@ bool imu_read_sample(SF_RPC_IMUSampleRecord &sample)
         }
     }
 
-    // Timing Fallback:
-    // If the FIFO does not have a complete 36-byte DMP packet ready yet (e.g., during the initial
-    // milliseconds after boot before the first 55 Hz / 18 ms calculation finishes, or if the host
-    // polls slightly faster than 55 Hz), fall back to reading the hardware ADC registers directly.
-    // Design decision: We chose this fallback so the caller always receives fresh, real-time Accel
-    // and Gyro readings without stalling or dropping a sample cycle, while leaving Quat9 and Accuracy
-    // at 0 until the next fused FIFO packet arrives.
+    // No full DMP packet yet (right after boot, or polled faster than 55 Hz).
+    // Read raw accel/gyro so we still return a sample. Quat stays 0.
     uint8_t raw_buf[12];
     if (!spi_read_regs(kRegAccelXoutH, raw_buf, sizeof(raw_buf)))
     {

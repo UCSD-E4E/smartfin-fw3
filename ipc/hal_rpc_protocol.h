@@ -167,8 +167,7 @@ enum SF_RPC_MessageType
  * the previous drain, meaning samples were lost; the samples returned are
  * still valid.
  *
- * @note Reflects the decision to place the IMU on the STM32 MCU.
- *       The per-sample byte layout is fixed by @c SF_RPC_IMUSampleRecord below.
+ * @note IMU runs on the STM32. Sample layout is @c SF_RPC_IMUSampleRecord below.
  */
 #define SF_RPC_METHOD_READ_SAMPLES "read_samples"
 
